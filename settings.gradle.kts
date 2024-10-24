@@ -20,4 +20,4 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "mindeck-app"
-include(":app")
+include(":app", ":presentation", ":data", ":domain")
