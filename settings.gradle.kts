@@ -23,3 +23,4 @@ rootProject.name = "mindeck-app"
 include(":app")
 include(":presentation")
 include(":data")
+include(":domain")
