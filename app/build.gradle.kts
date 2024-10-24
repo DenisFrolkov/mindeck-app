@@ -41,6 +41,7 @@ android {
 
 dependencies {
 
+    //Подключение модулей
     implementation(project(":presentation"))
     implementation(project(":domain"))
     implementation(project(":data"))
