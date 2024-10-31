@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.mindeck.presentation.ui.screens.MainScreen
 
 @Composable
 fun AppNavigation() {
@@ -11,14 +12,12 @@ fun AppNavigation() {
 
     NavHost(
         navController = navController,
-        startDestination = "screen1"
+        startDestination = NavigationRoute.MainScreen.route
     ) {
-        composable("screen1") {
-            Screen1(navController = navController)
-        }
-
-        composable("screen2") {
-            Screen2(navController = navController)
+        composable(
+            NavigationRoute.MainScreen.route
+        ) {
+            MainScreen()
         }
     }
 }
