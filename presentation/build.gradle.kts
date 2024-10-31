@@ -42,9 +42,8 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.compose.material3.material3)
 
-    implementation("com.google.accompanist:accompanist-coil:0.15.0")
-    implementation("io.coil-kt:coil-compose:2.3.0")
-    implementation("io.coil-kt:coil-svg:2.0.0")
+    //Navigation
+    implementation(libs.androidx.navigation.compose)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
