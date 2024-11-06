@@ -43,11 +43,7 @@ fun DropdownSelector(titleSelector: String, selectorItem: String, modifier: Modi
         "fasfdf",
         "23123124",
         "123",
-        "fasfdf",
         "23123124",
-        "123",
-        "fasfdf",
-        "23123124"
     )
 
     Row(
@@ -65,7 +61,7 @@ fun DropdownSelector(titleSelector: String, selectorItem: String, modifier: Modi
 private fun LabelDropdown(titleSelector: String) {
     Box(
         modifier = Modifier
-            .padding(start = 0.dp, top = 5.dp)
+            .padding(start = 0.dp, top = 8.5.dp)
             .width(120.dp)
     ) {
         Text(
@@ -92,7 +88,7 @@ private fun Dropdown(
             modifier = modifier
                 .fillMaxWidth()
                 .background(color = White, shape = RoundedCornerShape(4.dp))
-                .height(height = 30.dp)
+                .height(height = 36.dp)
                 .border(
                     width = 0.25.dp,
                     color = Color.Black,

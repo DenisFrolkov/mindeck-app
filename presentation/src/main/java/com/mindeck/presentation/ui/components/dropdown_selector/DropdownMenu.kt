@@ -1,5 +1,11 @@
 package com.mindeck.presentation.ui.components.dropdown_selector
 
+import android.annotation.SuppressLint
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -16,6 +22,8 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,6 +41,7 @@ import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.theme.MediumGray
 import com.mindeck.presentation.ui.theme.White
 
+@SuppressLint("UseOfNonLambdaOffsetOverload")
 @Composable
 fun DropDownMenu(
     modifier: Modifier,
@@ -40,9 +49,9 @@ fun DropDownMenu(
     onClick: (Boolean) -> Unit
 ) {
 
-    val maxVisibleItems = 6
-    val itemHeight = 30.dp
-    val lazyColumnMaxHeight = maxVisibleItems * itemHeight
+    val maxVisibleItems = 7
+    val itemHeight = 36.dp
+    val lazyColumnMaxHeight = maxVisibleItems * itemHeight  - 14.dp
     val listState = rememberLazyListState()
 
     Box() {
@@ -63,7 +72,7 @@ fun DropDownMenu(
                                 bottomEnd =  4.dp
                             ) else RoundedCornerShape(0.dp))
                         )
-                        .height(height = 30.dp)
+                        .height(height = 36.dp)
                         .drawBehind {
                             val borderThickness = 0.25.dp.toPx()
                             drawLine(
@@ -82,7 +91,7 @@ fun DropDownMenu(
                 ) {
                     Text(
                         it, style = TextStyle(
-                            fontSize = 12.sp, fontFamily = FontFamily(
+                            fontSize = 14.sp, fontFamily = FontFamily(
                                 Font(R.font.opensans_medium)
                             )
                         )
@@ -90,26 +99,5 @@ fun DropDownMenu(
                 }
             }
         }
-
-        val totalItemsCount = selectorItemList.size
-        val indicatorHeightFraction = maxVisibleItems.toFloat() / totalItemsCount.toFloat()
-        val indicatorHeight = lazyColumnMaxHeight * indicatorHeightFraction
-
-        // Вычисляем фактическое смещение, чтобы индикатор корректно следовал за скроллом
-        val indicatorOffset =
-            listState.firstVisibleItemIndex.toFloat() / (totalItemsCount - maxVisibleItems).toFloat()
-
-        Box(
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .offset(
-                    y = with(LocalDensity.current) {
-                        ((indicatorOffset * (lazyColumnMaxHeight - indicatorHeight - 7.5.dp)) * 2)
-                    }
-                )
-                .height(15.dp)
-                .width(3.dp)
-                .background(Color.Gray.copy(alpha = 0.5f))
-        )
     }
 }
