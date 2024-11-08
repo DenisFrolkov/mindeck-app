@@ -33,6 +33,8 @@ import com.mindeck.presentation.ui.theme.White
 @Composable
 fun DropdownSelector(titleSelector: String, selectorItem: String, modifier: Modifier) {
 
+    var selectorItemMain by remember { mutableStateOf(selectorItem) }
+
     var clickDropdown by remember { mutableStateOf(true) }
 
     val selectorItemList = listOf(
@@ -51,7 +53,7 @@ fun DropdownSelector(titleSelector: String, selectorItem: String, modifier: Modi
     ) {
         LabelDropdown(titleSelector)
         Spacer(modifier = Modifier.width(5.dp))
-        Dropdown(modifier, clickDropdown, selectorItem, selectorItemList) {
+        Dropdown(modifier, clickDropdown, selectorItemMain, selectorItemList, onStringClick = { selectorItemMain = it }) {
             clickDropdown = it
         }
     }
@@ -80,6 +82,7 @@ private fun Dropdown(
     clickDropdown: Boolean,
     selectorItem: String,
     selectorItemList: List<String>,
+    onStringClick: (String) -> Unit,
     onClick: (Boolean) -> Unit
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
@@ -125,9 +128,7 @@ private fun Dropdown(
                     )
                 )
             ) {
-                DropDownMenu(modifier, selectorItemList) {
-                    onClick(it)
-                }
+                DropDownMenu(modifier, selectorItemList, onStringClick, onClick)
             }
         }
     }
