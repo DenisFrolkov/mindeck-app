@@ -1,7 +1,12 @@
 package com.mindeck.presentation.ui.components.folder
 
+import android.annotation.SuppressLint
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -16,11 +21,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mindeck.presentation.R
@@ -29,17 +36,28 @@ import com.mindeck.presentation.ui.theme.LightMint
 import com.mindeck.presentation.ui.theme.LimeGreen
 import com.mindeck.presentation.ui.theme.White
 
+@SuppressLint("SupportAnnotationUsage")
 @Composable
-fun DisplayCardFolder() {
+fun DisplayCardFolder(
+    numberOfCards: Int,
+    @StringRes folderName: String,
+    @DrawableRes folderIcon: Int,
+    modifier: Modifier
+) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .border(0.25.dp, Gray, RoundedCornerShape(4.dp))
             .clip(shape = RoundedCornerShape(4.dp))
             .height(48.dp)
-    ) {
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) {
 
+            }
+    ) {
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
@@ -47,7 +65,7 @@ fun DisplayCardFolder() {
                 .size(48.dp)
         ) {
             Text(
-                text = "999+",
+                text = if (numberOfCards > 999) "999+" else "$numberOfCards",
                 style = TextStyle(fontSize = 14.sp),
                 modifier = Modifier.padding()
             )
@@ -69,7 +87,10 @@ fun DisplayCardFolder() {
                 .padding(horizontal = 6.dp)
         ) {
             Text(
-                text = "Повторите, чтобы не забыть!", style = TextStyle(fontSize = 14.sp)
+                text = folderName,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = TextStyle(fontSize = 14.sp)
             )
         }
 
@@ -88,9 +109,9 @@ fun DisplayCardFolder() {
         ) {
             Icon(
                 modifier = Modifier.size(20.dp),
-                painter = painterResource(R.drawable.repeat_card_item),
+                painter = painterResource(folderIcon),
                 tint = LimeGreen,
-                contentDescription = ""
+                contentDescription = "Folder Icon"
             )
         }
     }
