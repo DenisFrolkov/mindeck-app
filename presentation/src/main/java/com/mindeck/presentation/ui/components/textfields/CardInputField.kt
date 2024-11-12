@@ -26,7 +26,7 @@ fun CardInputField(
         textStyle = TextStyle(
             fontSize = 14.sp,
             color = Color.Black,
-            fontFamily = FontFamily(Font(fontFamily))
+            fontFamily = FontFamily(Font(fontFamily)),
         ),
         singleLine = false,
         decorationBox = { it ->
