@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.components.buttons.BackScreenButton
 import com.mindeck.presentation.ui.components.dropdown_selector.DropdownSelector
+import com.mindeck.presentation.ui.components.textfields.CardInputField
 import com.mindeck.presentation.ui.components.textfields.TitleInputField
 import com.mindeck.presentation.ui.theme.BackgroundScreen
 import com.mindeck.presentation.ui.theme.MediumGray
@@ -36,7 +37,9 @@ import com.mindeck.presentation.ui.theme.White
 fun CreationCardScreen() {
     val insets = WindowInsets.systemBars.asPaddingValues().calculateTopPadding()
 
-    var value by rememberSaveable { mutableStateOf("") }
+    var titleInputFieldValue by rememberSaveable { mutableStateOf("") }
+    var cardInputQuestionValue by rememberSaveable { mutableStateOf("") }
+    var cardInputAnswerValue by rememberSaveable { mutableStateOf("") }
 
     Column(
         modifier = Modifier
@@ -60,8 +63,8 @@ fun CreationCardScreen() {
             )
             Spacer(modifier = Modifier.height(height = 20.dp))
             TitleInputField(
-                value = value,
-                onValueChange = { value = it },
+                value = titleInputFieldValue,
+                onValueChange = { titleInputFieldValue = it },
                 placeholder = "Введите название карточки",
                 modifier = Modifier
                     .fillMaxWidth()
@@ -74,6 +77,47 @@ fun CreationCardScreen() {
                         width = 0.25.dp,
                         color = MediumGray,
                         shape = RoundedCornerShape(4.dp)
+                    )
+                    .wrapContentSize(Alignment.CenterStart)
+                    .padding(start = 12.dp),
+                fontFamily = R.font.opensans_medium
+            )
+            Spacer(modifier = Modifier.height(height = 10.dp))
+            CardInputField(
+                value = cardInputQuestionValue,
+                onValueChange = { cardInputQuestionValue = it },
+                placeholder = "Введите вопрос",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(shape = RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
+                    .background(
+                        White
+                    )
+                    .height(50.dp)
+                    .border(
+                        width = 0.25.dp,
+                        color = MediumGray,
+                        shape = RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp)
+                    )
+                    .wrapContentSize(Alignment.CenterStart)
+                    .padding(start = 12.dp),
+                fontFamily = R.font.opensans_medium
+            )
+            CardInputField(
+                value = cardInputAnswerValue,
+                onValueChange = { cardInputAnswerValue = it },
+                placeholder = "Введите ответ",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(shape = RoundedCornerShape(bottomStart = 4.dp, bottomEnd = 4.dp))
+                    .background(
+                        White
+                    )
+                    .height(50.dp)
+                    .border(
+                        width = 0.25.dp,
+                        color = MediumGray,
+                        shape = RoundedCornerShape(bottomStart = 4.dp, bottomEnd = 4.dp)
                     )
                     .wrapContentSize(Alignment.CenterStart)
                     .padding(start = 12.dp),
