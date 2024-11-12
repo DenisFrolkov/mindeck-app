@@ -25,6 +25,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.components.buttons.BackScreenButton
@@ -136,9 +138,9 @@ fun CreationCardScreen() {
                 onValueChange = {
                     tagInputValue = it
                 },
-                titleTextInput = "Таг:",
+                titleTextInput = "Тег:",
                 modifier = Modifier
-                    .clip(shape = RoundedCornerShape(bottomStart = 4.dp, bottomEnd = 4.dp))
+                    .clip(shape = RoundedCornerShape(4.dp))
                     .background(
                         White
                     )
@@ -146,11 +148,11 @@ fun CreationCardScreen() {
                     .border(
                         width = 0.25.dp,
                         color = MediumGray,
-                        shape = RoundedCornerShape(bottomStart = 4.dp, bottomEnd = 4.dp)
+                        shape = RoundedCornerShape(4.dp)
                     )
                     .wrapContentSize(Alignment.CenterStart)
                     .padding(start = 12.dp),
-                fontFamily = R.font.opensans_medium
+                fontFamily = FontFamily(Font(R.font.opensans_medium))
             )
         }
     }
