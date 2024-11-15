@@ -3,6 +3,7 @@ package com.mindeck.presentation.ui.screens
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -19,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -33,7 +35,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.components.buttons.BackScreenButton
+import com.mindeck.presentation.ui.components.buttons.SaveDataButton
 import com.mindeck.presentation.ui.components.dropdown_selector.DropdownSelector
+import com.mindeck.presentation.ui.components.dropdown_selector.DropdownSelectorDataClass
 import com.mindeck.presentation.ui.components.textfields.CardInputField
 import com.mindeck.presentation.ui.components.textfields.TegInputField
 import com.mindeck.presentation.ui.components.textfields.TitleInputField
@@ -72,39 +76,39 @@ fun CreationCardScreen() {
         Spacer(modifier = Modifier.height(20.dp))
         Column(modifier = Modifier.padding(horizontal = 16.dp)) {
             DropdownSelector(
-                title = stringResource(R.string.text_folder_dropdown_selector),
-                selectedItem = folderDropdownSelect,
-                onItemClick = { folderDropdownSelect = it },
+                dropdownSelectorDataClass = DropdownSelectorDataClass(
+                    title = stringResource(R.string.text_folder_dropdown_selector),
+                    selectedItem = folderDropdownSelect,
+                    onItemClick = { folderDropdownSelect = it }
+                ),
                 textStyle = textStyle,
-                modifier = Modifier,
-                titleModifier = Modifier
             )
             Spacer(modifier = Modifier.height(height = 14.dp))
             DropdownSelector(
-                title = stringResource(R.string.text_deck_dropdown_selector),
-                selectedItem = deckDropdownSelect,
-                onItemClick = { deckDropdownSelect = it },
+                dropdownSelectorDataClass = DropdownSelectorDataClass(
+                    title = stringResource(R.string.text_deck_dropdown_selector),
+                    selectedItem = deckDropdownSelect,
+                    onItemClick = { deckDropdownSelect = it }
+                ),
                 textStyle = textStyle,
-                modifier = Modifier,
-                titleModifier = Modifier
             )
             Spacer(modifier = Modifier.height(height = 14.dp))
             DropdownSelector(
-                title = stringResource(R.string.text_priority_dropdown_selector),
-                selectedItem = priorityDropdownSelect,
-                onItemClick = { priorityDropdownSelect = it },
+                dropdownSelectorDataClass = DropdownSelectorDataClass(
+                    title = stringResource(R.string.text_priority_dropdown_selector),
+                    selectedItem = priorityDropdownSelect,
+                    onItemClick = { priorityDropdownSelect = it }
+                ),
                 textStyle = textStyle,
-                modifier = Modifier,
-                titleModifier = Modifier,
             )
             Spacer(modifier = Modifier.height(height = 14.dp))
             DropdownSelector(
-                title = stringResource(R.string.text_tape_dropdown_selector),
-                selectedItem = tapeDropdownSelect,
-                onItemClick = { tapeDropdownSelect = it },
+                dropdownSelectorDataClass = DropdownSelectorDataClass(
+                    title = stringResource(R.string.text_tape_dropdown_selector),
+                    selectedItem = tapeDropdownSelect,
+                    onItemClick = { tapeDropdownSelect = it }
+                ),
                 textStyle = textStyle,
-                modifier = Modifier,
-                titleModifier = Modifier,
             )
             Spacer(modifier = Modifier.height(height = 20.dp))
 
@@ -149,7 +153,7 @@ fun CreationCardScreen() {
                     .heightIn(min = minHeight, max = maxHeight)
                     .wrapContentSize(Alignment.CenterStart),
 
-            )
+                )
             Spacer(modifier = Modifier.height(height = 14.dp))
             TegInputField(
                 titleTextInput = stringResource(R.string.text_teg_input_field),
@@ -162,6 +166,13 @@ fun CreationCardScreen() {
                     .size(width = 120.dp, height = 36.dp)
                     .wrapContentSize(Alignment.CenterStart)
             )
+            Spacer(modifier = Modifier.height(height = 20.dp))
+            Box(modifier = Modifier.fillMaxWidth().wrapContentSize(Alignment.Center)) {
+                SaveDataButton(
+                    text = "Сохранить карточку",
+                    fontFamily = fontFamily
+                )
+            }
         }
     }
 }

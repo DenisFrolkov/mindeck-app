@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -25,27 +26,10 @@ import com.mindeck.presentation.ui.theme.White
 
 @Composable
 fun DropdownSelector(
-    title: String,
-    selectedItem: String,
-    items: List<String> = listOf(
-        "12312312",
-        "12312312",
-        "12312312",
-        "12312312",
-        "12312312",
-        "12312312",
-        "12312312",
-        "12312312",
-        "12312312",
-        "12312312",
-        "12312312",
-        "12312312",
-        "12312312"
-    ),
-    onItemClick: (String) -> Unit,
+    dropdownSelectorDataClass: DropdownSelectorDataClass,
     textStyle: TextStyle,
-    modifier: Modifier,
-    titleModifier: Modifier
+    modifier: Modifier = Modifier,
+    titleModifier: Modifier = Modifier
 ) {
     val dropdownState = remember { DropdownState() }
 
@@ -62,12 +46,6 @@ fun DropdownSelector(
             ) else RoundedCornerShape(4.dp))
         )
         .wrapContentSize(Alignment.Center)
-        .clickable(
-            interactionSource = remember { MutableInteractionSource() },
-            indication = null
-        ) {
-            dropdownState.toggle()
-        }
 
     val baseSelectorItemModifier = Modifier
         .border(
@@ -79,21 +57,28 @@ fun DropdownSelector(
             )
         )
 
-    Row(
-        verticalAlignment = Alignment.CenterVertically
-    ) {
+    Row() {
         Text(
-            title, style = textStyle,
+            dropdownSelectorDataClass.title, style = textStyle,
             modifier = titleModifier
+                .padding(8.5.dp)
+                .wrapContentSize(Alignment.CenterStart)
                 .width(120.dp)
         )
         Spacer(modifier = Modifier.width(5.dp))
-        Column(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier
+            .fillMaxWidth()
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) {
+                dropdownState.toggle()
+            }) {
             Box(
                 modifier = baseSelectorModifier
             ) {
                 Text(
-                    text = selectedItem, style = textStyle
+                    text = dropdownSelectorDataClass.selectedItem, style = textStyle
                 )
             }
             if (dropdownState.isExpanded) {
@@ -101,8 +86,8 @@ fun DropdownSelector(
                     modifier = baseSelectorItemModifier
                 ) {
                     DropdownMenu(
-                        selectorItemList = items,
-                        onStringClick = onItemClick,
+                        selectorItemList = dropdownSelectorDataClass.itemList,
+                        onStringClick = dropdownSelectorDataClass.onItemClick,
                         dropdownState = dropdownState,
                         modifier = modifier,
                         textStyle = textStyle
