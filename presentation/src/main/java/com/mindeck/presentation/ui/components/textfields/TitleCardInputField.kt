@@ -8,15 +8,22 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
+import com.mindeck.presentation.ui.theme.Black
+import com.mindeck.presentation.ui.theme.MediumGray
 
 @Composable
 fun TitleInputField(
+    placeholder: String,
     value: String,
     onValueChange: (String) -> Unit,
-    placeholder: String,
+    fontFamily: FontFamily,
+    textFontSize: TextUnit = 14.sp,
+    placeholderFontSize: TextUnit = 14.sp,
+    textColor: Color = Black,
+    placeholderColor: Color = MediumGray,
     modifier: Modifier,
-    fontFamily: Int
 ) {
     BasicTextField(
         value = value,
@@ -24,19 +31,19 @@ fun TitleInputField(
             onValueChange(it)
         },
         textStyle = TextStyle(
-            fontSize = 14.sp,
-            color = Color.Black,
-            fontFamily = FontFamily(Font(fontFamily))
+            fontSize = textFontSize,
+            color = textColor,
+            fontFamily = fontFamily
         ),
         singleLine = true,
         decorationBox = { it ->
             if (value.isEmpty()) {
                 Text(
                     text = placeholder,
-                    color = Color.Gray,
+                    color = placeholderColor,
                     style = TextStyle(
-                        fontSize = 14.sp,
-                        fontFamily = FontFamily(Font(fontFamily))
+                        fontSize = placeholderFontSize,
+                        fontFamily = fontFamily
                     )
                 )
             }
