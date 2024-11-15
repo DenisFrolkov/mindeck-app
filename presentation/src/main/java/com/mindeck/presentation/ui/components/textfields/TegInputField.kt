@@ -1,5 +1,8 @@
 package com.mindeck.presentation.ui.components.textfields
 
+import android.annotation.SuppressLint
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
@@ -18,8 +21,8 @@ import com.mindeck.presentation.ui.theme.Black
 
 @Composable
 fun TegInputField(
-    value: String,
     titleTextInput: String,
+    value: String,
     onValueChange: (String) -> Unit,
     modifier: Modifier,
     fontFamily: FontFamily,

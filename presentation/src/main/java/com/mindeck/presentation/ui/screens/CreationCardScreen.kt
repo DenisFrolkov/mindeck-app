@@ -18,13 +18,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
@@ -49,6 +48,7 @@ fun CreationCardScreen() {
     var tagInputValue by rememberSaveable { mutableStateOf("") }
 
     val maxHeight = 200.dp
+    val minHeight = 46.dp
 
     Column(
         modifier = Modifier
@@ -59,43 +59,36 @@ fun CreationCardScreen() {
         BackScreenButton()
         Spacer(modifier = Modifier.height(20.dp))
         Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-            DropdownSelector(titleSelector = "Папка:", "Общая папка", modifier = Modifier)
-            Spacer(modifier = Modifier.height(height = 14.dp))
-            DropdownSelector(titleSelector = "Колода:", "Общая колода", modifier = Modifier)
-            Spacer(modifier = Modifier.height(height = 14.dp))
-            DropdownSelector(titleSelector = "Приоритет:", "Простой", modifier = Modifier)
-            Spacer(modifier = Modifier.height(height = 14.dp))
-            DropdownSelector(
-                titleSelector = "Тип:",
-                "Карточка с вводом ответа",
-                modifier = Modifier
-            )
+            DropdownSelectors(fontFamily = FontFamily(Font(R.font.opensans_medium)))
+
             Spacer(modifier = Modifier.height(height = 20.dp))
+
             TitleInputField(
+                placeholder = stringResource(R.string.enter_name_for_card),
                 value = titleInputFieldValue,
                 onValueChange = { titleInputFieldValue = it },
-                placeholder = "Введите название карточки",
+                fontFamily = FontFamily(Font(R.font.opensans_medium)),
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(shape = RoundedCornerShape(4.dp))
                     .background(
                         White
                     )
-                    .height(50.dp)
                     .border(
                         width = 0.25.dp,
                         color = MediumGray,
                         shape = RoundedCornerShape(4.dp)
                     )
+                    .padding(start = 12.dp)
+                    .heightIn(min = minHeight)
                     .wrapContentSize(Alignment.CenterStart)
-                    .padding(start = 12.dp),
-                fontFamily = R.font.opensans_medium
             )
             Spacer(modifier = Modifier.height(height = 10.dp))
             CardInputField(
+                placeholder = stringResource(R.string.enter_question_for_card),
                 value = cardInputQuestionValue,
                 onValueChange = { cardInputQuestionValue = it },
-                placeholder = "Введите вопрос",
+                fontFamily = FontFamily(Font(R.font.opensans_medium)),
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(shape = RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
@@ -107,43 +100,40 @@ fun CreationCardScreen() {
                         color = MediumGray,
                         shape = RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp)
                     )
-                    .padding(start = 12.dp, top = 14.dp, bottom = 14.dp)
-                    .heightIn(max = maxHeight),
-                fontFamily = R.font.opensans_medium
+                    .padding(start = 12.dp)
+                    .heightIn(min = minHeight, max = maxHeight)
+                    .wrapContentSize(Alignment.CenterStart)
             )
             CardInputField(
+                placeholder = stringResource(R.string.enter_answer_for_card),
                 value = cardInputAnswerValue,
                 onValueChange = { cardInputAnswerValue = it },
-                placeholder = "Введите ответ",
+                fontFamily = FontFamily(Font(R.font.opensans_medium)),
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(shape = RoundedCornerShape(bottomStart = 4.dp, bottomEnd = 4.dp))
                     .background(
                         White
                     )
-                    .height(50.dp)
                     .border(
                         width = 0.25.dp,
                         color = MediumGray,
                         shape = RoundedCornerShape(bottomStart = 4.dp, bottomEnd = 4.dp)
                     )
-                    .wrapContentSize(Alignment.CenterStart)
                     .padding(start = 12.dp)
-                    .heightIn(max = maxHeight),
-                fontFamily = R.font.opensans_medium
+                    .heightIn(min = minHeight, max = maxHeight)
+                    .wrapContentSize(Alignment.CenterStart)
             )
             Spacer(modifier = Modifier.height(height = 14.dp))
             TegInputField(
+                titleTextInput = stringResource(R.string.text_teg_input_field),
                 value = tagInputValue,
                 onValueChange = {
                     tagInputValue = it
                 },
-                titleTextInput = "Тег:",
                 modifier = Modifier
                     .clip(shape = RoundedCornerShape(4.dp))
-                    .background(
-                        White
-                    )
+                    .background(White)
                     .height(40.dp)
                     .border(
                         width = 0.25.dp,
@@ -156,4 +146,27 @@ fun CreationCardScreen() {
             )
         }
     }
+}
+
+@Composable
+private fun DropdownSelectors(
+    fontFamily: FontFamily
+) {
+    DropdownSelector(titleSelector = "Папка:", "Общая папка", modifier = Modifier, fontFamily = fontFamily)
+    Spacer(modifier = Modifier.height(height = 14.dp))
+    DropdownSelector(titleSelector = "Колода:", "Общая колода", modifier = Modifier, fontFamily = fontFamily)
+    Spacer(modifier = Modifier.height(height = 14.dp))
+    DropdownSelector(
+        titleSelector = stringResource(R.string.text_priority_dropdown_selector),
+        "Простой",
+        modifier = Modifier,
+        fontFamily = fontFamily
+    )
+    Spacer(modifier = Modifier.height(height = 14.dp))
+    DropdownSelector(
+        titleSelector = stringResource(R.string.text_tape_dropdown_selector),
+        "Карточка с вводом ответа",
+        modifier = Modifier,
+        fontFamily = fontFamily
+    )
 }

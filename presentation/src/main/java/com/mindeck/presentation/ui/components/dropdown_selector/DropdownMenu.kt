@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -40,41 +39,25 @@ import com.mindeck.presentation.ui.theme.White
 
 @SuppressLint("UseOfNonLambdaOffsetOverload")
 @Composable
-fun DropDownMenu(
+fun DropdownMenu(
     modifier: Modifier,
     selectorItemList: List<String>,
     onStringClick: (String) -> Unit,
-    onClick: (Boolean) -> Unit
+    fontFamily: FontFamily,
+    dropdownState: DropdownState
 ) {
-    val maxVisibleItems = 7
-    val itemHeight = 36.dp
-    val lazyColumnMaxHeight = maxVisibleItems * itemHeight - 14.dp
-
-    var isVisible by remember { mutableStateOf(false) }
-
-    val animetedHeightIn by animateDpAsState(
-        targetValue = if (isVisible) lazyColumnMaxHeight else 0.dp,
-        animationSpec = tween(durationMillis = 50)
-    )
-    val offsetY by animateDpAsState(
-        targetValue = if (isVisible) 0.dp else 50.dp,
-        animationSpec = tween(durationMillis = 150)
-    )
-
-    val alpha by animateFloatAsState(
-        targetValue = if (isVisible) 1f else 0f,
-        animationSpec = tween(durationMillis = 150)
-    )
+    val animetedHeightIn = animateDropdownWidth(dropdownState.dropdownHeight, dropdownState.animationDuration)
+    val offsetY = animateDropdownOffsetY(dropdownState.dropdownOffsetY, dropdownState.animationDuration)
+    val alpha = animateDropdownAlpha(dropdownState.dropdownAlpha, dropdownState.animationDuration)
 
     LazyColumn(
         modifier = Modifier
             .fillMaxWidth()
-            .height(animetedHeightIn)
+            .heightIn(max = animetedHeightIn)
     ) {
         items(selectorItemList) {
-
             LaunchedEffect(it) {
-                isVisible = true
+                dropdownState.open()
             }
 
             Box(
@@ -104,15 +87,13 @@ fun DropDownMenu(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null
                     ) {
-                        onClick(true)
+                        dropdownState.reset()
                         onStringClick(it)
                     }
             ) {
                 Text(
                     it, style = TextStyle(
-                        fontSize = 14.sp, fontFamily = FontFamily(
-                            Font(R.font.opensans_medium)
-                        )
+                        fontSize = 14.sp, fontFamily = fontFamily
                     )
                 )
             }
