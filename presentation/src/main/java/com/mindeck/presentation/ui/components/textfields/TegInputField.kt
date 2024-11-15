@@ -24,12 +24,12 @@ fun TegInputField(
     titleTextInput: String,
     value: String,
     onValueChange: (String) -> Unit,
-    modifier: Modifier,
     fontFamily: FontFamily,
     titleFontSize: TextUnit = 14.sp,
     textFontSize: TextUnit = 14.sp,
     titleColor: Color = Black,
     textColor: Color = Black,
+    modifier: Modifier
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,

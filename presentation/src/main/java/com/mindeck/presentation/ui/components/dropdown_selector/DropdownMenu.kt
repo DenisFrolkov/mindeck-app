@@ -1,9 +1,6 @@
 package com.mindeck.presentation.ui.components.dropdown_selector
 
 import android.annotation.SuppressLint
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -18,37 +15,39 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.unit.times
-import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.theme.MediumGray
 import com.mindeck.presentation.ui.theme.White
 
 @SuppressLint("UseOfNonLambdaOffsetOverload")
 @Composable
 fun DropdownMenu(
-    modifier: Modifier,
     selectorItemList: List<String>,
+    dropdownState: DropdownState,
     onStringClick: (String) -> Unit,
-    fontFamily: FontFamily,
-    dropdownState: DropdownState
+    modifier: Modifier,
+    textStyle: TextStyle,
 ) {
     val animetedHeightIn = animateDropdownWidth(dropdownState.dropdownHeight, dropdownState.animationDuration)
     val offsetY = animateDropdownOffsetY(dropdownState.dropdownOffsetY, dropdownState.animationDuration)
     val alpha = animateDropdownAlpha(dropdownState.dropdownAlpha, dropdownState.animationDuration)
+
+    val baseItemModifier = modifier
+        .fillMaxWidth()
+        .height(36.dp)
+        .alpha(alpha)
+        .offset(y = -offsetY)
+
+    LaunchedEffect(selectorItemList) {
+        dropdownState.open()
+    }
 
     LazyColumn(
         modifier = Modifier
@@ -56,24 +55,18 @@ fun DropdownMenu(
             .heightIn(max = animetedHeightIn)
     ) {
         items(selectorItemList) {
-            LaunchedEffect(it) {
-                dropdownState.open()
-            }
+            val isLastItem = it == selectorItemList.last()
 
             Box(
                 contentAlignment = Alignment.Center,
-                modifier = modifier
-                    .fillMaxWidth()
-                    .offset(y = -offsetY)
-                    .alpha(alpha)
+                modifier = baseItemModifier
                     .background(
                         color = White,
-                        shape = (if (it == selectorItemList.last()) RoundedCornerShape(
+                        shape = (if (isLastItem) RoundedCornerShape(
                             bottomStart = 4.dp,
                             bottomEnd = 4.dp
-                        ) else RoundedCornerShape(0.dp))
+                        ) else RoundedCornerShape(size = 0.dp))
                     )
-                    .height(height = 36.dp)
                     .drawBehind {
                         val borderThickness = 0.25.dp.toPx()
                         drawLine(
@@ -92,9 +85,7 @@ fun DropdownMenu(
                     }
             ) {
                 Text(
-                    it, style = TextStyle(
-                        fontSize = 14.sp, fontFamily = fontFamily
-                    )
+                    it, style = textStyle
                 )
             }
         }

@@ -5,10 +5,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.times
 
 class DropdownState(
     initialExpanded: Boolean = false,
-    private val expandedHeight: Dp,
+    private val expandedHeight: Dp = MAX_VISIBLE_ITEMS * ITEM_HEIGHT.dp - 14.dp,
     private val animateOffsetY: Dp = 50.dp,
     private val animateAlpha: Float = 1f,
     val animationDuration: Int = 100
@@ -36,6 +37,10 @@ class DropdownState(
 
     fun reset() {
         isExpanded = false
+    }
+
+    fun toggle() {
+        if (isExpanded) reset() else open()
     }
 }
 

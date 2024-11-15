@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="text_folder_dropdown_selector">Папка:</string>
+    <string name="text_deck_dropdown_selector">Колода:</string>
     <string name="text_priority_dropdown_selector">Приоритет:</string>
     <string name="text_tape_dropdown_selector">Тип:</string>
     <string name="enter_name_for_card">Введите название для карточки</string>
