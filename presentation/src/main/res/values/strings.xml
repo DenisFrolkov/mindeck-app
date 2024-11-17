@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="back_screen_icon_button">Back To Previous Page</string>
     <string name="text_folder_dropdown_selector">Папка:</string>
     <string name="text_deck_dropdown_selector">Колода:</string>
     <string name="text_priority_dropdown_selector">Приоритет:</string>
@@ -8,4 +9,10 @@
     <string name="enter_question_for_card">Введите вопрос для карточки</string>
     <string name="enter_answer_for_card">Введите ответ для карточки</string>
     <string name="text_teg_input_field">Тег:</string>
+    <string name="text_save_card_button">Сохранить карточку</string>
+
+    //Animated
+    <string name="label_animated_dropdown_height_in">Animated Dropdown HeightIn</string>
+    <string name="label_animated_dropdown_offset_y">Animated Dropdown OffsetY</string>
+    <string name="label_animated_dropdown_alpha">Animated Dropdown Alpha</string>
 </resources>

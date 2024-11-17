@@ -33,30 +33,6 @@ fun DropdownSelector(
 ) {
     val dropdownState = remember { DropdownState() }
 
-    val baseSelectorModifier = modifier
-        .fillMaxWidth()
-        .background(color = White, shape = RoundedCornerShape(4.dp))
-        .height(height = 36.dp)
-        .border(
-            width = 0.25.dp,
-            color = Color.Black,
-            shape = (if (dropdownState.isExpanded) RoundedCornerShape(
-                topStart = 4.dp,
-                topEnd = 4.dp,
-            ) else RoundedCornerShape(4.dp))
-        )
-        .wrapContentSize(Alignment.Center)
-
-    val baseSelectorItemModifier = Modifier
-        .border(
-            width = 0.25.dp,
-            color = Color.Black,
-            shape = RoundedCornerShape(
-                bottomStart = 4.dp,
-                bottomEnd = 4.dp
-            )
-        )
-
     Row() {
         Text(
             dropdownSelectorDataClass.title, style = textStyle,
@@ -75,7 +51,7 @@ fun DropdownSelector(
                 dropdownState.toggle()
             }) {
             Box(
-                modifier = baseSelectorModifier
+                modifier = baseSelectorModifier(dropdownState.isExpanded)
             ) {
                 Text(
                     text = dropdownSelectorDataClass.selectedItem, style = textStyle
@@ -83,7 +59,7 @@ fun DropdownSelector(
             }
             if (dropdownState.isExpanded) {
                 Column(
-                    modifier = baseSelectorItemModifier
+                    modifier = baseSelectorItemModifier()
                 ) {
                     DropdownMenu(
                         selectorItemList = dropdownSelectorDataClass.itemList,
@@ -97,3 +73,30 @@ fun DropdownSelector(
         }
     }
 }
+
+@Composable
+fun baseSelectorModifier(isExpanded: Boolean) = Modifier
+        .fillMaxWidth()
+        .background(color = White, shape = RoundedCornerShape(4.dp))
+        .height(height = 36.dp)
+        .border(
+            width = 0.25.dp,
+            color = Color.Black,
+            shape = (if (isExpanded) RoundedCornerShape(
+                topStart = 4.dp,
+                topEnd = 4.dp,
+            ) else RoundedCornerShape(4.dp))
+        )
+        .wrapContentSize(Alignment.Center)
+
+
+@Composable
+fun baseSelectorItemModifier() = Modifier
+        .border(
+            width = 0.25.dp,
+            color = Color.Black,
+            shape = RoundedCornerShape(
+                bottomStart = 4.dp,
+                bottomEnd = 4.dp
+            )
+        )

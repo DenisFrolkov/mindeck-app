@@ -5,35 +5,36 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
+import com.mindeck.presentation.R
 
 @Composable
-fun animateDropdownWidth(targetHeight: Dp, animationDuration: Int): Dp {
-    val animetedHeightIn by animateDpAsState(
+fun animateDropdownHeightIn(targetHeight: Dp, animationDuration: Int): Dp {
+    val animatedHeightIn by animateDpAsState(
         targetValue = targetHeight,
-        animationSpec = tween(durationMillis = animationDuration)
+        animationSpec = tween(durationMillis = animationDuration), label = stringResource(R.string.label_animated_dropdown_height_in)
     )
-    return animetedHeightIn
+    return animatedHeightIn
 }
 
 @Composable
 fun animateDropdownOffsetY(dropdownOffsetY: Dp, animationDuration: Int): Dp {
-    val animetedHeightIn by animateDpAsState(
+    val animatedHeightIn by animateDpAsState(
         targetValue = dropdownOffsetY,
-        animationSpec = tween(durationMillis = animationDuration)
+        animationSpec = tween(durationMillis = animationDuration), label = stringResource(R.string.label_animated_dropdown_offset_y)
     )
-    return animetedHeightIn
+    return animatedHeightIn
 }
+
 
 @Composable
 fun animateDropdownAlpha(dropdownAlpha: Float, animationDuration: Int): Float {
-    val animetedAlpha by animateFloatAsState(
+    val animatedAlpha by animateFloatAsState(
         targetValue = dropdownAlpha,
-        animationSpec = tween(durationMillis = animationDuration)
+        animationSpec = tween(durationMillis = animationDuration), label = stringResource(R.string.label_animated_dropdown_alpha)
     )
-
-    return animetedAlpha
+    return animatedAlpha
 }
 
 

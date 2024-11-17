@@ -3,6 +3,8 @@ package com.mindeck.presentation.ui.screens
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -26,6 +28,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
@@ -34,7 +37,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mindeck.presentation.R
-import com.mindeck.presentation.ui.components.buttons.BackScreenButton
+import com.mindeck.presentation.ui.components.buttons.ActionHandlerButton
 import com.mindeck.presentation.ui.components.buttons.SaveDataButton
 import com.mindeck.presentation.ui.components.dropdown_selector.DropdownSelector
 import com.mindeck.presentation.ui.components.dropdown_selector.DropdownSelectorDataClass
@@ -42,8 +45,23 @@ import com.mindeck.presentation.ui.components.textfields.CardInputField
 import com.mindeck.presentation.ui.components.textfields.TegInputField
 import com.mindeck.presentation.ui.components.textfields.TitleInputField
 import com.mindeck.presentation.ui.theme.BackgroundScreen
+import com.mindeck.presentation.ui.theme.Blue
 import com.mindeck.presentation.ui.theme.MediumGray
 import com.mindeck.presentation.ui.theme.White
+
+data class DropdownState(
+    var folder: String = "Общая папка",
+    var deck: String = "Общая колода",
+    var priority: String = "Карточка с вводом ответа",
+    var tape: String = "Простой"
+)
+
+data class InputFields(
+    var title: String = "",
+    var question: String = "",
+    var answer: String = "",
+    var tag: String = ""
+)
 
 @SuppressLint("ResourceType")
 @Composable
@@ -72,44 +90,39 @@ fun CreationCardScreen() {
             .background(color = BackgroundScreen)
             .padding(top = insets)
     ) {
-        BackScreenButton()
+        ActionHandlerButton(
+            iconPainter = painterResource(R.drawable.back_icon),
+            contentDescription = stringResource(R.string.back_screen_icon_button),
+            boxModifier = Modifier
+                .padding(start = 14.dp, top = 14.dp)
+                .clip(shape = RoundedCornerShape(50.dp))
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) {
+
+                },
+            iconModifier = Modifier
+                .background(color = Blue, shape = RoundedCornerShape(50.dp))
+                .padding(all = 12.dp)
+                .size(size = 16.dp)
+        )
+
         Spacer(modifier = Modifier.height(20.dp))
+
         Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-            DropdownSelector(
-                dropdownSelectorDataClass = DropdownSelectorDataClass(
-                    title = stringResource(R.string.text_folder_dropdown_selector),
-                    selectedItem = folderDropdownSelect,
-                    onItemClick = { folderDropdownSelect = it }
-                ),
+            DropdownSelectors(
                 textStyle = textStyle,
+                folderDropdownSelect = folderDropdownSelect,
+                deckDropdownSelect = deckDropdownSelect,
+                priorityDropdownSelect = priorityDropdownSelect,
+                tapeDropdownSelect = tapeDropdownSelect,
+                onPassFolderDropdownSelect = { folderDropdownSelect = it },
+                onPassDeckDropdownSelect = { deckDropdownSelect = it},
+                onPassPriorityDropdownSelect = { priorityDropdownSelect = it},
+                onPassTapeDropdownSelect = {tapeDropdownSelect = it},
             )
-            Spacer(modifier = Modifier.height(height = 14.dp))
-            DropdownSelector(
-                dropdownSelectorDataClass = DropdownSelectorDataClass(
-                    title = stringResource(R.string.text_deck_dropdown_selector),
-                    selectedItem = deckDropdownSelect,
-                    onItemClick = { deckDropdownSelect = it }
-                ),
-                textStyle = textStyle,
-            )
-            Spacer(modifier = Modifier.height(height = 14.dp))
-            DropdownSelector(
-                dropdownSelectorDataClass = DropdownSelectorDataClass(
-                    title = stringResource(R.string.text_priority_dropdown_selector),
-                    selectedItem = priorityDropdownSelect,
-                    onItemClick = { priorityDropdownSelect = it }
-                ),
-                textStyle = textStyle,
-            )
-            Spacer(modifier = Modifier.height(height = 14.dp))
-            DropdownSelector(
-                dropdownSelectorDataClass = DropdownSelectorDataClass(
-                    title = stringResource(R.string.text_tape_dropdown_selector),
-                    selectedItem = tapeDropdownSelect,
-                    onItemClick = { tapeDropdownSelect = it }
-                ),
-                textStyle = textStyle,
-            )
+
             Spacer(modifier = Modifier.height(height = 20.dp))
 
             TitleInputField(
@@ -167,14 +180,67 @@ fun CreationCardScreen() {
                     .wrapContentSize(Alignment.CenterStart)
             )
             Spacer(modifier = Modifier.height(height = 20.dp))
-            Box(modifier = Modifier.fillMaxWidth().wrapContentSize(Alignment.Center)) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentSize(Alignment.Center)
+            ) {
                 SaveDataButton(
-                    text = "Сохранить карточку",
+                    text = stringResource(R.string.text_save_card_button),
                     fontFamily = fontFamily
                 )
             }
         }
     }
+}
+
+@Composable
+private fun DropdownSelectors(
+    textStyle: TextStyle,
+    folderDropdownSelect: String,
+    deckDropdownSelect: String,
+    priorityDropdownSelect: String,
+    tapeDropdownSelect: String,
+    onPassFolderDropdownSelect: (String) -> Unit,
+    onPassDeckDropdownSelect: (String) -> Unit,
+    onPassPriorityDropdownSelect: (String) -> Unit,
+    onPassTapeDropdownSelect: (String) -> Unit,
+) {
+    DropdownSelector(
+        dropdownSelectorDataClass = DropdownSelectorDataClass(
+            title = stringResource(R.string.text_folder_dropdown_selector),
+            selectedItem = folderDropdownSelect,
+            onItemClick = onPassFolderDropdownSelect
+        ),
+        textStyle = textStyle,
+    )
+    Spacer(modifier = Modifier.height(height = 14.dp))
+    DropdownSelector(
+        dropdownSelectorDataClass = DropdownSelectorDataClass(
+            title = stringResource(R.string.text_deck_dropdown_selector),
+            selectedItem = deckDropdownSelect,
+            onItemClick = onPassDeckDropdownSelect
+        ),
+        textStyle = textStyle,
+    )
+    Spacer(modifier = Modifier.height(height = 14.dp))
+    DropdownSelector(
+        dropdownSelectorDataClass = DropdownSelectorDataClass(
+            title = stringResource(R.string.text_priority_dropdown_selector),
+            selectedItem = priorityDropdownSelect,
+            onItemClick = onPassPriorityDropdownSelect
+        ),
+        textStyle = textStyle,
+    )
+    Spacer(modifier = Modifier.height(height = 14.dp))
+    DropdownSelector(
+        dropdownSelectorDataClass = DropdownSelectorDataClass(
+            title = stringResource(R.string.text_tape_dropdown_selector),
+            selectedItem = tapeDropdownSelect,
+            onItemClick = onPassTapeDropdownSelect
+        ),
+        textStyle = textStyle,
+    )
 }
 
 @Composable
