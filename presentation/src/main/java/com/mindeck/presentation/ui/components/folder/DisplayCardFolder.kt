@@ -30,8 +30,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.mindeck.presentation.R
-import com.mindeck.presentation.ui.theme.Gray
+import com.mindeck.presentation.ui.theme.MediumGray
 import com.mindeck.presentation.ui.theme.LightMint
 import com.mindeck.presentation.ui.theme.LimeGreen
 import com.mindeck.presentation.ui.theme.White
@@ -48,7 +47,7 @@ fun DisplayCardFolder(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .fillMaxWidth()
-            .border(0.25.dp, Gray, RoundedCornerShape(4.dp))
+            .border(0.25.dp, MediumGray, RoundedCornerShape(4.dp))
             .clip(shape = RoundedCornerShape(4.dp))
             .height(48.dp)
             .clickable(
@@ -75,7 +74,7 @@ fun DisplayCardFolder(
             modifier = Modifier
                 .fillMaxHeight()
                 .width(0.25.dp)
-                .background(color = Gray)
+                .background(color = MediumGray)
         )
 
         Box(
@@ -98,7 +97,7 @@ fun DisplayCardFolder(
             modifier = Modifier
                 .fillMaxHeight()
                 .width(0.25.dp)
-                .background(color = Gray)
+                .background(color = MediumGray)
         )
 
         Box(
