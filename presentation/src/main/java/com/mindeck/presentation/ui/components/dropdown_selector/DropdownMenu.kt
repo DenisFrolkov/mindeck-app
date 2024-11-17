@@ -35,7 +35,7 @@ fun DropdownMenu(
     modifier: Modifier,
     textStyle: TextStyle,
 ) {
-    val animetedHeightIn = animateDropdownWidth(dropdownState.dropdownHeight, dropdownState.animationDuration)
+    val animatedHeightIn = animateDropdownHeightIn(dropdownState.dropdownHeight, dropdownState.animationDuration)
     val offsetY = animateDropdownOffsetY(dropdownState.dropdownOffsetY, dropdownState.animationDuration)
     val alpha = animateDropdownAlpha(dropdownState.dropdownAlpha, dropdownState.animationDuration)
 
@@ -52,7 +52,7 @@ fun DropdownMenu(
     LazyColumn(
         modifier = Modifier
             .fillMaxWidth()
-            .heightIn(max = animetedHeightIn)
+            .heightIn(max = animatedHeightIn)
     ) {
         items(selectorItemList) {
             val isLastItem = it == selectorItemList.last()
@@ -80,8 +80,8 @@ fun DropdownMenu(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null
                     ) {
-                        dropdownState.reset()
                         onStringClick(it)
+                        dropdownState.reset()
                     }
             ) {
                 Text(
