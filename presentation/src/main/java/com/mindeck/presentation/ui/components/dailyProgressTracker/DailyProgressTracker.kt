@@ -1,11 +1,13 @@
 package com.mindeck.presentation.ui.components.dailyProgressTracker
 
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -30,6 +32,11 @@ import com.mindeck.presentation.ui.theme.White
 
 @Composable
 fun DailyProgressTracker() {
+
+    val totalCards = 999
+    val answeredCards = 40
+    val progress = answeredCards / totalCards.toFloat()
+
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier
@@ -51,7 +58,7 @@ fun DailyProgressTracker() {
                     ),
                 )
                 Text(
-                    " 999",
+                    " $totalCards",
                     style = TextStyle(
                         fontSize = 12.sp, fontFamily = FontFamily(
                             Font(R.font.opensans_medium)
@@ -67,14 +74,21 @@ fun DailyProgressTracker() {
                     ),
                 )
             }
+
             Spacer(modifier = Modifier.height(10.dp))
             Box(
                 modifier = Modifier
-                    .padding(horizontal = 0.5.dp)
                     .background(White, shape = CircleShape)
                     .height(4.dp)
                     .fillMaxWidth()
-            )
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .fillMaxWidth(fraction = progress)
+                        .background(Blue, shape = CircleShape)
+                )
+            }
         }
         Box(
             modifier = Modifier
