@@ -1,8 +1,5 @@
 package com.mindeck.presentation.ui.components.folder
 
-import android.annotation.SuppressLint
-import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -17,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -25,24 +23,40 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.theme.MediumGray
 import com.mindeck.presentation.ui.theme.LightMint
 import com.mindeck.presentation.ui.theme.LimeGreen
 import com.mindeck.presentation.ui.theme.White
 
-@SuppressLint("SupportAnnotationUsage")
 @Composable
 fun DisplayCardFolder(
+    folderIcon: Painter,
     numberOfCards: Int,
-    @StringRes folderName: String,
-    @DrawableRes folderIcon: Int,
-    modifier: Modifier
+    folderName: String,
+    onClick: () -> Unit,
+    textStyle: TextStyle,
+    modifier: Modifier = Modifier
 ) {
+
+    fun getSpacerModifier(color: Color = MediumGray, width: Dp) = Modifier
+        .fillMaxHeight()
+        .width(width)
+        .background(color = color)
+
+    fun formatNumber(number: Int, limit: Int = 999): String {
+        return if (number > limit) "$limit+" else number.toString()
+    }
+
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
@@ -54,28 +68,20 @@ fun DisplayCardFolder(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
             ) {
-
+                onClick()
             }
     ) {
-        Box(
-            contentAlignment = Alignment.Center,
+
+        Text(
+            text = formatNumber(numberOfCards),
+            style = textStyle,
             modifier = Modifier
                 .background(White)
                 .size(48.dp)
-        ) {
-            Text(
-                text = if (numberOfCards > 999) "999+" else "$numberOfCards",
-                style = TextStyle(fontSize = 14.sp),
-                modifier = Modifier.padding()
-            )
-        }
-
-        Spacer(
-            modifier = Modifier
-                .fillMaxHeight()
-                .width(0.25.dp)
-                .background(color = MediumGray)
+                .wrapContentSize(Alignment.Center)
         )
+
+        Spacer(modifier = getSpacerModifier(width = 0.25.dp, color = MediumGray))
 
         Box(
             contentAlignment = Alignment.CenterStart,
@@ -89,16 +95,11 @@ fun DisplayCardFolder(
                 text = folderName,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                style = TextStyle(fontSize = 14.sp)
+                style = textStyle,
             )
         }
 
-        Spacer(
-            modifier = Modifier
-                .fillMaxHeight()
-                .width(0.25.dp)
-                .background(color = MediumGray)
-        )
+        Spacer(modifier = getSpacerModifier(width = 0.25.dp, color = MediumGray))
 
         Box(
             contentAlignment = Alignment.Center,
@@ -108,9 +109,9 @@ fun DisplayCardFolder(
         ) {
             Icon(
                 modifier = Modifier.size(20.dp),
-                painter = painterResource(folderIcon),
+                painter = folderIcon,
                 tint = LimeGreen,
-                contentDescription = "Folder Icon"
+                contentDescription = stringResource(R.string.folder_icon)
             )
         }
     }
