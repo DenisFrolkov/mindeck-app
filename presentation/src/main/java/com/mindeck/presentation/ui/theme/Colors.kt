@@ -4,6 +4,7 @@ import androidx.compose.ui.graphics.Color
 
 val Black = Color(0xFF000000)
 val Blue = Color(0xFF3D8FF7)
+val PaleBlue = Color(0xFFB3E5FC)
 val LimeGreen = Color(0xFF76DB64)
 val LightMint = Color(0xFFDFFFD8)
 val BackgroundScreen = Color(0xFFEEF5FF)

@@ -9,13 +9,16 @@
     <string name="enter_answer_for_card">Введите ответ для карточки</string>
     <string name="text_teg_input_field">Тег:</string>
     <string name="text_save_card_button">Сохранить карточку</string>
+    <string name="text_is_necessary_to_repeat">Необходимо повторить</string>
 
     //Animated
     <string name="label_animated_dropdown_height_in">Animated Dropdown HeightIn</string>
     <string name="label_animated_dropdown_offset_y">Animated Dropdown OffsetY</string>
     <string name="label_animated_dropdown_alpha">Animated Dropdown Alpha</string>
+    <string name="label_animated_daily_progress_tracker_float">Animated Daily Progress Tracker Float</string>
 
     //Content Description
     <string name="folder_icon">Folder Icon</string>
     <string name="back_screen_icon_button">Back To Previous Page</string>
+    <string name="daily_progress_tracker">Daily Progress Tracker</string>
 </resources>
