@@ -1,5 +1,7 @@
 package com.mindeck.presentation.ui.components.fab
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -9,8 +11,10 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -19,21 +23,23 @@ import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.theme.White
 
 @Composable
-fun FABMenu(listItemsMenu: List<FabMenuDataClass>) {
+fun FABMenu(fabState: FabState, listItemsMenu: List<FabMenuDataClass>, textStyle: TextStyle, iconColor: Color) {
     listItemsMenu.forEach { menuItem ->
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(12.dp)
+                .padding(10.dp)
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) {
+                    fabState.reset()
+                }
         ) {
             Text(
-                menuItem.text, style = TextStyle(
-                    color = White, fontFamily = FontFamily(
-                        Font(R.font.opensans_medium)
-                    )
-                ),
+                menuItem.text, style = textStyle,
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
                     .padding(vertical = 3.dp)
@@ -42,7 +48,7 @@ fun FABMenu(listItemsMenu: List<FabMenuDataClass>) {
                 painter = menuItem.icon,
                 contentDescription = menuItem.iconContentDescription,
                 modifier = Modifier.size(18.dp),
-                tint = White
+                tint = iconColor
             )
         }
         if (menuItem.idItem != listItemsMenu.size - 1) {
