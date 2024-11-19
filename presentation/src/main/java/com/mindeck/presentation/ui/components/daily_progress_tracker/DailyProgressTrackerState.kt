@@ -1,4 +1,4 @@
-package com.mindeck.presentation.ui.components.dailyProgressTracker
+package com.mindeck.presentation.ui.components.daily_progress_tracker
 
 class DailyProgressTrackerState(val totalCards: Int = 0, private val answeredCards: Int = 0) {
 
