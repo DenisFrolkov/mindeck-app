@@ -25,16 +25,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.theme.MediumGray
-import com.mindeck.presentation.ui.theme.LightMint
 import com.mindeck.presentation.ui.theme.LimeGreen
 import com.mindeck.presentation.ui.theme.White
 
@@ -43,6 +40,8 @@ fun DisplayCardFolder(
     folderIcon: Painter,
     numberOfCards: Int,
     folderName: String,
+    backgroundColor: Color,
+    iconColor: Color,
     onClick: () -> Unit,
     textStyle: TextStyle,
     modifier: Modifier = Modifier
@@ -105,12 +104,12 @@ fun DisplayCardFolder(
             contentAlignment = Alignment.Center,
             modifier = Modifier
                 .size(48.dp)
-                .background(color = LightMint)
+                .background(color = backgroundColor)
         ) {
             Icon(
                 modifier = Modifier.size(20.dp),
                 painter = folderIcon,
-                tint = LimeGreen,
+                tint = iconColor,
                 contentDescription = stringResource(R.string.folder_icon)
             )
         }

@@ -1,4 +1,4 @@
-package com.mindeck.presentation.ui.components.dailyProgressTracker
+package com.mindeck.presentation.ui.components.daily_progress_tracker
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
