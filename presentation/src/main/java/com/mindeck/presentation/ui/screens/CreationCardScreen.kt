@@ -28,14 +28,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.components.buttons.ActionHandlerButton
 import com.mindeck.presentation.ui.components.buttons.SaveDataButton
@@ -48,6 +52,7 @@ import com.mindeck.presentation.ui.theme.BackgroundScreen
 import com.mindeck.presentation.ui.theme.Blue
 import com.mindeck.presentation.ui.theme.MediumGray
 import com.mindeck.presentation.ui.theme.White
+import kotlin.math.roundToInt
 
 data class DropdownState(
     var folder: String = "Общая папка",
@@ -65,7 +70,9 @@ data class InputFields(
 
 @SuppressLint("ResourceType")
 @Composable
-fun CreationCardScreen() {
+fun CreationCardScreen(
+    navController: NavController
+) {
     val insets = WindowInsets.systemBars.asPaddingValues().calculateTopPadding()
 
     var folderDropdownSelect by rememberSaveable { mutableStateOf("Общая папка") }
@@ -100,7 +107,7 @@ fun CreationCardScreen() {
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null
                 ) {
-
+                    navController.popBackStack()
                 },
             iconModifier = Modifier
                 .background(color = Blue, shape = RoundedCornerShape(50.dp))
