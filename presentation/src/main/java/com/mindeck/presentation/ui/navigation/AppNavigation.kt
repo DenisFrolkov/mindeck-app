@@ -53,10 +53,10 @@ fun AppNavigation() {
             exitTransition = {
                 scaleOut(
                     targetScale = 0.1f,
-                    animationSpec = tween(100)
-                ) + fadeOut(animationSpec = tween(100)) + slideOut(
+                    animationSpec = tween(300)
+                ) + fadeOut(animationSpec = tween(300)) + slideOut(
                     targetOffset = {buttonPosition},
-                    animationSpec = tween(100)
+                    animationSpec = tween(300)
                 )
             }
         ) {
