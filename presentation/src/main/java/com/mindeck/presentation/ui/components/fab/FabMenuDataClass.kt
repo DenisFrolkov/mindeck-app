@@ -6,5 +6,6 @@ data class FabMenuDataClass(
     val idItem: Int,
     val text: String,
     val icon: Painter,
-    val iconContentDescription: String? = ""
+    val iconContentDescription: String? = "",
+    val navigation: () -> Unit
 )
