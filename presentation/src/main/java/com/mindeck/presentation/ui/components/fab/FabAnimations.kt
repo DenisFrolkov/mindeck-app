@@ -53,3 +53,13 @@ fun animateFabAlpha(targetAlpha: Float, animationDuration: Int): Float {
     )
     return alphaFab
 }
+
+@Composable
+fun animateScreenAlpha(targetAlpha: Float, animationDuration: Int): Float {
+    val alphaMenu by animateFloatAsState(
+        targetValue = targetAlpha,
+        animationSpec = tween(durationMillis = animationDuration),
+        label = "Screen Alpha Animation"
+    )
+    return alphaMenu
+}
