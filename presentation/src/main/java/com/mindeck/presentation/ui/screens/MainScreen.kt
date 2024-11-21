@@ -16,17 +16,22 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.components.buttons.GetAllFindersButton
 import com.mindeck.presentation.ui.components.daily_progress_tracker.DailyProgressTracker
@@ -36,15 +41,20 @@ import com.mindeck.presentation.ui.components.fab.FabState
 import com.mindeck.presentation.ui.components.fab.FabState.Companion.ITEM_HEIGHT
 import com.mindeck.presentation.ui.components.folder.DisplayCardFolder
 import com.mindeck.presentation.ui.components.folder.FolderData
+import com.mindeck.presentation.ui.navigation.NavigationRoute
 import com.mindeck.presentation.ui.theme.Black
 import com.mindeck.presentation.ui.theme.Blue
 import com.mindeck.presentation.ui.theme.LightBlue
 import com.mindeck.presentation.ui.theme.LightMint
 import com.mindeck.presentation.ui.theme.LimeGreen
 import com.mindeck.presentation.ui.theme.White
+import kotlin.math.roundToInt
 
 @Composable
-fun MainScreen() {
+fun MainScreen(
+    navController: NavController,
+    onButtonPositioned: (IntOffset) -> Unit
+) {
 
     val textStyle = TextStyle(
         fontSize = 14.sp,
@@ -56,15 +66,20 @@ fun MainScreen() {
         FabMenuDataClass(
             idItem = 0,
             text = "Настройки",
-            icon = painterResource(R.drawable.fab_open_menu_setting_icon)
+            icon = painterResource(R.drawable.fab_open_menu_setting_icon),
+            navigation = { navController.navigate(NavigationRoute.CreationCardScreen.route) }
         ),
         FabMenuDataClass(
-            idItem = 1, text = "Поиск", icon = painterResource(R.drawable.search_icon)
+            idItem = 1,
+            text = "Поиск",
+            icon = painterResource(R.drawable.search_icon),
+            navigation = { navController.navigate(NavigationRoute.CreationCardScreen.route) }
         ),
         FabMenuDataClass(
             idItem = 2,
             text = "Создать картчоку",
-            icon = painterResource(R.drawable.fab_open_menu_create_icon)
+            icon = painterResource(R.drawable.fab_open_menu_create_icon),
+            navigation = { navController.navigate(NavigationRoute.CreationCardScreen.route) }
         )
     )
 
@@ -81,7 +96,8 @@ fun MainScreen() {
         FolderData(256, "Папка №2", LightBlue, Blue, R.drawable.folder_icon)
     )
 
-    val fabState = remember { FabState(expandedHeight = with(LocalDensity) { ITEM_HEIGHT.dp * fabMenuItems.size } ) }
+    val fabState =
+        remember { FabState(expandedHeight = with(LocalDensity) { ITEM_HEIGHT.dp * fabMenuItems.size }) }
 
     LazyColumn(
         modifier =
@@ -144,6 +160,10 @@ fun MainScreen() {
             .navigationBarsPadding()
             .padding(16.dp)
             .wrapContentSize(Alignment.BottomEnd)
+            .onGloballyPositioned {
+                val offset = it.localToWindow(Offset.Zero)
+                onButtonPositioned(IntOffset(offset.x.roundToInt(), offset.y.roundToInt()))
+            }
     ) {
         FAB(
             fabColor = Blue,

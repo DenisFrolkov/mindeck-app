@@ -16,14 +16,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
-import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.theme.White
 
 @Composable
 fun FABMenu(fabState: FabState, listItemsMenu: List<FabMenuDataClass>, textStyle: TextStyle, iconColor: Color) {
+
     listItemsMenu.forEach { menuItem ->
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -36,6 +34,7 @@ fun FABMenu(fabState: FabState, listItemsMenu: List<FabMenuDataClass>, textStyle
                     indication = null
                 ) {
                     fabState.reset()
+                    menuItem.navigation.invoke()
                 }
         ) {
             Text(
