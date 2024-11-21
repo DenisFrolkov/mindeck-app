@@ -39,9 +39,12 @@ import com.mindeck.presentation.ui.components.fab.FAB
 import com.mindeck.presentation.ui.components.fab.FabMenuDataClass
 import com.mindeck.presentation.ui.components.fab.FabState
 import com.mindeck.presentation.ui.components.fab.FabState.Companion.ITEM_HEIGHT
+import com.mindeck.presentation.ui.components.fab.animateFabAlpha
+import com.mindeck.presentation.ui.components.fab.animateScreenAlpha
 import com.mindeck.presentation.ui.components.folder.DisplayCardFolder
 import com.mindeck.presentation.ui.components.folder.FolderData
 import com.mindeck.presentation.ui.navigation.NavigationRoute
+import com.mindeck.presentation.ui.theme.BackgroundScreen
 import com.mindeck.presentation.ui.theme.Black
 import com.mindeck.presentation.ui.theme.Blue
 import com.mindeck.presentation.ui.theme.LightBlue
@@ -99,10 +102,13 @@ fun MainScreen(
     val fabState =
         remember { FabState(expandedHeight = with(LocalDensity) { ITEM_HEIGHT.dp * fabMenuItems.size }) }
 
+    val alphaScreen = animateScreenAlpha(fabState.screenAlphaValue, 100)
+
     LazyColumn(
         modifier =
         Modifier
             .fillMaxSize()
+            .background(BackgroundScreen)
             .statusBarsPadding()
             .padding(start = 16.dp, top = 20.dp, end = 16.dp)
     ) {
@@ -156,7 +162,7 @@ fun MainScreen(
             ) {
                 fabState.reset()
             }
-            .background(if (fabState.isExpanded) Black.copy(alpha = 0.3f) else Color.Transparent)
+            .background(if (fabState.isExpanded) Black.copy(alphaScreen) else Color.Transparent)
             .navigationBarsPadding()
             .padding(16.dp)
             .wrapContentSize(Alignment.BottomEnd)
