@@ -23,6 +23,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.mindeck.presentation.ui.screens.CreationCardScreen
+import com.mindeck.presentation.ui.screens.FoldersScreen
 import com.mindeck.presentation.ui.screens.MainScreen
 
 @Composable
@@ -32,7 +33,7 @@ fun AppNavigation() {
 
     NavHost(
         navController = navController,
-        startDestination = NavigationRoute.MainScreen.route
+        startDestination = NavigationRoute.FoldersScreen.route
     ) {
         composable(NavigationRoute.MainScreen.route,
             enterTransition = { fadeIn(animationSpec = tween(100)) },
@@ -61,6 +62,9 @@ fun AppNavigation() {
             }
         ) {
             CreationCardScreen(navController)
+        }
+        composable(NavigationRoute.FoldersScreen.route) {
+            FoldersScreen()
         }
     }
 }
