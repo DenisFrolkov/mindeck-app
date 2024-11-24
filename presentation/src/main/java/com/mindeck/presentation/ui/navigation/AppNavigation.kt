@@ -33,7 +33,7 @@ fun AppNavigation() {
 
     NavHost(
         navController = navController,
-        startDestination = NavigationRoute.FoldersScreen.route
+        startDestination = NavigationRoute.MainScreen.route
     ) {
         composable(NavigationRoute.MainScreen.route,
             enterTransition = { fadeIn(animationSpec = tween(100)) },
@@ -62,9 +62,6 @@ fun AppNavigation() {
             }
         ) {
             CreationCardScreen(navController)
-        }
-        composable(NavigationRoute.FoldersScreen.route) {
-            FoldersScreen()
         }
     }
 }

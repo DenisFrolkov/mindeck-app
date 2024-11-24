@@ -1,5 +1,6 @@
 package com.mindeck.presentation.ui.screens
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -18,7 +19,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,30 +27,28 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.components.buttons.ActionHandlerButton
 import com.mindeck.presentation.ui.components.folder.DisplayCardFolder
 import com.mindeck.presentation.ui.components.folder.FolderData
+import com.mindeck.presentation.ui.components.utils.getPluralForm
 import com.mindeck.presentation.ui.theme.BackgroundScreen
 import com.mindeck.presentation.ui.theme.Black
 import com.mindeck.presentation.ui.theme.Blue
 import com.mindeck.presentation.ui.theme.LightBlue
-import com.mindeck.presentation.ui.theme.LightMint
-import com.mindeck.presentation.ui.theme.LimeGreen
 
 @Composable
 fun FoldersScreen() {
     var fontFamily = FontFamily(Font(R.font.opensans_medium))
     var textStyle = TextStyle(fontSize = 14.sp, color = Black, fontFamily = fontFamily)
-
-    var foldersWord: List<String> = listOf("Папка", "Папки", "Папок")
-    var decksWord: List<String> = listOf("Колода", "Колод", "Колоды")
 
     val folders = listOf(
         FolderData(123, "Общая папка", LightBlue, Blue, R.drawable.folder_icon),
@@ -74,7 +72,12 @@ fun FoldersScreen() {
     ) {
         item {
             Spacer(Modifier.height(34.dp))
-            Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
                 ActionHandlerButton(
                     iconPainter = painterResource(R.drawable.back_icon),
                     contentDescription = stringResource(R.string.back_screen_icon_button),
@@ -116,28 +119,28 @@ fun FoldersScreen() {
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .wrapContentSize(Alignment.Center)
             ) {
                 Text(
-                    text = "${folders.size} ${getPluralForm(folders.size, foldersWord)}",
+                    text = pluralStringResource(R.plurals.folder_amount, getPluralForm(folders.size), folders.size),
                     style = textStyle,
-                    modifier = Modifier
+                    modifier = Modifier.weight(1f),
+                    textAlign = TextAlign.End
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Box(
                     modifier = Modifier
                         .size(8.dp)
                         .background(
-                            color = Black, shape = RoundedCornerShape(
-                                50.dp
-                            )
+                            color = Black,
+                            shape = RoundedCornerShape(50.dp)
                         )
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
-                    text = "347 ${getPluralForm(347, decksWord)}",
+                    text = pluralStringResource(R.plurals.deck_amount, getPluralForm(1), 1),
                     style = textStyle,
-                    modifier = Modifier
+                    modifier = Modifier.weight(1f),
+                    textAlign = TextAlign.Start
                 )
             }
             Spacer(modifier = Modifier.height(12.dp))
@@ -161,16 +164,5 @@ fun FoldersScreen() {
             )
             Spacer(modifier = Modifier.height(6.dp))
         }
-    }
-}
-
-fun getPluralForm(number: Int, forms: List<String>): String {
-    val n = number % 100
-    val n1 = number % 10
-    return when {
-        n in 11..19 -> forms[2]
-        n1 == 1 -> forms[0]
-        n1 in 2..4 -> forms[1]
-        else -> forms[2]
     }
 }
