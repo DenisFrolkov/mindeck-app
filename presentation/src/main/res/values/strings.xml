@@ -10,6 +10,22 @@
     <string name="text_teg_input_field">Тег:</string>
     <string name="text_save_card_button">Сохранить карточку</string>
     <string name="text_is_necessary_to_repeat">Необходимо повторить</string>
+    <string name="title_text_folders">Папки</string>
+
+    <plurals name="folder_amount">
+        <item quantity="one">%d папка</item>
+        <item quantity="few">%d папки</item>
+        <item quantity="many">%d папок</item>
+        <item quantity="other">%d папок</item>
+    </plurals>
+
+    <plurals name="deck_amount">
+        <item quantity="one">%d колода</item>
+        <item quantity="few">%d колоды</item>
+        <item quantity="many">%d колод</item>
+        <item quantity="other">%d колод</item>
+    </plurals>
+
 
     //Animated
     <string name="label_animated_dropdown_height_in">Animated Dropdown HeightIn</string>
