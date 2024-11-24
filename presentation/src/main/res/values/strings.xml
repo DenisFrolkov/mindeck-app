@@ -26,6 +26,13 @@
         <item quantity="other">%d колод</item>
     </plurals>
 
+    <plurals name="card_amount">
+        <item quantity="one">%d карточка</item>
+        <item quantity="few">%d карточки</item>
+        <item quantity="many">%d карточек</item>
+        <item quantity="other">%d карточек</item>
+    </plurals>
+
 
     //Animated
     <string name="label_animated_dropdown_height_in">Animated Dropdown HeightIn</string>
