@@ -35,18 +35,20 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.components.buttons.ActionHandlerButton
 import com.mindeck.presentation.ui.components.folder.DisplayCardFolder
 import com.mindeck.presentation.ui.components.folder.FolderData
 import com.mindeck.presentation.ui.components.utils.getPluralForm
+import com.mindeck.presentation.ui.navigation.NavigationRoute
 import com.mindeck.presentation.ui.theme.BackgroundScreen
 import com.mindeck.presentation.ui.theme.Black
 import com.mindeck.presentation.ui.theme.Blue
 import com.mindeck.presentation.ui.theme.LightBlue
 
 @Composable
-fun FoldersScreen() {
+fun FoldersScreen(navController: NavController) {
     var fontFamily = FontFamily(Font(R.font.opensans_medium))
     var textStyle = TextStyle(fontSize = 14.sp, color = Black, fontFamily = fontFamily)
 
@@ -86,7 +88,9 @@ fun FoldersScreen() {
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null
-                        ) { },
+                        ) {
+                            navController.popBackStack()
+                        },
                     iconModifier = Modifier
                         .background(color = Blue, shape = RoundedCornerShape(50.dp))
                         .padding(all = 12.dp)
@@ -154,7 +158,7 @@ fun FoldersScreen() {
                 backgroundColor = it.color,
                 iconColor = it.colorTwo,
                 onClick = {
-
+                    navController.navigate(NavigationRoute.FolderScreen.route)
                 },
                 textStyle = TextStyle(
                     fontSize = 14.sp,
