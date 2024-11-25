@@ -124,7 +124,9 @@ fun MainScreen(
                 folderName = it.text,
                 backgroundColor = it.color,
                 iconColor = it.colorTwo,
-                onClick = { },
+                onClick = {
+                    navController.navigate(NavigationRoute.FolderScreen.route)
+                },
                 textStyle = TextStyle(
                     fontSize = 14.sp,
                     fontFamily = FontFamily(Font(R.font.opensans_medium))
@@ -147,7 +149,9 @@ fun MainScreen(
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null
-                        ) { },
+                        ) {
+                            navController.navigate(NavigationRoute.FoldersScreen.route)
+                        },
                     textModifier = Modifier.padding(vertical = 8.dp, horizontal = 33.dp)
                 )
             }
