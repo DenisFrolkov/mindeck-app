@@ -16,7 +16,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,7 +38,6 @@ import com.mindeck.presentation.ui.components.fab.FAB
 import com.mindeck.presentation.ui.components.fab.FabMenuDataClass
 import com.mindeck.presentation.ui.components.fab.FabState
 import com.mindeck.presentation.ui.components.fab.FabState.Companion.ITEM_HEIGHT
-import com.mindeck.presentation.ui.components.fab.animateFabAlpha
 import com.mindeck.presentation.ui.components.fab.animateScreenAlpha
 import com.mindeck.presentation.ui.components.folder.DisplayCardFolder
 import com.mindeck.presentation.ui.components.folder.FolderData
@@ -96,7 +94,9 @@ fun MainScreen(
         ),
         FolderData(123, "Общая папка", LightBlue, Blue, R.drawable.folder_icon),
         FolderData(152, "Папка №1", LightBlue, Blue, R.drawable.folder_icon),
-        FolderData(256, "Папка №2", LightBlue, Blue, R.drawable.folder_icon)
+        FolderData(256, "Папка №2", LightBlue, Blue, R.drawable.folder_icon),
+        FolderData(256, "Папка №2", LightBlue, Blue, R.drawable.folder_icon),
+        FolderData(256, "Папка №2", LightBlue, Blue, R.drawable.folder_icon),
     )
 
     val fabState =
@@ -116,7 +116,7 @@ fun MainScreen(
             DailyProgressTracker(dptIcon = painterResource(R.drawable.dpt_icon))
             Spacer(modifier = Modifier.height(20.dp))
         }
-        items(folders) {
+        items(folders.take(5)) {
             DisplayCardFolder(
                 folderIcon =
                 painterResource(it.icon),
@@ -136,29 +136,31 @@ fun MainScreen(
             Spacer(modifier = Modifier.height(6.dp))
         }
         item {
-            Spacer(modifier = Modifier.height(6.dp))
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentSize(Alignment.Center)
-            ) {
-                GetAllFindersButton(
-                    textStyle = textStyle,
+            if (folders.size > 5) {
+                Spacer(modifier = Modifier.height(6.dp))
+                Box(
                     modifier = Modifier
-                        .background(color = Blue, shape = RoundedCornerShape(12.dp))
-                        .clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null
-                        ) {
-                            navController.navigate(NavigationRoute.FoldersScreen.route)
-                        },
-                    textModifier = Modifier.padding(vertical = 8.dp, horizontal = 33.dp)
-                )
+                        .fillMaxWidth()
+                        .wrapContentSize(Alignment.Center)
+                ) {
+                    GetAllFindersButton(
+                        textStyle = textStyle,
+                        modifier = Modifier
+                            .background(color = Blue, shape = RoundedCornerShape(12.dp))
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null
+                            ) {
+                                navController.navigate(NavigationRoute.FoldersScreen.route)
+                            },
+                        textModifier = Modifier.padding(vertical = 8.dp, horizontal = 33.dp)
+                    )
+                }
             }
         }
     }
-    Box(
-        modifier = Modifier
+    if (fabState.isExpanded) {
+        Box(modifier = Modifier
             .fillMaxSize()
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
@@ -166,7 +168,11 @@ fun MainScreen(
             ) {
                 fabState.reset()
             }
-            .background(if (fabState.isExpanded) Black.copy(alphaScreen) else Color.Transparent)
+            .background(if (fabState.isExpanded) Black.copy(alphaScreen) else Color.Transparent))
+    }
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
             .navigationBarsPadding()
             .padding(16.dp)
             .wrapContentSize(Alignment.BottomEnd)
