@@ -31,18 +31,20 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.components.buttons.ActionHandlerButton
 import com.mindeck.presentation.ui.components.folder.DeckData
 import com.mindeck.presentation.ui.components.folder.DisplayCardItem
 import com.mindeck.presentation.ui.components.utils.getPluralForm
+import com.mindeck.presentation.ui.navigation.NavigationRoute
 import com.mindeck.presentation.ui.theme.BackgroundScreen
 import com.mindeck.presentation.ui.theme.Black
 import com.mindeck.presentation.ui.theme.Blue
 import com.mindeck.presentation.ui.theme.LightBlue
 
 @Composable
-fun DeckScreen() {
+fun DeckScreen(navController: NavController) {
     var fontFamily = FontFamily(Font(R.font.opensans_medium))
     var textStyle = TextStyle(fontSize = 14.sp, color = Black, fontFamily = fontFamily)
 
@@ -80,6 +82,7 @@ fun DeckScreen() {
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null
                         ) {
+                            navController.popBackStack()
                         },
                     iconModifier = Modifier
                         .background(color = Blue, shape = RoundedCornerShape(50.dp))
@@ -129,7 +132,9 @@ fun DeckScreen() {
                 titleCard = it.title,
                 backgroundColor = LightBlue,
                 iconColor = Blue,
-                onClick = {  },
+                onClick = {
+                    navController.navigate(NavigationRoute.CreationCardScreen.route)
+                },
                 textStyle = TextStyle(
                     fontSize = 14.sp,
                     fontFamily = FontFamily(Font(R.font.opensans_medium))
