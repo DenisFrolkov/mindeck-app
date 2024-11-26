@@ -5,4 +5,6 @@ sealed class NavigationRoute(val route: String) {
     object CreationCardScreen : NavigationRoute("creation_card_screen")
     object FoldersScreen : NavigationRoute("folders_screen")
     object FolderScreen : NavigationRoute("folder_screen")
+    object DeckScreen : NavigationRoute("deck_screen")
+    object CardStudyScreen : NavigationRoute("card_study_screen")
 }
