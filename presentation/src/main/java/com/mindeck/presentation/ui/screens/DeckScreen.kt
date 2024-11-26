@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.components.buttons.ActionHandlerButton
+import com.mindeck.presentation.ui.components.common.ActionBar
 import com.mindeck.presentation.ui.components.folder.DeckData
 import com.mindeck.presentation.ui.components.folder.DisplayCardItem
 import com.mindeck.presentation.ui.components.utils.getPluralForm
@@ -67,43 +68,18 @@ fun DeckScreen(navController: NavController) {
     ) {
         item {
             Spacer(Modifier.height(34.dp))
-            Row(
-                modifier = Modifier
+            ActionBar(
+                onBackClick = { navController.popBackStack() },
+                onMenuClick = {  },
+                containerModifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                ActionHandlerButton(
-                    iconPainter = painterResource(R.drawable.back_icon),
-                    contentDescription = stringResource(R.string.back_screen_icon_button),
-                    boxModifier = Modifier
-                        .clip(shape = RoundedCornerShape(50.dp))
-                        .clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null
-                        ) {
-                            navController.popBackStack()
-                        },
-                    iconModifier = Modifier
-                        .background(color = Blue, shape = RoundedCornerShape(50.dp))
-                        .padding(all = 12.dp)
-                        .size(size = 16.dp)
-                )
-                ActionHandlerButton(
-                    iconPainter = painterResource(R.drawable.menu_icon),
-                    contentDescription = stringResource(R.string.back_screen_icon_button),
-                    boxModifier = Modifier
-                        .clip(shape = RoundedCornerShape(50.dp))
-                        .clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null
-                        ) { },
-                    iconModifier = Modifier
-                        .background(color = Blue, shape = RoundedCornerShape(50.dp))
-                        .padding(all = 12.dp)
-                        .size(size = 16.dp)
-                )
-            }
+                iconModifier = Modifier
+                    .clip(shape = RoundedCornerShape(50.dp))
+                    .background(color = Blue, shape = RoundedCornerShape(50.dp))
+                    .padding(all = 12.dp)
+                    .size(size = 16.dp),
+            )
             Text(
                 text = "Название колоды",
                 style = textStyle,

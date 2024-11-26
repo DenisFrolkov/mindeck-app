@@ -37,6 +37,7 @@ import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.components.RepeatOptions.RepeatOptionData
 import com.mindeck.presentation.ui.components.RepeatOptions.RepeatOptionsButton
 import com.mindeck.presentation.ui.components.buttons.ActionHandlerButton
+import com.mindeck.presentation.ui.components.common.ActionBar
 import com.mindeck.presentation.ui.theme.BackgroundScreen
 import com.mindeck.presentation.ui.theme.Blue
 import com.mindeck.presentation.ui.theme.LightBlue
@@ -70,43 +71,18 @@ fun CardStudyScreen(navController: NavController) {
             .padding(horizontal = 16.dp)
     ) {
         Spacer(Modifier.height(34.dp))
-        Row(
-            modifier = Modifier
+        ActionBar(
+            onBackClick = { navController.popBackStack() },
+            onMenuClick = {  },
+            containerModifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            ActionHandlerButton(
-                iconPainter = painterResource(R.drawable.back_icon),
-                contentDescription = stringResource(R.string.back_screen_icon_button),
-                boxModifier = Modifier
-                    .clip(shape = RoundedCornerShape(50.dp))
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null
-                    ) {
-                        navController.popBackStack()
-                    },
-                iconModifier = Modifier
-                    .background(color = Blue, shape = RoundedCornerShape(50.dp))
-                    .padding(all = 12.dp)
-                    .size(size = 16.dp)
-            )
-            ActionHandlerButton(
-                iconPainter = painterResource(R.drawable.menu_icon),
-                contentDescription = stringResource(R.string.back_screen_icon_button),
-                boxModifier = Modifier
-                    .clip(shape = RoundedCornerShape(50.dp))
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null
-                    ) { },
-                iconModifier = Modifier
-                    .background(color = Blue, shape = RoundedCornerShape(50.dp))
-                    .padding(all = 12.dp)
-                    .size(size = 16.dp)
-            )
-        }
+            iconModifier = Modifier
+                .clip(shape = RoundedCornerShape(50.dp))
+                .background(color = Blue, shape = RoundedCornerShape(50.dp))
+                .padding(all = 12.dp)
+                .size(size = 16.dp),
+        )
         Spacer(Modifier.height(14.dp))
         QuestionAndAnswerElement(
             question = "1243213",
