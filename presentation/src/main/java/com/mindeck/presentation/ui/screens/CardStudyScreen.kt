@@ -32,6 +32,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.components.RepeatOptions.RepeatOptionData
 import com.mindeck.presentation.ui.components.RepeatOptions.RepeatOptionsButton
@@ -46,7 +47,7 @@ import com.mindeck.presentation.ui.theme.MediumGray
 import com.mindeck.presentation.ui.theme.White
 
 @Composable
-fun CardStudyScreen() {
+fun CardStudyScreen(navController: NavController) {
     val fontFamily = FontFamily(Font(R.font.opensans_medium))
     val questionStyle =
         TextStyle(fontSize = 14.sp, fontFamily = fontFamily, textAlign = TextAlign.Center)
@@ -84,6 +85,7 @@ fun CardStudyScreen() {
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null
                     ) {
+                        navController.popBackStack()
                     },
                 iconModifier = Modifier
                     .background(color = Blue, shape = RoundedCornerShape(50.dp))
