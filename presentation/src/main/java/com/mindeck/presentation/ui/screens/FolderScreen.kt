@@ -40,6 +40,7 @@ import com.mindeck.presentation.ui.components.buttons.ActionHandlerButton
 import com.mindeck.presentation.ui.components.folder.DisplayCardFolder
 import com.mindeck.presentation.ui.components.folder.FolderData
 import com.mindeck.presentation.ui.components.utils.getPluralForm
+import com.mindeck.presentation.ui.navigation.NavigationRoute
 import com.mindeck.presentation.ui.theme.BackgroundScreen
 import com.mindeck.presentation.ui.theme.Black
 import com.mindeck.presentation.ui.theme.Blue
@@ -152,7 +153,7 @@ fun FolderScreen(navController: NavController) {
                 backgroundColor = it.color,
                 iconColor = it.colorTwo,
                 onClick = {
-
+                    navController.navigate(NavigationRoute.DeckScreen.route)
                 },
                 textStyle = TextStyle(
                     fontSize = 14.sp,
