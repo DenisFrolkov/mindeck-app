@@ -105,8 +105,7 @@ fun MainScreen(
     val alphaScreen = animateScreenAlpha(fabState.screenAlphaValue, 100)
 
     LazyColumn(
-        modifier =
-        Modifier
+        modifier = Modifier
             .fillMaxSize()
             .background(BackgroundScreen)
             .statusBarsPadding()

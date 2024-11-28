@@ -55,11 +55,11 @@ fun CardStudyScreen(navController: NavController) {
     val answerStyle =
         TextStyle(fontSize = 14.sp, fontFamily = fontFamily, textAlign = TextAlign.Center)
 
-    var repeatOptionsButton = listOf<RepeatOptionData>(
+    var repeatOptionsButton = listOf(
         RepeatOptionData(title = "Повторить", time = "1 минута", color = LightBlue, action = {  }),
         RepeatOptionData(title = "Легко", time = "5 дней", color = LightMint, action = {  }),
         RepeatOptionData(title = "Средне", time = "2 дней", color = LightYellow, action = {  }),
-        RepeatOptionData(title = "Тяжело", time = "2 дней", color = LightRed, action = {  })
+        RepeatOptionData(title = "Тяжело", time = "1 дней", color = LightRed, action = {  })
     )
 
     Column(
@@ -99,7 +99,8 @@ fun CardStudyScreen(navController: NavController) {
             verticalAlignment = Alignment.Bottom,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(bottom = 20.dp)
+                .padding(bottom = 16.dp)
+                .height(60.dp)
         ) {
             repeatOptionsButton.forEach {
                 RepeatOptionsButton(
