@@ -63,6 +63,11 @@ fun MainScreen(
         fontFamily = FontFamily(Font(R.font.opensans_medium))
     )
 
+    val textStyleDisplayCard = TextStyle(
+        fontSize = 14.sp,
+        fontFamily = FontFamily(Font(R.font.opensans_medium))
+    )
+
     val fabMenuItems = listOf(
         FabMenuDataClass(
             idItem = 0,
@@ -72,44 +77,41 @@ fun MainScreen(
         ),
         FabMenuDataClass(
             idItem = 1,
-            text = "Поиск",
-            icon = painterResource(R.drawable.search_icon),
-            navigation = { navController.navigate(NavigationRoute.CreationCardScreen.route) }
-        ),
-        FabMenuDataClass(
-            idItem = 2,
             text = "Создать картчоку",
             icon = painterResource(R.drawable.fab_open_menu_create_icon),
             navigation = { navController.navigate(NavigationRoute.CreationCardScreen.route) }
         )
     )
 
-    val folders = listOf(
-        FolderData(
-            789,
-            "Повторите, чтобы не забыть!",
-            LightMint,
-            LimeGreen,
-            R.drawable.repeat_card_item
-        ),
-        FolderData(123, "Общая папка", LightBlue, Blue, R.drawable.folder_icon),
-        FolderData(152, "Папка №1", LightBlue, Blue, R.drawable.folder_icon),
-        FolderData(256, "Папка №2", LightBlue, Blue, R.drawable.folder_icon),
-        FolderData(256, "Папка №2", LightBlue, Blue, R.drawable.folder_icon),
-        FolderData(256, "Папка №2", LightBlue, Blue, R.drawable.folder_icon),
-    )
+    val folders = remember {
+        listOf(
+            FolderData(
+                789,
+                "Повторите, чтобы не забыть!",
+                LightMint,
+                LimeGreen,
+                R.drawable.repeat_card_item
+            ),
+            FolderData(123, "Общая папка", LightBlue, Blue, R.drawable.folder_icon),
+            FolderData(152, "Папка №1", LightBlue, Blue, R.drawable.folder_icon),
+            FolderData(256, "Папка №2", LightBlue, Blue, R.drawable.folder_icon),
+            FolderData(256, "Папка №2", LightBlue, Blue, R.drawable.folder_icon),
+            FolderData(256, "Папка №2", LightBlue, Blue, R.drawable.folder_icon),
+        )
+    }
 
     val fabState =
-        remember { FabState(expandedHeight = with(LocalDensity) { ITEM_HEIGHT.dp * fabMenuItems.size }) }
+        remember { FabState(expandedHeight = ITEM_HEIGHT.dp * fabMenuItems.size) }
 
-    val alphaScreen = animateScreenAlpha(fabState.screenAlphaValue, 100)
+    val alphaScreen = animateScreenAlpha(fabState.screenAlphaValue, fabState.animationDuration)
 
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .background(BackgroundScreen)
             .statusBarsPadding()
-            .padding(start = 16.dp, top = 20.dp, end = 16.dp)
+            .padding(horizontal = 16.dp)
+            .padding(top = 20.dp)
     ) {
         item {
             DailyProgressTracker(dptIcon = painterResource(R.drawable.dpt_icon))
@@ -126,10 +128,7 @@ fun MainScreen(
                 onClick = {
                     navController.navigate(NavigationRoute.FolderScreen.route)
                 },
-                textStyle = TextStyle(
-                    fontSize = 14.sp,
-                    fontFamily = FontFamily(Font(R.font.opensans_medium))
-                ),
+                textStyle = textStyleDisplayCard,
                 modifier = Modifier
             )
             Spacer(modifier = Modifier.height(6.dp))
