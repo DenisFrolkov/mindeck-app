@@ -10,10 +10,9 @@ import androidx.compose.ui.graphics.painter.Painter
 import com.mindeck.presentation.ui.theme.White
 
 @Composable
-fun ActionHandlerButton(iconPainter: Painter, contentDescription: String, iconTint: Color = White, boxModifier: Modifier, iconModifier: Modifier) {
+fun ActionHandlerButton(iconPainter: Painter, contentDescription: String, iconTint: Color = White, iconModifier: Modifier) {
     Box(
         contentAlignment = Alignment.TopStart,
-        modifier = boxModifier
     ) {
         Icon(
             painter = iconPainter,

@@ -37,7 +37,7 @@ fun RepeatOptionsButton(
         modifier = Modifier
             .background(color = buttonColor, shape = RoundedCornerShape(4.dp))
             .border(width = 0.1.dp, color = MediumGray, shape = RoundedCornerShape(4.dp))
-            .width(90.dp)
+            .width(76.dp)
             .padding(vertical = 2.dp)
             .wrapContentSize(Alignment.Center)
             .clickable(
