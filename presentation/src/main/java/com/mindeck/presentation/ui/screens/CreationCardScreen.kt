@@ -20,7 +20,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -61,6 +63,9 @@ import kotlin.math.roundToInt
 fun CreationCardScreen(
     navController: NavController
 ) {
+
+    val scrollState = rememberScrollState()
+
     var folderDropdownSelect by rememberSaveable { mutableStateOf("Общая папка") }
     var deckDropdownSelect by rememberSaveable { mutableStateOf("Общая колода") }
     var priorityDropdownSelect by rememberSaveable { mutableStateOf("Карточка с вводом ответа") }
@@ -81,11 +86,12 @@ fun CreationCardScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(color = BackgroundScreen)
+            .verticalScroll(state = scrollState)
             .statusBarsPadding()
             .navigationBarsPadding()
             .padding(horizontal = 16.dp)
+            .padding(top = 16.dp)
     ) {
-        Spacer(Modifier.height(34.dp))
         ActionHandlerButton(
             iconPainter = painterResource(R.drawable.back_icon),
             contentDescription = stringResource(R.string.back_screen_icon_button),

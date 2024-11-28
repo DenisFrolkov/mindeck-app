@@ -1,11 +1,8 @@
 package com.mindeck.presentation.ui.screens
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -37,8 +34,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.mindeck.presentation.R
-import com.mindeck.presentation.ui.components.buttons.ActionHandlerButton
 import com.mindeck.presentation.ui.components.common.ActionBar
+import com.mindeck.presentation.ui.components.common.DisplayItemCount
 import com.mindeck.presentation.ui.components.folder.DisplayCardFolder
 import com.mindeck.presentation.ui.components.folder.FolderData
 import com.mindeck.presentation.ui.components.utils.getPluralForm
@@ -50,99 +47,88 @@ import com.mindeck.presentation.ui.theme.LightBlue
 
 @Composable
 fun FoldersScreen(navController: NavController) {
-    var fontFamily = FontFamily(Font(R.font.opensans_medium))
-    var textStyle = TextStyle(fontSize = 14.sp, color = Black, fontFamily = fontFamily)
+    var fontFamily = remember { FontFamily(Font(R.font.opensans_medium)) }
+    var textStyle = remember { TextStyle(fontSize = 14.sp, color = Black, fontFamily = fontFamily) }
 
     val folders = listOf(
-        FolderData(123, "Общая папка", LightBlue, Blue, R.drawable.folder_icon),
-        FolderData(152, "Папка №1", LightBlue, Blue, R.drawable.folder_icon),
-        FolderData(256, "Папка №2", LightBlue, Blue, R.drawable.folder_icon),
-        FolderData(256, "Папка №2", LightBlue, Blue, R.drawable.folder_icon),
-        FolderData(256, "Папка №2", LightBlue, Blue, R.drawable.folder_icon),
-        FolderData(256, "Папка №2", LightBlue, Blue, R.drawable.folder_icon),
-        FolderData(256, "Папка №2", LightBlue, Blue, R.drawable.folder_icon),
-        FolderData(256, "Папка №2", LightBlue, Blue, R.drawable.folder_icon),
-        FolderData(256, "Папка №2", LightBlue, Blue, R.drawable.folder_icon)
+        FolderData(0, 123, "Общая колода", LightBlue, Blue, R.drawable.deck_icon),
+        FolderData(1, 152, "Колода номер 1", LightBlue, Blue, R.drawable.deck_icon),
+        FolderData(2, 152, "Колода номер 2", LightBlue, Blue, R.drawable.deck_icon),
+        FolderData(3, 152, "Колода номер 3", LightBlue, Blue, R.drawable.deck_icon),
+        FolderData(4, 152, "Колода номер 4", LightBlue, Blue, R.drawable.deck_icon),
+        FolderData(5, 152, "Колода номер 4", LightBlue, Blue, R.drawable.deck_icon),
+        FolderData(6, 152, "Колода номер 4", LightBlue, Blue, R.drawable.deck_icon),
+        FolderData(7, 152, "Колода номер 4", LightBlue, Blue, R.drawable.deck_icon),
+        FolderData(8, 152, "Колода номер 4", LightBlue, Blue, R.drawable.deck_icon),
+        FolderData(9, 152, "Колода номер 4", LightBlue, Blue, R.drawable.deck_icon),
+        FolderData(10, 152, "Колода номер 4", LightBlue, Blue, R.drawable.deck_icon),
+        FolderData(11, 152, "Колода номер 4", LightBlue, Blue, R.drawable.deck_icon),
+        FolderData(12, 152, "Колода номер 4", LightBlue, Blue, R.drawable.deck_icon),
+        FolderData(13, 152, "Колода номер 4", LightBlue, Blue, R.drawable.deck_icon),
+        FolderData(14, 152, "Колода номер 4", LightBlue, Blue, R.drawable.deck_icon),
+        FolderData(15, 152, "Колода номер 4", LightBlue, Blue, R.drawable.deck_icon),
+        FolderData(16, 152, "Колода номер 4", LightBlue, Blue, R.drawable.deck_icon),
+        FolderData(17, 152, "Колода номер 4", LightBlue, Blue, R.drawable.deck_icon),
+        FolderData(18, 152, "Колода номер 4", LightBlue, Blue, R.drawable.deck_icon),
+        FolderData(19, 152, "Колода номер 4", LightBlue, Blue, R.drawable.deck_icon),
+        FolderData(20, 152, "Колода номер 4", LightBlue, Blue, R.drawable.deck_icon),
+        FolderData(21, 152, "Колода номер 4", LightBlue, Blue, R.drawable.deck_icon),
     )
 
-    LazyColumn(
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .background(BackgroundScreen)
-            .statusBarsPadding()
-            .navigationBarsPadding()
             .padding(horizontal = 16.dp)
+            .padding(top = 16.dp)
+            .statusBarsPadding()
     ) {
-        item {
-            Spacer(Modifier.height(34.dp))
-            ActionBar(
-                onBackClick = { navController.popBackStack() },
-                onMenuClick = {  },
-                containerModifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                iconModifier = Modifier
-                    .clip(shape = RoundedCornerShape(50.dp))
-                    .background(color = Blue, shape = RoundedCornerShape(50.dp))
-                    .padding(all = 12.dp)
-                    .size(size = 16.dp),
-            )
-            Text(
-                text = stringResource(R.string.title_text_folders),
-                style = textStyle,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentSize(Alignment.Center)
-            )
-            Spacer(Modifier.height(18.dp))
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
-            ) {
-                Text(
-                    text = pluralStringResource(R.plurals.folder_amount, getPluralForm(folders.size), folders.size),
-                    style = textStyle,
-                    modifier = Modifier.weight(1f),
-                    textAlign = TextAlign.End
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Box(
+        ActionBar(
+            onBackClick = { navController.popBackStack() },
+            onMenuClick = { },
+            containerModifier = Modifier
+                .fillMaxWidth(),
+            iconModifier = Modifier
+                .clip(shape = RoundedCornerShape(50.dp))
+                .background(color = Blue, shape = RoundedCornerShape(50.dp))
+                .padding(all = 12.dp)
+                .size(size = 16.dp),
+        )
+        Text(
+            text = stringResource(R.string.title_text_folders),
+            style = textStyle,
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentSize(Alignment.Center)
+        )
+        Spacer(Modifier.height(18.dp))
+        DisplayItemCount(
+            pluralsTextOne = R.plurals.folder_amount,
+            pluralsTextTwo = R.plurals.deck_amount,
+            listOne = folders,
+            listTwo = listOf(1),
+            textStyle = textStyle
+        )
+        LazyColumn {
+            items(items = folders, key = { it.id }) {
+                DisplayCardFolder(
+                    folderIcon =
+                    painterResource(it.icon),
+                    numberOfCards = it.countCard,
+                    folderName = it.text,
+                    backgroundColor = it.color,
+                    iconColor = it.colorTwo,
+                    onClick = {
+                        navController.navigate(NavigationRoute.FolderScreen.route)
+                    },
+                    textStyle = TextStyle(
+                        fontSize = 14.sp,
+                        fontFamily = FontFamily(Font(R.font.opensans_medium))
+                    ),
                     modifier = Modifier
-                        .size(8.dp)
-                        .background(
-                            color = Black,
-                            shape = RoundedCornerShape(50.dp)
-                        )
                 )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(
-                    text = pluralStringResource(R.plurals.deck_amount, getPluralForm(1), 1),
-                    style = textStyle,
-                    modifier = Modifier.weight(1f),
-                    textAlign = TextAlign.Start
-                )
+                Spacer(modifier = Modifier.height(6.dp))
             }
-            Spacer(modifier = Modifier.height(12.dp))
-        }
-        items(folders) {
-            DisplayCardFolder(
-                folderIcon =
-                painterResource(it.icon),
-                numberOfCards = it.countCard,
-                folderName = it.text,
-                backgroundColor = it.color,
-                iconColor = it.colorTwo,
-                onClick = {
-                    navController.navigate(NavigationRoute.FolderScreen.route)
-                },
-                textStyle = TextStyle(
-                    fontSize = 14.sp,
-                    fontFamily = FontFamily(Font(R.font.opensans_medium))
-                ),
-                modifier = Modifier
-            )
-            Spacer(modifier = Modifier.height(6.dp))
         }
     }
 }
