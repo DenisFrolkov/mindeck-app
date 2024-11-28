@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,7 +15,9 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -22,7 +25,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
@@ -56,104 +58,108 @@ fun MainScreen(
     navController: NavController,
     onButtonPositioned: (IntOffset) -> Unit
 ) {
+    val scrollState = rememberScrollState()
 
-    val textStyle = TextStyle(
-        fontSize = 14.sp,
-        color = White,
-        fontFamily = FontFamily(Font(R.font.opensans_medium))
-    )
-
-    val textStyleDisplayCard = TextStyle(
-        fontSize = 14.sp,
-        fontFamily = FontFamily(Font(R.font.opensans_medium))
-    )
-
-    val fabMenuItems = listOf(
-        FabMenuDataClass(
-            idItem = 0,
-            text = "Настройки",
-            icon = painterResource(R.drawable.fab_open_menu_setting_icon),
-            navigation = { navController.navigate(NavigationRoute.CreationCardScreen.route) }
-        ),
-        FabMenuDataClass(
-            idItem = 1,
-            text = "Создать картчоку",
-            icon = painterResource(R.drawable.fab_open_menu_create_icon),
-            navigation = { navController.navigate(NavigationRoute.CreationCardScreen.route) }
+    val textStyle = remember {
+        TextStyle(
+            fontSize = 14.sp,
+            color = White,
+            fontFamily = FontFamily(Font(R.font.opensans_medium))
         )
-    )
+    }
 
-    val folders = remember {
+    val textStyleDisplayCard = remember {
+        TextStyle(
+            fontSize = 14.sp,
+            fontFamily = FontFamily(Font(R.font.opensans_medium))
+        )
+    }
+
+    val fabMenuItems = remember {
+        listOf(
+            FabMenuDataClass(
+                idItem = 0,
+                text = "Настройки",
+                icon = R.drawable.fab_open_menu_setting_icon,
+                navigation = { navController.navigate(NavigationRoute.CreationCardScreen.route) }
+            ),
+            FabMenuDataClass(
+                idItem = 1,
+                text = "Создать картчоку",
+                icon = R.drawable.fab_open_menu_create_icon,
+                navigation = { navController.navigate(NavigationRoute.CreationCardScreen.route) }
+            )
+        )
+    }
+
+    val folders =
         listOf(
             FolderData(
+                0,
                 789,
                 "Повторите, чтобы не забыть!",
                 LightMint,
                 LimeGreen,
                 R.drawable.repeat_card_item
             ),
-            FolderData(123, "Общая папка", LightBlue, Blue, R.drawable.folder_icon),
-            FolderData(152, "Папка №1", LightBlue, Blue, R.drawable.folder_icon),
-            FolderData(256, "Папка №2", LightBlue, Blue, R.drawable.folder_icon),
-            FolderData(256, "Папка №2", LightBlue, Blue, R.drawable.folder_icon),
-            FolderData(256, "Папка №2", LightBlue, Blue, R.drawable.folder_icon),
+            FolderData(1, 123, "Общая папка", LightBlue, Blue, R.drawable.folder_icon),
+            FolderData(2, 152, "Папка №1", LightBlue, Blue, R.drawable.folder_icon),
+            FolderData(3, 256, "Папка №2", LightBlue, Blue, R.drawable.folder_icon),
+            FolderData(4, 256, "Папка №2", LightBlue, Blue, R.drawable.folder_icon),
+            FolderData(5, 256, "Папка №2", LightBlue, Blue, R.drawable.folder_icon),
         )
-    }
 
     val fabState =
         remember { FabState(expandedHeight = ITEM_HEIGHT.dp * fabMenuItems.size) }
 
     val alphaScreen = animateScreenAlpha(fabState.screenAlphaValue, fabState.animationDuration)
 
-    LazyColumn(
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .background(BackgroundScreen)
+            .verticalScroll(state = scrollState)
             .statusBarsPadding()
             .padding(horizontal = 16.dp)
-            .padding(top = 20.dp)
+            .padding(top = 16.dp, bottom = 16.dp)
     ) {
-        item {
-            DailyProgressTracker(dptIcon = painterResource(R.drawable.dpt_icon))
-            Spacer(modifier = Modifier.height(20.dp))
-        }
-        items(folders.take(5)) {
-            DisplayCardFolder(
-                folderIcon =
-                painterResource(it.icon),
-                numberOfCards = it.countCard,
-                folderName = it.text,
-                backgroundColor = it.color,
-                iconColor = it.colorTwo,
-                onClick = {
-                    navController.navigate(NavigationRoute.FolderScreen.route)
-                },
-                textStyle = textStyleDisplayCard,
-                modifier = Modifier
-            )
-            Spacer(modifier = Modifier.height(6.dp))
-        }
-        item {
-            if (folders.size > 5) {
-                Spacer(modifier = Modifier.height(6.dp))
-                Box(
+        DailyProgressTracker(dptIcon = painterResource(R.drawable.dpt_icon))
+        Spacer(modifier = Modifier.height(20.dp))
+        folders.take(5).forEach {
+                DisplayCardFolder(
+                    folderIcon =
+                    painterResource(it.icon),
+                    numberOfCards = it.countCard,
+                    folderName = it.text,
+                    backgroundColor = it.color,
+                    iconColor = it.colorTwo,
+                    onClick = {
+                        navController.navigate(NavigationRoute.FolderScreen.route)
+                    },
+                    textStyle = textStyleDisplayCard,
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentSize(Alignment.Center)
-                ) {
-                    GetAllFindersButton(
-                        textStyle = textStyle,
-                        modifier = Modifier
-                            .background(color = Blue, shape = RoundedCornerShape(12.dp))
-                            .clickable(
-                                interactionSource = remember { MutableInteractionSource() },
-                                indication = null
-                            ) {
-                                navController.navigate(NavigationRoute.FoldersScreen.route)
-                            },
-                        textModifier = Modifier.padding(vertical = 8.dp, horizontal = 33.dp)
-                    )
-                }
+                )
+                Spacer(modifier = Modifier.height(6.dp))
+            }
+        if (folders.size > 5) {
+            Spacer(modifier = Modifier.height(6.dp))
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentSize(Alignment.Center)
+            ) {
+                GetAllFindersButton(
+                    textStyle = textStyle,
+                    modifier = Modifier
+                        .background(color = Blue, shape = RoundedCornerShape(12.dp))
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null
+                        ) {
+                            navController.navigate(NavigationRoute.FoldersScreen.route)
+                        },
+                    textModifier = Modifier.padding(vertical = 8.dp, horizontal = 33.dp)
+                )
             }
         }
     }

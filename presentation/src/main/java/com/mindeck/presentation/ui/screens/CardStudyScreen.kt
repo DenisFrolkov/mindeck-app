@@ -2,8 +2,6 @@ package com.mindeck.presentation.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,7 +14,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,8 +25,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -36,7 +35,6 @@ import androidx.navigation.NavController
 import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.components.RepeatOptions.RepeatOptionData
 import com.mindeck.presentation.ui.components.RepeatOptions.RepeatOptionsButton
-import com.mindeck.presentation.ui.components.buttons.ActionHandlerButton
 import com.mindeck.presentation.ui.components.common.ActionBar
 import com.mindeck.presentation.ui.theme.BackgroundScreen
 import com.mindeck.presentation.ui.theme.Blue
@@ -49,31 +47,45 @@ import com.mindeck.presentation.ui.theme.White
 
 @Composable
 fun CardStudyScreen(navController: NavController) {
-    val fontFamily = FontFamily(Font(R.font.opensans_medium))
+    val scrollState = rememberScrollState()
+
+    val fontFamily = remember { FontFamily(Font(R.font.opensans_medium)) }
     val questionStyle =
-        TextStyle(fontSize = 14.sp, fontFamily = fontFamily, textAlign = TextAlign.Center)
+        remember {
+            TextStyle(
+                fontSize = 14.sp,
+                fontFamily = fontFamily,
+                textAlign = TextAlign.Center
+            )
+        }
     val answerStyle =
-        TextStyle(fontSize = 14.sp, fontFamily = fontFamily, textAlign = TextAlign.Center)
+        remember {
+            TextStyle(
+                fontSize = 14.sp,
+                fontFamily = fontFamily,
+                textAlign = TextAlign.Center
+            )
+        }
 
     var repeatOptionsButton = listOf(
-        RepeatOptionData(title = "Повторить", time = "1 минута", color = LightBlue, action = {  }),
-        RepeatOptionData(title = "Легко", time = "5 дней", color = LightMint, action = {  }),
-        RepeatOptionData(title = "Средне", time = "2 дней", color = LightYellow, action = {  }),
-        RepeatOptionData(title = "Тяжело", time = "1 дней", color = LightRed, action = {  })
+        RepeatOptionData(title = "Повторить", time = "1 минута", color = LightBlue, action = { }),
+        RepeatOptionData(title = "Легко", time = "5 дней", color = LightMint, action = { }),
+        RepeatOptionData(title = "Средне", time = "2 дней", color = LightYellow, action = { }),
+        RepeatOptionData(title = "Тяжело", time = "1 дней", color = LightRed, action = { })
     )
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(BackgroundScreen)
+            .verticalScroll(state = scrollState)
             .statusBarsPadding()
-            .navigationBarsPadding()
             .padding(horizontal = 16.dp)
+            .padding(bottom = 16.dp)
     ) {
-        Spacer(Modifier.height(34.dp))
         ActionBar(
             onBackClick = { navController.popBackStack() },
-            onMenuClick = {  },
+            onMenuClick = { },
             containerModifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp),
