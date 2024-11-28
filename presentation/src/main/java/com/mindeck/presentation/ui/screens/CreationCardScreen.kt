@@ -14,11 +14,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -54,26 +58,13 @@ import com.mindeck.presentation.ui.theme.MediumGray
 import com.mindeck.presentation.ui.theme.White
 import kotlin.math.roundToInt
 
-data class DropdownState(
-    var folder: String = "Общая папка",
-    var deck: String = "Общая колода",
-    var priority: String = "Карточка с вводом ответа",
-    var tape: String = "Простой"
-)
-
-data class InputFields(
-    var title: String = "",
-    var question: String = "",
-    var answer: String = "",
-    var tag: String = ""
-)
-
 @SuppressLint("ResourceType")
 @Composable
 fun CreationCardScreen(
     navController: NavController
 ) {
-    val insets = WindowInsets.systemBars.asPaddingValues().calculateTopPadding()
+
+    val scrollState = rememberScrollState()
 
     var folderDropdownSelect by rememberSaveable { mutableStateOf("Общая папка") }
     var deckDropdownSelect by rememberSaveable { mutableStateOf("Общая колода") }
@@ -95,108 +86,108 @@ fun CreationCardScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(color = BackgroundScreen)
-            .padding(top = insets)
+            .verticalScroll(state = scrollState)
+            .statusBarsPadding()
+            .navigationBarsPadding()
+            .padding(horizontal = 16.dp)
+            .padding(top = 16.dp)
     ) {
         ActionHandlerButton(
             iconPainter = painterResource(R.drawable.back_icon),
             contentDescription = stringResource(R.string.back_screen_icon_button),
-            boxModifier = Modifier
-                .padding(start = 14.dp, top = 14.dp)
+            iconModifier = Modifier
+                .background(color = Blue, shape = RoundedCornerShape(50.dp))
+                .padding(all = 12.dp)
+                .size(size = 16.dp)
                 .clip(shape = RoundedCornerShape(50.dp))
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null
                 ) {
                     navController.popBackStack()
-                },
-            iconModifier = Modifier
-                .background(color = Blue, shape = RoundedCornerShape(50.dp))
-                .padding(all = 12.dp)
-                .size(size = 16.dp)
+                }
         )
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-            DropdownSelectors(
-                textStyle = textStyle,
-                folderDropdownSelect = folderDropdownSelect,
-                deckDropdownSelect = deckDropdownSelect,
-                priorityDropdownSelect = priorityDropdownSelect,
-                tapeDropdownSelect = tapeDropdownSelect,
-                onPassFolderDropdownSelect = { folderDropdownSelect = it },
-                onPassDeckDropdownSelect = { deckDropdownSelect = it},
-                onPassPriorityDropdownSelect = { priorityDropdownSelect = it},
-                onPassTapeDropdownSelect = {tapeDropdownSelect = it},
-            )
+        DropdownSelectors(
+            textStyle = textStyle,
+            folderDropdownSelect = folderDropdownSelect,
+            deckDropdownSelect = deckDropdownSelect,
+            priorityDropdownSelect = priorityDropdownSelect,
+            tapeDropdownSelect = tapeDropdownSelect,
+            onPassFolderDropdownSelect = { folderDropdownSelect = it },
+            onPassDeckDropdownSelect = { deckDropdownSelect = it },
+            onPassPriorityDropdownSelect = { priorityDropdownSelect = it },
+            onPassTapeDropdownSelect = { tapeDropdownSelect = it },
+        )
 
-            Spacer(modifier = Modifier.height(height = 20.dp))
+        Spacer(modifier = Modifier.height(height = 20.dp))
 
-            TitleInputField(
-                placeholder = stringResource(R.string.enter_name_for_card),
-                value = titleInputFieldValue,
-                onValueChange = { titleInputFieldValue = it },
-                fontFamily = fontFamily,
-                modifier = textInputModifier(size = 4.dp)
-                    .fillMaxWidth()
-                    .heightIn(min = minHeight)
-                    .wrapContentSize(Alignment.CenterStart)
+        TitleInputField(
+            placeholder = stringResource(R.string.enter_name_for_card),
+            value = titleInputFieldValue,
+            onValueChange = { titleInputFieldValue = it },
+            fontFamily = fontFamily,
+            modifier = textInputModifier(size = 4.dp)
+                .fillMaxWidth()
+                .heightIn(min = minHeight)
+                .wrapContentSize(Alignment.CenterStart)
+        )
+        Spacer(modifier = Modifier.height(height = 10.dp))
+        CardInputField(
+            placeholder = stringResource(R.string.enter_question_for_card),
+            value = cardInputQuestionValue,
+            onValueChange = { cardInputQuestionValue = it },
+            fontFamily = fontFamily,
+            modifier = textInputModifier(
+                topStart = 4.dp,
+                topEnd = 4.dp,
+                bottomStart = 0.dp,
+                bottomEnd = 0.dp
             )
-            Spacer(modifier = Modifier.height(height = 10.dp))
-            CardInputField(
-                placeholder = stringResource(R.string.enter_question_for_card),
-                value = cardInputQuestionValue,
-                onValueChange = { cardInputQuestionValue = it },
-                fontFamily = fontFamily,
-                modifier = textInputModifier(
-                    topStart = 4.dp,
-                    topEnd = 4.dp,
-                    bottomStart = 0.dp,
-                    bottomEnd = 0.dp
-                )
-                    .fillMaxWidth()
-                    .heightIn(min = minHeight, max = maxHeight)
-                    .wrapContentSize(Alignment.CenterStart)
+                .fillMaxWidth()
+                .heightIn(min = minHeight, max = maxHeight)
+                .wrapContentSize(Alignment.CenterStart)
+        )
+        CardInputField(
+            placeholder = stringResource(R.string.enter_answer_for_card),
+            value = cardInputAnswerValue,
+            onValueChange = { cardInputAnswerValue = it },
+            fontFamily = fontFamily,
+            modifier = textInputModifier(
+                topEnd = 0.dp,
+                topStart = 0.dp,
+                bottomStart = 4.dp,
+                bottomEnd = 4.dp
             )
-            CardInputField(
-                placeholder = stringResource(R.string.enter_answer_for_card),
-                value = cardInputAnswerValue,
-                onValueChange = { cardInputAnswerValue = it },
-                fontFamily = fontFamily,
-                modifier = textInputModifier(
-                    topEnd = 0.dp,
-                    topStart = 0.dp,
-                    bottomStart = 4.dp,
-                    bottomEnd = 4.dp
-                )
-                    .fillMaxWidth()
-                    .heightIn(min = minHeight, max = maxHeight)
-                    .wrapContentSize(Alignment.CenterStart),
+                .fillMaxWidth()
+                .heightIn(min = minHeight, max = maxHeight)
+                .wrapContentSize(Alignment.CenterStart),
 
-                )
-            Spacer(modifier = Modifier.height(height = 14.dp))
-            TegInputField(
-                titleTextInput = stringResource(R.string.text_teg_input_field),
-                value = tagInputValue,
-                onValueChange = {
-                    tagInputValue = it
-                },
-                fontFamily = fontFamily,
-                modifier = textInputModifier(size = 4.dp)
-                    .size(width = 120.dp, height = 36.dp)
-                    .wrapContentSize(Alignment.CenterStart)
             )
-            Spacer(modifier = Modifier.height(height = 20.dp))
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentSize(Alignment.Center)
-            ) {
-                SaveDataButton(
-                    text = stringResource(R.string.text_save_card_button),
-                    fontFamily = fontFamily
-                )
-            }
+        Spacer(modifier = Modifier.height(height = 14.dp))
+        TegInputField(
+            titleTextInput = stringResource(R.string.text_teg_input_field),
+            value = tagInputValue,
+            onValueChange = {
+                tagInputValue = it
+            },
+            fontFamily = fontFamily,
+            modifier = textInputModifier(size = 4.dp)
+                .size(width = 120.dp, height = 36.dp)
+                .wrapContentSize(Alignment.CenterStart)
+        )
+        Spacer(modifier = Modifier.height(height = 20.dp))
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentSize(Alignment.Center)
+        ) {
+            SaveDataButton(
+                text = stringResource(R.string.text_save_card_button),
+                fontFamily = fontFamily
+            )
         }
     }
 }
