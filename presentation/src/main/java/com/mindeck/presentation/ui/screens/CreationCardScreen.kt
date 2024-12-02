@@ -42,8 +42,8 @@ import androidx.navigation.NavController
 import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.components.buttons.ActionHandlerButton
 import com.mindeck.presentation.ui.components.buttons.SaveDataButton
-import com.mindeck.presentation.ui.components.dropdown_selector.DropdownSelector
-import com.mindeck.presentation.ui.components.dropdown_selector.DropdownSelectorDataClass
+import com.mindeck.presentation.ui.components.dropdown.dropdown_selector.DropdownSelector
+import com.mindeck.presentation.ui.components.dropdown.dropdown_selector.DropdownSelectorDataClass
 import com.mindeck.presentation.ui.components.textfields.CardInputField
 import com.mindeck.presentation.ui.components.textfields.TegInputField
 import com.mindeck.presentation.ui.components.textfields.TitleInputField
