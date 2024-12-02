@@ -1,6 +1,7 @@
 package com.mindeck.presentation.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -31,6 +32,8 @@ import androidx.navigation.NavController
 import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.components.common.ActionBar
 import com.mindeck.presentation.ui.components.common.DisplayItemCount
+import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenu
+import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenuData
 import com.mindeck.presentation.ui.components.folder.DisplayCardFolder
 import com.mindeck.presentation.ui.components.folder.FolderData
 import com.mindeck.presentation.ui.navigation.NavigationRoute
@@ -48,25 +51,21 @@ fun FoldersScreen(navController: NavController) {
         FolderData(0, 123, "Общая колода", LightBlue, Blue, R.drawable.deck_icon),
         FolderData(1, 152, "Колода номер 1", LightBlue, Blue, R.drawable.deck_icon),
         FolderData(2, 152, "Колода номер 2", LightBlue, Blue, R.drawable.deck_icon),
-        FolderData(3, 152, "Колода номер 3", LightBlue, Blue, R.drawable.deck_icon),
-        FolderData(4, 152, "Колода номер 4", LightBlue, Blue, R.drawable.deck_icon),
-        FolderData(5, 152, "Колода номер 4", LightBlue, Blue, R.drawable.deck_icon),
-        FolderData(6, 152, "Колода номер 4", LightBlue, Blue, R.drawable.deck_icon),
-        FolderData(7, 152, "Колода номер 4", LightBlue, Blue, R.drawable.deck_icon),
-        FolderData(8, 152, "Колода номер 4", LightBlue, Blue, R.drawable.deck_icon),
-        FolderData(9, 152, "Колода номер 4", LightBlue, Blue, R.drawable.deck_icon),
-        FolderData(10, 152, "Колода номер 4", LightBlue, Blue, R.drawable.deck_icon),
-        FolderData(11, 152, "Колода номер 4", LightBlue, Blue, R.drawable.deck_icon),
-        FolderData(12, 152, "Колода номер 4", LightBlue, Blue, R.drawable.deck_icon),
-        FolderData(13, 152, "Колода номер 4", LightBlue, Blue, R.drawable.deck_icon),
-        FolderData(14, 152, "Колода номер 4", LightBlue, Blue, R.drawable.deck_icon),
-        FolderData(15, 152, "Колода номер 4", LightBlue, Blue, R.drawable.deck_icon),
-        FolderData(16, 152, "Колода номер 4", LightBlue, Blue, R.drawable.deck_icon),
-        FolderData(17, 152, "Колода номер 4", LightBlue, Blue, R.drawable.deck_icon),
-        FolderData(18, 152, "Колода номер 4", LightBlue, Blue, R.drawable.deck_icon),
-        FolderData(19, 152, "Колода номер 4", LightBlue, Blue, R.drawable.deck_icon),
-        FolderData(20, 152, "Колода номер 4", LightBlue, Blue, R.drawable.deck_icon),
-        FolderData(21, 152, "Колода номер 4", LightBlue, Blue, R.drawable.deck_icon),
+    )
+
+    var listDropdownMenu = listOf(
+        DropdownMenuData(
+            title = "Изменить название",
+            action = {}
+        ),
+        DropdownMenuData(
+            title = "Удалить элемент",
+            action = {}
+        ),
+        DropdownMenuData(
+            title = "Добавить элемент",
+            action = {}
+        )
     )
 
     Scaffold(
@@ -128,6 +127,19 @@ fun FoldersScreen(navController: NavController) {
                         Spacer(modifier = Modifier.height(6.dp))
                     }
                 }
+            }
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+            ) {
+                DropdownMenu(
+                    listDropdownMenuItem = listDropdownMenu,
+                    dropdownModifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 4.dp)
+                        .wrapContentSize(Alignment.TopEnd)
+                )
             }
         }
     )

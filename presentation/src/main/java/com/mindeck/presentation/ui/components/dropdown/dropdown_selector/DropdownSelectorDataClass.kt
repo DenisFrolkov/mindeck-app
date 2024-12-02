@@ -1,4 +1,4 @@
-package com.mindeck.presentation.ui.components.dropdown_selector
+package com.mindeck.presentation.ui.components.dropdown.dropdown_selector
 
 class DropdownSelectorDataClass(
     val title: String,

@@ -1,6 +1,7 @@
 package com.mindeck.presentation.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -29,6 +30,7 @@ import androidx.navigation.NavController
 import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.components.common.ActionBar
 import com.mindeck.presentation.ui.components.common.DisplayItemCount
+import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenu
 import com.mindeck.presentation.ui.components.folder.DisplayCardFolder
 import com.mindeck.presentation.ui.components.folder.FolderData
 import com.mindeck.presentation.ui.navigation.NavigationRoute
