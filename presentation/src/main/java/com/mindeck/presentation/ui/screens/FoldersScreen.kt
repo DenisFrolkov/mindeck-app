@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -68,60 +69,66 @@ fun FoldersScreen(navController: NavController) {
         FolderData(21, 152, "Колода номер 4", LightBlue, Blue, R.drawable.deck_icon),
     )
 
-    Column(
+    Scaffold(
         modifier = Modifier
             .fillMaxSize()
             .background(BackgroundScreen)
             .padding(horizontal = 16.dp)
             .padding(top = 16.dp)
-            .statusBarsPadding()
-    ) {
-        ActionBar(
-            onBackClick = { navController.popBackStack() },
-            onMenuClick = { },
-            containerModifier = Modifier
-                .fillMaxWidth(),
-            iconModifier = Modifier
-                .clip(shape = RoundedCornerShape(50.dp))
-                .background(color = Blue, shape = RoundedCornerShape(50.dp))
-                .padding(all = 12.dp)
-                .size(size = 16.dp),
-        )
-        Text(
-            text = stringResource(R.string.title_text_folders),
-            style = textStyle,
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentSize(Alignment.Center)
-        )
-        Spacer(Modifier.height(18.dp))
-        DisplayItemCount(
-            pluralsTextOne = R.plurals.folder_amount,
-            pluralsTextTwo = R.plurals.deck_amount,
-            listOne = folders,
-            listTwo = listOf(1),
-            textStyle = textStyle
-        )
-        LazyColumn {
-            items(items = folders, key = { it.id }) {
-                DisplayCardFolder(
-                    folderIcon =
-                    painterResource(it.icon),
-                    numberOfCards = it.countCard,
-                    folderName = it.text,
-                    backgroundColor = it.color,
-                    iconColor = it.colorTwo,
-                    onClick = {
-                        navController.navigate(NavigationRoute.FolderScreen.route)
-                    },
-                    textStyle = TextStyle(
-                        fontSize = 14.sp,
-                        fontFamily = FontFamily(Font(R.font.opensans_medium))
-                    ),
+            .statusBarsPadding(),
+        containerColor = BackgroundScreen,
+        topBar = {
+            ActionBar(
+                onBackClick = { navController.popBackStack() },
+                onMenuClick = { },
+                containerModifier = Modifier
+                    .fillMaxWidth(),
+                iconModifier = Modifier
+                    .clip(shape = RoundedCornerShape(50.dp))
+                    .background(color = Blue, shape = RoundedCornerShape(50.dp))
+                    .padding(all = 12.dp)
+                    .size(size = 16.dp),
+            )
+        },
+        content = { padding ->
+            Column(modifier = Modifier.padding(padding)) {
+                Text(
+                    text = stringResource(R.string.title_text_folders),
+                    style = textStyle,
                     modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentSize(Alignment.Center)
                 )
-                Spacer(modifier = Modifier.height(6.dp))
+                Spacer(Modifier.height(18.dp))
+                DisplayItemCount(
+                    pluralsTextOne = R.plurals.folder_amount,
+                    pluralsTextTwo = R.plurals.deck_amount,
+                    listOne = folders,
+                    listTwo = listOf(1),
+                    textStyle = textStyle
+                )
+                LazyColumn {
+                    items(items = folders, key = { it.id }) {
+                        DisplayCardFolder(
+                            folderIcon =
+                            painterResource(it.icon),
+                            numberOfCards = it.countCard,
+                            folderName = it.text,
+                            backgroundColor = it.color,
+                            iconColor = it.colorTwo,
+                            onClick = {
+                                navController.navigate(NavigationRoute.FolderScreen.route)
+                            },
+                            textStyle = TextStyle(
+                                fontSize = 14.sp,
+                                fontFamily = FontFamily(Font(R.font.opensans_medium))
+                            ),
+                            modifier = Modifier
+                        )
+                        Spacer(modifier = Modifier.height(6.dp))
+                    }
+                }
             }
         }
-    }
+    )
 }
