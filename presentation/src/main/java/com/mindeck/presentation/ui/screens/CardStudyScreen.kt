@@ -3,12 +3,14 @@ package com.mindeck.presentation.ui.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -17,6 +19,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -45,6 +48,7 @@ import com.mindeck.presentation.ui.theme.White
 
 @Composable
 fun CardStudyScreen(navController: NavController) {
+
     val scrollState = rememberScrollState()
 
     val fontFamily = remember { FontFamily(Font(R.font.opensans_medium)) }
@@ -72,57 +76,72 @@ fun CardStudyScreen(navController: NavController) {
         RepeatOptionData(title = "Тяжело", time = "1 дней", color = LightRed, action = { })
     )
 
-    Column(
+    Scaffold(
         modifier = Modifier
             .fillMaxSize()
             .background(BackgroundScreen)
-            .verticalScroll(state = scrollState)
             .statusBarsPadding()
-            .padding(horizontal = 16.dp)
-            .padding(bottom = 16.dp)
-    ) {
-        ActionBar(
-            onBackClick = { navController.popBackStack() },
-            onMenuClick = { },
-            containerModifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            iconModifier = Modifier
-                .clip(shape = RoundedCornerShape(50.dp))
-                .background(color = Blue, shape = RoundedCornerShape(50.dp))
-                .padding(all = 12.dp)
-                .size(size = 16.dp),
-        )
-        Spacer(Modifier.height(14.dp))
-        QuestionAndAnswerElement(
-            question = "1243213",
-            answer = "43214123",
-            questionStyle = questionStyle,
-            answerStyle = answerStyle,
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(White)
-                .border(width = 0.5.dp, color = MediumGray, shape = RoundedCornerShape(4.dp))
-        )
-        Row(
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.Bottom,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(bottom = 16.dp)
-                .height(60.dp)
-        ) {
-            repeatOptionsButton.forEach {
-                RepeatOptionsButton(
-                    buttonColor = it.color,
-                    textDifficultyOfRepetition = it.title,
-                    repeatTimeText = it.time,
-                    fontFamily = fontFamily,
-                    onClick = it.action
-                )
+            .navigationBarsPadding()
+            .padding(horizontal = 16.dp),
+        containerColor = BackgroundScreen,
+        topBar = {
+            ActionBar(
+                onBackClick = { navController.popBackStack() },
+                onMenuClick = { },
+                containerModifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                iconModifier = Modifier
+                    .clip(shape = RoundedCornerShape(50.dp))
+                    .background(color = Blue, shape = RoundedCornerShape(50.dp))
+                    .padding(all = 12.dp)
+                    .size(size = 16.dp),
+            )
+            Spacer(Modifier.height(14.dp))
+        },
+        content = { padding ->
+            Box(modifier = Modifier.padding(padding).verticalScroll(state = scrollState)) {
+                Column(modifier = Modifier.padding(padding)) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                    ) {
+                        QuestionAndAnswerElement(
+                            question = "43214123",
+                            answer = "43214123",
+                            questionStyle = questionStyle,
+                            answerStyle = answerStyle,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(White)
+                                .border(
+                                    width = 0.5.dp,
+                                    color = MediumGray,
+                                    shape = RoundedCornerShape(4.dp)
+                                )
+                        )
+                    }
+                }
+            }
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Bottom,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(bottom = 16.dp)
+            ) {
+                repeatOptionsButton.forEach {
+                    RepeatOptionsButton(
+                        buttonColor = it.color,
+                        textDifficultyOfRepetition = it.title,
+                        repeatTimeText = it.time,
+                        fontFamily = fontFamily,
+                        onClick = it.action
+                    )
+                }
             }
         }
-    }
+    )
 }
 
 @Composable
