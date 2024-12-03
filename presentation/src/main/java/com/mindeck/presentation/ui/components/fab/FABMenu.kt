@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import com.mindeck.presentation.ui.theme.White
 
 @Composable
-fun FABMenu(fabState: FabState, listItemsMenu: List<FabMenuDataClass>, textStyle: TextStyle, iconColor: Color) {
+fun FABMenu(fabState: FabState, listItemsMenu: List<FabMenuData>, textStyle: TextStyle, iconColor: Color) {
 
     listItemsMenu.forEach { menuItem ->
         Row(

@@ -1,6 +1,8 @@
 package com.mindeck.presentation.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,8 +18,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -29,6 +33,10 @@ import androidx.navigation.NavController
 import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.components.common.ActionBar
 import com.mindeck.presentation.ui.components.common.DisplayItemCount
+import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenu
+import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenuData
+import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenuState
+import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.animateDropdownMenuHeightIn
 import com.mindeck.presentation.ui.components.folder.DeckData
 import com.mindeck.presentation.ui.components.folder.DisplayCardItem
 import com.mindeck.presentation.ui.navigation.NavigationRoute
@@ -39,6 +47,13 @@ import com.mindeck.presentation.ui.theme.LightBlue
 
 @Composable
 fun DeckScreen(navController: NavController) {
+
+    var dropdownMenuState = remember { DropdownMenuState() }
+
+    val dropdownVisibleAnimation = animateDropdownMenuHeightIn(
+        targetAlpha = dropdownMenuState.dropdownAlpha,
+        animationDuration = dropdownMenuState.animationDuration
+    )
     var fontFamily = FontFamily(Font(R.font.opensans_medium))
     var textStyle = TextStyle(fontSize = 14.sp, color = Black, fontFamily = fontFamily)
 
@@ -51,10 +66,32 @@ fun DeckScreen(navController: NavController) {
         DeckData(6, "Картчока номер 1", R.drawable.card_icon),
     )
 
+    var listDropdownMenu = listOf(
+        DropdownMenuData(
+            title = "Изменить название",
+            action = {
+            }
+        ),
+        DropdownMenuData(
+            title = "Удалить элемент",
+            action = {
+            }
+        ),
+        DropdownMenuData(
+            title = "Добавить элемент",
+            action = {
+            }
+        )
+    )
+
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
             .background(BackgroundScreen)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) { dropdownMenuState.toggle() }
             .padding(horizontal = 16.dp)
             .padding(top = 16.dp)
             .statusBarsPadding(),
@@ -62,7 +99,7 @@ fun DeckScreen(navController: NavController) {
         topBar = {
             ActionBar(
                 onBackClick = { navController.popBackStack() },
-                onMenuClick = { },
+                onMenuClick = { dropdownMenuState.toggle() },
                 containerModifier = Modifier
                     .fillMaxWidth(),
                 iconModifier = Modifier
@@ -107,6 +144,18 @@ fun DeckScreen(navController: NavController) {
                         Spacer(modifier = Modifier.height(6.dp))
                     }
                 }
+            }
+            if (dropdownMenuState.isExpanded) {
+                DropdownMenu(
+                    listDropdownMenuItem = listDropdownMenu,
+                    textStyle = textStyle,
+                    dropdownModifier = Modifier
+                        .padding(padding)
+                        .alpha(dropdownVisibleAnimation)
+                        .fillMaxWidth()
+                        .padding(top = 4.dp)
+                        .wrapContentSize(Alignment.TopEnd)
+                )
             }
         }
     )

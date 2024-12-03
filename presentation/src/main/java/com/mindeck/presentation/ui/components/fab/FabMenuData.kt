@@ -1,6 +1,6 @@
 package com.mindeck.presentation.ui.components.fab
 
-data class FabMenuDataClass(
+data class FabMenuData(
     val idItem: Int,
     val text: String,
     val icon: Int,

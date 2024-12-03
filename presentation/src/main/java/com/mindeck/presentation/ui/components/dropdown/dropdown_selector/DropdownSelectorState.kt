@@ -1,4 +1,4 @@
-package com.mindeck.presentation.ui.components.dropdown_selector
+package com.mindeck.presentation.ui.components.dropdown.dropdown_selector
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -7,7 +7,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
 
-class DropdownState(
+class DropdownSelectorState(
     initialExpanded: Boolean = false,
     private val expandedHeight: Dp = MAX_VISIBLE_ITEMS * ITEM_HEIGHT.dp - 14.dp,
     private val animateOffsetY: Dp = 50.dp,
