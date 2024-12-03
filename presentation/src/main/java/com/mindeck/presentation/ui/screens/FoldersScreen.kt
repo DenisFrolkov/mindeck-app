@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -89,10 +90,6 @@ fun FoldersScreen(navController: NavController) {
         modifier = Modifier
             .fillMaxSize()
             .background(BackgroundScreen)
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null
-            ) { dropdownMenuState.toggle() }
             .padding(horizontal = 16.dp)
             .padding(top = 16.dp)
             .statusBarsPadding(),
@@ -111,7 +108,10 @@ fun FoldersScreen(navController: NavController) {
             )
         },
         content = { padding ->
-            Column(modifier = Modifier.padding(padding)) {
+            Column(
+                modifier = Modifier
+                    .padding(padding)
+            ) {
                 Text(
                     text = stringResource(R.string.title_text_folders),
                     style = textStyle,
@@ -148,6 +148,14 @@ fun FoldersScreen(navController: NavController) {
                         Spacer(modifier = Modifier.height(6.dp))
                     }
                 }
+            }
+            if (dropdownMenuState.isExpanded) {
+                Box(modifier = Modifier
+                    .fillMaxSize()
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) { dropdownMenuState.toggle() })
             }
             if (dropdownMenuState.isExpanded) {
                 DropdownMenu(

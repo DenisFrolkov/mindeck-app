@@ -3,6 +3,7 @@ package com.mindeck.presentation.ui.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,10 +24,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -44,9 +48,13 @@ import com.mindeck.presentation.ui.theme.BackgroundScreen
 import com.mindeck.presentation.ui.theme.Black
 import com.mindeck.presentation.ui.theme.Blue
 import com.mindeck.presentation.ui.theme.LightBlue
+import kotlin.math.roundToInt
 
 @Composable
-fun DeckScreen(navController: NavController) {
+fun DeckScreen(
+    navController: NavController,
+    onButtonPositioned: (IntOffset) -> Unit
+) {
 
     var dropdownMenuState = remember { DropdownMenuState() }
 
@@ -88,10 +96,6 @@ fun DeckScreen(navController: NavController) {
         modifier = Modifier
             .fillMaxSize()
             .background(BackgroundScreen)
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null
-            ) { dropdownMenuState.toggle() }
             .padding(horizontal = 16.dp)
             .padding(top = 16.dp)
             .statusBarsPadding(),
@@ -140,10 +144,22 @@ fun DeckScreen(navController: NavController) {
                                 fontFamily = FontFamily(Font(R.font.opensans_medium))
                             ),
                             modifier = Modifier
+                                .onGloballyPositioned {
+                                    val offset = it.localToWindow(Offset.Zero)
+                                    onButtonPositioned(IntOffset(offset.x.roundToInt(), offset.y.roundToInt()))
+                                }
                         )
                         Spacer(modifier = Modifier.height(6.dp))
                     }
                 }
+            }
+            if (dropdownMenuState.isExpanded) {
+                Box(modifier = Modifier
+                    .fillMaxSize()
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) { dropdownMenuState.toggle() })
             }
             if (dropdownMenuState.isExpanded) {
                 DropdownMenu(
