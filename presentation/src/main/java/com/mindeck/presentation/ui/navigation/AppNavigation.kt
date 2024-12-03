@@ -64,7 +64,7 @@ fun AppNavigation() {
         composable(NavigationRoute.DeckScreen.route,
             enterTransition = { fadeIn(animationSpec = tween(100)) },
             exitTransition = { fadeOut(animationSpec = tween(100)) }) {
-            DeckScreen(navController = navController)
+            DeckScreen(navController = navController, onButtonPositioned = { buttonPosition = it })
         }
         composable(NavigationRoute.CardStudyScreen.route,
             enterTransition = { fadeIn(animationSpec = tween(100)) },
