@@ -15,11 +15,11 @@ class DropdownMenuState(
     val dropdownAlpha: Float
         get() = if (isExpanded) animateAlpha else 0f
 
-    private fun open() {
+    fun open() {
         isExpanded = true
     }
 
-    private fun reset() {
+    fun reset() {
         isExpanded = false
     }
 
