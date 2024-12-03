@@ -1,4 +1,4 @@
-package com.mindeck.presentation.ui.components.RepeatOptions
+package com.mindeck.presentation.ui.components.repeat_options
 
 import androidx.compose.ui.graphics.Color
 
