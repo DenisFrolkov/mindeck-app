@@ -1,12 +1,19 @@
 package com.mindeck.presentation.ui.screens
 
+import android.annotation.SuppressLint
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -17,10 +24,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -34,6 +46,8 @@ import com.mindeck.presentation.ui.components.common.ActionBar
 import com.mindeck.presentation.ui.components.common.DisplayItemCount
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenu
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenuData
+import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenuState
+import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.animateDropdownMenuHeightIn
 import com.mindeck.presentation.ui.components.folder.DisplayCardFolder
 import com.mindeck.presentation.ui.components.folder.FolderData
 import com.mindeck.presentation.ui.navigation.NavigationRoute
@@ -42,8 +56,17 @@ import com.mindeck.presentation.ui.theme.Black
 import com.mindeck.presentation.ui.theme.Blue
 import com.mindeck.presentation.ui.theme.LightBlue
 
+@SuppressLint("UseOfNonLambdaOffsetOverload")
 @Composable
 fun FoldersScreen(navController: NavController) {
+
+    var dropdownMenuState = remember { DropdownMenuState() }
+
+    val dropdownVisibleAnimation = animateDropdownMenuHeightIn(
+        targetAlpha = dropdownMenuState.dropdownAlpha,
+        animationDuration = dropdownMenuState.animationDuration
+    )
+
     var fontFamily = remember { FontFamily(Font(R.font.opensans_medium)) }
     var textStyle = remember { TextStyle(fontSize = 14.sp, color = Black, fontFamily = fontFamily) }
 
@@ -56,15 +79,18 @@ fun FoldersScreen(navController: NavController) {
     var listDropdownMenu = listOf(
         DropdownMenuData(
             title = "Изменить название",
-            action = {}
+            action = {
+            }
         ),
         DropdownMenuData(
             title = "Удалить элемент",
-            action = {}
+            action = {
+            }
         ),
         DropdownMenuData(
             title = "Добавить элемент",
-            action = {}
+            action = {
+            }
         )
     )
 
@@ -72,6 +98,10 @@ fun FoldersScreen(navController: NavController) {
         modifier = Modifier
             .fillMaxSize()
             .background(BackgroundScreen)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) { dropdownMenuState.toggle() }
             .padding(horizontal = 16.dp)
             .padding(top = 16.dp)
             .statusBarsPadding(),
@@ -79,7 +109,7 @@ fun FoldersScreen(navController: NavController) {
         topBar = {
             ActionBar(
                 onBackClick = { navController.popBackStack() },
-                onMenuClick = { },
+                onMenuClick = { dropdownMenuState.toggle() },
                 containerModifier = Modifier
                     .fillMaxWidth(),
                 iconModifier = Modifier
@@ -128,14 +158,13 @@ fun FoldersScreen(navController: NavController) {
                     }
                 }
             }
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-            ) {
+            if (dropdownMenuState.isExpanded) {
                 DropdownMenu(
                     listDropdownMenuItem = listDropdownMenu,
+                    textStyle = textStyle,
                     dropdownModifier = Modifier
+                        .padding(padding)
+                        .alpha(dropdownVisibleAnimation)
                         .fillMaxWidth()
                         .padding(top = 4.dp)
                         .wrapContentSize(Alignment.TopEnd)

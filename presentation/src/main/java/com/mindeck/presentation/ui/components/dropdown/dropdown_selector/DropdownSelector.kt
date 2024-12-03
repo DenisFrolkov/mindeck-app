@@ -36,16 +36,16 @@ import com.mindeck.presentation.ui.theme.White
 
 @Composable
 fun DropdownSelector(
-    dropdownSelectorDataClass: DropdownSelectorDataClass,
+    dropdownSelectorData: DropdownSelectorData,
     textStyle: TextStyle,
     modifier: Modifier = Modifier,
     titleModifier: Modifier = Modifier
 ) {
-    val dropdownState = remember { DropdownState() }
+    val dropdownSelectorState = remember { DropdownSelectorState() }
 
     Row() {
         Text(
-            dropdownSelectorDataClass.title, style = textStyle,
+            dropdownSelectorData.title, style = textStyle,
             modifier = titleModifier
                 .padding(8.5.dp)
                 .wrapContentSize(Alignment.CenterStart)
@@ -58,23 +58,23 @@ fun DropdownSelector(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
             ) {
-                dropdownState.toggle()
+                dropdownSelectorState.toggle()
             }) {
             Box(
-                modifier = baseSelectorModifier(dropdownState.isExpanded)
+                modifier = baseSelectorModifier(dropdownSelectorState.isExpanded)
             ) {
                 Text(
-                    text = dropdownSelectorDataClass.selectedItem, style = textStyle
+                    text = dropdownSelectorData.selectedItem, style = textStyle
                 )
             }
-            if (dropdownState.isExpanded) {
+            if (dropdownSelectorState.isExpanded) {
                 Column(
                     modifier = baseSelectorItemModifier()
                 ) {
                     DropdownMenu(
-                        selectorItemList = dropdownSelectorDataClass.itemList,
-                        onStringClick = dropdownSelectorDataClass.onItemClick,
-                        dropdownState = dropdownState,
+                        selectorItemList = dropdownSelectorData.itemList,
+                        onStringClick = dropdownSelectorData.onItemClick,
+                        dropdownSelectorState = dropdownSelectorState,
                         modifier = modifier,
                         textStyle = textStyle
                     )
@@ -88,14 +88,14 @@ fun DropdownSelector(
 @Composable
 private fun DropdownMenu(
     selectorItemList: List<String>,
-    dropdownState: DropdownState,
+    dropdownSelectorState: DropdownSelectorState,
     onStringClick: (String) -> Unit,
     modifier: Modifier,
     textStyle: TextStyle,
 ) {
-    val animatedHeightIn = animateDropdownHeightIn(dropdownState.dropdownHeight, dropdownState.animationDuration)
-    val offsetY = animateDropdownOffsetY(dropdownState.dropdownOffsetY, dropdownState.animationDuration)
-    val alpha = animateDropdownAlpha(dropdownState.dropdownAlpha, dropdownState.animationDuration)
+    val animatedHeightIn = animateDropdownSelectorHeightIn(dropdownSelectorState.dropdownHeight, dropdownSelectorState.animationDuration)
+    val offsetY = animateDropdownSelectorOffsetY(dropdownSelectorState.dropdownOffsetY, dropdownSelectorState.animationDuration)
+    val alpha = animateDropdownSelectorAlpha(dropdownSelectorState.dropdownAlpha, dropdownSelectorState.animationDuration)
 
     val baseItemModifier = modifier
         .fillMaxWidth()
@@ -104,7 +104,7 @@ private fun DropdownMenu(
         .offset(y = -offsetY)
 
     LaunchedEffect(selectorItemList) {
-        dropdownState.open()
+        dropdownSelectorState.open()
     }
 
     LazyColumn(
@@ -139,7 +139,7 @@ private fun DropdownMenu(
                         indication = null
                     ) {
                         onStringClick(it)
-                        dropdownState.reset()
+                        dropdownSelectorState.reset()
                     }
             ) {
                 Text(

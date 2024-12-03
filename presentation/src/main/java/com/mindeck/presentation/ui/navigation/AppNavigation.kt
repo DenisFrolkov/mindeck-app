@@ -29,7 +29,7 @@ fun AppNavigation() {
     var buttonPosition by remember { mutableStateOf(IntOffset.Zero) }
 
     NavHost(
-        navController = navController, startDestination = NavigationRoute.FoldersScreen.route
+        navController = navController, startDestination = NavigationRoute.MainScreen.route
     ) {
         composable(NavigationRoute.MainScreen.route,
             enterTransition = { fadeIn(animationSpec = tween(100)) },

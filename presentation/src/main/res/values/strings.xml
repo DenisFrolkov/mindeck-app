@@ -35,10 +35,12 @@
 
 
     //Animated
-    <string name="label_animated_dropdown_height_in">Animated Dropdown HeightIn</string>
-    <string name="label_animated_dropdown_offset_y">Animated Dropdown OffsetY</string>
-    <string name="label_animated_dropdown_alpha">Animated Dropdown Alpha</string>
+    <string name="label_animated_dropdown_selector_height_in">Animated Dropdown Selector HeightIn</string>
+    <string name="label_animated_dropdown_selector_offset_y">Animated Dropdown Selector OffsetY</string>
+    <string name="label_animated_dropdown_selector_alpha">Animated Dropdown Selector Alpha</string>
     <string name="label_animated_daily_progress_tracker_float">Animated Daily Progress Tracker Float</string>
+    <string name="label_animated_dropdown_menu_alpha">Animated Dropdown Menu Alpha</string>
+
 
     //Content Description
     <string name="folder_icon">Folder Icon</string>

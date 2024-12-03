@@ -43,7 +43,7 @@ import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.components.buttons.ActionHandlerButton
 import com.mindeck.presentation.ui.components.buttons.SaveDataButton
 import com.mindeck.presentation.ui.components.dropdown.dropdown_selector.DropdownSelector
-import com.mindeck.presentation.ui.components.dropdown.dropdown_selector.DropdownSelectorDataClass
+import com.mindeck.presentation.ui.components.dropdown.dropdown_selector.DropdownSelectorData
 import com.mindeck.presentation.ui.components.textfields.CardInputField
 import com.mindeck.presentation.ui.components.textfields.TegInputField
 import com.mindeck.presentation.ui.components.textfields.TitleInputField
@@ -202,7 +202,7 @@ private fun DropdownSelectors(
     onPassTapeDropdownSelect: (String) -> Unit,
 ) {
     DropdownSelector(
-        dropdownSelectorDataClass = DropdownSelectorDataClass(
+        dropdownSelectorData = DropdownSelectorData(
             title = stringResource(R.string.text_folder_dropdown_selector),
             selectedItem = folderDropdownSelect,
             onItemClick = onPassFolderDropdownSelect
@@ -211,7 +211,7 @@ private fun DropdownSelectors(
     )
     Spacer(modifier = Modifier.height(height = 14.dp))
     DropdownSelector(
-        dropdownSelectorDataClass = DropdownSelectorDataClass(
+        dropdownSelectorData = DropdownSelectorData(
             title = stringResource(R.string.text_deck_dropdown_selector),
             selectedItem = deckDropdownSelect,
             onItemClick = onPassDeckDropdownSelect
@@ -220,7 +220,7 @@ private fun DropdownSelectors(
     )
     Spacer(modifier = Modifier.height(height = 14.dp))
     DropdownSelector(
-        dropdownSelectorDataClass = DropdownSelectorDataClass(
+        dropdownSelectorData = DropdownSelectorData(
             title = stringResource(R.string.text_priority_dropdown_selector),
             selectedItem = priorityDropdownSelect,
             onItemClick = onPassPriorityDropdownSelect
@@ -229,7 +229,7 @@ private fun DropdownSelectors(
     )
     Spacer(modifier = Modifier.height(height = 14.dp))
     DropdownSelector(
-        dropdownSelectorDataClass = DropdownSelectorDataClass(
+        dropdownSelectorData = DropdownSelectorData(
             title = stringResource(R.string.text_tape_dropdown_selector),
             selectedItem = tapeDropdownSelect,
             onItemClick = onPassTapeDropdownSelect

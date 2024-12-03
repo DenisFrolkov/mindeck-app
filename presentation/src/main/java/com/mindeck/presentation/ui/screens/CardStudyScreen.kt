@@ -34,8 +34,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.mindeck.presentation.R
-import com.mindeck.presentation.ui.components.RepeatOptions.RepeatOptionData
-import com.mindeck.presentation.ui.components.RepeatOptions.RepeatOptionsButton
+import com.mindeck.presentation.ui.components.repeat_options.RepeatOptionData
+import com.mindeck.presentation.ui.components.repeat_options.RepeatOptionsButton
 import com.mindeck.presentation.ui.components.common.ActionBar
 import com.mindeck.presentation.ui.theme.BackgroundScreen
 import com.mindeck.presentation.ui.theme.Blue

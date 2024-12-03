@@ -36,7 +36,8 @@ fun animateFabShape(targetShape: Dp, animationDuration: Int): Dp {
 
 @Composable
 fun animateMenuAlpha(targetAlpha: Float, animationDuration: Int): Float {
-    val alphaMenu by animateFloatAsState(
+    val alphaMenu by
+    animateFloatAsState(
         targetValue = targetAlpha,
         animationSpec = tween(durationMillis = animationDuration),
         label = "Fab Menu Alpha Animation"

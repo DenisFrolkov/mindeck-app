@@ -35,7 +35,7 @@ import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.components.buttons.GetAllFindersButton
 import com.mindeck.presentation.ui.components.daily_progress_tracker.DailyProgressTracker
 import com.mindeck.presentation.ui.components.fab.FAB
-import com.mindeck.presentation.ui.components.fab.FabMenuDataClass
+import com.mindeck.presentation.ui.components.fab.FabMenuData
 import com.mindeck.presentation.ui.components.fab.FabState
 import com.mindeck.presentation.ui.components.fab.FabState.Companion.ITEM_HEIGHT
 import com.mindeck.presentation.ui.components.fab.animateScreenAlpha
@@ -75,13 +75,13 @@ fun MainScreen(
 
     val fabMenuItems = remember {
         listOf(
-            FabMenuDataClass(
+            FabMenuData(
                 idItem = 0,
                 text = "Настройки",
                 icon = R.drawable.fab_open_menu_setting_icon,
                 navigation = { navController.navigate(NavigationRoute.CreationCardScreen.route) }
             ),
-            FabMenuDataClass(
+            FabMenuData(
                 idItem = 1,
                 text = "Создать картчоку",
                 icon = R.drawable.fab_open_menu_create_icon,
