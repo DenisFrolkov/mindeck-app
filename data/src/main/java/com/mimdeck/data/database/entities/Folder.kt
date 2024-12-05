@@ -11,4 +11,5 @@ data class Folder(
     @ColumnInfo(name = "folder_id")
     val folderId: Int,
     @ColumnInfo(name = "folder_name") val folderName: String,
+    @ColumnInfo(name = "creation_date") val creationDate: Long
 )
