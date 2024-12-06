@@ -12,13 +12,13 @@ import androidx.room.Index
     tableName = "card", indices = [Index(value = ["card_name", "card_question"], unique = true)],
     foreignKeys = [ForeignKey(
         entity = Deck::class,
-        parentColumns = ["deckId"],
+        parentColumns = ["deck_id"],
         childColumns = ["deck_id"],
         onDelete = CASCADE
     )]
 )
 data class Card(
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "card_id")
     val cardId: Int,
     @ColumnInfo(name = "card_name") val cardName: String,
