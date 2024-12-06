@@ -6,22 +6,22 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
-import com.mimdeck.data.database.entities.Card
+import com.mimdeck.data.database.entities.CardEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface CardDao {
     @Insert()
-    suspend fun insertCard(card: Card)
+    suspend fun insertCard(cardEntity: CardEntity)
 
     @Update
-    suspend fun updateCard(card: Card)
+    suspend fun updateCard(cardEntity: CardEntity)
 
     @Delete
-    suspend fun deleteCard(card: Card)
+    suspend fun deleteCard(cardEntity: CardEntity)
 
     @Query("SELECT * FROM card WHERE deck_id = :deckId")
-    fun getAllCardsByDeckId(deckId: Int): Flow<List<Card>>
+    fun getAllCardsByDeckId(deckId: Int): Flow<List<CardEntity>>
 
     @Query("DELETE FROM card WHERE deck_id IN (:cardsIds) AND deck_id = :deckId")
     suspend fun deleteCardsFromDeck(cardsIds: List<Int>, deckId: Int)
