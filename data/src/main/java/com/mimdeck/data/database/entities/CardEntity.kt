@@ -5,22 +5,21 @@ import androidx.room.PrimaryKey
 import androidx.room.ColumnInfo
 import androidx.room.ForeignKey
 import androidx.room.ForeignKey.Companion.CASCADE
-import androidx.room.ForeignKey.Companion.SET_DEFAULT
 import androidx.room.Index
 
 @Entity(
     tableName = "card", indices = [Index(value = ["card_name", "card_question"], unique = true)],
     foreignKeys = [ForeignKey(
-        entity = Deck::class,
+        entity = DeckEntity::class,
         parentColumns = ["deck_id"],
         childColumns = ["deck_id"],
         onDelete = CASCADE
     )]
 )
-data class Card(
+data class CardEntity(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "card_id")
-    val cardId: Int,
+    val cardId: Int = 0,
     @ColumnInfo(name = "card_name") val cardName: String,
     @ColumnInfo(name = "card_question") val cardQuestion: String,
     @ColumnInfo(name = "card_answer") val cardAnswer: String,
