@@ -7,8 +7,8 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "folder", indices = [Index(value = ["folder_name"], unique = true)])
 data class Folder(
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "folder_id")
-    val folderId: Int,
+    val folderId: Int = 0,
     @ColumnInfo(name = "folder_name") val folderName: String,
 )

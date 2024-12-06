@@ -1,14 +1,16 @@
 package com.mimdeck.data.database.dao
 
+import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
-import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import com.mimdeck.data.database.entities.Deck
+import kotlinx.coroutines.flow.Flow
 
+@Dao
 interface DeckDao {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert()
     suspend fun insertDeck(deck: Deck)
 
     @Query("UPDATE deck SET deck_name = :newName WHERE folder_id = :deckId")
@@ -17,18 +19,18 @@ interface DeckDao {
     @Delete
     suspend fun deleteDeck(deck: Deck)
 
-    @Query("SELECT * FROM card WHERE deck_id = :deckId")
-    fun getAllDecksByFolderId(deckId: Int): List<Deck>
+    @Query("SELECT * FROM deck WHERE deck_id = :folderId")
+    fun getAllDecksByFolderId(folderId: Int): Flow<List<Deck>>
 
-    @Query("DELETE FROM card WHERE deck_id IN (:cardsIds) AND deck_id = :deckId")
-    suspend fun deleteCardsFromDeck(cardsIds: List<Int>, deckId: Int)
+    @Query("DELETE FROM deck WHERE deck_id IN (:deckIds) AND folder_id = :folderId")
+    suspend fun deleteDecksFromFolder(deckIds: List<Int>, folderId: Int)
 
-    @Query("UPDATE card SET deck_id = :deckId WHERE card_id IN (:cardIds)")
-    suspend fun addCardsToDeck(cardIds: List<Int>, deckId: Int)
+    @Query("UPDATE deck SET folder_id = :folderId WHERE deck_id IN (:deckIds)")
+    suspend fun addDecksToFolder(deckIds: List<Int>, folderId: Int)
 
     @Transaction
     suspend fun moveDecksBetweenFolders(deckIds: List<Int>, sourceFolderId: Int, targetFolderId: Int) {
-        addCardsToDeck(deckIds, targetFolderId)
-        deleteCardsFromDeck(deckIds, sourceFolderId)
+        addDecksToFolder(deckIds, targetFolderId)
+        deleteDecksFromFolder(deckIds, sourceFolderId)
     }
 }

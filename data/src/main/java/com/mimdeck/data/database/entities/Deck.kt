@@ -10,18 +10,18 @@ import androidx.room.Index
 
 @Entity(
     tableName = "deck",
-    indices = [Index(value = ["deck_name"], unique = true)],
+    indices = [Index(value = ["deck_name"], unique = true), Index(value = ["deck_id"])],
     foreignKeys = [ForeignKey(
         entity = Folder::class,
-        parentColumns = ["folderId"],
+        parentColumns = ["folder_id"],
         childColumns = ["folder_id"],
         onDelete = CASCADE
     )]
 )
 data class Deck(
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "deck_id")
-    val deckId: Int,
+    val deckId: Int = 0,
     @ColumnInfo(name = "deck_name") val deckName: String,
     @ColumnInfo(name = "folder_id") val folderId: Int,
 )
