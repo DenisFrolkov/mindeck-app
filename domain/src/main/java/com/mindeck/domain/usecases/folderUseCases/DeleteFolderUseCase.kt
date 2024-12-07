@@ -5,6 +5,6 @@ import com.mindeck.domain.repository.FolderRepository
 
 class DeleteFolderUseCase(private val folderRepository: FolderRepository) {
     suspend operator fun invoke(folder: Folder) {
-        folderRepository.deleteFolder(folder = folder)
+        return folderRepository.deleteFolder(folder = folder)
     }
 }
