@@ -1,4 +1,4 @@
-package com.mimdeck.data.dataSource
+package com.mimdeck.data.exception
 
 class DatabaseException(
     message: String,
