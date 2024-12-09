@@ -5,22 +5,22 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
-import com.mimdeck.data.database.entities.Deck
+import com.mimdeck.data.database.entities.DeckEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface DeckDao {
     @Insert()
-    suspend fun insertDeck(deck: Deck)
+    suspend fun insertDeck(deckEntity: DeckEntity)
 
     @Query("UPDATE deck SET deck_name = :newName WHERE folder_id = :deckId")
     suspend fun renameDeck(deckId: Int, newName: String)
 
     @Delete
-    suspend fun deleteDeck(deck: Deck)
+    suspend fun deleteDeck(deckEntity: DeckEntity)
 
     @Query("SELECT * FROM deck WHERE deck_id = :folderId")
-    fun getAllDecksByFolderId(folderId: Int): Flow<List<Deck>>
+    fun getAllDecksByFolderId(folderId: Int): Flow<List<DeckEntity>>
 
     @Query("DELETE FROM deck WHERE deck_id IN (:deckIds) AND folder_id = :folderId")
     suspend fun deleteDecksFromFolder(deckIds: List<Int>, folderId: Int)
