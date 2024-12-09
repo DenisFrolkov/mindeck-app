@@ -1,7 +1,7 @@
 package com.mindeck.domain.models
 
 data class Card(
-    val cardId: Int,
+    val cardId: Int = 0,
     val cardName: String,
     val cardQuestion: String,
     val cardAnswer: String,
