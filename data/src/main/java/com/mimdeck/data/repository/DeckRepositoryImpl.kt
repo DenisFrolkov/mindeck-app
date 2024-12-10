@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 
-class DeckRepositoryImpl(private val deckDataSource: DeckDataSource) : DeckRepository {
+class DeckRepositoryImpl (private val deckDataSource: DeckDataSource) : DeckRepository {
     override suspend fun insertDeck(deck: Deck) {
         try {
             deckDataSource.insertDeck(deckEntity = deck.toData())

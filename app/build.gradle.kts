@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("dagger.hilt.android.plugin")
+    id("org.jetbrains.kotlin.kapt")
     id("com.google.devtools.ksp")
 }
 
@@ -38,8 +40,6 @@ android {
     buildFeatures {
         compose = true
     }
-
-
 }
 
 dependencies {
@@ -56,7 +56,7 @@ dependencies {
 
     //Hilt
     implementation(libs.hilt.android)
-    ksp(libs.hilt.compiler)
+    kapt(libs.hilt.compiler)
 
     //Jetpack Compose
     implementation(libs.androidx.ui)

@@ -12,6 +12,12 @@ import com.mimdeck.data.database.AppDatabase
 import com.mimdeck.data.database.dao.CardDao
 import com.mimdeck.data.database.dao.DeckDao
 import com.mimdeck.data.database.dao.FolderDao
+import com.mimdeck.data.repository.CardRepositoryImpl
+import com.mimdeck.data.repository.DeckRepositoryImpl
+import com.mimdeck.data.repository.FolderRepositoryImpl
+import com.mindeck.domain.repository.CardRepository
+import com.mindeck.domain.repository.DeckRepository
+import com.mindeck.domain.repository.FolderRepository
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -22,8 +28,9 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-abstract class DataModule {
+class DataModule {
 
+    //Database
     @Provides
     @Singleton
     fun provideDatabase(@ApplicationContext context: Context): AppDatabase {
@@ -34,6 +41,7 @@ abstract class DataModule {
         ).build()
     }
 
+    //DAO
     @Provides
     @Singleton
     fun provideFolderDao(database: AppDatabase): FolderDao {
@@ -52,18 +60,35 @@ abstract class DataModule {
         return database.cardDao()
     }
 
-    @Binds
-    abstract fun bindFolderDataSource(
-        impl: FolderLocalDataSourceImpl
-    ): FolderDataSource
+    // DataSources
+    @Provides
+    fun provideFolderDataSource(impl: FolderLocalDataSourceImpl): FolderDataSource {
+        return impl
+    }
 
-    @Binds
-    abstract fun bindDeckDataSource(
-        impl: DeckLocalDataSourceImpl
-    ): DeckDataSource
+    @Provides
+    fun provideDeckDataSource(impl: DeckLocalDataSourceImpl): DeckDataSource {
+        return impl
+    }
 
-    @Binds
-    abstract fun bindCardDataSource(
-        impl: CardLocalDataSourceImpl
-    ): CardDataSource
+    @Provides
+    fun provideCardDataSource(impl: CardLocalDataSourceImpl): CardDataSource {
+        return impl
+    }
+
+    // Repositories
+    @Provides
+    fun provideFolderRepository(impl: FolderRepositoryImpl): FolderRepository {
+        return impl
+    }
+
+    @Provides
+    fun provideDeckRepository(impl: DeckRepositoryImpl): DeckRepository {
+        return impl
+    }
+
+    @Provides
+    fun provideCardRepository(impl: CardRepositoryImpl): CardRepository {
+        return impl
+    }
 }

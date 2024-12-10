@@ -7,7 +7,7 @@ import com.mimdeck.data.database.entities.DeckEntity
 import com.mimdeck.data.exception.DatabaseException
 import kotlinx.coroutines.flow.Flow
 
-class DeckLocalDataSourceImpl(private val deckDao: DeckDao) : DeckDataSource {
+class DeckLocalDataSourceImpl (private val deckDao: DeckDao) : DeckDataSource {
     override suspend fun insertDeck(deckEntity: DeckEntity) {
         try {
             deckDao.insertDeck(deckEntity = deckEntity)

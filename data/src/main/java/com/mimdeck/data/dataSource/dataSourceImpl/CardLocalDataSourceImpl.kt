@@ -7,7 +7,7 @@ import com.mimdeck.data.database.entities.CardEntity
 import com.mimdeck.data.exception.DatabaseException
 import kotlinx.coroutines.flow.Flow
 
-class CardLocalDataSourceImpl(private val cardDao: CardDao) : CardDataSource {
+class CardLocalDataSourceImpl (private val cardDao: CardDao) : CardDataSource {
     override suspend fun insertCard(cardEntity: CardEntity) {
         try {
             cardDao.insertCard(cardEntity = cardEntity)
