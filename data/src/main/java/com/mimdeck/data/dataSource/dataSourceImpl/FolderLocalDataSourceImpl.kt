@@ -7,8 +7,9 @@ import com.mimdeck.data.database.dao.FolderDao
 import com.mimdeck.data.database.entities.FolderEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import javax.inject.Inject
 
-class FolderLocalDataSourceImpl(
+class FolderLocalDataSourceImpl @Inject constructor(
     private val folderDao: FolderDao
 ) : FolderDataSource {
 
@@ -16,7 +17,10 @@ class FolderLocalDataSourceImpl(
         try {
             folderDao.insertFolder(folderEntity = folderEntity)
         } catch (e: SQLException) {
-            throw DatabaseException("Failed to insert folder due to a constraint violation: ${e.localizedMessage}", e)
+            throw DatabaseException(
+                "Failed to insert folder due to a constraint violation: ${e.localizedMessage}",
+                e
+            )
         } catch (e: Exception) {
             throw DatabaseException("Error creating folder: ${e.localizedMessage}", e)
         }
@@ -26,7 +30,10 @@ class FolderLocalDataSourceImpl(
         try {
             folderDao.renameFolder(folderId = folderId, newName = newName)
         } catch (e: SQLException) {
-            throw DatabaseException("Failed to rename folder due to a constraint violation: ${e.localizedMessage}", e)
+            throw DatabaseException(
+                "Failed to rename folder due to a constraint violation: ${e.localizedMessage}",
+                e
+            )
         } catch (e: Exception) {
             throw DatabaseException("Error renaming folder: ${e.localizedMessage}", e)
         }
@@ -36,7 +43,10 @@ class FolderLocalDataSourceImpl(
         try {
             folderDao.deleteFolder(folderEntity = folderEntity)
         } catch (e: SQLException) {
-            throw DatabaseException("Failed to delete folder due to a constraint violation: ${e.localizedMessage}", e)
+            throw DatabaseException(
+                "Failed to delete folder due to a constraint violation: ${e.localizedMessage}",
+                e
+            )
         } catch (e: Exception) {
             throw DatabaseException("Error deleting folder: ${e.localizedMessage}", e)
         }
@@ -46,7 +56,10 @@ class FolderLocalDataSourceImpl(
         return try {
             folderDao.getAllFolders()
         } catch (e: SQLException) {
-            throw DatabaseException("Failed to get all folders due to a constraint violation: ${e.localizedMessage}", e)
+            throw DatabaseException(
+                "Failed to get all folders due to a constraint violation: ${e.localizedMessage}",
+                e
+            )
         } catch (e: Exception) {
             flow {
                 emit(emptyList<FolderEntity>())

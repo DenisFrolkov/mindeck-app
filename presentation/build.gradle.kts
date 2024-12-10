@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("dagger.hilt.android.plugin")
+    id("org.jetbrains.kotlin.kapt")
 }
 
 android {
@@ -36,6 +38,10 @@ android {
 dependencies {
     //Подключение модулей
     implementation(project(":domain"))
+
+    //Hilt
+    implementation(libs.hilt.android)
+    kapt(libs.hilt.compiler)
 
     //Jetpack Compose
     implementation(libs.androidx.ui)

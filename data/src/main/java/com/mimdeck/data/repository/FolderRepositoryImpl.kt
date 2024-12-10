@@ -10,8 +10,9 @@ import com.mindeck.domain.repository.FolderRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import javax.inject.Inject
 
-class FolderRepositoryImpl(private val folderDataSource: FolderDataSource) : FolderRepository {
+class FolderRepositoryImpl @Inject constructor(private val folderDataSource: FolderDataSource) : FolderRepository {
     override suspend fun createFolder(folder: Folder) {
         try {
             folderDataSource.insertFolder(folderEntity = folder.toData())

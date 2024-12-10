@@ -10,8 +10,9 @@ import com.mindeck.domain.repository.DeckRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import javax.inject.Inject
 
-class DeckRepositoryImpl(private val deckDataSource: DeckDataSource) : DeckRepository {
+class DeckRepositoryImpl @Inject constructor(private val deckDataSource: DeckDataSource) : DeckRepository {
     override suspend fun insertDeck(deck: Deck) {
         try {
             deckDataSource.insertDeck(deckEntity = deck.toData())
