@@ -18,7 +18,6 @@ import com.mimdeck.data.repository.FolderRepositoryImpl
 import com.mindeck.domain.repository.CardRepository
 import com.mindeck.domain.repository.DeckRepository
 import com.mindeck.domain.repository.FolderRepository
-import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

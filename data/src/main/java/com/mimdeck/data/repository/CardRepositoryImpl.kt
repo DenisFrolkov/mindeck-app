@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
-class CardRepositoryImpl (private val cardDataSource: CardDataSource) : CardRepository {
+class CardRepositoryImpl @Inject constructor(private val cardDataSource: CardDataSource) : CardRepository {
     override suspend fun insertCard(card: Card) {
         try {
             cardDataSource.insertCard(cardEntity = card.toData())
