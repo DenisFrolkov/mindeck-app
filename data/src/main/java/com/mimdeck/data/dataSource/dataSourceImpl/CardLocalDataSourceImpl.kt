@@ -6,8 +6,9 @@ import com.mimdeck.data.database.dao.CardDao
 import com.mimdeck.data.database.entities.CardEntity
 import com.mimdeck.data.exception.DatabaseException
 import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
 
-class CardLocalDataSourceImpl (private val cardDao: CardDao) : CardDataSource {
+class CardLocalDataSourceImpl @Inject constructor(private val cardDao: CardDao) : CardDataSource {
     override suspend fun insertCard(cardEntity: CardEntity) {
         try {
             cardDao.insertCard(cardEntity = cardEntity)
