@@ -11,8 +11,9 @@ import com.mindeck.domain.repository.CardRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import javax.inject.Inject
 
-class CardRepositoryImpl(private val cardDataSource: CardDataSource) : CardRepository {
+class CardRepositoryImpl (private val cardDataSource: CardDataSource) : CardRepository {
     override suspend fun insertCard(card: Card) {
         try {
             cardDataSource.insertCard(cardEntity = card.toData())
