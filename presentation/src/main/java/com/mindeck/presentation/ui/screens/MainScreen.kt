@@ -13,10 +13,14 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,6 +37,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.components.buttons.GetAllFindersButton
+import com.mindeck.presentation.ui.components.common.DisplayItemCount
 import com.mindeck.presentation.ui.components.daily_progress_tracker.DailyProgressTracker
 import com.mindeck.presentation.ui.components.fab.FAB
 import com.mindeck.presentation.ui.components.fab.FabMenuData
@@ -49,11 +54,14 @@ import com.mindeck.presentation.ui.theme.LightBlue
 import com.mindeck.presentation.ui.theme.LightMint
 import com.mindeck.presentation.ui.theme.LimeGreen
 import com.mindeck.presentation.ui.theme.White
+import com.mindeck.presentation.uiState.UiState
+import com.mindeck.presentation.viewmodel.MainViewModel
 import kotlin.math.roundToInt
 
 @Composable
 fun MainScreen(
     navController: NavController,
+    mainViewModel: MainViewModel,
     onButtonPositioned: (IntOffset) -> Unit
 ) {
     val scrollState = rememberScrollState()
@@ -90,22 +98,7 @@ fun MainScreen(
         )
     }
 
-    val folders =
-        listOf(
-            FolderData(
-                0,
-                789,
-                "Повторите, чтобы не забыть!",
-                LightMint,
-                LimeGreen,
-                R.drawable.repeat_card_item
-            ),
-            FolderData(1, 123, "Общая папка", LightBlue, Blue, R.drawable.folder_icon),
-            FolderData(2, 152, "Папка №1", LightBlue, Blue, R.drawable.folder_icon),
-            FolderData(3, 256, "Папка №2", LightBlue, Blue, R.drawable.folder_icon),
-            FolderData(4, 256, "Папка №2", LightBlue, Blue, R.drawable.folder_icon),
-            FolderData(5, 256, "Папка №2", LightBlue, Blue, R.drawable.folder_icon),
-        )
+    val folders = mainViewModel.folderUIState.collectAsState().value
 
     val fabState =
         remember { FabState(expandedHeight = ITEM_HEIGHT.dp * fabMenuItems.size) }
@@ -123,54 +116,66 @@ fun MainScreen(
     ) {
         DailyProgressTracker(dptIcon = painterResource(R.drawable.dpt_icon))
         Spacer(modifier = Modifier.height(20.dp))
-        folders.take(5).forEach {
-                DisplayCardFolder(
-                    folderIcon =
-                    painterResource(it.icon),
-                    numberOfCards = it.countCard,
-                    folderName = it.text,
-                    backgroundColor = it.color,
-                    iconColor = it.colorTwo,
-                    onClick = {
-                        navController.navigate(NavigationRoute.FolderScreen.route)
-                    },
-                    textStyle = textStyleDisplayCard,
-                    modifier = Modifier
-                )
-                Spacer(modifier = Modifier.height(6.dp))
+        when (folders) {
+            is UiState.Loading -> {
+                CircularProgressIndicator()
             }
-        if (folders.size > 5) {
-            Spacer(modifier = Modifier.height(6.dp))
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentSize(Alignment.Center)
-            ) {
-                GetAllFindersButton(
-                    textStyle = textStyle,
-                    modifier = Modifier
-                        .background(color = Blue, shape = RoundedCornerShape(12.dp))
-                        .clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null
-                        ) {
-                            navController.navigate(NavigationRoute.FoldersScreen.route)
+
+            is UiState.Success -> {
+                folders.data.take(5).forEach {
+                    DisplayCardFolder(
+                        folderIcon =
+                        painterResource(R.drawable.folder_icon),
+                        numberOfCards = it.folderId,
+                        folderName = it.folderName,
+                        backgroundColor = Blue,
+                        iconColor = LightBlue,
+                        onClick = {
+                            navController.navigate(NavigationRoute.FolderScreen.route)
                         },
-                    textModifier = Modifier.padding(vertical = 8.dp, horizontal = 33.dp)
-                )
+                        textStyle = textStyleDisplayCard,
+                        modifier = Modifier
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+                }
+                if (folders.data.size > 5) {
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .wrapContentSize(Alignment.Center)
+                    ) {
+                        GetAllFindersButton(
+                            textStyle = textStyle,
+                            modifier = Modifier
+                                .background(color = Blue, shape = RoundedCornerShape(12.dp))
+                                .clickable(
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    indication = null
+                                ) {
+                                    navController.navigate(NavigationRoute.FoldersScreen.route)
+                                },
+                            textModifier = Modifier.padding(vertical = 8.dp, horizontal = 33.dp)
+                        )
+                    }
+                }
+            }
+
+            is UiState.Error -> {
+                Text("Error: $folders")
             }
         }
-    }
-    if (fabState.isExpanded) {
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null
-            ) {
-                fabState.reset()
-            }
-            .background(if (fabState.isExpanded) Black.copy(alphaScreen) else Color.Transparent))
+        if (fabState.isExpanded) {
+            Box(modifier = Modifier
+                .fillMaxSize()
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) {
+                    fabState.reset()
+                }
+                .background(if (fabState.isExpanded) Black.copy(alphaScreen) else Color.Transparent))
+        }
     }
     Box(
         modifier = Modifier
