@@ -22,9 +22,14 @@ import com.mindeck.presentation.ui.screens.DeckScreen
 import com.mindeck.presentation.ui.screens.FolderScreen
 import com.mindeck.presentation.ui.screens.FoldersScreen
 import com.mindeck.presentation.ui.screens.MainScreen
+import com.mindeck.presentation.viewmodel.FoldersViewModel
+import com.mindeck.presentation.viewmodel.MainViewModel
 
 @Composable
-fun AppNavigation() {
+fun AppNavigation(
+    mainViewModel: MainViewModel,
+    foldersViewModel: FoldersViewModel
+) {
     val navController = rememberNavController()
     var buttonPosition by remember { mutableStateOf(IntOffset.Zero) }
 
@@ -34,7 +39,7 @@ fun AppNavigation() {
         composable(NavigationRoute.MainScreen.route,
             enterTransition = { fadeIn(animationSpec = tween(100)) },
             exitTransition = { fadeOut(animationSpec = tween(100)) }) {
-            MainScreen(navController = navController, onButtonPositioned = { buttonPosition = it })
+            MainScreen(navController = navController, mainViewModel = mainViewModel, onButtonPositioned = { buttonPosition = it })
         }
         composable(NavigationRoute.CreationCardScreen.route, enterTransition = {
             scaleIn(
@@ -54,7 +59,7 @@ fun AppNavigation() {
         composable(NavigationRoute.FoldersScreen.route,
             enterTransition = { fadeIn(animationSpec = tween(150)) },
             exitTransition = { fadeOut(animationSpec = tween(150)) }) {
-            FoldersScreen(navController = navController)
+            FoldersScreen(navController = navController, foldersViewModel = foldersViewModel)
         }
         composable(NavigationRoute.FolderScreen.route,
             enterTransition = { fadeIn(animationSpec = tween(150)) },
