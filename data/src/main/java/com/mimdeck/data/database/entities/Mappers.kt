@@ -1,6 +1,5 @@
 package com.mimdeck.data.database.entities
 
-import android.icu.text.CaseMap.Fold
 import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.Deck
 import com.mindeck.domain.models.Folder
@@ -16,7 +15,7 @@ object Mappers {
     fun FolderEntity.toDomain(): Folder {
         return Folder(
             this.folderId,
-            this.folderName
+            this.folderName ?: "Folder ${this.folderId}"
         )
     }
 

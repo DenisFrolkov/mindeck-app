@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -37,7 +36,6 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.components.buttons.GetAllFindersButton
-import com.mindeck.presentation.ui.components.common.DisplayItemCount
 import com.mindeck.presentation.ui.components.daily_progress_tracker.DailyProgressTracker
 import com.mindeck.presentation.ui.components.fab.FAB
 import com.mindeck.presentation.ui.components.fab.FabMenuData
@@ -45,14 +43,11 @@ import com.mindeck.presentation.ui.components.fab.FabState
 import com.mindeck.presentation.ui.components.fab.FabState.Companion.ITEM_HEIGHT
 import com.mindeck.presentation.ui.components.fab.animateScreenAlpha
 import com.mindeck.presentation.ui.components.folder.DisplayCardFolder
-import com.mindeck.presentation.ui.components.folder.FolderData
 import com.mindeck.presentation.ui.navigation.NavigationRoute
 import com.mindeck.presentation.ui.theme.BackgroundScreen
 import com.mindeck.presentation.ui.theme.Black
 import com.mindeck.presentation.ui.theme.Blue
 import com.mindeck.presentation.ui.theme.LightBlue
-import com.mindeck.presentation.ui.theme.LightMint
-import com.mindeck.presentation.ui.theme.LimeGreen
 import com.mindeck.presentation.ui.theme.White
 import com.mindeck.presentation.uiState.UiState
 import com.mindeck.presentation.viewmodel.MainViewModel
@@ -131,7 +126,7 @@ fun MainScreen(
                         backgroundColor = Blue,
                         iconColor = LightBlue,
                         onClick = {
-                            navController.navigate(NavigationRoute.FolderScreen.route)
+                            navController.navigate(NavigationRoute.FolderScreen.createRoute(it.folderId))
                         },
                         textStyle = textStyleDisplayCard,
                         modifier = Modifier
@@ -165,7 +160,7 @@ fun MainScreen(
                 Text("Error: $folders")
             }
         }
-        if (fabState.isExpanded) {
+        if (fabState.isExpanded) {  
             Box(modifier = Modifier
                 .fillMaxSize()
                 .clickable(

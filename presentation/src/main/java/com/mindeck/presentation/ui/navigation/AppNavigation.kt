@@ -13,22 +13,26 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.IntOffset
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.mindeck.presentation.ui.screens.CardStudyScreen
 import com.mindeck.presentation.ui.screens.CreationCardScreen
 import com.mindeck.presentation.ui.screens.DeckScreen
 import com.mindeck.presentation.ui.screens.FolderScreen
 import com.mindeck.presentation.ui.screens.FoldersScreen
 import com.mindeck.presentation.ui.screens.MainScreen
+import com.mindeck.presentation.viewmodel.FolderViewModel
 import com.mindeck.presentation.viewmodel.FoldersViewModel
 import com.mindeck.presentation.viewmodel.MainViewModel
 
 @Composable
 fun AppNavigation(
     mainViewModel: MainViewModel,
-    foldersViewModel: FoldersViewModel
+    foldersViewModel: FoldersViewModel,
+    folderViewModel: FolderViewModel,
 ) {
     val navController = rememberNavController()
     var buttonPosition by remember { mutableStateOf(IntOffset.Zero) }
@@ -38,8 +42,12 @@ fun AppNavigation(
     ) {
         composable(NavigationRoute.MainScreen.route,
             enterTransition = { fadeIn(animationSpec = tween(100)) },
-            exitTransition = { fadeOut(animationSpec = tween(100)) }) {
-            MainScreen(navController = navController, mainViewModel = mainViewModel, onButtonPositioned = { buttonPosition = it })
+            exitTransition = { fadeOut(animationSpec = tween(100)) }
+        ) {
+            MainScreen(
+                navController = navController,
+                mainViewModel = mainViewModel,
+                onButtonPositioned = { buttonPosition = it })
         }
         composable(NavigationRoute.CreationCardScreen.route, enterTransition = {
             scaleIn(
@@ -61,10 +69,15 @@ fun AppNavigation(
             exitTransition = { fadeOut(animationSpec = tween(150)) }) {
             FoldersScreen(navController = navController, foldersViewModel = foldersViewModel)
         }
-        composable(NavigationRoute.FolderScreen.route,
+        composable(
+            NavigationRoute.FolderScreen.route,
             enterTransition = { fadeIn(animationSpec = tween(150)) },
-            exitTransition = { fadeOut(animationSpec = tween(150)) }) {
-            FolderScreen(navController = navController)
+            exitTransition = { fadeOut(animationSpec = tween(150)) },
+            arguments = listOf(navArgument("folderId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val folderId = backStackEntry.arguments?.getInt("folderId")
+            folderViewModel.getFolderById(folderId = folderId ?: 1)
+            FolderScreen(navController = navController, folderViewModel = folderViewModel)
         }
         composable(NavigationRoute.DeckScreen.route,
             enterTransition = { fadeIn(animationSpec = tween(100)) },
