@@ -27,7 +27,6 @@ class MainViewModel @Inject constructor(
     private fun getAllFolders() {
         viewModelScope.launch {
             try {
-                _folderUIState.value = UiState.Loading
                 getAllFoldersUseCase().collect { folders ->
                     _folderUIState.value = UiState.Success(folders)
                 }

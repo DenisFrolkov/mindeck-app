@@ -20,6 +20,7 @@ import com.mindeck.domain.usecases.deckUseCases.RenameDeckUseCase
 import com.mindeck.domain.usecases.folderUseCases.CreateFolderUseCase
 import com.mindeck.domain.usecases.folderUseCases.DeleteFolderUseCase
 import com.mindeck.domain.usecases.folderUseCases.GetAllFoldersUseCase
+import com.mindeck.domain.usecases.folderUseCases.GetFolderByIdUseCase
 import com.mindeck.domain.usecases.folderUseCases.RenameFolderUseCase
 import dagger.Module
 import dagger.Provides
@@ -44,6 +45,11 @@ class DomainModule() {
     @Provides
     fun providesDeleteFolderUseCase(repository: FolderRepository): DeleteFolderUseCase {
         return DeleteFolderUseCase(repository)
+    }
+
+    @Provides
+    fun providesGetFolderByIdUseCase(repository: FolderRepository): GetFolderByIdUseCase {
+        return GetFolderByIdUseCase(repository)
     }
 
     @Provides
