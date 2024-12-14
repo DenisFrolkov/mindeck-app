@@ -30,7 +30,7 @@ object Mappers {
     fun DeckEntity.toDomain(): Deck {
         return Deck(
             this.deckId,
-            this.deckName,
+            this.deckName ?: "Deck ${this.deckId}",
             this.folderId
         )
     }
