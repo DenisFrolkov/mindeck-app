@@ -24,6 +24,7 @@ import com.mindeck.presentation.ui.screens.DeckScreen
 import com.mindeck.presentation.ui.screens.FolderScreen
 import com.mindeck.presentation.ui.screens.FoldersScreen
 import com.mindeck.presentation.ui.screens.MainScreen
+import com.mindeck.presentation.viewmodel.DeckViewModel
 import com.mindeck.presentation.viewmodel.FolderViewModel
 import com.mindeck.presentation.viewmodel.FoldersViewModel
 import com.mindeck.presentation.viewmodel.MainViewModel
@@ -33,6 +34,7 @@ fun AppNavigation(
     mainViewModel: MainViewModel,
     foldersViewModel: FoldersViewModel,
     folderViewModel: FolderViewModel,
+    deckViewModel: DeckViewModel
 ) {
     val navController = rememberNavController()
     var buttonPosition by remember { mutableStateOf(IntOffset.Zero) }
@@ -76,8 +78,13 @@ fun AppNavigation(
             arguments = listOf(navArgument("folderId") { type = NavType.IntType })
         ) { backStackEntry ->
             val folderId = backStackEntry.arguments?.getInt("folderId")
-            folderViewModel.getFolderById(folderId = folderId ?: 1)
-            FolderScreen(navController = navController, folderViewModel = folderViewModel)
+            folderViewModel.getFolderById(folderId = folderId!!)
+            folderViewModel.getAllDecksByFolderId(folderId = folderId!!)
+            FolderScreen(
+                navController = navController,
+                folderViewModel = folderViewModel,
+                deckViewModel = deckViewModel
+            )
         }
         composable(NavigationRoute.DeckScreen.route,
             enterTransition = { fadeIn(animationSpec = tween(100)) },

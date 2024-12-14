@@ -27,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
@@ -50,10 +51,15 @@ import com.mindeck.presentation.ui.theme.Black
 import com.mindeck.presentation.ui.theme.Blue
 import com.mindeck.presentation.ui.theme.LightBlue
 import com.mindeck.presentation.uiState.UiState
+import com.mindeck.presentation.viewmodel.DeckViewModel
 import com.mindeck.presentation.viewmodel.FolderViewModel
 
 @Composable
-fun FolderScreen(navController: NavController, folderViewModel: FolderViewModel) {
+fun FolderScreen(
+    navController: NavController,
+    folderViewModel: FolderViewModel,
+    deckViewModel: DeckViewModel
+) {
 
     var dropdownMenuState = remember { DropdownMenuState() }
 
@@ -65,13 +71,7 @@ fun FolderScreen(navController: NavController, folderViewModel: FolderViewModel)
         animationDuration = dropdownMenuState.animationDuration
     )
     val folder = folderViewModel.folderUIState.collectAsState().value
-
-    val decks = listOf(
-        FolderData(0, 123, "Общая колода", LightBlue, Blue, R.drawable.deck_icon),
-        FolderData(1, 152, "Колода номер 1", LightBlue, Blue, R.drawable.deck_icon),
-        FolderData(2, 152, "Колода номер 2", LightBlue, Blue, R.drawable.deck_icon),
-        FolderData(3, 152, "Колода номер 3", LightBlue, Blue, R.drawable.deck_icon),
-    )
+    val decks = folderViewModel.deckByIdrUIState.collectAsState().value
 
     val deleteFolderData =
         remember { mutableStateOf(Folder(folderId = 0, folderName = "")) }
@@ -124,6 +124,7 @@ fun FolderScreen(navController: NavController, folderViewModel: FolderViewModel)
                     is UiState.Loading -> {
                         CircularProgressIndicator()
                     }
+
                     is UiState.Success -> {
                         deleteFolderData.value = folder.data
                         Text(
@@ -134,35 +135,40 @@ fun FolderScreen(navController: NavController, folderViewModel: FolderViewModel)
                                 .wrapContentSize(Alignment.Center)
                         )
                         Spacer(Modifier.height(18.dp))
-                        DisplayItemCount(
-                            pluralsTextOne = R.plurals.deck_amount,
-                            listOne = decks,
-                            textStyle = textStyle
-                        )
-                    }
-                    is UiState.Error -> {
-                        Text("1")
+                        when (decks) {
+                            is UiState.Success -> {
+                                DisplayItemCount(
+                                    pluralsTextOne = R.plurals.deck_amount,
+                                    listOne = decks.data,
+                                    textStyle = textStyle
+                                )
+                            }
+                        }
                     }
                 }
-                LazyColumn {
-                    items(items = decks, key = { it.id }) {
-                        DisplayCardFolder(
-                            folderIcon =
-                            painterResource(it.icon),
-                            numberOfCards = it.countCard,
-                            folderName = it.text,
-                            backgroundColor = it.color,
-                            iconColor = it.colorTwo,
-                            onClick = {
-                                navController.navigate(NavigationRoute.DeckScreen.route)
-                            },
-                            textStyle = TextStyle(
-                                fontSize = 14.sp,
-                                fontFamily = FontFamily(Font(R.font.opensans_medium))
-                            ),
-                            modifier = Modifier
-                        )
-                        Spacer(modifier = Modifier.height(6.dp))
+                when (decks) {
+                    is UiState.Success -> {
+                        LazyColumn(modifier = Modifier.background(Color.Red)) {
+                            items(items = decks.data, key = { it.deckId }) {
+                                DisplayCardFolder(
+                                    folderIcon =
+                                    painterResource(R.drawable.deck_icon),
+                                    numberOfCards = it.deckId,
+                                    folderName = it.deckName,
+                                    backgroundColor = LightBlue,
+                                    iconColor = Blue,
+                                    onClick = {
+                                        navController.navigate(NavigationRoute.DeckScreen.route)
+                                    },
+                                    textStyle = TextStyle(
+                                        fontSize = 14.sp,
+                                        fontFamily = FontFamily(Font(R.font.opensans_medium))
+                                    ),
+                                    modifier = Modifier
+                                )
+                                Spacer(modifier = Modifier.height(6.dp))
+                            }
+                        }
                     }
                 }
             }

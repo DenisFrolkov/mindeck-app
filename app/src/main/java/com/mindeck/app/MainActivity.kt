@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import com.mindeck.presentation.ui.navigation.AppNavigation
+import com.mindeck.presentation.viewmodel.DeckViewModel
 import com.mindeck.presentation.viewmodel.FolderViewModel
 import com.mindeck.presentation.viewmodel.FoldersViewModel
 import com.mindeck.presentation.viewmodel.MainViewModel
@@ -16,6 +17,7 @@ class MainActivity : ComponentActivity() {
     private val mainViewModel: MainViewModel by viewModels()
     private val foldersViewModel: FoldersViewModel by viewModels()
     private val folderViewModel: FolderViewModel by viewModels()
+    private val deckViewModel: DeckViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,7 +26,8 @@ class MainActivity : ComponentActivity() {
             AppNavigation(
                 mainViewModel = mainViewModel,
                 foldersViewModel = foldersViewModel,
-                folderViewModel = folderViewModel
+                folderViewModel = folderViewModel,
+                deckViewModel = deckViewModel
             )
         }
     }
