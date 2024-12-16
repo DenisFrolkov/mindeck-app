@@ -37,6 +37,8 @@ class MainViewModel @Inject constructor(
     }
 
     fun createFolder(folder: Folder) {
-        viewModelScope.launch { createFolderUseCase.invoke(folder) }
+        viewModelScope.launch {
+            createFolderUseCase.invoke(folder)
+        }
     }
 }

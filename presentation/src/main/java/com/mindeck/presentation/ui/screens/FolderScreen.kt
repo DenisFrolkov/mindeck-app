@@ -148,7 +148,7 @@ fun FolderScreen(
                 }
                 when (decks) {
                     is UiState.Success -> {
-                        LazyColumn(modifier = Modifier.background(Color.Red)) {
+                        LazyColumn(modifier = Modifier) {
                             items(items = decks.data, key = { it.deckId }) {
                                 DisplayCardFolder(
                                     folderIcon =
@@ -158,7 +158,7 @@ fun FolderScreen(
                                     backgroundColor = LightBlue,
                                     iconColor = Blue,
                                     onClick = {
-                                        navController.navigate(NavigationRoute.DeckScreen.route)
+                                        navController.navigate(NavigationRoute.DeckScreen.createRoute(it.deckId))
                                     },
                                     textStyle = TextStyle(
                                         fontSize = 14.sp,

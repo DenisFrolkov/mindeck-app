@@ -22,6 +22,7 @@ import com.mindeck.presentation.ui.theme.White
 @Composable
 fun SaveDataButton(
     text: String,
+    onClick: () -> Unit,
     fontSize: TextUnit = 14.sp,
     fontFamily: FontFamily,
     color: Color = White,
@@ -34,7 +35,9 @@ fun SaveDataButton(
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
-            ) { },
+            ) {
+                onClick()
+            },
     ) {
         Text(
             text = text,

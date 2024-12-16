@@ -4,11 +4,12 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mindeck.domain.models.Card
-import com.mindeck.domain.models.Deck
-import com.mindeck.domain.models.Folder
 import com.mindeck.domain.usecases.cardUseCase.DeleteCardUseCase
+import com.mindeck.domain.usecases.cardUseCase.DeleteCardsFromDeckUseCase
 import com.mindeck.domain.usecases.cardUseCase.GetAllCardsByDeckIdUseCase
-import com.mindeck.domain.usecases.deckUseCases.CreateDeckUseCase
+import com.mindeck.domain.usecases.cardUseCase.MoveCardsBetweenDeckUseCase
+import com.mindeck.domain.usecases.cardUseCase.UpdateCardUseCase
+import com.mindeck.domain.usecases.deckUseCases.AddDecksToFolderUseCase
 import com.mindeck.domain.usecases.deckUseCases.RenameDeckUseCase
 import com.mindeck.presentation.uiState.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,17 +21,16 @@ import javax.inject.Inject
 @HiltViewModel
 class DeckViewModel @Inject constructor(
     private val getAllCardsByDeckIdUseCase: GetAllCardsByDeckIdUseCase,
-    private val createDeckUseCase: CreateDeckUseCase,
     private val renameDeckUseCase: RenameDeckUseCase,
-    private val deleteCardUseCase: DeleteCardUseCase
+    private val deleteCardUseCase: DeleteCardUseCase,
+    private val addDecksToFolderUseCase: AddDecksToFolderUseCase,
+    private val deleteCardsFromDeckUseCase: DeleteCardsFromDeckUseCase,
+    private val moveCardsBetweenDeckUseCase: MoveCardsBetweenDeckUseCase,
+    private val updateCardUseCase: UpdateCardUseCase
 ) : ViewModel() {
 
     private val _cardUIState = MutableStateFlow<UiState<List<Card>>>(UiState.Loading)
     val cardUIState: StateFlow<UiState<List<Card>>> = _cardUIState
-
-    init {
-//        createDeck(Deck(deckName = "12", folderId = 1))
-    }
 
     fun renameDeck(deckId: Int, newDeckName: String) {
         viewModelScope.launch {
@@ -48,12 +48,6 @@ class DeckViewModel @Inject constructor(
                 _cardUIState.value = UiState.Error(e)
                 Log.e("DeckViewModel", "Error fetching card: ${e.message}")
             }
-        }
-    }
-
-    fun createDeck(deck: Deck) {
-        viewModelScope.launch {
-            createDeckUseCase.invoke(deck = deck)
         }
     }
 

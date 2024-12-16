@@ -5,7 +5,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mindeck.domain.models.Deck
 import com.mindeck.domain.models.Folder
+import com.mindeck.domain.usecases.deckUseCases.AddDecksToFolderUseCase
+import com.mindeck.domain.usecases.deckUseCases.CreateDeckUseCase
+import com.mindeck.domain.usecases.deckUseCases.DeleteDecksFromFolderUseCase
 import com.mindeck.domain.usecases.deckUseCases.GetAllDecksByFolderIdUseCase
+import com.mindeck.domain.usecases.deckUseCases.MoveDecksBetweenFoldersUseCase
 import com.mindeck.domain.usecases.folderUseCases.DeleteFolderUseCase
 import com.mindeck.domain.usecases.folderUseCases.GetFolderByIdUseCase
 import com.mindeck.domain.usecases.folderUseCases.RenameFolderUseCase
@@ -20,8 +24,12 @@ import javax.inject.Inject
 class FolderViewModel @Inject constructor(
     private val getFolderByIdUseCase: GetFolderByIdUseCase,
     private val getAllDecksByFolderIdUseCase: GetAllDecksByFolderIdUseCase,
+    private val createDeckUseCase: CreateDeckUseCase,
     private val renameFolderUseCase: RenameFolderUseCase,
-    private val deleteFolderUseCase: DeleteFolderUseCase
+    private val deleteFolderUseCase: DeleteFolderUseCase,
+    private val deleteDecksFromFolderUseCase: DeleteDecksFromFolderUseCase,
+    private val addDecksToFolderUseCase: AddDecksToFolderUseCase,
+    private val moveDecksBetweenFoldersUseCase: MoveDecksBetweenFoldersUseCase
 ) : ViewModel() {
     private val _folderUIState = MutableStateFlow<UiState<Folder>>(UiState.Loading)
     val folderUIState: StateFlow<UiState<Folder>> = _folderUIState
@@ -58,6 +66,12 @@ class FolderViewModel @Inject constructor(
         }
     }
 
+    fun createDeck(deck: Deck) {
+        viewModelScope.launch {
+            createDeckUseCase.invoke(deck = deck)
+        }
+    }
+
     fun renameFolder(folderId: Int, newName: String) {
         viewModelScope.launch {
             renameFolderUseCase.invoke(folderId = folderId, newName = newName)
@@ -67,6 +81,28 @@ class FolderViewModel @Inject constructor(
     fun deleteFolder(folder: Folder) {
         viewModelScope.launch {
             deleteFolderUseCase.invoke(folder)
+        }
+    }
+
+    fun addDecksToFolder(deckIds: List<Int>, folderId: Int) {
+        viewModelScope.launch {
+            addDecksToFolderUseCase.invoke(deckIds = deckIds, folderId = folderId)
+        }
+    }
+
+    fun deleteDecksFromFolder(deckIds: List<Int>, folderId: Int) {
+        viewModelScope.launch {
+            deleteDecksFromFolderUseCase.invoke(deckIds = deckIds, folderId = folderId)
+        }
+    }
+
+    fun moveDecksBetweenFoldersUseCase(
+        deckIds: List<Int>,
+        sourceFolderId: Int,
+        targetFolderId: Int
+    ) {
+        viewModelScope.launch {
+            moveDecksBetweenFoldersUseCase.invoke(deckIds, sourceFolderId, targetFolderId)
         }
     }
 }
