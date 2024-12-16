@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Card
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -39,6 +40,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.mindeck.domain.models.Card
+import com.mindeck.domain.models.Folder
 import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.components.buttons.ActionHandlerButton
 import com.mindeck.presentation.ui.components.buttons.SaveDataButton
@@ -51,11 +54,13 @@ import com.mindeck.presentation.ui.theme.BackgroundScreen
 import com.mindeck.presentation.ui.theme.Blue
 import com.mindeck.presentation.ui.theme.MediumGray
 import com.mindeck.presentation.ui.theme.White
+import com.mindeck.presentation.viewmodel.CreationCardViewModel
 
 @SuppressLint("ResourceType")
 @Composable
 fun CreationCardScreen(
-    navController: NavController
+    navController: NavController,
+    creationCardViewModel: CreationCardViewModel
 ) {
     val scrollState = rememberScrollState()
 
@@ -180,6 +185,17 @@ fun CreationCardScreen(
                 ) {
                     SaveDataButton(
                         text = stringResource(R.string.text_save_card_button),
+                        onClick = {
+                            creationCardViewModel.createCard(Card(
+                                cardName = titleInputFieldValue,
+                                cardQuestion = cardInputQuestionValue,
+                                        cardAnswer = cardInputAnswerValue,
+                                        cardPriority = "1234",
+                                        cardType = "1234",
+                                        cardTag = tagInputValue,
+                                        deckId = 1
+                            ))
+                        },
                         fontFamily = fontFamily
                     )
                 }

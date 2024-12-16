@@ -24,6 +24,7 @@ import com.mindeck.presentation.ui.screens.DeckScreen
 import com.mindeck.presentation.ui.screens.FolderScreen
 import com.mindeck.presentation.ui.screens.FoldersScreen
 import com.mindeck.presentation.ui.screens.MainScreen
+import com.mindeck.presentation.viewmodel.CreationCardViewModel
 import com.mindeck.presentation.viewmodel.DeckViewModel
 import com.mindeck.presentation.viewmodel.FolderViewModel
 import com.mindeck.presentation.viewmodel.FoldersViewModel
@@ -34,7 +35,8 @@ fun AppNavigation(
     mainViewModel: MainViewModel,
     foldersViewModel: FoldersViewModel,
     folderViewModel: FolderViewModel,
-    deckViewModel: DeckViewModel
+    deckViewModel: DeckViewModel,
+    creationCardViewModel: CreationCardViewModel
 ) {
     val navController = rememberNavController()
     var buttonPosition by remember { mutableStateOf(IntOffset.Zero) }
@@ -64,7 +66,10 @@ fun AppNavigation(
                 targetOffset = { buttonPosition }, animationSpec = tween(300)
             )
         }) {
-            CreationCardScreen(navController = navController)
+            CreationCardScreen(
+                navController = navController,
+                creationCardViewModel = creationCardViewModel
+            )
         }
         composable(NavigationRoute.FoldersScreen.route,
             enterTransition = { fadeIn(animationSpec = tween(150)) },
@@ -88,8 +93,16 @@ fun AppNavigation(
         }
         composable(NavigationRoute.DeckScreen.route,
             enterTransition = { fadeIn(animationSpec = tween(100)) },
-            exitTransition = { fadeOut(animationSpec = tween(100)) }) {
-            DeckScreen(navController = navController, onButtonPositioned = { buttonPosition = it })
+            exitTransition = { fadeOut(animationSpec = tween(100)) },
+            arguments = listOf(navArgument("deckId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val deckId = backStackEntry.arguments?.getInt("deckId")
+            deckViewModel.getAllCardsByDeckId(deckId!!)
+            DeckScreen(
+                navController = navController,
+                onButtonPositioned = { buttonPosition = it },
+                deckViewModel = deckViewModel
+            )
         }
         composable(NavigationRoute.CardStudyScreen.route,
             enterTransition = { fadeIn(animationSpec = tween(100)) },
