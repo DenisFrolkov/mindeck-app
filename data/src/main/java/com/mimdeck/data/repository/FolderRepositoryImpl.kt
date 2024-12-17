@@ -12,7 +12,8 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
-class FolderRepositoryImpl @Inject constructor(private val folderDataSource: FolderDataSource) : FolderRepository {
+class FolderRepositoryImpl @Inject constructor(private val folderDataSource: FolderDataSource) :
+    FolderRepository {
     override suspend fun createFolder(folder: Folder) {
         try {
             folderDataSource.insertFolder(folderEntity = folder.toData())
@@ -34,6 +35,14 @@ class FolderRepositoryImpl @Inject constructor(private val folderDataSource: Fol
             folderDataSource.deleteFolder(folderEntity = folder.toData())
         } catch (e: DatabaseException) {
             throw DomainException("Failed to delete folder: ${e.localizedMessage}", e)
+        }
+    }
+
+    override suspend fun getFolderById(folderId: Int): Folder {
+        return try {
+            folderDataSource.getFolderById(folderId = folderId).toDomain()
+        } catch (e: DatabaseException) {
+            throw DomainException("Failed get folder", e)
         }
     }
 

@@ -19,6 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -48,12 +49,15 @@ import com.mindeck.presentation.ui.theme.BackgroundScreen
 import com.mindeck.presentation.ui.theme.Black
 import com.mindeck.presentation.ui.theme.Blue
 import com.mindeck.presentation.ui.theme.LightBlue
+import com.mindeck.presentation.uiState.UiState
+import com.mindeck.presentation.viewmodel.DeckViewModel
 import kotlin.math.roundToInt
 
 @Composable
 fun DeckScreen(
     navController: NavController,
-    onButtonPositioned: (IntOffset) -> Unit
+    onButtonPositioned: (IntOffset) -> Unit,
+    deckViewModel: DeckViewModel
 ) {
 
     var dropdownMenuState = remember { DropdownMenuState() }
@@ -65,14 +69,7 @@ fun DeckScreen(
     var fontFamily = FontFamily(Font(R.font.opensans_medium))
     var textStyle = TextStyle(fontSize = 14.sp, color = Black, fontFamily = fontFamily)
 
-    val cards = listOf(
-        DeckData(1, "Картчока номер 0", R.drawable.card_icon),
-        DeckData(2, "Картчока номер 1", R.drawable.card_icon),
-        DeckData(3, "Картчока номер 1", R.drawable.card_icon),
-        DeckData(4, "Картчока номер 1", R.drawable.card_icon),
-        DeckData(5, "Картчока номер 1", R.drawable.card_icon),
-        DeckData(6, "Картчока номер 1", R.drawable.card_icon),
-    )
+    val cards = deckViewModel.cardUIState.collectAsState().value
 
     var listDropdownMenu = listOf(
         DropdownMenuData(
@@ -115,41 +112,51 @@ fun DeckScreen(
         },
         content = { padding ->
             Column(modifier = Modifier.padding(padding)) {
-                Text(
-                    text = "Название колоды",
-                    style = textStyle,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentSize(Alignment.Center)
-                )
-                Spacer(Modifier.height(18.dp))
-                DisplayItemCount(
-                    pluralsTextOne = R.plurals.card_amount,
-                    listOne = cards,
-                    textStyle = textStyle
-                )
-                LazyColumn {
-                    items(items = cards, key = { it.id }) {
-                        DisplayCardItem(
-                            cardIcon =
-                            painterResource(it.icon),
-                            titleCard = it.title,
-                            backgroundColor = LightBlue,
-                            iconColor = Blue,
-                            onClick = {
-                                navController.navigate(NavigationRoute.CreationCardScreen.route)
-                            },
-                            textStyle = TextStyle(
-                                fontSize = 14.sp,
-                                fontFamily = FontFamily(Font(R.font.opensans_medium))
-                            ),
+                when (cards) {
+                    is UiState.Success -> {
+                        Text(
+                            text = "Название колоды",
+                            style = textStyle,
                             modifier = Modifier
-                                .onGloballyPositioned {
-                                    val offset = it.localToWindow(Offset.Zero)
-                                    onButtonPositioned(IntOffset(offset.x.roundToInt(), offset.y.roundToInt()))
-                                }
+                                .fillMaxWidth()
+                                .wrapContentSize(Alignment.Center)
                         )
-                        Spacer(modifier = Modifier.height(6.dp))
+                        Spacer(Modifier.height(18.dp))
+                        DisplayItemCount(
+                            pluralsTextOne = R.plurals.card_amount,
+                            listOne = cards.data,
+                            textStyle = textStyle
+                        )
+
+                        LazyColumn {
+                            items(items = cards.data, key = { it.deckId }) {
+                                DisplayCardItem(
+                                    cardIcon =
+                                    painterResource(R.drawable.card_icon),
+                                    titleCard = it.cardName,
+                                    backgroundColor = LightBlue,
+                                    iconColor = Blue,
+                                    onClick = {
+                                        navController.navigate(NavigationRoute.CreationCardScreen.route)
+                                    },
+                                    textStyle = TextStyle(
+                                        fontSize = 14.sp,
+                                        fontFamily = FontFamily(Font(R.font.opensans_medium))
+                                    ),
+                                    modifier = Modifier
+                                        .onGloballyPositioned {
+                                            val offset = it.localToWindow(Offset.Zero)
+                                            onButtonPositioned(
+                                                IntOffset(
+                                                    offset.x.roundToInt(),
+                                                    offset.y.roundToInt()
+                                                )
+                                            )
+                                        }
+                                )
+                                Spacer(modifier = Modifier.height(6.dp))
+                            }
+                        }
                     }
                 }
             }

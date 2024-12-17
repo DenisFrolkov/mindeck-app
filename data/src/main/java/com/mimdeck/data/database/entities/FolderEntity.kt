@@ -10,5 +10,5 @@ data class FolderEntity(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "folder_id")
     val folderId: Int = 0,
-    @ColumnInfo(name = "folder_name") val folderName: String,
+    @ColumnInfo(name = "folder_name") val folderName: String?,
 )

@@ -7,5 +7,6 @@ interface FolderDataSource {
     suspend fun insertFolder(folderEntity: FolderEntity)
     suspend fun renameFolder(folderId: Int, newName: String)
     suspend fun deleteFolder(folderEntity: FolderEntity)
+    suspend fun getFolderById(folderId: Int): FolderEntity
     fun getAllFolders(): Flow<List<FolderEntity>>
 }

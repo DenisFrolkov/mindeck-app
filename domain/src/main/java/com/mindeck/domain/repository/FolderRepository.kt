@@ -10,5 +10,7 @@ interface FolderRepository {
 
     suspend fun deleteFolder(folder: Folder)
 
+    suspend fun getFolderById(folderId: Int): Folder
+
     fun getAllFolders(): Flow<List<Folder>>
 }
