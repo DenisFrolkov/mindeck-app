@@ -1,7 +1,5 @@
 package com.mindeck.presentation.ui.components.textfields
 
-import android.annotation.SuppressLint
-import androidx.annotation.StringRes
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,6 +16,7 @@ import com.mindeck.presentation.ui.theme.MediumGray
 fun CardInputField(
     placeholder: String,
     value: String,
+    singleLine: Boolean = false,
     onValueChange: (String) -> Unit,
     fontFamily: FontFamily,
     textFontSize: TextUnit = 14.sp,
@@ -36,7 +35,7 @@ fun CardInputField(
             color = textColor,
             fontFamily = fontFamily,
         ),
-        singleLine = false,
+        singleLine = singleLine,
         decorationBox = { it ->
             if (value.isEmpty()) {
                 Text(

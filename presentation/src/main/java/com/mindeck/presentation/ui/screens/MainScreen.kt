@@ -9,8 +9,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
@@ -20,9 +22,13 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -35,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.mindeck.presentation.R
+import com.mindeck.presentation.ui.components.CreateItemDialog
 import com.mindeck.presentation.ui.components.buttons.GetAllFindersButton
 import com.mindeck.presentation.ui.components.daily_progress_tracker.DailyProgressTracker
 import com.mindeck.presentation.ui.components.fab.FAB
@@ -48,6 +55,7 @@ import com.mindeck.presentation.ui.theme.BackgroundScreen
 import com.mindeck.presentation.ui.theme.Black
 import com.mindeck.presentation.ui.theme.Blue
 import com.mindeck.presentation.ui.theme.LightBlue
+import com.mindeck.presentation.ui.theme.MediumGray
 import com.mindeck.presentation.ui.theme.White
 import com.mindeck.presentation.uiState.UiState
 import com.mindeck.presentation.viewmodel.MainViewModel
@@ -99,6 +107,8 @@ fun MainScreen(
         remember { FabState(expandedHeight = ITEM_HEIGHT.dp * fabMenuItems.size) }
 
     val alphaScreen = animateScreenAlpha(fabState.screenAlphaValue, fabState.animationDuration)
+
+    var createFolder by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
@@ -160,7 +170,7 @@ fun MainScreen(
                 Text("Error: $folders")
             }
         }
-        if (fabState.isExpanded) {  
+        if (fabState.isExpanded) {
             Box(modifier = Modifier
                 .fillMaxSize()
                 .clickable(
@@ -192,4 +202,29 @@ fun MainScreen(
             textStyle = textStyle
         )
     }
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MediumGray.copy(0.5f))
+    )
+    CreateItemDialog(
+        titleDialog = "Создание папки",
+        placeholder = "Введите название папки",
+        buttonText = "Создать папку",
+        value = createFolder,
+        onValueChange = { newValue -> createFolder = newValue },
+        onBackClick = {  },
+        onClickButton = {  },
+        fontFamily = FontFamily(Font(R.font.opensans_medium)),
+        titleTextStyle = textStyleDisplayCard,
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentSize(Alignment.CenterStart),
+        iconModifier = Modifier
+            .clip(shape = RoundedCornerShape(50.dp))
+            .background(color = Blue, shape = RoundedCornerShape(50.dp))
+            .padding(all = 12.dp)
+            .size(size = 16.dp),
+        buttonModifier = Modifier
+    )
 }
