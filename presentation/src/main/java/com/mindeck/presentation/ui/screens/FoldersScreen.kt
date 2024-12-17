@@ -17,9 +17,11 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,10 +49,12 @@ import com.mindeck.presentation.ui.theme.BackgroundScreen
 import com.mindeck.presentation.ui.theme.Black
 import com.mindeck.presentation.ui.theme.Blue
 import com.mindeck.presentation.ui.theme.LightBlue
+import com.mindeck.presentation.uiState.UiState
+import com.mindeck.presentation.viewmodel.FoldersViewModel
 
 @SuppressLint("UseOfNonLambdaOffsetOverload")
 @Composable
-fun FoldersScreen(navController: NavController) {
+fun FoldersScreen(navController: NavController, foldersViewModel: FoldersViewModel) {
 
     var dropdownMenuState = remember { DropdownMenuState() }
 
@@ -62,11 +66,7 @@ fun FoldersScreen(navController: NavController) {
     var fontFamily = remember { FontFamily(Font(R.font.opensans_medium)) }
     var textStyle = remember { TextStyle(fontSize = 14.sp, color = Black, fontFamily = fontFamily) }
 
-    val folders = listOf(
-        FolderData(0, 123, "Общая колода", LightBlue, Blue, R.drawable.deck_icon),
-        FolderData(1, 152, "Колода номер 1", LightBlue, Blue, R.drawable.deck_icon),
-        FolderData(2, 152, "Колода номер 2", LightBlue, Blue, R.drawable.deck_icon),
-    )
+    val folders = foldersViewModel.folderUIState.collectAsState().value
 
     var listDropdownMenu = listOf(
         DropdownMenuData(
@@ -112,40 +112,43 @@ fun FoldersScreen(navController: NavController) {
                 modifier = Modifier
                     .padding(padding)
             ) {
-                Text(
-                    text = stringResource(R.string.title_text_folders),
-                    style = textStyle,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentSize(Alignment.Center)
-                )
-                Spacer(Modifier.height(18.dp))
-                DisplayItemCount(
-                    pluralsTextOne = R.plurals.folder_amount,
-                    pluralsTextTwo = R.plurals.deck_amount,
-                    listOne = folders,
-                    listTwo = listOf(1),
-                    textStyle = textStyle
-                )
-                LazyColumn {
-                    items(items = folders, key = { it.id }) {
-                        DisplayCardFolder(
-                            folderIcon =
-                            painterResource(it.icon),
-                            numberOfCards = it.countCard,
-                            folderName = it.text,
-                            backgroundColor = it.color,
-                            iconColor = it.colorTwo,
-                            onClick = {
-                                navController.navigate(NavigationRoute.FolderScreen.route)
-                            },
-                            textStyle = TextStyle(
-                                fontSize = 14.sp,
-                                fontFamily = FontFamily(Font(R.font.opensans_medium))
-                            ),
-                            modifier = Modifier
+                when (folders) {
+                    is UiState.Loading -> {
+                        CircularProgressIndicator()
+                    }
+
+                    is UiState.Success -> {
+                        DisplayItemCount(
+                            pluralsTextOne = R.plurals.folder_amount,
+                            pluralsTextTwo = R.plurals.deck_amount,
+                            listOne = folders.data,
+                            listTwo = listOf(1),
+                            textStyle = textStyle
                         )
-                        Spacer(modifier = Modifier.height(6.dp))
+                        LazyColumn {
+                            items(
+                                items = folders.data,
+                                key = { it.folderId }) {
+                                DisplayCardFolder(
+                                    folderIcon = painterResource(R.drawable.folder_icon),
+                                    numberOfCards = 12,
+                                    folderName = it.folderName,
+                                    backgroundColor = Blue,
+                                    iconColor = LightBlue,
+                                    onClick = { navController.navigate(NavigationRoute.FolderScreen.route) },
+                                    textStyle = TextStyle(
+                                        fontSize = 14.sp,
+                                        fontFamily = FontFamily(Font(R.font.opensans_medium))
+                                    ),
+                                    modifier = Modifier
+                                )
+                                Spacer (modifier = Modifier.height(6.dp))
+                            }
+                        }
+                    }
+
+                    is UiState.Error -> {
+                        Text("Error: $folders")
                     }
                 }
             }

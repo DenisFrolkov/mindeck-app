@@ -19,7 +19,7 @@ interface DeckDao {
     @Delete
     suspend fun deleteDeck(deckEntity: DeckEntity)
 
-    @Query("SELECT * FROM deck WHERE deck_id = :folderId")
+    @Query("SELECT * FROM deck WHERE folder_id = :folderId")
     fun getAllDecksByFolderId(folderId: Int): Flow<List<DeckEntity>>
 
     @Query("DELETE FROM deck WHERE deck_id IN (:deckIds) AND folder_id = :folderId")

@@ -52,6 +52,19 @@ class FolderLocalDataSourceImpl @Inject constructor(
         }
     }
 
+    override suspend fun getFolderById(folderId: Int): FolderEntity {
+        return try {
+            folderDao.getFolderById(folderId = folderId)
+        } catch (e: SQLException) {
+            throw DatabaseException(
+                "Failed to get folder due to a constraint violation: ${e.localizedMessage}",
+                e
+            )
+        } catch (e: Exception) {
+            throw DatabaseException("Error getting a folder: ${e.localizedMessage}", e)
+        }
+    }
+
     override fun getAllFolders(): Flow<List<FolderEntity>> {
         return try {
             folderDao.getAllFolders()
