@@ -108,8 +108,6 @@ fun MainScreen(
 
     val alphaScreen = animateScreenAlpha(fabState.screenAlphaValue, fabState.animationDuration)
 
-    var createFolder by remember { mutableStateOf("") }
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -202,29 +200,4 @@ fun MainScreen(
             textStyle = textStyle
         )
     }
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MediumGray.copy(0.5f))
-    )
-    CreateItemDialog(
-        titleDialog = "Создание папки",
-        placeholder = "Введите название папки",
-        buttonText = "Создать папку",
-        value = createFolder,
-        onValueChange = { newValue -> createFolder = newValue },
-        onBackClick = {  },
-        onClickButton = {  },
-        fontFamily = FontFamily(Font(R.font.opensans_medium)),
-        titleTextStyle = textStyleDisplayCard,
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentSize(Alignment.CenterStart),
-        iconModifier = Modifier
-            .clip(shape = RoundedCornerShape(50.dp))
-            .background(color = Blue, shape = RoundedCornerShape(50.dp))
-            .padding(all = 12.dp)
-            .size(size = 16.dp),
-        buttonModifier = Modifier
-    )
 }

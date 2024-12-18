@@ -15,3 +15,13 @@ fun animateDropdownMenuHeightIn(targetAlpha: Float, animationDuration: Int): Flo
     )
     return animatedFloatIn
 }
+
+@Composable
+fun animateDialogCreateItem(targetAlpha: Float, animationDuration: Int): Float {
+    val animatedFloatIn by animateFloatAsState(
+        targetValue = targetAlpha,
+        animationSpec = tween(durationMillis = animationDuration), label = stringResource(R.string.label_animated_dialog_create_item)
+    )
+    return animatedFloatIn
+}
+

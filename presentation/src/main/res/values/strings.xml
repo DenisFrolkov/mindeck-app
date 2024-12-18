@@ -40,6 +40,7 @@
     <string name="label_animated_dropdown_selector_alpha">Animated Dropdown Selector Alpha</string>
     <string name="label_animated_daily_progress_tracker_float">Animated Daily Progress Tracker Float</string>
     <string name="label_animated_dropdown_menu_alpha">Animated Dropdown Menu Alpha</string>
+    <string name="label_animated_dialog_create_item">Animated Dialog Create Item</string>
 
 
     //Content Description

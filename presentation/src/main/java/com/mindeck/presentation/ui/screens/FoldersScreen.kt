@@ -22,7 +22,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -35,12 +38,15 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.mindeck.domain.models.Folder
 import com.mindeck.presentation.R
+import com.mindeck.presentation.ui.components.CreateItemDialog
 import com.mindeck.presentation.ui.components.common.ActionBar
 import com.mindeck.presentation.ui.components.common.DisplayItemCount
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenu
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenuData
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenuState
+import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.animateDialogCreateItem
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.animateDropdownMenuHeightIn
 import com.mindeck.presentation.ui.components.folder.DisplayCardFolder
 import com.mindeck.presentation.ui.components.folder.FolderData
@@ -49,6 +55,7 @@ import com.mindeck.presentation.ui.theme.BackgroundScreen
 import com.mindeck.presentation.ui.theme.Black
 import com.mindeck.presentation.ui.theme.Blue
 import com.mindeck.presentation.ui.theme.LightBlue
+import com.mindeck.presentation.ui.theme.MediumGray
 import com.mindeck.presentation.uiState.UiState
 import com.mindeck.presentation.viewmodel.FoldersViewModel
 
@@ -63,10 +70,17 @@ fun FoldersScreen(navController: NavController, foldersViewModel: FoldersViewMod
         animationDuration = dropdownMenuState.animationDuration
     )
 
+    val dialogVisibleAnimation = animateDialogCreateItem(
+        targetAlpha = dropdownMenuState.dialogAlpha,
+        animationDuration = 300
+    )
+
     var fontFamily = remember { FontFamily(Font(R.font.opensans_medium)) }
     var textStyle = remember { TextStyle(fontSize = 14.sp, color = Black, fontFamily = fontFamily) }
 
     val folders = foldersViewModel.folderUIState.collectAsState().value
+
+    var createFolder by remember { mutableStateOf("") }
 
     var listDropdownMenu = listOf(
         DropdownMenuData(
@@ -80,8 +94,9 @@ fun FoldersScreen(navController: NavController, foldersViewModel: FoldersViewMod
             }
         ),
         DropdownMenuData(
-            title = "Добавить элемент",
+            title = "Создать папку",
             action = {
+                dropdownMenuState.openDialog()
             }
         )
     )
@@ -131,7 +146,7 @@ fun FoldersScreen(navController: NavController, foldersViewModel: FoldersViewMod
                                 key = { it.folderId }) {
                                 DisplayCardFolder(
                                     folderIcon = painterResource(R.drawable.folder_icon),
-                                    numberOfCards = 12,
+                                    numberOfCards = it.folderId,
                                     folderName = it.folderName,
                                     backgroundColor = Blue,
                                     iconColor = LightBlue,
@@ -142,7 +157,7 @@ fun FoldersScreen(navController: NavController, foldersViewModel: FoldersViewMod
                                     ),
                                     modifier = Modifier
                                 )
-                                Spacer (modifier = Modifier.height(6.dp))
+                                Spacer(modifier = Modifier.height(6.dp))
                             }
                         }
                     }
@@ -159,8 +174,7 @@ fun FoldersScreen(navController: NavController, foldersViewModel: FoldersViewMod
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null
                     ) { dropdownMenuState.toggle() })
-            }
-            if (dropdownMenuState.isExpanded) {
+
                 DropdownMenu(
                     listDropdownMenuItem = listDropdownMenu,
                     textStyle = textStyle,
@@ -174,4 +188,44 @@ fun FoldersScreen(navController: NavController, foldersViewModel: FoldersViewMod
             }
         }
     )
+    if (dropdownMenuState.isOpeningDialog) {
+        Box(modifier = Modifier.alpha(dialogVisibleAnimation)) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MediumGray.copy(0.5f))
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) {
+
+                    }
+            )
+            CreateItemDialog(
+                titleDialog = "Создание папки",
+                placeholder = "Введите название папки",
+                buttonText = "Создать папку",
+                value = createFolder,
+                onValueChange = { newValue -> createFolder = newValue },
+                onBackClick = {
+                    dropdownMenuState.closeDialog()
+                },
+                onClickButton = {
+                    foldersViewModel.createFolder(Folder(folderName = createFolder))
+                    dropdownMenuState.closeDialog()
+                },
+                fontFamily = FontFamily(Font(R.font.opensans_medium)),
+                titleTextStyle = textStyle,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentSize(Alignment.CenterStart),
+                iconModifier = Modifier
+                    .clip(shape = RoundedCornerShape(50.dp))
+                    .background(color = Blue, shape = RoundedCornerShape(50.dp))
+                    .padding(all = 12.dp)
+                    .size(size = 16.dp),
+                buttonModifier = Modifier
+            )
+        }
+    }
 }

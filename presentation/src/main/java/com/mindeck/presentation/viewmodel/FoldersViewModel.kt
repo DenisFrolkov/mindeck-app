@@ -3,6 +3,7 @@ package com.mindeck.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mindeck.domain.models.Folder
+import com.mindeck.domain.usecases.folderUseCases.CreateFolderUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import com.mindeck.domain.usecases.folderUseCases.GetAllFoldersUseCase
 import com.mindeck.presentation.uiState.UiState
@@ -13,7 +14,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class FoldersViewModel @Inject constructor(
-    private val getAllFoldersUseCase: GetAllFoldersUseCase
+    private val getAllFoldersUseCase: GetAllFoldersUseCase,
+    private val createFolderUseCase: CreateFolderUseCase
 ) : ViewModel() {
 
     private val _folderUIState = MutableStateFlow<UiState<List<Folder>>>(UiState.Loading)
@@ -33,6 +35,12 @@ class FoldersViewModel @Inject constructor(
             } catch (e: Exception) {
                 _folderUIState.value = UiState.Error(e)
             }
+        }
+    }
+
+    fun createFolder(folder: Folder) {
+        viewModelScope.launch {
+            createFolderUseCase.invoke(folder)
         }
     }
 }

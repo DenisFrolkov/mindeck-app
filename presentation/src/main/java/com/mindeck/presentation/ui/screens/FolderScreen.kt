@@ -23,6 +23,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -38,6 +39,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.mindeck.domain.models.Deck
 import com.mindeck.domain.models.Folder
 import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.components.CreateItemDialog
@@ -46,6 +48,7 @@ import com.mindeck.presentation.ui.components.common.DisplayItemCount
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenu
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenuData
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenuState
+import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.animateDialogCreateItem
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.animateDropdownMenuHeightIn
 import com.mindeck.presentation.ui.components.folder.DisplayCardFolder
 import com.mindeck.presentation.ui.components.folder.FolderData
@@ -54,6 +57,7 @@ import com.mindeck.presentation.ui.theme.BackgroundScreen
 import com.mindeck.presentation.ui.theme.Black
 import com.mindeck.presentation.ui.theme.Blue
 import com.mindeck.presentation.ui.theme.LightBlue
+import com.mindeck.presentation.ui.theme.MediumGray
 import com.mindeck.presentation.uiState.UiState
 import com.mindeck.presentation.viewmodel.DeckViewModel
 import com.mindeck.presentation.viewmodel.FolderViewModel
@@ -74,12 +78,21 @@ fun FolderScreen(
         targetAlpha = dropdownMenuState.dropdownAlpha,
         animationDuration = dropdownMenuState.animationDuration
     )
+
+    val dialogVisibleAnimation = animateDialogCreateItem(
+        targetAlpha = dropdownMenuState.dialogAlpha,
+        animationDuration = 300
+    )
+
     val folder = folderViewModel.folderUIState.collectAsState().value
     val decks = folderViewModel.deckByIdrUIState.collectAsState().value
 
     val deleteFolderData =
         remember { mutableStateOf(Folder(folderId = 0, folderName = "")) }
 
+    val folderId = remember { mutableIntStateOf(0) }
+
+    var createDeck by remember { mutableStateOf("") }
 
     var listDropdownMenu = listOf(
         DropdownMenuData(
@@ -96,8 +109,9 @@ fun FolderScreen(
             }
         ),
         DropdownMenuData(
-            title = "Добавить элемент",
+            title = "Создать колоду",
             action = {
+                dropdownMenuState.openDialog()
             }
         )
     )
@@ -132,6 +146,7 @@ fun FolderScreen(
 
                     is UiState.Success -> {
                         deleteFolderData.value = folder.data
+                        folderId.intValue = folder.data.folderId
                         Text(
                             text = folder.data.folderName,
                             style = textStyle,
@@ -163,7 +178,11 @@ fun FolderScreen(
                                     backgroundColor = LightBlue,
                                     iconColor = Blue,
                                     onClick = {
-                                        navController.navigate(NavigationRoute.DeckScreen.createRoute(it.deckId))
+                                        navController.navigate(
+                                            NavigationRoute.DeckScreen.createRoute(
+                                                it.deckId
+                                            )
+                                        )
                                     },
                                     textStyle = TextStyle(
                                         fontSize = 14.sp,
@@ -184,8 +203,7 @@ fun FolderScreen(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null
                     ) { dropdownMenuState.toggle() })
-            }
-            if (dropdownMenuState.isExpanded) {
+
                 DropdownMenu(
                     listDropdownMenuItem = listDropdownMenu,
                     textStyle = textStyle,
@@ -199,4 +217,45 @@ fun FolderScreen(
             }
         }
     )
+
+    if (dropdownMenuState.isOpeningDialog) {
+        Box(modifier = Modifier.alpha(dialogVisibleAnimation)) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MediumGray.copy(0.5f))
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) {
+
+                    }
+            )
+            CreateItemDialog(
+                titleDialog = "Создание колоды",
+                placeholder = "Введите название колоды",
+                buttonText = "Создать колоду",
+                value = createDeck,
+                onValueChange = { newValue -> createDeck = newValue },
+                onBackClick = {
+                    dropdownMenuState.closeDialog()
+                },
+                onClickButton = {
+                    folderViewModel.createDeck(Deck(deckName = createDeck, folderId = folderId.intValue))
+                    dropdownMenuState.closeDialog()
+                },
+                fontFamily = FontFamily(Font(R.font.opensans_medium)),
+                titleTextStyle = textStyle,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentSize(Alignment.CenterStart),
+                iconModifier = Modifier
+                    .clip(shape = RoundedCornerShape(50.dp))
+                    .background(color = Blue, shape = RoundedCornerShape(50.dp))
+                    .padding(all = 12.dp)
+                    .size(size = 16.dp),
+                buttonModifier = Modifier
+            )
+        }
+    }
 }
