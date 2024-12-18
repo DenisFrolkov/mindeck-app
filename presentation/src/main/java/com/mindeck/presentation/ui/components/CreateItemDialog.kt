@@ -75,13 +75,8 @@ fun CreateItemDialog(
                 ActionHandlerButton(
                     iconPainter = painterResource(R.drawable.back_icon),
                     contentDescription = stringResource(R.string.back_screen_icon_button),
-                    iconModifier = iconModifier
-                        .clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null
-                        ) {
-                            onBackClick()
-                        },
+                    onClick = onBackClick,
+                    iconModifier = iconModifier,
                 )
                 Text(
                     text = titleDialog,
