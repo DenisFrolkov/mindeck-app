@@ -83,8 +83,9 @@ fun DeckScreen(
             }
         ),
         DropdownMenuData(
-            title = "Добавить элемент",
+            title = "Добавить карточку",
             action = {
+
             }
         )
     )
