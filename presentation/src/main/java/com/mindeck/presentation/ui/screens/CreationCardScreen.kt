@@ -92,23 +92,20 @@ fun CreationCardScreen(
             ActionHandlerButton(
                 iconPainter = painterResource(R.drawable.back_icon),
                 contentDescription = stringResource(R.string.back_screen_icon_button),
+                onClick = { navController.popBackStack() },
                 iconModifier = Modifier
                     .background(color = Blue, shape = RoundedCornerShape(50.dp))
                     .padding(all = 12.dp)
                     .size(size = 16.dp)
                     .clip(shape = RoundedCornerShape(50.dp))
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null
-                    ) {
-                        navController.popBackStack()
-                    }
             )
 
             Spacer(modifier = Modifier.height(20.dp))
         },
         content = { padding ->
-            Column(modifier = Modifier.padding(padding).verticalScroll(state = scrollState)) {
+            Column(modifier = Modifier
+                .padding(padding)
+                .verticalScroll(state = scrollState)) {
                 DropdownSelectors(
                     textStyle = textStyle,
                     folderDropdownSelect = folderDropdownSelect,
@@ -186,15 +183,17 @@ fun CreationCardScreen(
                     SaveDataButton(
                         text = stringResource(R.string.text_save_card_button),
                         onClick = {
-                            creationCardViewModel.createCard(Card(
-                                cardName = titleInputFieldValue,
-                                cardQuestion = cardInputQuestionValue,
-                                        cardAnswer = cardInputAnswerValue,
-                                        cardPriority = "1234",
-                                        cardType = "1234",
-                                        cardTag = tagInputValue,
-                                        deckId = 1
-                            ))
+                            creationCardViewModel.createCard(
+                                Card(
+                                    cardName = titleInputFieldValue,
+                                    cardQuestion = cardInputQuestionValue,
+                                    cardAnswer = cardInputAnswerValue,
+                                    cardPriority = "1234",
+                                    cardType = "1234",
+                                    cardTag = tagInputValue,
+                                    deckId = 1
+                                )
+                            )
                         },
                         fontFamily = fontFamily
                     )
