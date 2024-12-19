@@ -37,14 +37,14 @@ import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.components.repeat_options.RepeatOptionData
 import com.mindeck.presentation.ui.components.repeat_options.RepeatOptionsButton
 import com.mindeck.presentation.ui.components.common.ActionBar
-import com.mindeck.presentation.ui.theme.BackgroundScreen
-import com.mindeck.presentation.ui.theme.Blue
-import com.mindeck.presentation.ui.theme.LightBlue
-import com.mindeck.presentation.ui.theme.LightMint
-import com.mindeck.presentation.ui.theme.LightRed
-import com.mindeck.presentation.ui.theme.LightYellow
-import com.mindeck.presentation.ui.theme.MediumGray
-import com.mindeck.presentation.ui.theme.White
+import com.mindeck.presentation.ui.theme.background_light_blue
+import com.mindeck.presentation.ui.theme.outline_variant_blue
+import com.mindeck.presentation.ui.theme.repeat_button_light_blue
+import com.mindeck.presentation.ui.theme.repeat_button_light_mint
+import com.mindeck.presentation.ui.theme.repeat_button_light_red
+import com.mindeck.presentation.ui.theme.repeat_button_light_yellow
+import com.mindeck.presentation.ui.theme.outline_medium_gray
+import com.mindeck.presentation.ui.theme.on_primary_white
 
 @Composable
 fun CardStudyScreen(navController: NavController) {
@@ -70,20 +70,20 @@ fun CardStudyScreen(navController: NavController) {
         }
 
     var repeatOptionsButton = listOf(
-        RepeatOptionData(title = "Повторить", time = "1 минута", color = LightBlue, action = { }),
-        RepeatOptionData(title = "Легко", time = "5 дней", color = LightMint, action = { }),
-        RepeatOptionData(title = "Средне", time = "2 дней", color = LightYellow, action = { }),
-        RepeatOptionData(title = "Тяжело", time = "1 дней", color = LightRed, action = { })
+        RepeatOptionData(title = "Повторить", time = "1 минута", color = repeat_button_light_blue, action = { }),
+        RepeatOptionData(title = "Легко", time = "5 дней", color = repeat_button_light_mint, action = { }),
+        RepeatOptionData(title = "Средне", time = "2 дней", color = repeat_button_light_yellow, action = { }),
+        RepeatOptionData(title = "Тяжело", time = "1 дней", color = repeat_button_light_red, action = { })
     )
 
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
-            .background(BackgroundScreen)
+            .background(background_light_blue)
             .statusBarsPadding()
             .navigationBarsPadding()
             .padding(horizontal = 16.dp),
-        containerColor = BackgroundScreen,
+        containerColor = background_light_blue,
         topBar = {
             ActionBar(
                 onBackClick = { navController.popBackStack() },
@@ -93,7 +93,7 @@ fun CardStudyScreen(navController: NavController) {
                     .padding(horizontal = 16.dp),
                 iconModifier = Modifier
                     .clip(shape = RoundedCornerShape(50.dp))
-                    .background(color = Blue, shape = RoundedCornerShape(50.dp))
+                    .background(color = outline_variant_blue, shape = RoundedCornerShape(50.dp))
                     .padding(all = 12.dp)
                     .size(size = 16.dp),
             )
@@ -113,10 +113,10 @@ fun CardStudyScreen(navController: NavController) {
                             answerStyle = answerStyle,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .background(White)
+                                .background(on_primary_white)
                                 .border(
                                     width = 0.5.dp,
-                                    color = MediumGray,
+                                    color = outline_medium_gray,
                                     shape = RoundedCornerShape(4.dp)
                                 )
                         )
@@ -166,7 +166,7 @@ private fun QuestionAndAnswerElement(
         HorizontalDivider(
             modifier = Modifier.fillMaxWidth(),
             thickness = 0.5.dp,
-            color = MediumGray
+            color = outline_medium_gray
         )
         Text(
             text = answer,

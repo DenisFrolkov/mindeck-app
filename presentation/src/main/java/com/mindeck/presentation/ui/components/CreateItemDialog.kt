@@ -2,9 +2,6 @@ package com.mindeck.presentation.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,11 +29,10 @@ import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.components.buttons.ActionHandlerButton
 import com.mindeck.presentation.ui.components.buttons.SaveDataButton
 import com.mindeck.presentation.ui.components.textfields.CardInputField
-import com.mindeck.presentation.ui.theme.BackgroundScreen
-import com.mindeck.presentation.ui.theme.Black
-import com.mindeck.presentation.ui.theme.Blue
-import com.mindeck.presentation.ui.theme.MediumGray
-import com.mindeck.presentation.ui.theme.White
+import com.mindeck.presentation.ui.theme.background_light_blue
+import com.mindeck.presentation.ui.theme.scrim_black
+import com.mindeck.presentation.ui.theme.outline_medium_gray
+import com.mindeck.presentation.ui.theme.on_primary_white
 
 @Composable
 fun CreateItemDialog(
@@ -52,8 +47,8 @@ fun CreateItemDialog(
     titleTextStyle: TextStyle,
     textFontSize: TextUnit = 14.sp,
     placeholderFontSize: TextUnit = 14.sp,
-    textColor: Color = Black,
-    placeholderColor: Color = MediumGray,
+    textColor: Color = scrim_black,
+    placeholderColor: Color = outline_medium_gray,
     modifier: Modifier,
     iconModifier: Modifier,
     buttonModifier: Modifier
@@ -67,7 +62,7 @@ fun CreateItemDialog(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
-                .background(color = BackgroundScreen, shape = RoundedCornerShape(6))
+                .background(color = background_light_blue, shape = RoundedCornerShape(6))
                 .clip(RoundedCornerShape(6))
                 .padding(10.dp)
         ) {
@@ -81,7 +76,7 @@ fun CreateItemDialog(
                 Text(
                     text = titleDialog,
                     style = titleTextStyle,
-                    color = Black,
+                    color = scrim_black,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -100,11 +95,11 @@ fun CreateItemDialog(
                 modifier = modifier
                     .fillMaxWidth()
                     .background(
-                        White
+                        on_primary_white
                     )
                     .border(
                         width = 0.25.dp,
-                        color = MediumGray,
+                        color = outline_medium_gray,
                         shape = RoundedCornerShape(4.dp)
                     )
                     .padding(10.dp)
@@ -115,7 +110,7 @@ fun CreateItemDialog(
                 onClick = onClickButton,
                 fontSize = 14.sp,
                 fontFamily = fontFamily,
-                color = White,
+                color = on_primary_white,
                 buttonModifier = buttonModifier
             )
         }

@@ -23,7 +23,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.mindeck.presentation.ui.theme.MediumGray
+import com.mindeck.presentation.ui.theme.outline_medium_gray
 
 @Composable
 fun RepeatOptionsButton(
@@ -36,7 +36,7 @@ fun RepeatOptionsButton(
     Column(
         modifier = Modifier
             .background(color = buttonColor, shape = RoundedCornerShape(4.dp))
-            .border(width = 0.1.dp, color = MediumGray, shape = RoundedCornerShape(4.dp))
+            .border(width = 0.1.dp, color = outline_medium_gray, shape = RoundedCornerShape(4.dp))
             .width(76.dp)
             .padding(vertical = 2.dp)
             .wrapContentSize(Alignment.Center)

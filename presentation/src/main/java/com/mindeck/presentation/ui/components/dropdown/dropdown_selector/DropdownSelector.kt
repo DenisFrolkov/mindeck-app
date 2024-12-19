@@ -31,8 +31,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
-import com.mindeck.presentation.ui.theme.MediumGray
-import com.mindeck.presentation.ui.theme.White
+import com.mindeck.presentation.ui.theme.outline_medium_gray
+import com.mindeck.presentation.ui.theme.on_primary_white
 
 @Composable
 fun DropdownSelector(
@@ -119,7 +119,7 @@ private fun DropdownMenu(
                 contentAlignment = Alignment.Center,
                 modifier = baseItemModifier
                     .background(
-                        color = White,
+                        color = on_primary_white,
                         shape = (if (isLastItem) RoundedCornerShape(
                             bottomStart = 4.dp,
                             bottomEnd = 4.dp
@@ -128,7 +128,7 @@ private fun DropdownMenu(
                     .drawBehind {
                         val borderThickness = 0.25.dp.toPx()
                         drawLine(
-                            color = MediumGray,
+                            color = outline_medium_gray,
                             start = Offset(0f, size.height - borderThickness / 2),
                             end = Offset(size.width, size.height - borderThickness / 2),
                             strokeWidth = borderThickness
@@ -153,7 +153,7 @@ private fun DropdownMenu(
 @Composable
 fun baseSelectorModifier(isExpanded: Boolean) = Modifier
         .fillMaxWidth()
-        .background(color = White, shape = RoundedCornerShape(4.dp))
+        .background(color = on_primary_white, shape = RoundedCornerShape(4.dp))
         .height(height = 36.dp)
         .border(
             width = 0.25.dp,

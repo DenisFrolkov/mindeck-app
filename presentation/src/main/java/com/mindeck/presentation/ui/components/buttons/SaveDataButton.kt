@@ -16,8 +16,8 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.mindeck.presentation.ui.theme.Blue
-import com.mindeck.presentation.ui.theme.White
+import com.mindeck.presentation.ui.theme.outline_variant_blue
+import com.mindeck.presentation.ui.theme.on_primary_white
 
 @Composable
 fun SaveDataButton(
@@ -25,13 +25,13 @@ fun SaveDataButton(
     onClick: () -> Unit,
     fontSize: TextUnit = 14.sp,
     fontFamily: FontFamily,
-    color: Color = White,
+    color: Color = on_primary_white,
     buttonModifier: Modifier = Modifier,
     textModifier: Modifier = Modifier
 ) {
     Box(
         modifier = buttonModifier
-            .background(color = Blue, shape = RoundedCornerShape(6.dp))
+            .background(color = outline_variant_blue, shape = RoundedCornerShape(6.dp))
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null

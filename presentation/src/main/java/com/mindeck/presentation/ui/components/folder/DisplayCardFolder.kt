@@ -31,9 +31,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.mindeck.presentation.R
-import com.mindeck.presentation.ui.theme.MediumGray
-import com.mindeck.presentation.ui.theme.LimeGreen
-import com.mindeck.presentation.ui.theme.White
+import com.mindeck.presentation.ui.theme.outline_medium_gray
+import com.mindeck.presentation.ui.theme.on_primary_white
 
 @Composable
 fun DisplayCardFolder(
@@ -47,7 +46,7 @@ fun DisplayCardFolder(
     modifier: Modifier = Modifier
 ) {
 
-    fun getSpacerModifier(color: Color = MediumGray, width: Dp) = Modifier
+    fun getSpacerModifier(color: Color = outline_medium_gray, width: Dp) = Modifier
         .fillMaxHeight()
         .width(width)
         .background(color = color)
@@ -60,7 +59,7 @@ fun DisplayCardFolder(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .fillMaxWidth()
-            .border(0.25.dp, MediumGray, RoundedCornerShape(4.dp))
+            .border(0.25.dp, outline_medium_gray, RoundedCornerShape(4.dp))
             .clip(shape = RoundedCornerShape(4.dp))
             .height(48.dp)
             .clickable(
@@ -75,19 +74,19 @@ fun DisplayCardFolder(
             text = formatNumber(numberOfCards),
             style = textStyle,
             modifier = Modifier
-                .background(White)
+                .background(on_primary_white)
                 .size(48.dp)
                 .wrapContentSize(Alignment.Center)
         )
 
-        Spacer(modifier = getSpacerModifier(width = 0.25.dp, color = MediumGray))
+        Spacer(modifier = getSpacerModifier(width = 0.25.dp, color = outline_medium_gray))
 
         Box(
             contentAlignment = Alignment.CenterStart,
             modifier = Modifier
                 .weight(1f)
                 .fillMaxSize()
-                .background(White)
+                .background(on_primary_white)
                 .padding(horizontal = 6.dp)
         ) {
             Text(
@@ -98,7 +97,7 @@ fun DisplayCardFolder(
             )
         }
 
-        Spacer(modifier = getSpacerModifier(width = 0.25.dp, color = MediumGray))
+        Spacer(modifier = getSpacerModifier(width = 0.25.dp, color = outline_medium_gray))
 
         Box(
             contentAlignment = Alignment.Center,

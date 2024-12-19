@@ -18,7 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
-import com.mindeck.presentation.ui.theme.White
+import com.mindeck.presentation.ui.theme.on_primary_white
 
 @Composable
 fun FABMenu(fabState: FabState, listItemsMenu: List<FabMenuData>, textStyle: TextStyle, iconColor: Color) {
@@ -55,7 +55,7 @@ fun FABMenu(fabState: FabState, listItemsMenu: List<FabMenuData>, textStyle: Tex
             HorizontalDivider(
                 modifier = Modifier.fillMaxWidth(),
                 thickness = 1.dp,
-                color = White
+                color = on_primary_white
             )
         }
     }

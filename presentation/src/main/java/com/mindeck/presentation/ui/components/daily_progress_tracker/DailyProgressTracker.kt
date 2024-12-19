@@ -28,9 +28,9 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mindeck.presentation.R
-import com.mindeck.presentation.ui.theme.Blue
+import com.mindeck.presentation.ui.theme.outline_variant_blue
 import com.mindeck.presentation.ui.theme.PaleBlue
-import com.mindeck.presentation.ui.theme.White
+import com.mindeck.presentation.ui.theme.on_primary_white
 
 @Composable
 fun DailyProgressTracker(
@@ -97,7 +97,7 @@ private fun IconBox(dptIcon: Painter, modifier: Modifier = Modifier) {
         Icon(
             modifier = Modifier.size(width = 23.dp, height = 16.dp),
             painter = dptIcon,
-            tint = Blue,
+            tint = outline_variant_blue,
             contentDescription = stringResource(R.string.daily_progress_tracker)
         )
     }
@@ -130,8 +130,8 @@ private fun DPTText(
 @Composable
 private fun DPTProgress(
     dptAnimationProgress: Float,
-    progressColor: Color = White,
-    backProgressColor: Color = Blue
+    progressColor: Color = on_primary_white,
+    backProgressColor: Color = outline_variant_blue
 ) {
     Box(
         modifier = Modifier
