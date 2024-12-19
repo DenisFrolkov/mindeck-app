@@ -3,8 +3,6 @@ package com.mindeck.presentation.ui.screens
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -20,12 +18,10 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Card
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -41,7 +37,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.mindeck.domain.models.Card
-import com.mindeck.domain.models.Folder
 import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.components.buttons.ActionHandlerButton
 import com.mindeck.presentation.ui.components.buttons.SaveDataButton
@@ -50,10 +45,10 @@ import com.mindeck.presentation.ui.components.dropdown.dropdown_selector.Dropdow
 import com.mindeck.presentation.ui.components.textfields.CardInputField
 import com.mindeck.presentation.ui.components.textfields.TegInputField
 import com.mindeck.presentation.ui.components.textfields.TitleInputField
-import com.mindeck.presentation.ui.theme.BackgroundScreen
-import com.mindeck.presentation.ui.theme.Blue
-import com.mindeck.presentation.ui.theme.MediumGray
-import com.mindeck.presentation.ui.theme.White
+import com.mindeck.presentation.ui.theme.background_light_blue
+import com.mindeck.presentation.ui.theme.outline_variant_blue
+import com.mindeck.presentation.ui.theme.outline_medium_gray
+import com.mindeck.presentation.ui.theme.on_primary_white
 import com.mindeck.presentation.viewmodel.CreationCardViewModel
 
 @SuppressLint("ResourceType")
@@ -83,18 +78,18 @@ fun CreationCardScreen(
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = BackgroundScreen)
+            .background(color = background_light_blue)
             .statusBarsPadding()
             .navigationBarsPadding()
             .padding(horizontal = 16.dp)
-            .padding(top = 16.dp), containerColor = BackgroundScreen,
+            .padding(top = 16.dp), containerColor = background_light_blue,
         topBar = {
             ActionHandlerButton(
                 iconPainter = painterResource(R.drawable.back_icon),
                 contentDescription = stringResource(R.string.back_screen_icon_button),
                 onClick = { navController.popBackStack() },
                 iconModifier = Modifier
-                    .background(color = Blue, shape = RoundedCornerShape(50.dp))
+                    .background(color = outline_variant_blue, shape = RoundedCornerShape(50.dp))
                     .padding(all = 12.dp)
                     .size(size = 16.dp)
                     .clip(shape = RoundedCornerShape(50.dp))
@@ -277,11 +272,11 @@ fun textInputModifier(
         },
     )
     .background(
-        White
+        on_primary_white
     )
     .border(
         width = 0.25.dp,
-        color = MediumGray,
+        color = outline_medium_gray,
         shape =
         if (topStart + topEnd + bottomEnd + bottomStart > size) {
             RoundedCornerShape(

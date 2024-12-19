@@ -18,7 +18,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.mindeck.presentation.ui.components.utils.getPluralForm
-import com.mindeck.presentation.ui.theme.Black
+import com.mindeck.presentation.ui.theme.scrim_black
 
 @SuppressLint("Range")
 @Composable
@@ -50,7 +50,7 @@ fun DisplayItemCount(
                 modifier = Modifier
                     .size(height = 16.dp, width = 1.dp)
                     .background(
-                        color = Black
+                        color = scrim_black
                     )
             )
             Spacer(modifier = Modifier.width(4.dp))

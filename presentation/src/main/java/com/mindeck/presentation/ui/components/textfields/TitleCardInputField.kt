@@ -6,12 +6,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
-import com.mindeck.presentation.ui.theme.Black
-import com.mindeck.presentation.ui.theme.MediumGray
+import com.mindeck.presentation.ui.theme.scrim_black
+import com.mindeck.presentation.ui.theme.outline_medium_gray
 
 @Composable
 fun TitleInputField(
@@ -21,8 +20,8 @@ fun TitleInputField(
     fontFamily: FontFamily,
     textFontSize: TextUnit = 14.sp,
     placeholderFontSize: TextUnit = 14.sp,
-    textColor: Color = Black,
-    placeholderColor: Color = MediumGray,
+    textColor: Color = scrim_black,
+    placeholderColor: Color = outline_medium_gray,
     modifier: Modifier,
 ) {
     BasicTextField(

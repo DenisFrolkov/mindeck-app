@@ -16,8 +16,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
-import com.mindeck.presentation.ui.theme.Blue
-import com.mindeck.presentation.ui.theme.White
+import com.mindeck.presentation.ui.theme.outline_variant_blue
+import com.mindeck.presentation.ui.theme.on_primary_white
 
 @Composable
 fun DropdownMenu(listDropdownMenuItem: List<DropdownMenuData>, textStyle: TextStyle, dropdownModifier: Modifier) {
@@ -27,10 +27,10 @@ fun DropdownMenu(listDropdownMenuItem: List<DropdownMenuData>, textStyle: TextSt
         LazyColumn(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
-                .background(White, shape = RoundedCornerShape(8.dp))
+                .background(on_primary_white, shape = RoundedCornerShape(8.dp))
                 .border(
                     width = 0.25.dp,
-                    color = Blue,
+                    color = outline_variant_blue,
                     shape = RoundedCornerShape(8.dp)
                 )
         ) {

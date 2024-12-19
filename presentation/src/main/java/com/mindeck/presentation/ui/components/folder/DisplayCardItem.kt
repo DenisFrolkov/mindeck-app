@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -31,8 +30,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.mindeck.presentation.R
-import com.mindeck.presentation.ui.theme.MediumGray
-import com.mindeck.presentation.ui.theme.White
+import com.mindeck.presentation.ui.theme.outline_medium_gray
+import com.mindeck.presentation.ui.theme.on_primary_white
 
 @Composable
 fun DisplayCardItem(
@@ -45,7 +44,7 @@ fun DisplayCardItem(
     modifier: Modifier = Modifier
 ) {
 
-    fun getSpacerModifier(color: Color = MediumGray, width: Dp) = Modifier
+    fun getSpacerModifier(color: Color = outline_medium_gray, width: Dp) = Modifier
         .fillMaxHeight()
         .width(width)
         .background(color = color)
@@ -58,7 +57,7 @@ fun DisplayCardItem(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .fillMaxWidth()
-            .border(0.25.dp, MediumGray, RoundedCornerShape(4.dp))
+            .border(0.25.dp, outline_medium_gray, RoundedCornerShape(4.dp))
             .clip(shape = RoundedCornerShape(4.dp))
             .height(48.dp)
             .clickable(
@@ -73,7 +72,7 @@ fun DisplayCardItem(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxSize()
-                .background(White)
+                .background(on_primary_white)
                 .padding(horizontal = 6.dp)
         ) {
             Text(
@@ -84,7 +83,7 @@ fun DisplayCardItem(
             )
         }
 
-        Spacer(modifier = getSpacerModifier(width = 0.25.dp, color = MediumGray))
+        Spacer(modifier = getSpacerModifier(width = 0.25.dp, color = outline_medium_gray))
 
         Box(
             contentAlignment = Alignment.Center,

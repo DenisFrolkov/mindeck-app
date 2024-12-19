@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -31,7 +30,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
@@ -51,13 +49,13 @@ import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMen
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.animateDialogCreateItem
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.animateDropdownMenuHeightIn
 import com.mindeck.presentation.ui.components.folder.DisplayCardFolder
-import com.mindeck.presentation.ui.components.folder.FolderData
 import com.mindeck.presentation.ui.navigation.NavigationRoute
-import com.mindeck.presentation.ui.theme.BackgroundScreen
-import com.mindeck.presentation.ui.theme.Black
-import com.mindeck.presentation.ui.theme.Blue
-import com.mindeck.presentation.ui.theme.LightBlue
-import com.mindeck.presentation.ui.theme.MediumGray
+import com.mindeck.presentation.ui.theme.PaleBlue
+import com.mindeck.presentation.ui.theme.background_light_blue
+import com.mindeck.presentation.ui.theme.scrim_black
+import com.mindeck.presentation.ui.theme.outline_variant_blue
+import com.mindeck.presentation.ui.theme.repeat_button_light_blue
+import com.mindeck.presentation.ui.theme.outline_medium_gray
 import com.mindeck.presentation.uiState.UiState
 import com.mindeck.presentation.viewmodel.DeckViewModel
 import com.mindeck.presentation.viewmodel.FolderViewModel
@@ -72,7 +70,7 @@ fun FolderScreen(
     var dropdownMenuState = remember { DropdownMenuState() }
 
     var fontFamily = FontFamily(Font(R.font.opensans_medium))
-    var textStyle = TextStyle(fontSize = 14.sp, color = Black, fontFamily = fontFamily)
+    var textStyle = TextStyle(fontSize = 14.sp, color = scrim_black, fontFamily = fontFamily)
 
     val dropdownVisibleAnimation = animateDropdownMenuHeightIn(
         targetAlpha = dropdownMenuState.dropdownAlpha,
@@ -119,11 +117,11 @@ fun FolderScreen(
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
-            .background(BackgroundScreen)
+            .background(background_light_blue)
             .padding(horizontal = 16.dp)
             .padding(top = 16.dp)
             .statusBarsPadding(),
-        containerColor = BackgroundScreen,
+        containerColor = background_light_blue,
         topBar = {
             ActionBar(
                 onBackClick = { navController.popBackStack() },
@@ -132,7 +130,7 @@ fun FolderScreen(
                     .fillMaxWidth(),
                 iconModifier = Modifier
                     .clip(shape = RoundedCornerShape(50.dp))
-                    .background(color = Blue, shape = RoundedCornerShape(50.dp))
+                    .background(color = outline_variant_blue, shape = RoundedCornerShape(50.dp))
                     .padding(all = 12.dp)
                     .size(size = 16.dp),
             )
@@ -175,8 +173,8 @@ fun FolderScreen(
                                     painterResource(R.drawable.deck_icon),
                                     numberOfCards = it.deckId,
                                     folderName = it.deckName,
-                                    backgroundColor = LightBlue,
-                                    iconColor = Blue,
+                                    backgroundColor = PaleBlue.copy(.5f),
+                                    iconColor = outline_variant_blue,
                                     onClick = {
                                         navController.navigate(
                                             NavigationRoute.DeckScreen.createRoute(
@@ -223,7 +221,7 @@ fun FolderScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(MediumGray.copy(0.5f))
+                    .background(outline_medium_gray.copy(0.5f))
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null
@@ -251,7 +249,7 @@ fun FolderScreen(
                     .wrapContentSize(Alignment.CenterStart),
                 iconModifier = Modifier
                     .clip(shape = RoundedCornerShape(50.dp))
-                    .background(color = Blue, shape = RoundedCornerShape(50.dp))
+                    .background(color = outline_variant_blue, shape = RoundedCornerShape(50.dp))
                     .padding(all = 12.dp)
                     .size(size = 16.dp),
                 buttonModifier = Modifier

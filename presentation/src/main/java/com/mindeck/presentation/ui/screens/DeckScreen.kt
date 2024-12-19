@@ -42,13 +42,12 @@ import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMen
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenuData
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenuState
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.animateDropdownMenuHeightIn
-import com.mindeck.presentation.ui.components.folder.DeckData
 import com.mindeck.presentation.ui.components.folder.DisplayCardItem
 import com.mindeck.presentation.ui.navigation.NavigationRoute
-import com.mindeck.presentation.ui.theme.BackgroundScreen
-import com.mindeck.presentation.ui.theme.Black
-import com.mindeck.presentation.ui.theme.Blue
-import com.mindeck.presentation.ui.theme.LightBlue
+import com.mindeck.presentation.ui.theme.background_light_blue
+import com.mindeck.presentation.ui.theme.scrim_black
+import com.mindeck.presentation.ui.theme.outline_variant_blue
+import com.mindeck.presentation.ui.theme.repeat_button_light_blue
 import com.mindeck.presentation.uiState.UiState
 import com.mindeck.presentation.viewmodel.DeckViewModel
 import kotlin.math.roundToInt
@@ -67,7 +66,7 @@ fun DeckScreen(
         animationDuration = dropdownMenuState.animationDuration
     )
     var fontFamily = FontFamily(Font(R.font.opensans_medium))
-    var textStyle = TextStyle(fontSize = 14.sp, color = Black, fontFamily = fontFamily)
+    var textStyle = TextStyle(fontSize = 14.sp, color = scrim_black, fontFamily = fontFamily)
 
     val cards = deckViewModel.cardUIState.collectAsState().value
 
@@ -93,11 +92,11 @@ fun DeckScreen(
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
-            .background(BackgroundScreen)
+            .background(background_light_blue)
             .padding(horizontal = 16.dp)
             .padding(top = 16.dp)
             .statusBarsPadding(),
-        containerColor = BackgroundScreen,
+        containerColor = background_light_blue,
         topBar = {
             ActionBar(
                 onBackClick = { navController.popBackStack() },
@@ -106,7 +105,7 @@ fun DeckScreen(
                     .fillMaxWidth(),
                 iconModifier = Modifier
                     .clip(shape = RoundedCornerShape(50.dp))
-                    .background(color = Blue, shape = RoundedCornerShape(50.dp))
+                    .background(color = outline_variant_blue, shape = RoundedCornerShape(50.dp))
                     .padding(all = 12.dp)
                     .size(size = 16.dp),
             )
@@ -135,8 +134,8 @@ fun DeckScreen(
                                     cardIcon =
                                     painterResource(R.drawable.card_icon),
                                     titleCard = it.cardName,
-                                    backgroundColor = LightBlue,
-                                    iconColor = Blue,
+                                    backgroundColor = repeat_button_light_blue,
+                                    iconColor = outline_variant_blue,
                                     onClick = {
                                         navController.navigate(NavigationRoute.CreationCardScreen.route)
                                     },
