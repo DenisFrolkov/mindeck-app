@@ -29,8 +29,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.theme.outline_variant_blue
-import com.mindeck.presentation.ui.theme.PaleBlue
 import com.mindeck.presentation.ui.theme.on_primary_white
+import com.mindeck.presentation.ui.theme.scrim_black
+import com.mindeck.presentation.ui.theme.secondary_light_blue
 
 @Composable
 fun DailyProgressTracker(
@@ -56,7 +57,7 @@ fun DailyProgressTracker(
         horizontalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier
             .fillMaxWidth()
-            .background(color = PaleBlue, shape = RoundedCornerShape(10.dp))
+            .background(color = secondary_light_blue, shape = RoundedCornerShape(10.dp))
     ) {
         Column(
             modifier = Modifier

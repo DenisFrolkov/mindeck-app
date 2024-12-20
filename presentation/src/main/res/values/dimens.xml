@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="padding_extra_small">8dp</dimen>
+    <dimen name="padding_small">8dp</dimen>
+    <dimen name="padding_medium">16dp</dimen>
+    <dimen name="padding_large">24dp</dimen>
+    <dimen name="padding_extra_large">32</dimen>
+
+    <dimen name="spacer_extra_small">6dp</dimen>
+    <dimen name="spacer_small">4dp</dimen>
+    <dimen name="spacer_medium">20dp</dimen>
+    <dimen name="spacer_large">50dp</dimen>
+
+    <dimen name="icon_size">20dp</dimen>
+
+    //Border
+    <dimen name="border_width">0.25dp</dimen>
+
+    //Dimens for FAB
+    <dimen name="fab_menu_text_vertical_padding">3dp</dimen>
+    <dimen name="fab_menu_icon_size">18dp</dimen>
+
+    //Dimens for DisplayCardItem
+    <dimen name="display_card_item_size">48dp</dimen>
+
+    //Divider
+    <dimen name="horizontal_divider_height">1dp</dimen>
+    <dimen name="vertical_divider_height">0.25dp</dimen>
+</resources>

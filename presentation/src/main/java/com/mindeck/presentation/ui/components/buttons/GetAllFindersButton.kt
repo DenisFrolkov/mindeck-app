@@ -8,8 +8,13 @@ import androidx.compose.ui.text.TextStyle
 import com.mindeck.presentation.ui.theme.on_primary_white
 
 @Composable
-fun GetAllFindersButton(textStyle: TextStyle, modifier: Modifier, textModifier: Modifier = Modifier) {
+fun GetAllFindersButton(
+    buttonText: String,
+    textStyle: TextStyle,
+    modifier: Modifier,
+    textModifier: Modifier = Modifier
+) {
     Box(modifier = modifier) {
-        Text(text = "Все папки", color = on_primary_white, style = textStyle, modifier = textModifier)
+        Text(text = buttonText, style = textStyle, modifier = textModifier)
     }
 }

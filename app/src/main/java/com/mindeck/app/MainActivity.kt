@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import com.mindeck.presentation.ui.navigation.AppNavigation
+import com.mindeck.presentation.ui.theme.MindeckTheme
 import com.mindeck.presentation.viewmodel.CreationCardViewModel
 import com.mindeck.presentation.viewmodel.DeckViewModel
 import com.mindeck.presentation.viewmodel.FolderViewModel
@@ -25,13 +26,15 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            AppNavigation(
-                mainViewModel = mainViewModel,
-                foldersViewModel = foldersViewModel,
-                folderViewModel = folderViewModel,
-                deckViewModel = deckViewModel,
-                creationCardViewModel = creationCardViewModel
-            )
+            MindeckTheme() {
+                AppNavigation(
+                    mainViewModel = mainViewModel,
+                    foldersViewModel = foldersViewModel,
+                    folderViewModel = folderViewModel,
+                    deckViewModel = deckViewModel,
+                    creationCardViewModel = creationCardViewModel
+                )
+            }
         }
     }
 }

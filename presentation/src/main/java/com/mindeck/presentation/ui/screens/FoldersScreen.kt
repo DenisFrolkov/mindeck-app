@@ -2,6 +2,7 @@ package com.mindeck.presentation.ui.screens
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -47,7 +48,7 @@ import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMen
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenuState
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.animateDialogCreateItem
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.animateDropdownMenuHeightIn
-import com.mindeck.presentation.ui.components.folder.DisplayCardFolder
+import com.mindeck.presentation.ui.components.folder.DisplayCardItem
 import com.mindeck.presentation.ui.navigation.NavigationRoute
 import com.mindeck.presentation.ui.theme.background_light_blue
 import com.mindeck.presentation.ui.theme.scrim_black
@@ -74,7 +75,8 @@ fun FoldersScreen(navController: NavController, foldersViewModel: FoldersViewMod
     )
 
     var fontFamily = remember { FontFamily(Font(R.font.opensans_medium)) }
-    var textStyle = remember { TextStyle(fontSize = 14.sp, color = scrim_black, fontFamily = fontFamily) }
+    var textStyle =
+        remember { TextStyle(fontSize = 14.sp, color = scrim_black, fontFamily = fontFamily) }
 
     val folders = foldersViewModel.folderUIState.collectAsState().value
 
@@ -142,18 +144,36 @@ fun FoldersScreen(navController: NavController, foldersViewModel: FoldersViewMod
                             items(
                                 items = folders.data,
                                 key = { it.folderId }) {
-                                DisplayCardFolder(
-                                    folderIcon = painterResource(R.drawable.folder_icon),
+                                DisplayCardItem(
+                                    showCount = true,
+                                    itemIcon = painterResource(R.drawable.folder_icon),
                                     numberOfCards = it.folderId,
-                                    folderName = it.folderName,
+                                    itemName = it.folderName,
                                     backgroundColor = outline_variant_blue,
                                     iconColor = repeat_button_light_blue,
-                                    onClick = { navController.navigate(NavigationRoute.FolderScreen.route) },
                                     textStyle = TextStyle(
                                         fontSize = 14.sp,
                                         fontFamily = FontFamily(Font(R.font.opensans_medium))
                                     ),
                                     modifier = Modifier
+                                        .fillMaxWidth()
+                                        .border(
+                                            0.25.dp,
+                                            outline_medium_gray,
+                                            RoundedCornerShape(4.dp)
+                                        )
+                                        .clip(shape = RoundedCornerShape(4.dp))
+                                        .height(48.dp)
+                                        .clickable(
+                                            interactionSource = remember { MutableInteractionSource() },
+                                            indication = null
+                                        ) {
+                                            navController.navigate(
+                                                NavigationRoute.FolderScreen.createRoute(
+                                                    it.folderId
+                                                )
+                                            )
+                                        }
                                 )
                                 Spacer(modifier = Modifier.height(6.dp))
                             }
