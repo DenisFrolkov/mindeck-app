@@ -1,6 +1,7 @@
 package com.mindeck.presentation.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -45,6 +46,7 @@ import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.animateDrop
 import com.mindeck.presentation.ui.components.folder.DisplayCardItem
 import com.mindeck.presentation.ui.navigation.NavigationRoute
 import com.mindeck.presentation.ui.theme.background_light_blue
+import com.mindeck.presentation.ui.theme.outline_medium_gray
 import com.mindeck.presentation.ui.theme.scrim_black
 import com.mindeck.presentation.ui.theme.outline_variant_blue
 import com.mindeck.presentation.ui.theme.repeat_button_light_blue
@@ -131,19 +133,31 @@ fun DeckScreen(
                         LazyColumn {
                             items(items = cards.data, key = { it.deckId }) {
                                 DisplayCardItem(
-                                    cardIcon =
+                                    showCount = false,
+                                    itemIcon =
                                     painterResource(R.drawable.card_icon),
-                                    titleCard = it.cardName,
+                                    itemName = it.cardName,
                                     backgroundColor = repeat_button_light_blue,
                                     iconColor = outline_variant_blue,
-                                    onClick = {
-                                        navController.navigate(NavigationRoute.CreationCardScreen.route)
-                                    },
                                     textStyle = TextStyle(
                                         fontSize = 14.sp,
                                         fontFamily = FontFamily(Font(R.font.opensans_medium))
                                     ),
                                     modifier = Modifier
+                                        .fillMaxWidth()
+                                        .border(
+                                            0.25.dp,
+                                            outline_medium_gray,
+                                            RoundedCornerShape(4.dp)
+                                        )
+                                        .clip(shape = RoundedCornerShape(4.dp))
+                                        .height(48.dp)
+                                        .clickable(
+                                            interactionSource = remember { MutableInteractionSource() },
+                                            indication = null
+                                        ) {
+                                            navController.navigate(NavigationRoute.CreationCardScreen.route)
+                                        }
                                         .onGloballyPositioned {
                                             val offset = it.localToWindow(Offset.Zero)
                                             onButtonPositioned(

@@ -52,9 +52,10 @@ private val Typography = Typography(
 )
 
 private val Shapes = Shapes(
-    small = RoundedCornerShape(4),
-    medium = RoundedCornerShape(6),
-    large = RoundedCornerShape(10),
+    extraSmall = RoundedCornerShape(4),
+    small = RoundedCornerShape(6),
+    medium = RoundedCornerShape(10),
+    large = RoundedCornerShape(12),
     extraLarge = RoundedCornerShape(50)
 )
 

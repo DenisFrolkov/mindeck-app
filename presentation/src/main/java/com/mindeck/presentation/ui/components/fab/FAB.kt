@@ -3,11 +3,17 @@ package com.mindeck.presentation.ui.components.fab
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -16,8 +22,12 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.unit.dp
+import com.mindeck.presentation.R
+import com.mindeck.presentation.ui.components.utils.dimenResource
+import com.mindeck.presentation.ui.theme.on_primary_white
 
 @Composable
 fun FAB(
@@ -39,7 +49,7 @@ fun FAB(
         modifier = Modifier
             .clip(RoundedCornerShape(fabShapeAnimate))
             .size(width = fabWidthAnimate, height = fabHeightAnimate)
-            .background(color = fabColor)
+            .background(fabColor)
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
@@ -50,13 +60,49 @@ fun FAB(
         if (!fabState.isExpanded) {
             Icon(
                 painter = fabIcon,
-                contentDescription = "FAB",
+                contentDescription = stringResource(R.string.floating_action_button),
                 tint = fabIconColor,
-                modifier = Modifier.size(20.dp).alpha(alphaFab)
+                modifier = Modifier
+                    .size(dimenResource(R.dimen.icon_size))
+                    .alpha(alphaFab)
             )
         } else {
             Column(modifier = Modifier.alpha(alphaMenu)) {
-                FABMenu(fabState = fabState, listItemsMenu = fabMenuItems, textStyle = textStyle, iconColor = fabIconColor)
+                fabMenuItems.forEachIndexed { index, menuItem ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(dimenResource(R.dimen.spacer_small))
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null
+                            ) {
+                                fabState.reset()
+                                menuItem.navigation.invoke()
+                            }
+                    ) {
+                        Text(
+                            text = menuItem.text,
+                            style = textStyle,
+                            modifier = Modifier.padding(vertical = dimenResource(R.dimen.fab_menu_text_vertical_padding))
+                        )
+                        Icon(
+                            painter = painterResource(menuItem.icon),
+                            contentDescription = menuItem.iconContentDescription,
+                            modifier = Modifier.size(dimenResource(R.dimen.fab_menu_icon_size)),
+                            tint = fabIconColor
+                        )
+                    }
+                    if (index != fabMenuItems.size - 1) {
+                        HorizontalDivider(
+                            modifier = Modifier.fillMaxWidth(),
+                            thickness = dimenResource(R.dimen.horizontal_divider_height),
+                            color = on_primary_white
+                        )
+                    }
+                }
             }
         }
     }
