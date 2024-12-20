@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="padding_extra_small">8dp</dimen>
-    <dimen name="padding_small">8dp</dimen>
+    <dimen name="padding_small">12dp</dimen>
     <dimen name="padding_medium">16dp</dimen>
     <dimen name="padding_large">24dp</dimen>
-    <dimen name="padding_extra_large">32</dimen>
+    <dimen name="padding_extra_large">32dp</dimen>
 
-    <dimen name="spacer_extra_small">6dp</dimen>
-    <dimen name="spacer_small">4dp</dimen>
+    <dimen name="spacer_extra_small">4dp</dimen>
+    <dimen name="spacer_small">6dp</dimen>
     <dimen name="spacer_medium">20dp</dimen>
     <dimen name="spacer_large">50dp</dimen>
 
@@ -26,4 +26,16 @@
     //Divider
     <dimen name="horizontal_divider_height">1dp</dimen>
     <dimen name="vertical_divider_height">0.25dp</dimen>
+
+    //Divider for DropdownMenu
+    <dimen name="dropdown_menu_horizontal_text_padding">28dp</dimen>
+    <dimen name="dropdown_menu_vertical_text_padding">14dp</dimen>
+    <dimen name="dropdown_menu_vertical_top_padding">4dp</dimen>
+
+    //Divider for CardInputField
+    <dimen name="card_input_field_item_padding">10dp</dimen>
+    <dimen name="card_input_field_background_horizontal_padding">60dp</dimen>
+
+    <dimen name="alpha_menu_dialog_height">0.85f</dimen>
+
 </resources>

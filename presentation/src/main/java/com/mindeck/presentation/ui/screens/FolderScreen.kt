@@ -251,7 +251,6 @@ fun FolderScreen(
                     dropdownMenuState.closeDialog()
                 },
                 fontFamily = FontFamily(Font(R.font.opensans_medium)),
-                titleTextStyle = textStyle,
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentSize(Alignment.CenterStart),

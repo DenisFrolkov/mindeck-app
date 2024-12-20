@@ -32,22 +32,22 @@ private val Typography = Typography(
     titleMedium = TextStyle(
         fontFamily = FontFamily(Font(R.font.opensans_medium)),
         fontSize = 16.sp,
-        color = scrim_black
+        color = text_black
     ),
     bodyMedium = TextStyle(
         fontFamily = FontFamily(Font(R.font.opensans_medium)),
         fontSize = 14.sp,
-        color = scrim_black
+        color = text_black
     ),
     labelMedium = TextStyle(
         fontFamily = FontFamily(Font(R.font.opensans_medium)),
         fontSize = 12.sp,
-        color = scrim_black
+        color = text_black
     ),
     labelSmall = TextStyle(
         fontFamily = FontFamily(Font(R.font.opensans_medium)),
         fontSize = 8.sp,
-        color = scrim_black
+        color = text_black
     )
 )
 

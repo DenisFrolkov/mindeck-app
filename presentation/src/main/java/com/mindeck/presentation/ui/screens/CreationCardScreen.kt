@@ -3,6 +3,8 @@ package com.mindeck.presentation.ui.screens
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -18,10 +20,12 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -49,6 +53,7 @@ import com.mindeck.presentation.ui.theme.background_light_blue
 import com.mindeck.presentation.ui.theme.outline_variant_blue
 import com.mindeck.presentation.ui.theme.outline_medium_gray
 import com.mindeck.presentation.ui.theme.on_primary_white
+import com.mindeck.presentation.ui.theme.text_white
 import com.mindeck.presentation.viewmodel.CreationCardViewModel
 
 @SuppressLint("ResourceType")
@@ -98,9 +103,11 @@ fun CreationCardScreen(
             Spacer(modifier = Modifier.height(20.dp))
         },
         content = { padding ->
-            Column(modifier = Modifier
-                .padding(padding)
-                .verticalScroll(state = scrollState)) {
+            Column(
+                modifier = Modifier
+                    .padding(padding)
+                    .verticalScroll(state = scrollState)
+            ) {
                 DropdownSelectors(
                     textStyle = textStyle,
                     folderDropdownSelect = folderDropdownSelect,
@@ -130,7 +137,6 @@ fun CreationCardScreen(
                     placeholder = stringResource(R.string.enter_question_for_card),
                     value = cardInputQuestionValue,
                     onValueChange = { cardInputQuestionValue = it },
-                    fontFamily = fontFamily,
                     modifier = textInputModifier(
                         topStart = 4.dp,
                         topEnd = 4.dp,
@@ -145,7 +151,6 @@ fun CreationCardScreen(
                     placeholder = stringResource(R.string.enter_answer_for_card),
                     value = cardInputAnswerValue,
                     onValueChange = { cardInputAnswerValue = it },
-                    fontFamily = fontFamily,
                     modifier = textInputModifier(
                         topEnd = 0.dp,
                         topStart = 0.dp,
@@ -177,20 +182,31 @@ fun CreationCardScreen(
                 ) {
                     SaveDataButton(
                         text = stringResource(R.string.text_save_card_button),
-                        onClick = {
-                            creationCardViewModel.createCard(
-                                Card(
-                                    cardName = titleInputFieldValue,
-                                    cardQuestion = cardInputQuestionValue,
-                                    cardAnswer = cardInputAnswerValue,
-                                    cardPriority = "1234",
-                                    cardType = "1234",
-                                    cardTag = tagInputValue,
-                                    deckId = 1
-                                )
+                        textStyle = MaterialTheme.typography.bodyMedium.copy(
+                            color = text_white
+                        ),
+                        buttonModifier = Modifier
+                            .background(
+                                color = MaterialTheme.colorScheme.outlineVariant,
+                                shape = MaterialTheme.shapes.small
                             )
-                        },
-                        fontFamily = fontFamily
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null
+                            ) {
+                                creationCardViewModel.createCard(
+                                    Card(
+                                        cardName = titleInputFieldValue,
+                                        cardQuestion = cardInputQuestionValue,
+                                        cardAnswer = cardInputAnswerValue,
+                                        cardPriority = "123441",
+                                        cardType = "4123",
+                                        cardTag = tagInputValue,
+                                        deckId = 1
+                                    )
+                                )
+                            }
+
                     )
                 }
             }
