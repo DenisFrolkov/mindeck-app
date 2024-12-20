@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -41,11 +40,8 @@ import com.mindeck.presentation.ui.components.fab.FabState
 import com.mindeck.presentation.ui.components.fab.FabState.Companion.ITEM_HEIGHT
 import com.mindeck.presentation.ui.components.fab.animateScreenAlpha
 import com.mindeck.presentation.ui.components.folder.DisplayCardItem
-import com.mindeck.presentation.ui.components.utils.dimenResource
+import com.mindeck.presentation.ui.components.utils.dimenDpResource
 import com.mindeck.presentation.ui.navigation.NavigationRoute
-import com.mindeck.presentation.ui.theme.outline_variant_blue
-import com.mindeck.presentation.ui.theme.repeat_button_light_blue
-import com.mindeck.presentation.ui.theme.outline_medium_gray
 import com.mindeck.presentation.uiState.UiState
 import com.mindeck.presentation.viewmodel.MainViewModel
 import kotlin.math.roundToInt
@@ -60,26 +56,28 @@ fun MainScreen(
 
     val MAX_DISPLAY_ITEMS = 5
 
-    val fabMenuItems = remember {
-        listOf(
+    val fabMenuItems = listOf(
             FabMenuData(
                 idItem = 0,
-                text = "Настройки",
+                text = stringResource(R.string.fab_menu_data_setting_list),
                 icon = R.drawable.fab_open_menu_setting_icon,
-                navigation = { navController.navigate(NavigationRoute.CreationCardScreen.route) }
+                navigation = { }
             ),
             FabMenuData(
                 idItem = 1,
-                text = "Создать карточку",
+                text = stringResource(R.string.fab_menu_data_create_card_list),
                 icon = R.drawable.fab_open_menu_create_icon,
                 navigation = { navController.navigate(NavigationRoute.CreationCardScreen.route) }
             )
         )
-    }
+
 
     val folders = mainViewModel.folderUIState.collectAsState().value
     val fabState = remember { FabState(expandedHeight = ITEM_HEIGHT.dp * fabMenuItems.size) }
-    val alphaScreen = animateScreenAlpha(fabState.screenAlphaValue, fabState.animationDuration)
+    val alphaScreen = animateScreenAlpha(
+        targetAlpha = fabState.screenAlphaValue,
+        animationDuration = fabState.animationDuration
+    )
 
     Column(
         modifier = Modifier
@@ -87,11 +85,11 @@ fun MainScreen(
             .background(MaterialTheme.colorScheme.background)
             .verticalScroll(state = scrollState)
             .statusBarsPadding()
-            .padding(all = dimenResource(R.dimen.padding_medium))
+            .padding(all = dimenDpResource(R.dimen.padding_medium))
     ) {
         DailyProgressTracker(dptIcon = painterResource(R.drawable.dpt_icon))
 
-        Spacer(modifier = Modifier.height(dimenResource(R.dimen.spacer_medium)))
+        Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_medium)))
 
         when (folders) {
             is UiState.Success -> {
@@ -108,12 +106,12 @@ fun MainScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .border(
-                                dimenResource(R.dimen.border_width),
+                                dimenDpResource(R.dimen.border_width),
                                 MaterialTheme.colorScheme.outline,
                                 MaterialTheme.shapes.extraSmall
                             )
                             .clip(shape = MaterialTheme.shapes.extraSmall)
-                            .height(dimenResource(R.dimen.display_card_item_size))
+                            .height(dimenDpResource(R.dimen.display_card_item_size))
                             .clickable(
                                 interactionSource = remember { MutableInteractionSource() },
                                 indication = null
@@ -127,11 +125,11 @@ fun MainScreen(
 
                     )
 
-                    Spacer(modifier = Modifier.height(dimenResource(R.dimen.spacer_extra_small)))
+                    Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_small)))
                 }
                 if (folders.data.size > MAX_DISPLAY_ITEMS) {
 
-                    Spacer(modifier = Modifier.height(dimenResource(R.dimen.spacer_extra_small)))
+                    Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_small)))
 
                     Box(
                         modifier = Modifier
@@ -155,8 +153,8 @@ fun MainScreen(
                                     navController.navigate(NavigationRoute.FoldersScreen.route)
                                 },
                             textModifier = Modifier.padding(
-                                vertical = dimenResource(R.dimen.padding_medium),
-                                horizontal = dimenResource(R.dimen.padding_extra_large)
+                                vertical = dimenDpResource(R.dimen.padding_medium),
+                                horizontal = dimenDpResource(R.dimen.padding_extra_large)
                             )
                         )
                     }
@@ -183,7 +181,7 @@ fun MainScreen(
         modifier = Modifier
             .fillMaxSize()
             .navigationBarsPadding()
-            .padding(dimenResource(R.dimen.padding_medium))
+            .padding(dimenDpResource(R.dimen.padding_medium))
             .wrapContentSize(Alignment.BottomEnd)
             .onGloballyPositioned {
                 val offset = it.localToWindow(Offset.Zero)

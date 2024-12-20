@@ -3,14 +3,11 @@ package com.mindeck.presentation.ui.components.folder
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -23,12 +20,9 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import com.mindeck.presentation.R
-import com.mindeck.presentation.ui.components.utils.dimenResource
+import com.mindeck.presentation.ui.components.utils.dimenDpResource
 import com.mindeck.presentation.ui.components.utils.formatNumber
-import com.mindeck.presentation.ui.components.utils.getSpacerModifier
-import com.mindeck.presentation.ui.theme.on_primary_white
 
 @Composable
 fun DisplayCardItem(
@@ -53,13 +47,13 @@ fun DisplayCardItem(
                 style = textStyle,
                 modifier = Modifier
                     .background(MaterialTheme.colorScheme.onPrimary)
-                    .size(dimenResource(R.dimen.display_card_item_size))
+                    .size(dimenDpResource(R.dimen.display_card_item_size))
                     .wrapContentSize(Alignment.Center)
             )
 
             VerticalDivider(
                 modifier = Modifier.fillMaxHeight(),
-                thickness = dimenResource(R.dimen.vertical_divider_height),
+                thickness = dimenDpResource(R.dimen.vertical_divider_height),
                 color = MaterialTheme.colorScheme.outline
             )
         }
@@ -70,7 +64,7 @@ fun DisplayCardItem(
                 .weight(1f)
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.onPrimary)
-                .padding(horizontal = dimenResource(R.dimen.padding_extra_small))
+                .padding(horizontal = dimenDpResource(R.dimen.padding_extra_small))
         ) {
             Text(
                 text = itemName,
@@ -82,18 +76,18 @@ fun DisplayCardItem(
 
         VerticalDivider(
             modifier = Modifier.fillMaxHeight(),
-            thickness = dimenResource(R.dimen.vertical_divider_height),
+            thickness = dimenDpResource(R.dimen.vertical_divider_height),
             color = MaterialTheme.colorScheme.outline
         )
 
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
-                .size(dimenResource(R.dimen.display_card_item_size))
+                .size(dimenDpResource(R.dimen.display_card_item_size))
                 .background(color = backgroundColor)
         ) {
             Icon(
-                modifier = Modifier.size(dimenResource(R.dimen.icon_size)),
+                modifier = Modifier.size(dimenDpResource(R.dimen.icon_size)),
                 painter = itemIcon,
                 tint = iconColor,
                 contentDescription = stringResource(R.string.folder_icon)

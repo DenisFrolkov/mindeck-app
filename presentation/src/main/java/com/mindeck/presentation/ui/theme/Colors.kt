@@ -2,6 +2,11 @@ package com.mindeck.presentation.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
+val text_black = Color(0xFF000000)
+val text_white = Color(0xFFFFFFFF)
+val text_gray = Color(0xFFAEAEAE)
+
+
 val primary_blue = Color(0xFF3D8FF7)
 val on_primary_white = Color(0xFFFFFFFF)
 
@@ -20,7 +25,6 @@ val scrim_black = Color(0xFF000000)
 
 val tertiary_lime_green = Color(0xFF76DB64)
 val on_tertiary_lime_green = Color(0xFFDFFFD8)
-
 
 val repeat_button_light_mint = Color(0xFFDFFFD8)
 val repeat_button_light_yellow = Color(0xFFFFF8C6)

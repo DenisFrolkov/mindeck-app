@@ -26,7 +26,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import com.mindeck.presentation.R
-import com.mindeck.presentation.ui.components.utils.dimenResource
+import com.mindeck.presentation.ui.components.utils.dimenDpResource
 import com.mindeck.presentation.ui.theme.on_primary_white
 
 @Composable
@@ -63,7 +63,7 @@ fun FAB(
                 contentDescription = stringResource(R.string.floating_action_button),
                 tint = fabIconColor,
                 modifier = Modifier
-                    .size(dimenResource(R.dimen.icon_size))
+                    .size(dimenDpResource(R.dimen.icon_size))
                     .alpha(alphaFab)
             )
         } else {
@@ -74,7 +74,7 @@ fun FAB(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(dimenResource(R.dimen.spacer_small))
+                            .padding(dimenDpResource(R.dimen.spacer_small))
                             .clickable(
                                 interactionSource = remember { MutableInteractionSource() },
                                 indication = null
@@ -86,19 +86,19 @@ fun FAB(
                         Text(
                             text = menuItem.text,
                             style = textStyle,
-                            modifier = Modifier.padding(vertical = dimenResource(R.dimen.fab_menu_text_vertical_padding))
+                            modifier = Modifier.padding(vertical = dimenDpResource(R.dimen.fab_menu_text_vertical_padding))
                         )
                         Icon(
                             painter = painterResource(menuItem.icon),
                             contentDescription = menuItem.iconContentDescription,
-                            modifier = Modifier.size(dimenResource(R.dimen.fab_menu_icon_size)),
+                            modifier = Modifier.size(dimenDpResource(R.dimen.fab_menu_icon_size)),
                             tint = fabIconColor
                         )
                     }
                     if (index != fabMenuItems.size - 1) {
                         HorizontalDivider(
                             modifier = Modifier.fillMaxWidth(),
-                            thickness = dimenResource(R.dimen.horizontal_divider_height),
+                            thickness = dimenDpResource(R.dimen.horizontal_divider_height),
                             color = on_primary_white
                         )
                     }

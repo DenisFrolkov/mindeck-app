@@ -7,7 +7,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun dimenResource(@DimenRes id: Int): Dp {
+fun dimenDpResource(@DimenRes id: Int): Dp {
     val resources = LocalContext.current.resources
     return with(LocalContext.current.resources.displayMetrics) {
         resources.getDimension(id) / density
