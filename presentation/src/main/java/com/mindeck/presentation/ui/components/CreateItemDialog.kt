@@ -75,7 +75,7 @@ fun CreateItemDialog(
                     modifier = Modifier.fillMaxWidth()
                 )
             }
-            Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_medium)))
+            Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_large)))
             CardInputField(
                 placeholder = placeholder,
                 value = value,
@@ -91,7 +91,7 @@ fun CreateItemDialog(
                     )
                     .padding(dimenDpResource(R.dimen.card_input_field_item_padding))
             )
-            Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_medium)))
+            Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_large)))
             SaveDataButton(
                 text = buttonText,
                 textStyle = MaterialTheme.typography.bodyMedium.copy(

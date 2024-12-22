@@ -17,9 +17,13 @@
     <string name="dropdown_menu_data_rename_list">Изменить название</string>
     <string name="dropdown_menu_data_remote_list">Удалить элемент</string>
     <string name="dropdown_menu_data_create_folder_list">Создать папку</string>
+    <string name="dropdown_menu_data_create_deck_list">Создать колоду</string>
     <string name="create_item_dialog_text_creating_folder">Создание папки</string>
     <string name="create_item_dialog_text_input_name_folder">Введите название папки</string>
     <string name="create_item_dialog_text_create_folder">Создать папку</string>
+    <string name="create_item_dialog_text_creating_deck">Создание колоды</string>
+    <string name="create_item_dialog_text_input_name_deck">Введите название колоды</string>
+    <string name="create_item_dialog_text_create_deck">Создать колоду</string>
 
 
     //Animated

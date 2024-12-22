@@ -125,8 +125,8 @@ fun DeckScreen(
                         )
                         Spacer(Modifier.height(18.dp))
                         DisplayItemCount(
-                            pluralsTextOne = R.plurals.card_amount,
-                            listOne = cards.data,
+                            plurals = R.plurals.card_amount,
+                            count = cards.data.size,
                             textStyle = textStyle
                         )
 
@@ -185,7 +185,6 @@ fun DeckScreen(
             if (dropdownMenuState.isExpanded) {
                 DropdownMenu(
                     listDropdownMenuItem = listDropdownMenu,
-                    textStyle = textStyle,
                     dropdownModifier = Modifier
                         .padding(padding)
                         .alpha(dropdownVisibleAnimation)
