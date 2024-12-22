@@ -44,7 +44,6 @@ import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.animateDial
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.animateDropdownMenuHeightIn
 import com.mindeck.presentation.ui.components.folder.DisplayCardItem
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
-import com.mindeck.presentation.ui.components.utils.getPluralForm
 import com.mindeck.presentation.ui.navigation.NavigationRoute
 import com.mindeck.presentation.ui.theme.outline_variant_blue
 import com.mindeck.presentation.ui.theme.repeat_button_light_blue
@@ -128,14 +127,14 @@ fun FoldersScreen(
                             Text(
                                 text = pluralStringResource(
                                     R.plurals.folder_amount,
-                                    getPluralForm(folders.data.size),
+                                    folders.data.size,
                                     folders.data.size
                                 ),
                                 style = MaterialTheme.typography.titleMedium,
                             )
                         }
 
-                        Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_medium)))
+                        Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_large)))
 
                         LazyColumn {
                             items(

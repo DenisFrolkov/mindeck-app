@@ -8,13 +8,22 @@
 
     <dimen name="spacer_extra_small">4dp</dimen>
     <dimen name="spacer_small">6dp</dimen>
-    <dimen name="spacer_medium">20dp</dimen>
-    <dimen name="spacer_large">50dp</dimen>
+    <dimen name="spacer_medium">12dp</dimen>
+    <dimen name="spacer_large">20dp</dimen>
+    <dimen name="spacer_extra_large">50dp</dimen>
 
     <dimen name="icon_size">20dp</dimen>
 
     //Border
     <dimen name="border_width">0.25dp</dimen>
+
+    //Dimens for DailyProgressTracker
+    <dimen name="daily_progress_tracker_start_padding">11dp</dimen>
+    <dimen name="daily_progress_tracker_top_padding">8dp</dimen>
+    <dimen name="daily_progress_tracker_end_padding">12dp</dimen>
+    <dimen name="daily_progress_tracker_bottom_padding">10dp</dimen>
+    <dimen name="daily_progress_tracker_icon_width">23dp</dimen>
+    <dimen name="daily_progress_tracker_icon_height">16dp</dimen>
 
     //Dimens for FAB
     <dimen name="fab_menu_text_vertical_padding">3dp</dimen>
@@ -37,5 +46,7 @@
     <dimen name="card_input_field_background_horizontal_padding">60dp</dimen>
 
     <dimen name="alpha_menu_dialog_height">0.85f</dimen>
+    <dimen name="float_one_significance">1f</dimen>
+    <dimen name="float_zero_dot_five_significance">0.5f</dimen>
 
 </resources>

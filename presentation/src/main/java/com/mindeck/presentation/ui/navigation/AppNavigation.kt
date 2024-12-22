@@ -42,7 +42,7 @@ fun AppNavigation(
     var buttonPosition by remember { mutableStateOf(IntOffset.Zero) }
 
     NavHost(
-        navController = navController, startDestination = NavigationRoute.FoldersScreen.route
+        navController = navController, startDestination = NavigationRoute.MainScreen.route
     ) {
         composable(NavigationRoute.MainScreen.route,
             enterTransition = { fadeIn(animationSpec = tween(100)) },
@@ -81,7 +81,8 @@ fun AppNavigation(
             enterTransition = { fadeIn(animationSpec = tween(150)) },
             exitTransition = { fadeOut(animationSpec = tween(150)) },
             arguments = listOf(navArgument("folderId") { type = NavType.IntType })
-        ) { backStackEntry ->
+        ) {
+            backStackEntry ->
             val folderId = backStackEntry.arguments?.getInt("folderId")
             folderViewModel.getFolderById(folderId = folderId!!)
             folderViewModel.getAllDecksByFolderId(folderId = folderId!!)

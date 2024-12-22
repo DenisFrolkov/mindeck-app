@@ -34,6 +34,8 @@ import androidx.navigation.NavController
 import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.components.buttons.GetAllFindersButton
 import com.mindeck.presentation.ui.components.daily_progress_tracker.DailyProgressTracker
+import com.mindeck.presentation.ui.components.daily_progress_tracker.DailyProgressTrackerState
+import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenuState
 import com.mindeck.presentation.ui.components.fab.FAB
 import com.mindeck.presentation.ui.components.fab.FabMenuData
 import com.mindeck.presentation.ui.components.fab.FabState
@@ -54,22 +56,29 @@ fun MainScreen(
 ) {
     val scrollState = rememberScrollState()
 
+    val dailyProgressTrackerState = remember {
+        DailyProgressTrackerState(
+            totalCards = 500,
+            answeredCards = 30
+        )
+    }
+
     val MAX_DISPLAY_ITEMS = 5
 
     val fabMenuItems = listOf(
-            FabMenuData(
-                idItem = 0,
-                text = stringResource(R.string.fab_menu_data_setting_list),
-                icon = R.drawable.fab_open_menu_setting_icon,
-                navigation = { }
-            ),
-            FabMenuData(
-                idItem = 1,
-                text = stringResource(R.string.fab_menu_data_create_card_list),
-                icon = R.drawable.fab_open_menu_create_icon,
-                navigation = { navController.navigate(NavigationRoute.CreationCardScreen.route) }
-            )
+        FabMenuData(
+            idItem = 0,
+            text = stringResource(R.string.fab_menu_data_setting_list),
+            icon = R.drawable.fab_open_menu_setting_icon,
+            navigation = { }
+        ),
+        FabMenuData(
+            idItem = 1,
+            text = stringResource(R.string.fab_menu_data_create_card_list),
+            icon = R.drawable.fab_open_menu_create_icon,
+            navigation = { navController.navigate(NavigationRoute.CreationCardScreen.route) }
         )
+    )
 
 
     val folders = mainViewModel.folderUIState.collectAsState().value
@@ -87,9 +96,12 @@ fun MainScreen(
             .statusBarsPadding()
             .padding(all = dimenDpResource(R.dimen.padding_medium))
     ) {
-        DailyProgressTracker(dptIcon = painterResource(R.drawable.dpt_icon))
+        DailyProgressTracker(
+            dptIcon = painterResource(R.drawable.dpt_icon),
+            dailyProgressTrackerState = dailyProgressTrackerState
+        )
 
-        Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_medium)))
+        Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_large)))
 
         when (folders) {
             is UiState.Success -> {
@@ -108,9 +120,9 @@ fun MainScreen(
                             .border(
                                 dimenDpResource(R.dimen.border_width),
                                 MaterialTheme.colorScheme.outline,
-                                MaterialTheme.shapes.extraSmall
+                                MaterialTheme.shapes.small
                             )
-                            .clip(shape = MaterialTheme.shapes.extraSmall)
+                            .clip(shape = MaterialTheme.shapes.small)
                             .height(dimenDpResource(R.dimen.display_card_item_size))
                             .clickable(
                                 interactionSource = remember { MutableInteractionSource() },
