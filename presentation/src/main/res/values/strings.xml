@@ -18,6 +18,7 @@
     <string name="dropdown_menu_data_remote_list">Удалить элемент</string>
     <string name="dropdown_menu_data_create_folder_list">Создать папку</string>
     <string name="dropdown_menu_data_create_deck_list">Создать колоду</string>
+    <string name="dropdown_menu_data_create_card">Создать карточку</string>
     <string name="create_item_dialog_text_creating_folder">Создание папки</string>
     <string name="create_item_dialog_text_input_name_folder">Введите название папки</string>
     <string name="create_item_dialog_text_create_folder">Создать папку</string>
@@ -25,6 +26,15 @@
     <string name="create_item_dialog_text_input_name_deck">Введите название колоды</string>
     <string name="create_item_dialog_text_create_deck">Создать колоду</string>
 
+    //Repeat Option Text
+    <string name="repeat_option_title_repeat_text">Повторить</string>
+    <string name="repeat_option_title_easy_text">Легко</string>
+    <string name="repeat_option_title_medium_text">Средне</string>
+    <string name="repeat_option_title_hard_text">Тяжело</string>
+    <string name="repeat_option_time_one_minute_text">1 минута</string>
+    <string name="repeat_option_time_five_day_text">5 дней</string>
+    <string name="repeat_option_time_two_day_text">2 дней</string>
+    <string name="repeat_option_time_one_day_text">1 дней</string>
 
     //Animated
     <string name="label_animated_dropdown_selector_height_in">Animated Dropdown Selector HeightIn</string>

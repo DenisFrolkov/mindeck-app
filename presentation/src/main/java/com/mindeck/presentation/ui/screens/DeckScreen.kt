@@ -16,7 +16,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,12 +29,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.components.common.ActionBar
@@ -44,12 +40,9 @@ import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMen
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenuState
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.animateDropdownMenuHeightIn
 import com.mindeck.presentation.ui.components.folder.DisplayCardItem
+import com.mindeck.presentation.ui.components.utils.dimenDpResource
+import com.mindeck.presentation.ui.components.utils.dimenFloatResource
 import com.mindeck.presentation.ui.navigation.NavigationRoute
-import com.mindeck.presentation.ui.theme.background_light_blue
-import com.mindeck.presentation.ui.theme.outline_medium_gray
-import com.mindeck.presentation.ui.theme.scrim_black
-import com.mindeck.presentation.ui.theme.outline_variant_blue
-import com.mindeck.presentation.ui.theme.repeat_button_light_blue
 import com.mindeck.presentation.uiState.UiState
 import com.mindeck.presentation.viewmodel.DeckViewModel
 import kotlin.math.roundToInt
@@ -67,24 +60,22 @@ fun DeckScreen(
         targetAlpha = dropdownMenuState.dropdownAlpha,
         animationDuration = dropdownMenuState.animationDuration
     )
-    var fontFamily = FontFamily(Font(R.font.opensans_medium))
-    var textStyle = TextStyle(fontSize = 14.sp, color = scrim_black, fontFamily = fontFamily)
 
     val cards = deckViewModel.cardUIState.collectAsState().value
 
     var listDropdownMenu = listOf(
         DropdownMenuData(
-            title = "Изменить название",
+            title = stringResource(R.string.dropdown_menu_data_rename_list),
             action = {
             }
         ),
         DropdownMenuData(
-            title = "Удалить элемент",
+            title = stringResource(R.string.dropdown_menu_data_remote_list),
             action = {
             }
         ),
         DropdownMenuData(
-            title = "Добавить карточку",
+            title = stringResource(R.string.dropdown_menu_data_create_card),
             action = {
 
             }
@@ -94,11 +85,11 @@ fun DeckScreen(
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
-            .background(background_light_blue)
-            .padding(horizontal = 16.dp)
-            .padding(top = 16.dp)
+            .background(MaterialTheme.colorScheme.background)
+            .padding(horizontal = dimenDpResource(R.dimen.padding_medium))
+            .padding(top = dimenDpResource(R.dimen.padding_medium))
             .statusBarsPadding(),
-        containerColor = background_light_blue,
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             ActionBar(
                 onBackClick = { navController.popBackStack() },
@@ -106,10 +97,13 @@ fun DeckScreen(
                 containerModifier = Modifier
                     .fillMaxWidth(),
                 iconModifier = Modifier
-                    .clip(shape = RoundedCornerShape(50.dp))
-                    .background(color = outline_variant_blue, shape = RoundedCornerShape(50.dp))
-                    .padding(all = 12.dp)
-                    .size(size = 16.dp),
+                    .clip(shape = MaterialTheme.shapes.extraLarge)
+                    .background(
+                        color = MaterialTheme.colorScheme.outlineVariant,
+                        shape = MaterialTheme.shapes.extraLarge
+                    )
+                    .padding(dimenDpResource(R.dimen.padding_small))
+                    .size(dimenDpResource(R.dimen.padding_medium)),
             )
         },
         content = { padding ->
@@ -118,40 +112,38 @@ fun DeckScreen(
                     is UiState.Success -> {
                         Text(
                             text = "Название колоды",
-                            style = textStyle,
+                            style = MaterialTheme.typography.titleMedium,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .wrapContentSize(Alignment.Center)
                         )
-                        Spacer(Modifier.height(18.dp))
+                        Spacer(Modifier.height(dimenDpResource(R.dimen.spacer_medium)))
                         DisplayItemCount(
                             plurals = R.plurals.card_amount,
                             count = cards.data.size,
-                            textStyle = textStyle
+                            textStyle = MaterialTheme.typography.bodyMedium
                         )
 
                         LazyColumn {
-                            items(items = cards.data, key = { it.deckId }) {
+                            items(items = cards.data, key = { it.deckId }) { card ->
                                 DisplayCardItem(
                                     showCount = false,
-                                    itemIcon =
-                                    painterResource(R.drawable.card_icon),
-                                    itemName = it.cardName,
-                                    backgroundColor = repeat_button_light_blue,
-                                    iconColor = outline_variant_blue,
-                                    textStyle = TextStyle(
-                                        fontSize = 14.sp,
-                                        fontFamily = FontFamily(Font(R.font.opensans_medium))
+                                    itemIcon = painterResource(R.drawable.card_icon),
+                                    itemName = card.cardName,
+                                    backgroundColor = MaterialTheme.colorScheme.secondary.copy(
+                                        dimenFloatResource(R.dimen.float_zero_dot_five_significance)
                                     ),
+                                    iconColor = MaterialTheme.colorScheme.outlineVariant,
+                                    textStyle = MaterialTheme.typography.bodyMedium,
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .border(
-                                            0.25.dp,
-                                            outline_medium_gray,
-                                            RoundedCornerShape(4.dp)
+                                            dimenDpResource(R.dimen.border_width_dot_two_five),
+                                            MaterialTheme.colorScheme.outline,
+                                            MaterialTheme.shapes.extraSmall
                                         )
-                                        .clip(shape = RoundedCornerShape(4.dp))
-                                        .height(48.dp)
+                                        .clip(shape = MaterialTheme.shapes.extraSmall)
+                                        .height(dimenDpResource(R.dimen.display_card_item_size))
                                         .clickable(
                                             interactionSource = remember { MutableInteractionSource() },
                                             indication = null
@@ -168,7 +160,7 @@ fun DeckScreen(
                                             )
                                         }
                                 )
-                                Spacer(modifier = Modifier.height(6.dp))
+                                Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_small)))
                             }
                         }
                     }
@@ -189,7 +181,7 @@ fun DeckScreen(
                         .padding(padding)
                         .alpha(dropdownVisibleAnimation)
                         .fillMaxWidth()
-                        .padding(top = 4.dp)
+                        .padding(top = dimenDpResource(R.dimen.spacer_extra_small))
                         .wrapContentSize(Alignment.TopEnd)
                 )
             }

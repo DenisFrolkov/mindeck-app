@@ -9,11 +9,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mindeck.presentation.R
+import com.mindeck.presentation.ui.components.utils.dimenDpResource
 import com.mindeck.presentation.ui.theme.scrim_black
 
 @Composable
@@ -21,11 +24,8 @@ fun TegInputField(
     titleTextInput: String,
     value: String,
     onValueChange: (String) -> Unit,
-    fontFamily: FontFamily,
-    titleFontSize: TextUnit = 14.sp,
-    textFontSize: TextUnit = 14.sp,
-    titleColor: Color = scrim_black,
-    textColor: Color = scrim_black,
+    textStyle: TextStyle,
+    placeholderTextStyle: TextStyle,
     modifier: Modifier
 ) {
     Row(
@@ -33,22 +33,14 @@ fun TegInputField(
     ) {
         Text(
             text = titleTextInput,
-            style = TextStyle(
-                fontSize = titleFontSize,
-                color = titleColor,
-                fontFamily = fontFamily
-            )
+            style = textStyle
         )
-        Spacer(modifier = Modifier.width(20.dp))
+        Spacer(modifier = Modifier.width(dimenDpResource(R.dimen.spacer_large)))
         BasicTextField(
             value = value,
             onValueChange = onValueChange,
             singleLine = true,
-            textStyle = TextStyle(
-                fontSize = textFontSize,
-                color = textColor,
-                fontFamily = fontFamily
-            ),
+            textStyle = placeholderTextStyle,
             modifier = modifier
         )
     }

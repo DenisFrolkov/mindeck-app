@@ -98,7 +98,7 @@ fun FAB(
                     if (index != fabMenuItems.size - 1) {
                         HorizontalDivider(
                             modifier = Modifier.fillMaxWidth(),
-                            thickness = dimenDpResource(R.dimen.horizontal_divider_height),
+                            thickness = dimenDpResource(R.dimen.horizontal_divider_one_height),
                             color = on_primary_white
                         )
                     }

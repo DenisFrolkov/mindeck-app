@@ -149,13 +149,12 @@ fun FolderScreen(
                 when (decks) {
                     is UiState.Success -> {
                         LazyColumn(modifier = Modifier) {
-                            items(items = decks.data, key = { it.deckId }) {
+                            items(items = decks.data, key = { it.deckId }) { deck ->
                                 DisplayCardItem(
                                     showCount = true,
-                                    itemIcon =
-                                    painterResource(R.drawable.deck_icon),
-                                    numberOfCards = it.deckId,
-                                    itemName = it.deckName,
+                                    itemIcon = painterResource(R.drawable.deck_icon),
+                                    numberOfCards = deck.deckId,
+                                    itemName = deck.deckName,
                                     backgroundColor = MaterialTheme.colorScheme.secondary.copy(
                                         dimenFloatResource(R.dimen.float_zero_dot_five_significance)
                                     ),
@@ -164,7 +163,7 @@ fun FolderScreen(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .border(
-                                            dimenDpResource(R.dimen.border_width),
+                                            dimenDpResource(R.dimen.border_width_dot_two_five),
                                             MaterialTheme.colorScheme.outline,
                                             MaterialTheme.shapes.extraSmall
                                         )
@@ -176,7 +175,7 @@ fun FolderScreen(
                                         ) {
                                             navController.navigate(
                                                 NavigationRoute.DeckScreen.createRoute(
-                                                    it.deckId
+                                                    deck.deckId
                                                 )
                                             )
                                         }
