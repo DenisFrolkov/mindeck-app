@@ -7,7 +7,8 @@ import androidx.compose.runtime.setValue
 class DropdownMenuState(
     initialExpanded: Boolean = false,
     initialDialog: Boolean = false,
-    private val animateAlpha: Float = 1f,
+    private val animateExpandedAlpha: Float = 1f,
+    val scrimDialogAlpha: Float = 0.5f,
     val animationDuration: Int = 100
 ) {
     var isExpanded by mutableStateOf(initialExpanded)
@@ -16,10 +17,10 @@ class DropdownMenuState(
         private set
 
     val dropdownAlpha: Float
-        get() = if (isExpanded) animateAlpha else 0f
+        get() = if (isExpanded) animateExpandedAlpha else 0f
 
     val dialogAlpha: Float
-        get() = if (isOpeningDialog) animateAlpha else 0f
+        get() = if (isOpeningDialog) animateExpandedAlpha else 0f
 
     fun open() {
         isExpanded = true

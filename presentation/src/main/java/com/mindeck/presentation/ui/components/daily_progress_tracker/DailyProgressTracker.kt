@@ -1,5 +1,6 @@
 package com.mindeck.presentation.ui.components.daily_progress_tracker
 
+import androidx.annotation.PluralsRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,12 +16,14 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
@@ -28,85 +31,64 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mindeck.presentation.R
-import com.mindeck.presentation.ui.theme.Blue
-import com.mindeck.presentation.ui.theme.PaleBlue
-import com.mindeck.presentation.ui.theme.White
+import com.mindeck.presentation.ui.components.utils.dimenDpResource
+import com.mindeck.presentation.ui.components.utils.dimenFloatResource
+import com.mindeck.presentation.ui.theme.outline_variant_blue
+import com.mindeck.presentation.ui.theme.on_primary_white
+import com.mindeck.presentation.ui.theme.secondary_light_blue
 
 @Composable
 fun DailyProgressTracker(
     dptIcon: Painter,
-    dailyProgressTrackerState: DailyProgressTrackerState = DailyProgressTrackerState(
-        totalCards = 500,
-        answeredCards = 30
-    ),
-    cardForms: List<String> = listOf("карточку", "карточки", "карточек")
+    dailyProgressTrackerState: DailyProgressTrackerState
 ) {
-
-    val textStyle = TextStyle(
-        fontSize = 12.sp,
-        fontFamily = FontFamily(Font(R.font.opensans_medium))
-    )
 
     val dptAnimationProgress = dailyProgressTrackerAnimationProgress(
         dptProgressFloat = dailyProgressTrackerState.dptProgress,
-        100
+        animationDuration = dailyProgressTrackerState.animationDuration
     )
 
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier
             .fillMaxWidth()
-            .background(color = PaleBlue, shape = RoundedCornerShape(10.dp))
+            .background(
+                color = MaterialTheme.colorScheme.secondary,
+                shape = MaterialTheme.shapes.medium
+            )
     ) {
         Column(
             modifier = Modifier
-                .padding(start = 11.dp, top = 8.dp, end = 12.dp, bottom = 10.dp)
-                .weight(1f)
+                .padding(
+                    start = dimenDpResource(R.dimen.daily_progress_tracker_start_padding),
+                    top = dimenDpResource(R.dimen.daily_progress_tracker_top_padding),
+                    end = dimenDpResource(R.dimen.daily_progress_tracker_end_padding),
+                    bottom = dimenDpResource(R.dimen.daily_progress_tracker_bottom_padding)
+                )
+                .weight(dimenFloatResource(R.dimen.float_one_significance))
         ) {
             DPTText(
-                dptState = dailyProgressTrackerState,
-                textCompilation = getPluralForm(dailyProgressTrackerState.totalCards, cardForms),
-                textStyle = textStyle
+                plurals = R.plurals.deck_amount,
+                count = dailyProgressTrackerState.totalCards,
+                textStyle = MaterialTheme.typography.labelMedium
             )
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_medium)))
 
-            DPTProgress(dptAnimationProgress)
+            DPTProgress(
+                dptAnimationProgress = dptAnimationProgress,
+                progressColor = MaterialTheme.colorScheme.onPrimary,
+                backProgressColor = MaterialTheme.colorScheme.outlineVariant
+            )
         }
         IconBox(dptIcon, modifier = Modifier.align(Alignment.CenterVertically))
     }
 }
 
-fun getPluralForm(number: Int, forms: List<String>): String {
-    val n = number % 100
-    val n1 = number % 10
-    return when {
-        n in 11..19 -> forms[2]
-        n1 == 1 -> forms[0]
-        n1 in 2..4 -> forms[1]
-        else -> forms[2]
-    }
-}
-
-@Composable
-private fun IconBox(dptIcon: Painter, modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier
-            .padding(end = 16.dp)
-    ) {
-        Icon(
-            modifier = Modifier.size(width = 23.dp, height = 16.dp),
-            painter = dptIcon,
-            tint = Blue,
-            contentDescription = stringResource(R.string.daily_progress_tracker)
-        )
-    }
-}
-
 @Composable
 private fun DPTText(
-    dptState: DailyProgressTrackerState,
-    textCompilation: String,
+    @PluralsRes plurals: Int,
+    count: Int,
     textStyle: TextStyle
 ) {
     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -114,14 +96,9 @@ private fun DPTText(
             text = stringResource(R.string.text_is_necessary_to_repeat),
             style = textStyle
         )
-        Spacer(modifier = Modifier.width(4.dp))
+        Spacer(modifier = Modifier.width(dimenDpResource(R.dimen.spacer_extra_small)))
         Text(
-            text = "${dptState.totalCards}",
-            style = textStyle.copy(fontSize = 14.sp),
-        )
-        Spacer(modifier = Modifier.width(4.dp))
-        Text(
-            text = "$textCompilation!",
+            text = pluralStringResource(plurals, count, count),
             style = textStyle
         )
     }
@@ -130,20 +107,38 @@ private fun DPTText(
 @Composable
 private fun DPTProgress(
     dptAnimationProgress: Float,
-    progressColor: Color = White,
-    backProgressColor: Color = Blue
+    progressColor: Color,
+    backProgressColor: Color
 ) {
     Box(
         modifier = Modifier
-            .background(progressColor, shape = CircleShape)
-            .height(4.dp)
+            .background(color = progressColor, shape = MaterialTheme.shapes.extraLarge)
+            .height(dimenDpResource(R.dimen.spacer_extra_small))
             .fillMaxWidth()
     ) {
         Box(
             modifier = Modifier
                 .fillMaxHeight()
-                .fillMaxWidth(fraction = dptAnimationProgress)
-                .background(backProgressColor, shape = CircleShape)
+                .fillMaxWidth(dptAnimationProgress)
+                .background(backProgressColor, shape = MaterialTheme.shapes.extraLarge)
+        )
+    }
+}
+
+@Composable
+private fun IconBox(dptIcon: Painter, modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier
+            .padding(end = dimenDpResource(R.dimen.padding_medium))
+    ) {
+        Icon(
+            modifier = Modifier.size(
+                width = dimenDpResource(R.dimen.daily_progress_tracker_icon_width),
+                height = dimenDpResource(R.dimen.daily_progress_tracker_icon_height)
+            ),
+            painter = dptIcon,
+            tint = MaterialTheme.colorScheme.outlineVariant,
+            contentDescription = stringResource(R.string.daily_progress_tracker)
         )
     }
 }

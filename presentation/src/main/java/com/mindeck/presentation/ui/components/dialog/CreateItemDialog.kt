@@ -1,10 +1,9 @@
-package com.mindeck.presentation.ui.components
+package com.mindeck.presentation.ui.components.dialog
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,31 +12,26 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.TextUnit
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.components.buttons.ActionHandlerButton
 import com.mindeck.presentation.ui.components.buttons.SaveDataButton
 import com.mindeck.presentation.ui.components.textfields.CardInputField
-import com.mindeck.presentation.ui.theme.BackgroundScreen
-import com.mindeck.presentation.ui.theme.Black
-import com.mindeck.presentation.ui.theme.Blue
-import com.mindeck.presentation.ui.theme.MediumGray
-import com.mindeck.presentation.ui.theme.White
+import com.mindeck.presentation.ui.components.utils.dimenDpResource
+import com.mindeck.presentation.ui.components.utils.dimenFloatResource
+import com.mindeck.presentation.ui.theme.background_light_blue
+import com.mindeck.presentation.ui.theme.scrim_black
+import com.mindeck.presentation.ui.theme.text_gray
+import com.mindeck.presentation.ui.theme.text_white
 
 @Composable
 fun CreateItemDialog(
@@ -48,75 +42,75 @@ fun CreateItemDialog(
     onValueChange: (String) -> Unit,
     onBackClick: () -> Unit,
     onClickButton: () -> Unit,
-    fontFamily: FontFamily,
-    titleTextStyle: TextStyle,
-    textFontSize: TextUnit = 14.sp,
-    placeholderFontSize: TextUnit = 14.sp,
-    textColor: Color = Black,
-    placeholderColor: Color = MediumGray,
     modifier: Modifier,
     iconModifier: Modifier,
-    buttonModifier: Modifier
 ) {
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
-            .fillMaxHeight(0.85f)
-            .padding(horizontal = 60.dp)
+            .fillMaxHeight(dimenFloatResource(R.dimen.alpha_menu_dialog_height))
+            .padding(horizontal = dimenDpResource(R.dimen.card_input_field_background_horizontal_padding))
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
-                .background(color = BackgroundScreen, shape = RoundedCornerShape(6))
-                .clip(RoundedCornerShape(6))
-                .padding(10.dp)
+                .background(color = background_light_blue, shape = MaterialTheme.shapes.small)
+                .clip(MaterialTheme.shapes.small)
+                .padding(dimenDpResource(R.dimen.card_input_field_item_padding))
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 ActionHandlerButton(
                     iconPainter = painterResource(R.drawable.back_icon),
                     contentDescription = stringResource(R.string.back_screen_icon_button),
+                    iconTint = MaterialTheme.colorScheme.onPrimary,
                     onClick = onBackClick,
                     iconModifier = iconModifier,
                 )
                 Text(
                     text = titleDialog,
-                    style = titleTextStyle,
-                    color = Black,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = scrim_black,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
                 )
             }
-            Spacer(modifier = Modifier.height(30.dp))
+            Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_large)))
             CardInputField(
                 placeholder = placeholder,
                 value = value,
                 singleLine = true,
                 onValueChange = onValueChange,
-                fontFamily = fontFamily,
-                textFontSize = textFontSize,
-                placeholderFontSize = placeholderFontSize,
-                textColor = textColor,
-                placeholderColor = placeholderColor,
+                textStyle = MaterialTheme.typography.bodyMedium,
+                placeholderTextStyle = MaterialTheme.typography.bodyMedium.copy(
+                    color = text_gray
+                ),
                 modifier = modifier
                     .fillMaxWidth()
-                    .background(
-                        White
-                    )
+                    .background(MaterialTheme.colorScheme.onPrimary)
                     .border(
-                        width = 0.25.dp,
-                        color = MediumGray,
-                        shape = RoundedCornerShape(4.dp)
+                        dimenDpResource(R.dimen.border_width_dot_two_five),
+                        MaterialTheme.colorScheme.outline,
+                        MaterialTheme.shapes.extraSmall
                     )
-                    .padding(10.dp)
+                    .padding(dimenDpResource(R.dimen.card_input_field_item_padding))
             )
-            Spacer(modifier = Modifier.height(30.dp))
+            Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_large)))
             SaveDataButton(
                 text = buttonText,
-                onClick = onClickButton,
-                fontSize = 14.sp,
-                fontFamily = fontFamily,
-                color = White,
-                buttonModifier = buttonModifier
+                textStyle = MaterialTheme.typography.bodyMedium.copy(
+                    color = text_white
+                ),
+                buttonModifier = Modifier
+                    .background(
+                        color = MaterialTheme.colorScheme.outlineVariant,
+                        shape = MaterialTheme.shapes.medium
+                    )
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) {
+                        onClickButton()
+                    }
             )
         }
     }

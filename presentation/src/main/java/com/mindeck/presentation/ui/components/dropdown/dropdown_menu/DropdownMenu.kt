@@ -8,42 +8,49 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.unit.dp
-import com.mindeck.presentation.ui.theme.Blue
-import com.mindeck.presentation.ui.theme.White
+import com.mindeck.presentation.R
+import com.mindeck.presentation.ui.components.utils.dimenDpResource
 
 @Composable
-fun DropdownMenu(listDropdownMenuItem: List<DropdownMenuData>, textStyle: TextStyle, dropdownModifier: Modifier) {
+fun DropdownMenu(
+    listDropdownMenuItem: List<DropdownMenuData>,
+    dropdownModifier: Modifier
+) {
     Box(
         modifier = dropdownModifier
     ) {
         LazyColumn(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
-                .background(White, shape = RoundedCornerShape(8.dp))
+                .background(
+                    MaterialTheme.colorScheme.onPrimary,
+                    shape = MaterialTheme.shapes.medium
+                )
                 .border(
-                    width = 0.25.dp,
-                    color = Blue,
-                    shape = RoundedCornerShape(8.dp)
+                    width = dimenDpResource(R.dimen.border_width_dot_two_five),
+                    color = MaterialTheme.colorScheme.outlineVariant,
+                    shape = MaterialTheme.shapes.medium
                 )
         ) {
-            items(listDropdownMenuItem) {
+            items(listDropdownMenuItem) { item ->
                 Text(
-                    text = it.title,
-                    style = textStyle,
+                    text = item.title,
+                    style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null
-                        ) { it.action.invoke() }
-                        .padding(horizontal = 28.dp, vertical = 14.dp)
+                        ) { item.action.invoke() }
+                        .padding(
+                            horizontal = dimenDpResource(R.dimen.dropdown_menu_horizontal_text_padding),
+                            vertical = dimenDpResource(R.dimen.dropdown_menu_vertical_text_padding)
+                        )
                 )
             }
         }

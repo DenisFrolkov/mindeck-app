@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -23,22 +24,28 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.mindeck.presentation.ui.theme.MediumGray
+import com.mindeck.presentation.R
+import com.mindeck.presentation.ui.components.utils.dimenDpResource
+import com.mindeck.presentation.ui.theme.outline_medium_gray
 
 @Composable
 fun RepeatOptionsButton(
     buttonColor: Color,
     textDifficultyOfRepetition: String,
     repeatTimeText: String,
-    fontFamily: FontFamily,
+    titleTextStyle: TextStyle,
+    subtitleTextStyle: TextStyle,
     onClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
-            .background(color = buttonColor, shape = RoundedCornerShape(4.dp))
-            .border(width = 0.1.dp, color = MediumGray, shape = RoundedCornerShape(4.dp))
-            .width(76.dp)
-            .padding(vertical = 2.dp)
+            .background(color = buttonColor, shape = MaterialTheme.shapes.extraSmall)
+            .border(
+                width = dimenDpResource(R.dimen.border_width_dot_two_five),
+                color = MaterialTheme.colorScheme.outline,
+                shape = MaterialTheme.shapes.extraSmall)
+            .width(dimenDpResource(R.dimen.repeat_options_button_weight))
+            .padding(vertical = dimenDpResource(R.dimen.repeat_options_button_vertical_padding))
             .wrapContentSize(Alignment.Center)
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
@@ -49,21 +56,13 @@ fun RepeatOptionsButton(
     ) {
         Text(
             text = textDifficultyOfRepetition,
-            style = TextStyle(
-                fontSize = 12.sp,
-                fontFamily = fontFamily,
-                textAlign = TextAlign.Center
-            ),
+            style = titleTextStyle,
             modifier = Modifier.fillMaxWidth()
         )
-        Spacer(modifier = Modifier.height(2.dp))
+        Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.repeat_options_button_spacer_height)))
         Text(
             text = repeatTimeText,
-            style = TextStyle(
-                fontSize = 8.sp,
-                fontFamily = fontFamily,
-                textAlign = TextAlign.Center
-            ),
+            style = subtitleTextStyle,
             modifier = Modifier.fillMaxWidth()
         )
     }
