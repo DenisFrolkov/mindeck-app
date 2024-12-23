@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
@@ -32,7 +33,6 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.mindeck.presentation.R
-import com.mindeck.presentation.ui.components.buttons.GetAllFindersButton
 import com.mindeck.presentation.ui.components.daily_progress_tracker.DailyProgressTracker
 import com.mindeck.presentation.ui.components.daily_progress_tracker.DailyProgressTrackerState
 import com.mindeck.presentation.ui.components.fab.FAB
@@ -147,27 +147,29 @@ fun MainScreen(
                             .fillMaxWidth()
                             .wrapContentSize(Alignment.Center)
                     ) {
-                        GetAllFindersButton(
-                            buttonText = stringResource(R.string.title_text_all_folders),
-                            textStyle = MaterialTheme.typography.bodyMedium.copy(
-                                color = MaterialTheme.colorScheme.onPrimary
-                            ),
-                            modifier = Modifier
-                                .background(
-                                    color = MaterialTheme.colorScheme.outlineVariant,
-                                    shape = MaterialTheme.shapes.medium
-                                )
-                                .clickable(
-                                    interactionSource = remember { MutableInteractionSource() },
-                                    indication = null
-                                ) {
-                                    navController.navigate(NavigationRoute.FoldersScreen.route)
-                                },
-                            textModifier = Modifier.padding(
-                                vertical = dimenDpResource(R.dimen.padding_medium),
-                                horizontal = dimenDpResource(R.dimen.padding_extra_large)
+
+                        Box(modifier = Modifier
+                            .background(
+                                color = MaterialTheme.colorScheme.outlineVariant,
+                                shape = MaterialTheme.shapes.medium
                             )
-                        )
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null
+                            ) {
+                                navController.navigate(NavigationRoute.FoldersScreen.route)
+                            }) {
+                            Text(
+                                text = stringResource(R.string.title_text_all_folders),
+                                style = MaterialTheme.typography.bodyMedium.copy(
+                                    color = MaterialTheme.colorScheme.onPrimary
+                                ),
+                                modifier = Modifier.padding(
+                                    vertical = dimenDpResource(R.dimen.padding_medium),
+                                    horizontal = dimenDpResource(R.dimen.padding_extra_large)
+                                )
+                            )
+                        }
                     }
                 }
             }

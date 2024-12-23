@@ -70,12 +70,6 @@ fun CreationCardScreen(
     var cardInputAnswerValue by rememberSaveable { mutableStateOf("") }
     var tagInputValue by rememberSaveable { mutableStateOf("") }
 
-
-    val minHeight = 46.dp
-
-    val fontFamily = FontFamily(Font(R.font.opensans_medium))
-    val textStyle = TextStyle(fontSize = 14.sp, fontFamily = fontFamily)
-
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
@@ -90,6 +84,7 @@ fun CreationCardScreen(
                 iconPainter = painterResource(R.drawable.back_icon),
                 contentDescription = stringResource(R.string.back_screen_icon_button),
                 onClick = { navController.popBackStack() },
+                iconTint = MaterialTheme.colorScheme.onPrimary,
                 iconModifier = Modifier
                     .background(color = MaterialTheme.colorScheme.outlineVariant, shape = MaterialTheme.shapes.extraLarge)
                     .padding(all = dimenDpResource(R.dimen.padding_small))
@@ -106,7 +101,7 @@ fun CreationCardScreen(
                     .verticalScroll(state = scrollState)
             ) {
                 DropdownSelectors(
-                    textStyle = textStyle,
+                    textStyle = MaterialTheme.typography.bodyMedium,
                     folderDropdownSelect = folderDropdownSelect,
                     deckDropdownSelect = deckDropdownSelect,
                     priorityDropdownSelect = priorityDropdownSelect,
@@ -148,7 +143,7 @@ fun CreationCardScreen(
                         bottomEnd = dimenDpResource(R.dimen.text_input_bottomEnd_zero_padding)
                     )
                         .fillMaxWidth()
-                        .heightIn(min = minHeight, max = dimenDpResource(R.dimen.text_input_max_height))
+                        .heightIn(min = dimenDpResource(R.dimen.text_input_min_height), max = dimenDpResource(R.dimen.text_input_max_height))
                         .wrapContentSize(Alignment.CenterStart)
                 )
                 CardInputField(

@@ -77,5 +77,9 @@
     <dimen name="repeat_options_button_vertical_padding">2dp</dimen>
     <dimen name="repeat_options_button_spacer_height">2dp</dimen>
 
+    //Dimens for AppNavigation
+    <dimen name="app_navigation_hundred_duration_millis">100</dimen>
+    <dimen name="app_navigation_one_hundred_fifty_duration_millis">150</dimen>
+    <dimen name="app_navigation_three_hundred_duration_millis">100</dimen>
 
 </resources>

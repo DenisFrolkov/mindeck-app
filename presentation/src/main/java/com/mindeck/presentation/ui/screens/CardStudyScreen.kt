@@ -139,8 +139,12 @@ fun CardStudyScreen(navController: NavController) {
                         textDifficultyOfRepetition = it.title,
                         repeatTimeText = it.time,
                         onClick = it.action,
-                        titleTextStyle = MaterialTheme.typography.labelMedium,
-                        subtitleTextStyle = MaterialTheme.typography.labelSmall
+                        titleTextStyle = MaterialTheme.typography.labelMedium.copy(
+                            textAlign = TextAlign.Center
+                        ),
+                        subtitleTextStyle = MaterialTheme.typography.labelSmall.copy(
+                            textAlign = TextAlign.Center
+                        )
                     )
                 }
             }
