@@ -35,7 +35,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
 import com.mindeck.domain.models.Folder
 import com.mindeck.presentation.R
-import com.mindeck.presentation.ui.components.CreateItemDialog
+import com.mindeck.presentation.ui.components.dialog.CreateItemDialog
 import com.mindeck.presentation.ui.components.common.ActionBar
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenu
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenuData

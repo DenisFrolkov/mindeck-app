@@ -28,7 +28,8 @@ fun DisplayItemCount(
             .fillMaxWidth()
     ) {
         Text(
-            text = pluralStringResource(plurals, count, count), style = textStyle,
+            text = pluralStringResource(plurals, count, count),
+            style = textStyle,
             modifier = Modifier.weight(dimenFloatResource(R.dimen.float_one_significance)),
             textAlign = TextAlign.Center
         )

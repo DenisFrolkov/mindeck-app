@@ -112,7 +112,7 @@ private fun DPTProgress(
 ) {
     Box(
         modifier = Modifier
-            .background(progressColor, shape = MaterialTheme.shapes.extraLarge)
+            .background(color = progressColor, shape = MaterialTheme.shapes.extraLarge)
             .height(dimenDpResource(R.dimen.spacer_extra_small))
             .fillMaxWidth()
     ) {

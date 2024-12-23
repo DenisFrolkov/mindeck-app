@@ -1,4 +1,4 @@
-package com.mindeck.presentation.ui.components
+package com.mindeck.presentation.ui.components.dialog
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -62,6 +62,7 @@ fun CreateItemDialog(
                 ActionHandlerButton(
                     iconPainter = painterResource(R.drawable.back_icon),
                     contentDescription = stringResource(R.string.back_screen_icon_button),
+                    iconTint = MaterialTheme.colorScheme.onPrimary,
                     onClick = onBackClick,
                     iconModifier = iconModifier,
                 )
