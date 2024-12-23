@@ -15,7 +15,8 @@
     <dimen name="icon_size">20dp</dimen>
 
     //Border
-    <dimen name="border_width">0.25dp</dimen>
+    <dimen name="border_width_dot_two_five">0.25dp</dimen>
+    <dimen name="border_width_dot_five">0.5dp</dimen>
 
     //Dimens for DailyProgressTracker
     <dimen name="daily_progress_tracker_start_padding">11dp</dimen>
@@ -33,20 +34,48 @@
     <dimen name="display_card_item_size">48dp</dimen>
 
     //Divider
-    <dimen name="horizontal_divider_height">1dp</dimen>
+    <dimen name="horizontal_divider_one_height">1dp</dimen>
+    <dimen name="horizontal_divider_dot_two_five_height">0.25dp</dimen>
     <dimen name="vertical_divider_height">0.25dp</dimen>
 
     //Divider for DropdownMenu
     <dimen name="dropdown_menu_horizontal_text_padding">28dp</dimen>
     <dimen name="dropdown_menu_vertical_text_padding">14dp</dimen>
     <dimen name="dropdown_menu_vertical_top_padding">4dp</dimen>
+    <dimen name="dropdown_min_weight">120dp</dimen>
+    <dimen name="dropdown_menu_item_height">36dp</dimen>
 
     //Divider for CardInputField
     <dimen name="card_input_field_item_padding">10dp</dimen>
     <dimen name="card_input_field_background_horizontal_padding">60dp</dimen>
 
+    //Float
     <dimen name="alpha_menu_dialog_height">0.85f</dimen>
     <dimen name="float_one_significance">1f</dimen>
     <dimen name="float_zero_dot_five_significance">0.5f</dimen>
+    <dimen name="float_zero_significance">0f</dimen>
+
+    //Dimens for TextInput
+    <dimen name="text_input_max_height">200dp</dimen>
+    <dimen name="text_input_min_height">46dp</dimen>
+    <dimen name="tag_text_input_min_weight">120dp</dimen>
+    <dimen name="text_input_size_padding">4dp</dimen>
+    <dimen name="text_input_topStart_padding">4dp</dimen>
+    <dimen name="text_input_topEnd_padding">4dp</dimen>
+    <dimen name="text_input_bottomStart_padding">4dp</dimen>
+    <dimen name="text_input_bottomEnd_padding">4dp</dimen>
+    <dimen name="dropdown_menu_item_bottomStart_padding">4dp</dimen>
+    <dimen name="dropdown_menu_item_bottomEnd_padding">4dp</dimen>
+    <dimen name="text_input_topStart_zero_padding">0dp</dimen>
+    <dimen name="text_input_topEnd_zero_padding">0dp</dimen>
+    <dimen name="text_input_bottomStart_zero_padding">0dp</dimen>
+    <dimen name="text_input_bottomEnd_zero_padding">0dp</dimen>
+    <dimen name="text_input_border_thickness">25dp</dimen>
+
+    //Dimens for RepeatOptionsButton
+    <dimen name="repeat_options_button_weight">76dp</dimen>
+    <dimen name="repeat_options_button_vertical_padding">2dp</dimen>
+    <dimen name="repeat_options_button_spacer_height">2dp</dimen>
+
 
 </resources>

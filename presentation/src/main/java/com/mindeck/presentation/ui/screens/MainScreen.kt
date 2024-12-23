@@ -35,7 +35,6 @@ import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.components.buttons.GetAllFindersButton
 import com.mindeck.presentation.ui.components.daily_progress_tracker.DailyProgressTracker
 import com.mindeck.presentation.ui.components.daily_progress_tracker.DailyProgressTrackerState
-import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenuState
 import com.mindeck.presentation.ui.components.fab.FAB
 import com.mindeck.presentation.ui.components.fab.FabMenuData
 import com.mindeck.presentation.ui.components.fab.FabState
@@ -118,7 +117,7 @@ fun MainScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .border(
-                                dimenDpResource(R.dimen.border_width),
+                                dimenDpResource(R.dimen.border_width_dot_two_five),
                                 MaterialTheme.colorScheme.outline,
                                 MaterialTheme.shapes.small
                             )

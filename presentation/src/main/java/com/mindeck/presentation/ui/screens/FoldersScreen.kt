@@ -151,7 +151,7 @@ fun FoldersScreen(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .border(
-                                            dimenDpResource(R.dimen.border_width),
+                                            dimenDpResource(R.dimen.border_width_dot_two_five),
                                             MaterialTheme.colorScheme.outline,
                                             MaterialTheme.shapes.medium
                                         )

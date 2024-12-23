@@ -17,11 +17,8 @@ fun TitleInputField(
     placeholder: String,
     value: String,
     onValueChange: (String) -> Unit,
-    fontFamily: FontFamily,
-    textFontSize: TextUnit = 14.sp,
-    placeholderFontSize: TextUnit = 14.sp,
-    textColor: Color = scrim_black,
-    placeholderColor: Color = outline_medium_gray,
+    textStyle: TextStyle,
+    placeholderTextStyle: TextStyle,
     modifier: Modifier,
 ) {
     BasicTextField(
@@ -29,21 +26,13 @@ fun TitleInputField(
         onValueChange = {
             onValueChange(it)
         },
-        textStyle = TextStyle(
-            fontSize = textFontSize,
-            color = textColor,
-            fontFamily = fontFamily
-        ),
+        textStyle = textStyle,
         singleLine = true,
         decorationBox = { it ->
             if (value.isEmpty()) {
                 Text(
                     text = placeholder,
-                    color = placeholderColor,
-                    style = TextStyle(
-                        fontSize = placeholderFontSize,
-                        fontFamily = fontFamily
-                    )
+                    style = placeholderTextStyle
                 )
             }
             it()

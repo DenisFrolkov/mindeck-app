@@ -21,9 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.sp
 import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.components.buttons.ActionHandlerButton
 import com.mindeck.presentation.ui.components.buttons.SaveDataButton
@@ -32,7 +30,7 @@ import com.mindeck.presentation.ui.components.utils.dimenDpResource
 import com.mindeck.presentation.ui.components.utils.dimenFloatResource
 import com.mindeck.presentation.ui.theme.background_light_blue
 import com.mindeck.presentation.ui.theme.scrim_black
-import com.mindeck.presentation.ui.theme.on_primary_white
+import com.mindeck.presentation.ui.theme.text_gray
 import com.mindeck.presentation.ui.theme.text_white
 
 @Composable
@@ -81,11 +79,15 @@ fun CreateItemDialog(
                 value = value,
                 singleLine = true,
                 onValueChange = onValueChange,
+                textStyle = MaterialTheme.typography.bodyMedium,
+                placeholderTextStyle = MaterialTheme.typography.bodyMedium.copy(
+                    color = text_gray
+                ),
                 modifier = modifier
                     .fillMaxWidth()
                     .background(MaterialTheme.colorScheme.onPrimary)
                     .border(
-                        dimenDpResource(R.dimen.border_width),
+                        dimenDpResource(R.dimen.border_width_dot_two_five),
                         MaterialTheme.colorScheme.outline,
                         MaterialTheme.shapes.extraSmall
                     )

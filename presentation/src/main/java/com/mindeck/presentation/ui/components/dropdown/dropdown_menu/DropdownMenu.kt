@@ -14,7 +14,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.TextStyle
 import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
 
@@ -34,7 +33,7 @@ fun DropdownMenu(
                     shape = MaterialTheme.shapes.medium
                 )
                 .border(
-                    width = dimenDpResource(R.dimen.border_width),
+                    width = dimenDpResource(R.dimen.border_width_dot_two_five),
                     color = MaterialTheme.colorScheme.outlineVariant,
                     shape = MaterialTheme.shapes.medium
                 )
