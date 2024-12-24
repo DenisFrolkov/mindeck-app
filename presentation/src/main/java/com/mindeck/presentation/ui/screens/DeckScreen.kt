@@ -1,6 +1,7 @@
 package com.mindeck.presentation.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -15,12 +16,15 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -28,27 +32,24 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.mindeck.domain.models.Deck
+import com.mindeck.domain.models.Folder
 import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.components.common.ActionBar
 import com.mindeck.presentation.ui.components.common.DisplayItemCount
+import com.mindeck.presentation.ui.components.dialog.CreateItemDialog
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenu
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenuData
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenuState
+import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.animateDialogCreateItem
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.animateDropdownMenuHeightIn
-import com.mindeck.presentation.ui.components.folder.DeckData
 import com.mindeck.presentation.ui.components.folder.DisplayCardItem
+import com.mindeck.presentation.ui.components.utils.dimenDpResource
+import com.mindeck.presentation.ui.components.utils.dimenFloatResource
 import com.mindeck.presentation.ui.navigation.NavigationRoute
-import com.mindeck.presentation.ui.theme.BackgroundScreen
-import com.mindeck.presentation.ui.theme.Black
-import com.mindeck.presentation.ui.theme.Blue
-import com.mindeck.presentation.ui.theme.LightBlue
 import com.mindeck.presentation.uiState.UiState
 import com.mindeck.presentation.viewmodel.DeckViewModel
 import kotlin.math.roundToInt
@@ -66,26 +67,37 @@ fun DeckScreen(
         targetAlpha = dropdownMenuState.dropdownAlpha,
         animationDuration = dropdownMenuState.animationDuration
     )
-    var fontFamily = FontFamily(Font(R.font.opensans_medium))
-    var textStyle = TextStyle(fontSize = 14.sp, color = Black, fontFamily = fontFamily)
+
+    val dialogVisibleAnimation = animateDialogCreateItem(
+        targetAlpha = dropdownMenuState.dialogAlpha,
+        animationDuration = dropdownMenuState.animationDuration * 3
+    )
 
     val cards = deckViewModel.cardUIState.collectAsState().value
+    val deck = deckViewModel.deckUIState.collectAsState().value
+
+    val deleteDeckData =
+        remember { mutableStateOf(Deck(deckId = 0, deckName = "", folderId = 0)) }
+
+    var newName by remember { mutableStateOf("") }
 
     var listDropdownMenu = listOf(
         DropdownMenuData(
-            title = "Изменить название",
+            title = stringResource(R.string.dropdown_menu_data_rename_list),
             action = {
+                dropdownMenuState.openRenameDialog()
             }
         ),
         DropdownMenuData(
-            title = "Удалить элемент",
-            action = {
-            }
-        ),
-        DropdownMenuData(
-            title = "Добавить карточку",
+            title = stringResource(R.string.dropdown_menu_data_create_card),
             action = {
 
+            }
+        ),
+        DropdownMenuData(
+            title = stringResource(R.string.dropdown_menu_data_remote_list),
+            action = {
+                deckViewModel.deleteDeck(deleteDeckData.value)
             }
         )
     )
@@ -93,11 +105,11 @@ fun DeckScreen(
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
-            .background(BackgroundScreen)
-            .padding(horizontal = 16.dp)
-            .padding(top = 16.dp)
+            .background(MaterialTheme.colorScheme.background)
+            .padding(horizontal = dimenDpResource(R.dimen.padding_medium))
+            .padding(top = dimenDpResource(R.dimen.padding_medium))
             .statusBarsPadding(),
-        containerColor = BackgroundScreen,
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             ActionBar(
                 onBackClick = { navController.popBackStack() },
@@ -105,46 +117,64 @@ fun DeckScreen(
                 containerModifier = Modifier
                     .fillMaxWidth(),
                 iconModifier = Modifier
-                    .clip(shape = RoundedCornerShape(50.dp))
-                    .background(color = Blue, shape = RoundedCornerShape(50.dp))
-                    .padding(all = 12.dp)
-                    .size(size = 16.dp),
+                    .clip(shape = MaterialTheme.shapes.extraLarge)
+                    .background(
+                        color = MaterialTheme.colorScheme.outlineVariant,
+                        shape = MaterialTheme.shapes.extraLarge
+                    )
+                    .padding(dimenDpResource(R.dimen.padding_small))
+                    .size(dimenDpResource(R.dimen.padding_medium)),
             )
         },
         content = { padding ->
             Column(modifier = Modifier.padding(padding)) {
-                when (cards) {
+                when (deck) {
                     is UiState.Success -> {
+                        deleteDeckData.value = deck.data
                         Text(
-                            text = "Название колоды",
-                            style = textStyle,
+                            text = deck.data.deckName,
+                            style = MaterialTheme.typography.titleMedium,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .wrapContentSize(Alignment.Center)
                         )
-                        Spacer(Modifier.height(18.dp))
+                    }
+                }
+                Spacer(Modifier.height(dimenDpResource(R.dimen.spacer_medium)))
+                when (cards) {
+                    is UiState.Success -> {
                         DisplayItemCount(
-                            pluralsTextOne = R.plurals.card_amount,
-                            listOne = cards.data,
-                            textStyle = textStyle
+                            plurals = R.plurals.card_amount,
+                            count = cards.data.size,
+                            textStyle = MaterialTheme.typography.bodyMedium
                         )
 
                         LazyColumn {
-                            items(items = cards.data, key = { it.deckId }) {
+                            items(items = cards.data, key = { it.deckId }) { card ->
                                 DisplayCardItem(
-                                    cardIcon =
-                                    painterResource(R.drawable.card_icon),
-                                    titleCard = it.cardName,
-                                    backgroundColor = LightBlue,
-                                    iconColor = Blue,
-                                    onClick = {
-                                        navController.navigate(NavigationRoute.CreationCardScreen.route)
-                                    },
-                                    textStyle = TextStyle(
-                                        fontSize = 14.sp,
-                                        fontFamily = FontFamily(Font(R.font.opensans_medium))
+                                    showCount = false,
+                                    itemIcon = painterResource(R.drawable.card_icon),
+                                    itemName = card.cardName,
+                                    backgroundColor = MaterialTheme.colorScheme.secondary.copy(
+                                        dimenFloatResource(R.dimen.float_zero_dot_five_significance)
                                     ),
+                                    iconColor = MaterialTheme.colorScheme.outlineVariant,
+                                    textStyle = MaterialTheme.typography.bodyMedium,
                                     modifier = Modifier
+                                        .fillMaxWidth()
+                                        .border(
+                                            dimenDpResource(R.dimen.border_width_dot_two_five),
+                                            MaterialTheme.colorScheme.outline,
+                                            MaterialTheme.shapes.extraSmall
+                                        )
+                                        .clip(shape = MaterialTheme.shapes.extraSmall)
+                                        .height(dimenDpResource(R.dimen.display_card_item_size))
+                                        .clickable(
+                                            interactionSource = remember { MutableInteractionSource() },
+                                            indication = null
+                                        ) {
+                                            navController.navigate(NavigationRoute.CreationCardScreen.route)
+                                        }
                                         .onGloballyPositioned {
                                             val offset = it.localToWindow(Offset.Zero)
                                             onButtonPositioned(
@@ -155,7 +185,7 @@ fun DeckScreen(
                                             )
                                         }
                                 )
-                                Spacer(modifier = Modifier.height(6.dp))
+                                Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_small)))
                             }
                         }
                     }
@@ -168,19 +198,64 @@ fun DeckScreen(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null
                     ) { dropdownMenuState.toggle() })
-            }
-            if (dropdownMenuState.isExpanded) {
+
                 DropdownMenu(
                     listDropdownMenuItem = listDropdownMenu,
-                    textStyle = textStyle,
                     dropdownModifier = Modifier
                         .padding(padding)
                         .alpha(dropdownVisibleAnimation)
                         .fillMaxWidth()
-                        .padding(top = 4.dp)
+                        .padding(top = dimenDpResource(R.dimen.spacer_extra_small))
                         .wrapContentSize(Alignment.TopEnd)
                 )
             }
         }
     )
+
+    if (dropdownMenuState.isOpeningDialog) {
+        Box(modifier = Modifier.alpha(dialogVisibleAnimation)) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.outline.copy(dimenFloatResource(R.dimen.float_zero_dot_five_significance)))
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) {}
+            )
+            when (deck) {
+                is UiState.Success -> {
+                    CreateItemDialog(
+                        titleDialog = stringResource(R.string.rename_title_item_dialog),
+                        placeholder = stringResource(R.string.rename_item_dialog_text_input_title_folder),
+                        buttonText = stringResource(R.string.save_text),
+                        value = newName,
+                        onValueChange = { newValue -> newName = newValue },
+                        onBackClick = {
+                            dropdownMenuState.closeDialog()
+                        },
+                        onClickButton = {
+                            deckViewModel.renameDeck(
+                                deckId = deck.data.deckId,
+                                newDeckName = newName
+                            )
+                            dropdownMenuState.closeDialog()
+                            deckViewModel.getDeckById(deck.data.deckId)
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .wrapContentSize(Alignment.CenterStart),
+                        iconModifier = Modifier
+                            .clip(shape = MaterialTheme.shapes.extraLarge)
+                            .background(
+                                color = MaterialTheme.colorScheme.outlineVariant,
+                                shape = MaterialTheme.shapes.extraLarge
+                            )
+                            .padding(dimenDpResource(R.dimen.padding_small))
+                            .size(dimenDpResource(R.dimen.padding_medium)),
+                    )
+                }
+            }
+        }
+    }
 }

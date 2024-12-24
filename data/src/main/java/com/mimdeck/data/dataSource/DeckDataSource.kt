@@ -1,6 +1,7 @@
 package com.mimdeck.data.dataSource
 
 import com.mimdeck.data.database.entities.DeckEntity
+import com.mimdeck.data.database.entities.FolderEntity
 import kotlinx.coroutines.flow.Flow
 
 interface DeckDataSource {
@@ -15,6 +16,8 @@ interface DeckDataSource {
     suspend fun deleteDecksFromFolder(deckIds: List<Int>, folderId: Int)
 
     suspend fun addDecksToFolder(deckIds: List<Int>, folderId: Int)
+
+    suspend fun getDeckById(deckId: Int): DeckEntity
 
     suspend fun moveDecksBetweenFolders(
         deckIds: List<Int>,

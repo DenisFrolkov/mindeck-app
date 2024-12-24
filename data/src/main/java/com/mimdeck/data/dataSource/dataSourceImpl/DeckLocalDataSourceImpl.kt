@@ -87,6 +87,19 @@ class DeckLocalDataSourceImpl @Inject constructor(private val deckDao: DeckDao) 
         }
     }
 
+    override suspend fun getDeckById(deckId: Int): DeckEntity {
+        return try {
+            deckDao.getDeckById(deckId = deckId)
+        } catch (e: SQLException) {
+            throw DatabaseException(
+                "Failed to get deck due to a constraint violation: ${e.localizedMessage}",
+                e
+            )
+        } catch (e: Exception) {
+            throw DatabaseException("Error getting a deck: ${e.localizedMessage}", e)
+        }
+    }
+
     override suspend fun moveDecksBetweenFolders(
         deckIds: List<Int>,
         sourceFolderId: Int,

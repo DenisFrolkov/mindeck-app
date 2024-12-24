@@ -1,5 +1,6 @@
 package com.mindeck.presentation.ui.navigation
 
+import android.util.Log
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -18,6 +19,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.screens.CardStudyScreen
 import com.mindeck.presentation.ui.screens.CreationCardScreen
 import com.mindeck.presentation.ui.screens.DeckScreen
@@ -78,10 +80,11 @@ fun AppNavigation(
         }
         composable(
             NavigationRoute.FolderScreen.route,
-            enterTransition = { fadeIn(animationSpec = tween(150)) },
-            exitTransition = { fadeOut(animationSpec = tween(150)) },
+            enterTransition = { fadeIn(animationSpec = tween(100)) },
+            exitTransition = { fadeOut(animationSpec = tween(100)) },
             arguments = listOf(navArgument("folderId") { type = NavType.IntType })
-        ) { backStackEntry ->
+        ) {
+            backStackEntry ->
             val folderId = backStackEntry.arguments?.getInt("folderId")
             folderViewModel.getFolderById(folderId = folderId!!)
             folderViewModel.getAllDecksByFolderId(folderId = folderId!!)
@@ -97,6 +100,7 @@ fun AppNavigation(
             arguments = listOf(navArgument("deckId") { type = NavType.IntType })
         ) { backStackEntry ->
             val deckId = backStackEntry.arguments?.getInt("deckId")
+            deckViewModel.getDeckById(deckId = deckId!!)
             deckViewModel.getAllCardsByDeckId(deckId!!)
             DeckScreen(
                 navController = navController,

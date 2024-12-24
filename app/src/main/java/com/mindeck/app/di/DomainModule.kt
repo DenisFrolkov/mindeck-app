@@ -15,6 +15,7 @@ import com.mindeck.domain.usecases.deckUseCases.CreateDeckUseCase
 import com.mindeck.domain.usecases.deckUseCases.DeleteDeckUseCase
 import com.mindeck.domain.usecases.deckUseCases.DeleteDecksFromFolderUseCase
 import com.mindeck.domain.usecases.deckUseCases.GetAllDecksByFolderIdUseCase
+import com.mindeck.domain.usecases.deckUseCases.GetDeckByIdUseCase
 import com.mindeck.domain.usecases.deckUseCases.MoveDecksBetweenFoldersUseCase
 import com.mindeck.domain.usecases.deckUseCases.RenameDeckUseCase
 import com.mindeck.domain.usecases.folderUseCases.CreateFolderUseCase
@@ -71,6 +72,11 @@ class DomainModule() {
     @Provides
     fun providesDeleteDeckUseCase(repository: DeckRepository): DeleteDeckUseCase {
         return DeleteDeckUseCase(repository)
+    }
+
+    @Provides
+    fun providesGetDeckByIdUseCase(repository: DeckRepository): GetDeckByIdUseCase {
+        return GetDeckByIdUseCase(repository)
     }
 
     @Provides

@@ -37,10 +37,6 @@ class FolderViewModel @Inject constructor(
     private val _deckByIdrUIState = MutableStateFlow<UiState<List<Deck>>>(UiState.Loading)
     val deckByIdrUIState: StateFlow<UiState<List<Deck>>> = _deckByIdrUIState
 
-    init {
-        getFolderById(1)
-    }
-
     fun getFolderById(folderId: Int) {
         viewModelScope.launch {
             try {
@@ -72,9 +68,9 @@ class FolderViewModel @Inject constructor(
         }
     }
 
-    fun renameFolder(folderId: Int, newName: String) {
+    fun renameFolder(folderId: Int, newFolderName: String) {
         viewModelScope.launch {
-            renameFolderUseCase.invoke(folderId = folderId, newName = newName)
+            renameFolderUseCase.invoke(folderId = folderId, newName = newFolderName)
         }
     }
 

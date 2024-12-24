@@ -1,7 +1,7 @@
 package com.mindeck.presentation.ui.screens
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -16,8 +16,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,37 +30,31 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.mindeck.domain.models.Folder
 import com.mindeck.presentation.R
-import com.mindeck.presentation.ui.components.CreateItemDialog
+import com.mindeck.presentation.ui.components.dialog.CreateItemDialog
 import com.mindeck.presentation.ui.components.common.ActionBar
-import com.mindeck.presentation.ui.components.common.DisplayItemCount
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenu
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenuData
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenuState
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.animateDialogCreateItem
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.animateDropdownMenuHeightIn
-import com.mindeck.presentation.ui.components.folder.DisplayCardFolder
-import com.mindeck.presentation.ui.components.folder.FolderData
+import com.mindeck.presentation.ui.components.folder.DisplayCardItem
+import com.mindeck.presentation.ui.components.utils.dimenDpResource
 import com.mindeck.presentation.ui.navigation.NavigationRoute
-import com.mindeck.presentation.ui.theme.BackgroundScreen
-import com.mindeck.presentation.ui.theme.Black
-import com.mindeck.presentation.ui.theme.Blue
-import com.mindeck.presentation.ui.theme.LightBlue
-import com.mindeck.presentation.ui.theme.MediumGray
+import com.mindeck.presentation.ui.theme.outline_variant_blue
+import com.mindeck.presentation.ui.theme.repeat_button_light_blue
 import com.mindeck.presentation.uiState.UiState
 import com.mindeck.presentation.viewmodel.FoldersViewModel
 
-@SuppressLint("UseOfNonLambdaOffsetOverload")
 @Composable
-fun FoldersScreen(navController: NavController, foldersViewModel: FoldersViewModel) {
+fun FoldersScreen(
+    navController: NavController,
+    foldersViewModel: FoldersViewModel
+) {
 
     var dropdownMenuState = remember { DropdownMenuState() }
 
@@ -69,32 +62,26 @@ fun FoldersScreen(navController: NavController, foldersViewModel: FoldersViewMod
         targetAlpha = dropdownMenuState.dropdownAlpha,
         animationDuration = dropdownMenuState.animationDuration
     )
-
     val dialogVisibleAnimation = animateDialogCreateItem(
         targetAlpha = dropdownMenuState.dialogAlpha,
-        animationDuration = 300
+        animationDuration = dropdownMenuState.animationDuration * 3
     )
-
-    var fontFamily = remember { FontFamily(Font(R.font.opensans_medium)) }
-    var textStyle = remember { TextStyle(fontSize = 14.sp, color = Black, fontFamily = fontFamily) }
-
     val folders = foldersViewModel.folderUIState.collectAsState().value
-
-    var createFolder by remember { mutableStateOf("") }
+    var inputFolderName by remember { mutableStateOf("") }
 
     var listDropdownMenu = listOf(
         DropdownMenuData(
-            title = "Изменить название",
+            title = stringResource(R.string.dropdown_menu_data_rename_list),
             action = {
             }
         ),
         DropdownMenuData(
-            title = "Удалить элемент",
+            title = stringResource(R.string.dropdown_menu_data_remote_list),
             action = {
             }
         ),
         DropdownMenuData(
-            title = "Создать папку",
+            title = stringResource(R.string.dropdown_menu_data_create_folder_list),
             action = {
                 dropdownMenuState.openDialog()
             }
@@ -104,11 +91,11 @@ fun FoldersScreen(navController: NavController, foldersViewModel: FoldersViewMod
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
-            .background(BackgroundScreen)
-            .padding(horizontal = 16.dp)
-            .padding(top = 16.dp)
+            .background(MaterialTheme.colorScheme.background)
+            .padding(horizontal = dimenDpResource(R.dimen.padding_medium))
+            .padding(top = dimenDpResource(R.dimen.padding_medium))
             .statusBarsPadding(),
-        containerColor = BackgroundScreen,
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             ActionBar(
                 onBackClick = { navController.popBackStack() },
@@ -116,10 +103,13 @@ fun FoldersScreen(navController: NavController, foldersViewModel: FoldersViewMod
                 containerModifier = Modifier
                     .fillMaxWidth(),
                 iconModifier = Modifier
-                    .clip(shape = RoundedCornerShape(50.dp))
-                    .background(color = Blue, shape = RoundedCornerShape(50.dp))
-                    .padding(all = 12.dp)
-                    .size(size = 16.dp),
+                    .clip(shape = MaterialTheme.shapes.extraLarge)
+                    .background(
+                        color = MaterialTheme.colorScheme.outlineVariant,
+                        shape = MaterialTheme.shapes.extraLarge
+                    )
+                    .padding(all = dimenDpResource(R.dimen.padding_small))
+                    .size(size = dimenDpResource(R.dimen.icon_size)),
             )
         },
         content = { padding ->
@@ -128,42 +118,59 @@ fun FoldersScreen(navController: NavController, foldersViewModel: FoldersViewMod
                     .padding(padding)
             ) {
                 when (folders) {
-                    is UiState.Loading -> {
-                        CircularProgressIndicator()
-                    }
-
                     is UiState.Success -> {
-                        DisplayItemCount(
-                            pluralsTextOne = R.plurals.folder_amount,
-                            pluralsTextTwo = R.plurals.deck_amount,
-                            listOne = folders.data,
-                            listTwo = listOf(1),
-                            textStyle = textStyle
-                        )
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .wrapContentSize(Alignment.Center)
+                        ) {
+                            Text(
+                                text = pluralStringResource(
+                                    R.plurals.folder_amount,
+                                    folders.data.size,
+                                    folders.data.size
+                                ),
+                                style = MaterialTheme.typography.titleMedium,
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_large)))
+
                         LazyColumn {
                             items(
                                 items = folders.data,
-                                key = { it.folderId }) {
-                                DisplayCardFolder(
-                                    folderIcon = painterResource(R.drawable.folder_icon),
-                                    numberOfCards = it.folderId,
-                                    folderName = it.folderName,
-                                    backgroundColor = Blue,
-                                    iconColor = LightBlue,
-                                    onClick = { navController.navigate(NavigationRoute.FolderScreen.route) },
-                                    textStyle = TextStyle(
-                                        fontSize = 14.sp,
-                                        fontFamily = FontFamily(Font(R.font.opensans_medium))
-                                    ),
+                                key = { it.folderId }) { folder ->
+                                DisplayCardItem(
+                                    showCount = true,
+                                    itemIcon = painterResource(R.drawable.folder_icon),
+                                    numberOfCards = folder.folderId,
+                                    itemName = folder.folderName,
+                                    backgroundColor = outline_variant_blue,
+                                    iconColor = repeat_button_light_blue,
+                                    textStyle = MaterialTheme.typography.bodyMedium,
                                     modifier = Modifier
+                                        .fillMaxWidth()
+                                        .border(
+                                            dimenDpResource(R.dimen.border_width_dot_two_five),
+                                            MaterialTheme.colorScheme.outline,
+                                            MaterialTheme.shapes.medium
+                                        )
+                                        .clip(MaterialTheme.shapes.medium)
+                                        .height(dimenDpResource(R.dimen.display_card_item_size))
+                                        .clickable(
+                                            interactionSource = remember { MutableInteractionSource() },
+                                            indication = null
+                                        ) {
+                                            navController.navigate(
+                                                NavigationRoute.FolderScreen.createRoute(
+                                                    folder.folderId
+                                                )
+                                            )
+                                        }
                                 )
-                                Spacer(modifier = Modifier.height(6.dp))
+                                Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_small)))
                             }
                         }
-                    }
-
-                    is UiState.Error -> {
-                        Text("Error: $folders")
                     }
                 }
             }
@@ -177,12 +184,11 @@ fun FoldersScreen(navController: NavController, foldersViewModel: FoldersViewMod
 
                 DropdownMenu(
                     listDropdownMenuItem = listDropdownMenu,
-                    textStyle = textStyle,
                     dropdownModifier = Modifier
                         .padding(padding)
                         .alpha(dropdownVisibleAnimation)
                         .fillMaxWidth()
-                        .padding(top = 4.dp)
+                        .padding(top = dimenDpResource(R.dimen.dropdown_menu_vertical_top_padding))
                         .wrapContentSize(Alignment.TopEnd)
                 )
             }
@@ -193,7 +199,7 @@ fun FoldersScreen(navController: NavController, foldersViewModel: FoldersViewMod
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(MediumGray.copy(0.5f))
+                    .background(MaterialTheme.colorScheme.scrim.copy(dropdownMenuState.scrimDialogAlpha))
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null
@@ -202,29 +208,29 @@ fun FoldersScreen(navController: NavController, foldersViewModel: FoldersViewMod
                     }
             )
             CreateItemDialog(
-                titleDialog = "Создание папки",
-                placeholder = "Введите название папки",
-                buttonText = "Создать папку",
-                value = createFolder,
-                onValueChange = { newValue -> createFolder = newValue },
+                titleDialog = stringResource(R.string.create_item_dialog_text_creating_folder),
+                placeholder = stringResource(R.string.create_item_dialog_text_input_name_folder),
+                buttonText = stringResource(R.string.create_item_dialog_text_create_folder),
+                value = inputFolderName,
+                onValueChange = { newValue -> inputFolderName = newValue },
                 onBackClick = {
                     dropdownMenuState.closeDialog()
                 },
                 onClickButton = {
-                    foldersViewModel.createFolder(Folder(folderName = createFolder))
+                    foldersViewModel.createFolder(Folder(folderName = inputFolderName))
                     dropdownMenuState.closeDialog()
                 },
-                fontFamily = FontFamily(Font(R.font.opensans_medium)),
-                titleTextStyle = textStyle,
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentSize(Alignment.CenterStart),
                 iconModifier = Modifier
-                    .clip(shape = RoundedCornerShape(50.dp))
-                    .background(color = Blue, shape = RoundedCornerShape(50.dp))
-                    .padding(all = 12.dp)
-                    .size(size = 16.dp),
-                buttonModifier = Modifier
+                    .clip(MaterialTheme.shapes.extraLarge)
+                    .background(
+                        color = MaterialTheme.colorScheme.outlineVariant,
+                        shape = MaterialTheme.shapes.extraLarge
+                    )
+                    .padding(dimenDpResource(R.dimen.padding_small))
+                    .size(dimenDpResource(R.dimen.padding_medium)),
             )
         }
     }
