@@ -63,6 +63,14 @@ class DeckRepositoryImpl @Inject constructor(private val deckDataSource: DeckDat
         }
     }
 
+    override suspend fun getDeckById(deckId: Int): Deck {
+        return try {
+            deckDataSource.getDeckById(deckId = deckId).toDomain()
+        } catch (e: DatabaseException) {
+            throw DomainException("Failed get deck", e)
+        }
+    }
+
     override suspend fun moveDecksBetweenFolders(
         deckIds: List<Int>,
         sourceFolderId: Int,

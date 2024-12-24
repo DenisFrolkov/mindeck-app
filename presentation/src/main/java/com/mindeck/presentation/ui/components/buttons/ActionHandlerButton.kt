@@ -10,13 +10,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
-import com.mindeck.presentation.ui.theme.White
 
 @Composable
 fun ActionHandlerButton(
     iconPainter: Painter,
     contentDescription: String,
-    iconTint: Color = White,
+    iconTint: Color,
     onClick: () -> Unit,
     iconModifier: Modifier
 ) {

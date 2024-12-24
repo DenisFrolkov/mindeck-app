@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="folder_amount">
+        <item quantity="one">%d папка</item>
+        <item quantity="few">%d папки</item>
+        <item quantity="many">%d папок</item>
+        <item quantity="other">%d папок</item>
+    </plurals>
+
+    <plurals name="deck_amount">
+        <item quantity="one">%d колода</item>
+        <item quantity="few">%d колоды</item>
+        <item quantity="many">%d колод</item>
+        <item quantity="other">%d колод</item>
+    </plurals>
+
+    <plurals name="card_amount">
+        <item quantity="one">%d карточка</item>
+        <item quantity="few">%d карточки</item>
+        <item quantity="many">%d карточек</item>
+        <item quantity="other">%d карточек</item>
+    </plurals>
+</resources>
