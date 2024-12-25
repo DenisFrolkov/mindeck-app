@@ -16,6 +16,8 @@ interface DeckRepository {
 
     suspend fun addDecksToFolder(deckIds: List<Int>, folderId: Int)
 
+    suspend fun getDeckById(deckId: Int): Deck
+
     suspend fun moveDecksBetweenFolders(deckIds: List<Int>, sourceFolderId: Int, targetFolderId: Int) {
         addDecksToFolder(deckIds, targetFolderId)
         deleteDecksFromFolder(deckIds, sourceFolderId)
