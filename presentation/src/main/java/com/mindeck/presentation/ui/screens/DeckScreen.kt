@@ -220,7 +220,7 @@ fun DeckScreen(
                 is UiState.Success -> {
                     CreateItemDialog(
                         titleDialog = stringResource(R.string.rename_title_item_dialog),
-                        placeholder = stringResource(R.string.rename_item_dialog_text_input_title_folder),
+                        placeholder = stringResource(R.string.rename_item_dialog_text_input_title_deck),
                         buttonText = stringResource(R.string.save_text),
                         value = newName,
                         onValueChange = { newValue -> newName = newValue },
