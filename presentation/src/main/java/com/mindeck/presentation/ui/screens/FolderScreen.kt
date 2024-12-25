@@ -226,11 +226,7 @@ fun FolderScreen(
                         } else {
                             stringResource(R.string.create_item_dialog_text_creating_deck)
                         },
-                        placeholder = if (dropdownMenuState.isOpeningRenameDialog) {
-                            stringResource(R.string.rename_item_dialog_text_input_title_folder)
-                        } else {
-                            stringResource(R.string.create_item_dialog_text_input_title_folder)
-                        },
+                        placeholder = stringResource(R.string.create_item_dialog_text_input_title_folder),
                         buttonText = if (dropdownMenuState.isOpeningRenameDialog) {
                             stringResource(R.string.save_text)
                         } else {
