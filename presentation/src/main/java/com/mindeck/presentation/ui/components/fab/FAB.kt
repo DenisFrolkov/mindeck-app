@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -25,10 +26,8 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.unit.dp
 import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
-import com.mindeck.presentation.ui.theme.on_primary_white
 
 @Composable
 fun FAB(
@@ -102,7 +101,7 @@ fun FAB(
                         HorizontalDivider(
                             modifier = Modifier.fillMaxWidth(),
                             thickness = dimenDpResource(R.dimen.horizontal_divider_one_height),
-                            color = on_primary_white
+                            color = MaterialTheme.colorScheme.onPrimary
                         )
                     }
                 }

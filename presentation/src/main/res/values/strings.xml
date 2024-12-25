@@ -28,6 +28,7 @@
     <string name="create_item_dialog_text_create_deck">Создать колоду</string>
     <string name="rename_title_item_dialog">Изменить название</string>
     <string name="rename_item_dialog_text_input_title_folder">Введите название папки</string>
+    <string name="rename_item_dialog_text_input_title_deck">Введите название колоды</string>
     <string name="save_text">Сохранить</string>
 
     //Repeat Option Text
