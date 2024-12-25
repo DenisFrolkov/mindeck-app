@@ -27,7 +27,7 @@
     <dimen name="daily_progress_tracker_icon_height">16dp</dimen>
 
     //Dimens for FAB
-    <dimen name="fab_menu_text_vertical_padding">3dp</dimen>
+    <dimen name="fab_menu_text_vertical_padding">6dp</dimen>
     <dimen name="fab_menu_icon_size">18dp</dimen>
 
     //Dimens for DisplayCardItem

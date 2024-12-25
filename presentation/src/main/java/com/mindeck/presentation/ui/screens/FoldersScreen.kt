@@ -141,7 +141,7 @@ fun FoldersScreen(
                                 items = folders.data,
                                 key = { it.folderId }) { folder ->
                                 DisplayCardItem(
-                                    showCount = true,
+                                    showCount = false,
                                     itemIcon = painterResource(R.drawable.folder_icon),
                                     numberOfCards = folder.folderId,
                                     itemName = folder.folderName,
