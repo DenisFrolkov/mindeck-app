@@ -31,9 +31,12 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.mindeck.domain.models.Deck
 import com.mindeck.domain.models.Folder
@@ -57,8 +60,7 @@ import kotlin.math.roundToInt
 @Composable
 fun DeckScreen(
     navController: NavController,
-    onButtonPositioned: (IntOffset) -> Unit,
-    deckViewModel: DeckViewModel
+    deckViewModel: DeckViewModel,
 ) {
 
     var dropdownMenuState = remember { DropdownMenuState() }
@@ -91,7 +93,7 @@ fun DeckScreen(
         DropdownMenuData(
             title = stringResource(R.string.dropdown_menu_data_create_card),
             action = {
-
+                navController.navigate(NavigationRoute.CreationCardScreen.route)
             }
         ),
         DropdownMenuData(
@@ -174,15 +176,6 @@ fun DeckScreen(
                                             indication = null
                                         ) {
                                             navController.navigate(NavigationRoute.CreationCardScreen.route)
-                                        }
-                                        .onGloballyPositioned {
-                                            val offset = it.localToWindow(Offset.Zero)
-                                            onButtonPositioned(
-                                                IntOffset(
-                                                    offset.x.roundToInt(),
-                                                    offset.y.roundToInt()
-                                                )
-                                            )
                                         }
                                 )
                                 Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_small)))
