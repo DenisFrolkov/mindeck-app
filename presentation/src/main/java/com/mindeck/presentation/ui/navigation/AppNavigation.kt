@@ -18,7 +18,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.screens.CardStudyScreen
 import com.mindeck.presentation.ui.screens.CreationCardScreen
 import com.mindeck.presentation.ui.screens.DeckScreen
@@ -46,8 +45,8 @@ fun AppNavigation(
         navController = navController, startDestination = NavigationRoute.MainScreen.route
     ) {
         composable(NavigationRoute.MainScreen.route,
-            enterTransition = { fadeIn(animationSpec = tween(R.dimen.app_navigation_hundred_duration_millis)) },
-            exitTransition = { fadeOut(animationSpec = tween(R.dimen.app_navigation_hundred_duration_millis)) }
+            enterTransition = { fadeIn(animationSpec = tween(100)) },
+            exitTransition = { fadeOut(animationSpec = tween(100)) }
         ) {
             MainScreen(
                 navController = navController,
@@ -56,15 +55,15 @@ fun AppNavigation(
         }
         composable(NavigationRoute.CreationCardScreen.route, enterTransition = {
             scaleIn(
-                initialScale = 0.1f, animationSpec = tween(R.dimen.app_navigation_hundred_duration_millis)
-            ) + fadeIn(animationSpec = tween(R.dimen.app_navigation_hundred_duration_millis)) + slideIn(
-                initialOffset = { buttonPosition }, animationSpec = tween(R.dimen.app_navigation_hundred_duration_millis)
+                initialScale = 0.1f, animationSpec = tween(100)
+            ) + fadeIn(animationSpec = tween(100)) + slideIn(
+                initialOffset = { buttonPosition }, animationSpec = tween(100)
             )
         }, exitTransition = {
             scaleOut(
-                targetScale = 0.1f, animationSpec = tween(R.dimen.app_navigation_three_hundred_duration_millis)
-            ) + fadeOut(animationSpec = tween(R.dimen.app_navigation_three_hundred_duration_millis)) + slideOut(
-                targetOffset = { buttonPosition }, animationSpec = tween(R.dimen.app_navigation_three_hundred_duration_millis)
+                targetScale = 0.1f, animationSpec = tween(300)
+            ) + fadeOut(animationSpec = tween(300)) + slideOut(
+                targetOffset = { buttonPosition }, animationSpec = tween(300)
             )
         }) {
             CreationCardScreen(
@@ -73,14 +72,14 @@ fun AppNavigation(
             )
         }
         composable(NavigationRoute.FoldersScreen.route,
-            enterTransition = { fadeIn(animationSpec = tween(R.dimen.app_navigation_one_hundred_fifty_duration_millis)) },
-            exitTransition = { fadeOut(animationSpec = tween(R.dimen.app_navigation_one_hundred_fifty_duration_millis)) }) {
+            enterTransition = { fadeIn(animationSpec = tween(150)) },
+            exitTransition = { fadeOut(animationSpec = tween(150)) }) {
             FoldersScreen(navController = navController, foldersViewModel = foldersViewModel)
         }
         composable(
             NavigationRoute.FolderScreen.route,
-            enterTransition = { fadeIn(animationSpec = tween(R.dimen.app_navigation_one_hundred_fifty_duration_millis)) },
-            exitTransition = { fadeOut(animationSpec = tween(R.dimen.app_navigation_one_hundred_fifty_duration_millis)) },
+            enterTransition = { fadeIn(animationSpec = tween(100)) },
+            exitTransition = { fadeOut(animationSpec = tween(100)) },
             arguments = listOf(navArgument("folderId") { type = NavType.IntType })
         ) {
             backStackEntry ->
@@ -94,11 +93,12 @@ fun AppNavigation(
             )
         }
         composable(NavigationRoute.DeckScreen.route,
-            enterTransition = { fadeIn(animationSpec = tween(R.dimen.app_navigation_hundred_duration_millis)) },
-            exitTransition = { fadeOut(animationSpec = tween(R.dimen.app_navigation_hundred_duration_millis)) },
+            enterTransition = { fadeIn(animationSpec = tween(100)) },
+            exitTransition = { fadeOut(animationSpec = tween(100)) },
             arguments = listOf(navArgument("deckId") { type = NavType.IntType })
         ) { backStackEntry ->
             val deckId = backStackEntry.arguments?.getInt("deckId")
+            deckViewModel.getDeckById(deckId = deckId!!)
             deckViewModel.getAllCardsByDeckId(deckId!!)
             DeckScreen(
                 navController = navController,
@@ -107,8 +107,8 @@ fun AppNavigation(
             )
         }
         composable(NavigationRoute.CardStudyScreen.route,
-            enterTransition = { fadeIn(animationSpec = tween(R.dimen.app_navigation_hundred_duration_millis)) },
-            exitTransition = { fadeOut(animationSpec = tween(R.dimen.app_navigation_hundred_duration_millis)) }) {
+            enterTransition = { fadeIn(animationSpec = tween(100)) },
+            exitTransition = { fadeOut(animationSpec = tween(100)) }) {
             CardStudyScreen(navController = navController)
         }
     }

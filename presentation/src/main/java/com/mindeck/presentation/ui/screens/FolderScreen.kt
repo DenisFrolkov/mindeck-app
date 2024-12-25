@@ -74,13 +74,19 @@ fun FolderScreen(
     val deleteFolderData =
         remember { mutableStateOf(Folder(folderId = 0, folderName = "")) }
 
-    var nameDeck by remember { mutableStateOf("") }
+    var name by remember { mutableStateOf("") }
 
     var listDropdownMenu = listOf(
         DropdownMenuData(
             title = stringResource(R.string.dropdown_menu_data_rename_list),
             action = {
-//                folderViewModel.renameFolder()
+                dropdownMenuState.openRenameDialog()
+            }
+        ),
+        DropdownMenuData(
+            title = stringResource(R.string.dropdown_menu_data_create_deck_list),
+            action = {
+                dropdownMenuState.openCreateDialog()
             }
         ),
         DropdownMenuData(
@@ -88,12 +94,6 @@ fun FolderScreen(
             action = {
                 folderViewModel.deleteFolder(deleteFolderData.value)
                 navController.popBackStack()
-            }
-        ),
-        DropdownMenuData(
-            title = stringResource(R.string.dropdown_menu_data_create_deck_list),
-            action = {
-                dropdownMenuState.openDialog()
             }
         )
     )
@@ -151,7 +151,7 @@ fun FolderScreen(
                         LazyColumn(modifier = Modifier) {
                             items(items = decks.data, key = { it.deckId }) { deck ->
                                 DisplayCardItem(
-                                    showCount = true,
+                                    showCount = false,
                                     itemIcon = painterResource(R.drawable.deck_icon),
                                     numberOfCards = deck.deckId,
                                     itemName = deck.deckName,
@@ -221,21 +221,41 @@ fun FolderScreen(
             when (folder) {
                 is UiState.Success -> {
                     CreateItemDialog(
-                        titleDialog = stringResource(R.string.create_item_dialog_text_creating_deck),
-                        placeholder = stringResource(R.string.create_item_dialog_text_input_name_deck),
-                        buttonText = stringResource(R.string.create_item_dialog_text_create_deck),
-                        value = nameDeck,
-                        onValueChange = { newValue -> nameDeck = newValue },
+                        titleDialog = if (dropdownMenuState.isOpeningRenameDialog) {
+                            stringResource(R.string.rename_title_item_dialog)
+                        } else {
+                            stringResource(R.string.create_item_dialog_text_creating_deck)
+                        },
+                        placeholder = if (dropdownMenuState.isOpeningRenameDialog) {
+                            stringResource(R.string.rename_item_dialog_text_input_title_folder)
+                        } else {
+                            stringResource(R.string.create_item_dialog_text_input_title_folder)
+                        },
+                        buttonText = if (dropdownMenuState.isOpeningRenameDialog) {
+                            stringResource(R.string.save_text)
+                        } else {
+                            stringResource(R.string.create_item_dialog_text_create_deck)
+                        },
+                        value = name,
+                        onValueChange = { newValue -> name = newValue },
                         onBackClick = {
                             dropdownMenuState.closeDialog()
                         },
                         onClickButton = {
-                            folderViewModel.createDeck(
-                                Deck(
-                                    deckName = nameDeck,
+                            if (dropdownMenuState.isOpeningRenameDialog) {
+                                folderViewModel.renameFolder(
+                                    newFolderName = name,
                                     folderId = folder.data.folderId
                                 )
-                            )
+                            } else {
+                                folderViewModel.createDeck(
+                                    Deck(
+                                        deckName = name,
+                                        folderId = folder.data.folderId
+                                    )
+                                )
+                            }
+
                             dropdownMenuState.closeDialog()
                         },
                         modifier = Modifier

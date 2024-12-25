@@ -27,7 +27,7 @@
     <dimen name="daily_progress_tracker_icon_height">16dp</dimen>
 
     //Dimens for FAB
-    <dimen name="fab_menu_text_vertical_padding">3dp</dimen>
+    <dimen name="fab_menu_text_vertical_padding">6dp</dimen>
     <dimen name="fab_menu_icon_size">18dp</dimen>
 
     //Dimens for DisplayCardItem
@@ -76,10 +76,5 @@
     <dimen name="repeat_options_button_weight">76dp</dimen>
     <dimen name="repeat_options_button_vertical_padding">2dp</dimen>
     <dimen name="repeat_options_button_spacer_height">2dp</dimen>
-
-    //Dimens for AppNavigation
-    <dimen name="app_navigation_hundred_duration_millis">100</dimen>
-    <dimen name="app_navigation_one_hundred_fifty_duration_millis">150</dimen>
-    <dimen name="app_navigation_three_hundred_duration_millis">100</dimen>
 
 </resources>

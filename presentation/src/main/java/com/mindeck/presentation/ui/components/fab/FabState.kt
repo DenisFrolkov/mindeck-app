@@ -36,9 +36,6 @@ class FabState(
     val fabAlphaValue: Float
         get() = if (isExpanded) 0F else 1F
 
-    val screenAlphaValue: Float
-        get() = if (isExpanded) 0.3F else 0F
-
     fun open() {
         isExpanded = true
     }

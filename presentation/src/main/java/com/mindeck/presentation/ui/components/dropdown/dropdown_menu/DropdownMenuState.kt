@@ -16,6 +16,12 @@ class DropdownMenuState(
     var isOpeningDialog by mutableStateOf(initialDialog)
         private set
 
+    var isOpeningRenameDialog by mutableStateOf(false)
+        private set
+
+    var isOpeningCreateDialog by mutableStateOf(false)
+        private set
+
     val dropdownAlpha: Float
         get() = if (isExpanded) animateExpandedAlpha else 0f
 
@@ -34,6 +40,18 @@ class DropdownMenuState(
         if (isExpanded) reset() else open()
     }
 
+    fun openRenameDialog() {
+        isOpeningRenameDialog = true
+        isOpeningDialog = true
+        isExpanded = false
+    }
+
+    fun openCreateDialog() {
+        isOpeningCreateDialog = true
+        isOpeningDialog = true
+        isExpanded = false
+    }
+
     fun openDialog() {
         isOpeningDialog = true
         isExpanded = false
@@ -41,7 +59,8 @@ class DropdownMenuState(
 
     fun closeDialog() {
         isOpeningDialog = false
+        isOpeningRenameDialog = false
+        isOpeningCreateDialog = false
     }
-
 
 }
