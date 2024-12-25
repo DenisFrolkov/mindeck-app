@@ -59,7 +59,6 @@ import kotlin.math.roundToInt
 fun MainScreen(
     navController: NavController,
     mainViewModel: MainViewModel,
-    onButtonPositioned: (IntOffset) -> Unit
 ) {
     val scrollState = rememberScrollState()
 
@@ -212,10 +211,6 @@ fun MainScreen(
             .navigationBarsPadding()
             .padding(dimenDpResource(R.dimen.padding_medium))
             .wrapContentSize(Alignment.BottomEnd)
-            .onGloballyPositioned {
-                val offset = it.localToWindow(Offset.Zero)
-                onButtonPositioned(IntOffset(offset.x.roundToInt(), offset.y.roundToInt()))
-            }
     ) {
         FAB(
             fabColor = MaterialTheme.colorScheme.outlineVariant,
