@@ -1,6 +1,5 @@
 package com.mindeck.presentation.ui.navigation
 
-import android.util.Log
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -19,7 +18,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.screens.CardStudyScreen
 import com.mindeck.presentation.ui.screens.CreationCardScreen
 import com.mindeck.presentation.ui.screens.DeckScreen

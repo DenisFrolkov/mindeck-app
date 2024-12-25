@@ -151,7 +151,7 @@ fun FolderScreen(
                         LazyColumn(modifier = Modifier) {
                             items(items = decks.data, key = { it.deckId }) { deck ->
                                 DisplayCardItem(
-                                    showCount = true,
+                                    showCount = false,
                                     itemIcon = painterResource(R.drawable.deck_icon),
                                     numberOfCards = deck.deckId,
                                     itemName = deck.deckName,

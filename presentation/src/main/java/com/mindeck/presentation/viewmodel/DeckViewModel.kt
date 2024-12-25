@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.Deck
-import com.mindeck.domain.usecases.cardUseCase.DeleteCardUseCase
 import com.mindeck.domain.usecases.cardUseCase.DeleteCardsFromDeckUseCase
 import com.mindeck.domain.usecases.cardUseCase.GetAllCardsByDeckIdUseCase
 import com.mindeck.domain.usecases.cardUseCase.MoveCardsBetweenDeckUseCase
@@ -18,7 +17,6 @@ import com.mindeck.presentation.uiState.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 

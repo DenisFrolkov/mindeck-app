@@ -25,6 +25,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.dp
 import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
 import com.mindeck.presentation.ui.theme.on_primary_white
@@ -67,14 +68,16 @@ fun FAB(
                     .alpha(alphaFab)
             )
         } else {
-            Column(modifier = Modifier.alpha(alphaMenu)) {
+            Column(
+                modifier = Modifier.alpha(alphaMenu)
+            ) {
                 fabMenuItems.forEachIndexed { index, menuItem ->
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(dimenDpResource(R.dimen.spacer_small))
+                            .padding(dimenDpResource(R.dimen.padding_extra_small))
                             .clickable(
                                 interactionSource = remember { MutableInteractionSource() },
                                 indication = null

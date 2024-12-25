@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
@@ -20,28 +21,35 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.mindeck.domain.models.Folder
 import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.components.daily_progress_tracker.DailyProgressTracker
 import com.mindeck.presentation.ui.components.daily_progress_tracker.DailyProgressTrackerState
+import com.mindeck.presentation.ui.components.dialog.CreateItemDialog
+import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenuState
+import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.animateDialogCreateItem
 import com.mindeck.presentation.ui.components.fab.FAB
 import com.mindeck.presentation.ui.components.fab.FabMenuData
 import com.mindeck.presentation.ui.components.fab.FabState
 import com.mindeck.presentation.ui.components.fab.FabState.Companion.ITEM_HEIGHT
-import com.mindeck.presentation.ui.components.fab.animateScreenAlpha
 import com.mindeck.presentation.ui.components.folder.DisplayCardItem
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
+import com.mindeck.presentation.ui.components.utils.dimenFloatResource
 import com.mindeck.presentation.ui.navigation.NavigationRoute
 import com.mindeck.presentation.uiState.UiState
 import com.mindeck.presentation.viewmodel.MainViewModel
@@ -55,6 +63,8 @@ fun MainScreen(
 ) {
     val scrollState = rememberScrollState()
 
+    var dropdownMenuState = remember { DropdownMenuState() }
+
     val dailyProgressTrackerState = remember {
         DailyProgressTrackerState(
             totalCards = 500,
@@ -62,7 +72,15 @@ fun MainScreen(
         )
     }
 
+    val dialogVisibleAnimation = animateDialogCreateItem(
+        targetAlpha = dropdownMenuState.dialogAlpha,
+        animationDuration = dropdownMenuState.animationDuration * 3
+    )
+    var folderName by remember { mutableStateOf("") }
+
     val MAX_DISPLAY_ITEMS = 5
+
+    val folders = mainViewModel.folderUIState.collectAsState().value
 
     val fabMenuItems = listOf(
         FabMenuData(
@@ -73,19 +91,21 @@ fun MainScreen(
         ),
         FabMenuData(
             idItem = 1,
+            text = stringResource(R.string.fab_menu_data_create_folder_list),
+            icon = R.drawable.fab_open_menu_create_folder_icon,
+            navigation = {
+                dropdownMenuState.openCreateDialog()
+            }
+        ),
+        FabMenuData(
+            idItem = 2,
             text = stringResource(R.string.fab_menu_data_create_card_list),
-            icon = R.drawable.fab_open_menu_create_icon,
+            icon = R.drawable.fab_open_menu_create_card_icon,
             navigation = { navController.navigate(NavigationRoute.CreationCardScreen.route) }
         )
     )
 
-
-    val folders = mainViewModel.folderUIState.collectAsState().value
     val fabState = remember { FabState(expandedHeight = ITEM_HEIGHT.dp * fabMenuItems.size) }
-    val alphaScreen = animateScreenAlpha(
-        targetAlpha = fabState.screenAlphaValue,
-        animationDuration = fabState.animationDuration
-    )
 
     Column(
         modifier = Modifier
@@ -106,7 +126,7 @@ fun MainScreen(
             is UiState.Success -> {
                 folders.data.take(MAX_DISPLAY_ITEMS).forEach { folder ->
                     DisplayCardItem(
-                        showCount = true,
+                        showCount = false,
                         itemIcon =
                         painterResource(R.drawable.folder_icon),
                         numberOfCards = folder.folderId,
@@ -174,21 +194,17 @@ fun MainScreen(
                 }
             }
         }
-        if (fabState.isExpanded) {
-            Box(modifier = Modifier
-                .fillMaxSize()
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null
-                ) {
-                    fabState.reset()
-                }
-                .background(
-                    if (fabState.isExpanded) MaterialTheme.colorScheme.scrim.copy(
-                        alphaScreen
-                    ) else Color.Transparent
-                ))
-        }
+    }
+    if (fabState.isExpanded) {
+        Box(modifier = Modifier
+            .fillMaxSize()
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) {
+                fabState.reset()
+            }
+        )
     }
     Box(
         modifier = Modifier
@@ -211,5 +227,45 @@ fun MainScreen(
                 color = MaterialTheme.colorScheme.onPrimary
             )
         )
+    }
+
+    if (dropdownMenuState.isOpeningDialog) {
+        Box(modifier = Modifier.alpha(dialogVisibleAnimation)) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.outline.copy(dimenFloatResource(R.dimen.float_zero_dot_five_significance)))
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) {}
+            )
+            CreateItemDialog(
+                titleDialog = stringResource(R.string.create_item_dialog_text_creating_folder),
+                placeholder = stringResource(R.string.create_item_dialog_text_input_title_folder),
+                buttonText = stringResource(R.string.create_item_dialog_text_create_folder),
+                value = folderName,
+                onValueChange = { newValue -> folderName = newValue },
+                onBackClick = {
+                    dropdownMenuState.closeDialog()
+                },
+                onClickButton = {
+                    mainViewModel.createFolder(Folder(folderName = folderName))
+                    dropdownMenuState.closeDialog()
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentSize(Alignment.CenterStart),
+                iconModifier = Modifier
+                    .clip(shape = MaterialTheme.shapes.extraLarge)
+                    .background(
+                        color = MaterialTheme.colorScheme.outlineVariant,
+                        shape = MaterialTheme.shapes.extraLarge
+                    )
+                    .padding(dimenDpResource(R.dimen.padding_small))
+                    .size(dimenDpResource(R.dimen.padding_medium)),
+            )
+
+        }
     }
 }
