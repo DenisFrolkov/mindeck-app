@@ -68,7 +68,7 @@ fun FAB(
                     .alpha(alphaFab)
             )
         } else {
-            Column(
+             Column(
                 modifier = Modifier.alpha(alphaMenu)
             ) {
                 fabMenuItems.forEachIndexed { index, menuItem ->
