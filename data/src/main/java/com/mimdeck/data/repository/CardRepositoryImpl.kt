@@ -48,6 +48,14 @@ class CardRepositoryImpl @Inject constructor(private val cardDataSource: CardDat
         }
     }
 
+    override suspend fun getCardById(cardId: Int): Card {
+        return try {
+            cardDataSource.getDeckById(cardId = cardId).toDomain()
+        } catch (e: DatabaseException) {
+            throw DomainException("Failed get card", e)
+        }
+    }
+
     override suspend fun deleteCardsFromDeck(cardsIds: List<Int>, deckId: Int) {
         try {
             cardDataSource.deleteCardsFromDeck(cardsIds = cardsIds, deckId = deckId)

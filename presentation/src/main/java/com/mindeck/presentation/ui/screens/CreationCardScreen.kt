@@ -118,6 +118,7 @@ fun CreationCardScreen(
                     placeholder = stringResource(R.string.enter_name_for_card),
                     value = titleInputFieldValue,
                     onValueChange = { titleInputFieldValue = it },
+                    readOnly = false,
                     textStyle = MaterialTheme.typography.bodyMedium,
                     placeholderTextStyle = MaterialTheme.typography.bodyMedium.copy(
                         color = text_gray

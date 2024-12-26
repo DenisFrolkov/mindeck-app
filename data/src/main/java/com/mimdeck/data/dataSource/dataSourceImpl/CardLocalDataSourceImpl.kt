@@ -61,6 +61,19 @@ class CardLocalDataSourceImpl @Inject constructor(private val cardDao: CardDao) 
         }
     }
 
+    override suspend fun getDeckById(cardId: Int): CardEntity {
+        return try {
+            cardDao.getDeckById(cardId = cardId)
+        } catch (e: SQLException) {
+            throw DatabaseException(
+                "Failed to get card due to a constraint violation: ${e.localizedMessage}",
+                e
+            )
+        } catch (e: Exception) {
+            throw DatabaseException("Error getting a card: ${e.localizedMessage}", e)
+        }
+    }
+
     override suspend fun deleteCardsFromDeck(cardsIds: List<Int>, deckId: Int) {
         try {
             cardDao.deleteCardsFromDeck(cardsIds = cardsIds, deckId = deckId)

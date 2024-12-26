@@ -12,6 +12,8 @@ interface CardRepository {
 
     fun getAllCardsByDeckId(deckId: Int): Flow<List<Card>>
 
+    suspend fun getCardById(cardId: Int): Card
+
     suspend fun deleteCardsFromDeck(cardsIds: List<Int>, deckId: Int)
 
     suspend fun addCardsToDeck(cardIds: List<Int>, deckId: Int)

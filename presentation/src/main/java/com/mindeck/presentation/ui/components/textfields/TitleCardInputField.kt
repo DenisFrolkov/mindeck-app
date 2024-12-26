@@ -11,6 +11,7 @@ fun TitleInputField(
     placeholder: String,
     value: String,
     onValueChange: (String) -> Unit,
+    readOnly: Boolean,
     textStyle: TextStyle,
     placeholderTextStyle: TextStyle,
     modifier: Modifier,
@@ -22,6 +23,7 @@ fun TitleInputField(
         },
         textStyle = textStyle,
         singleLine = true,
+        readOnly = readOnly,
         decorationBox = { it ->
             if (value.isEmpty()) {
                 Text(
