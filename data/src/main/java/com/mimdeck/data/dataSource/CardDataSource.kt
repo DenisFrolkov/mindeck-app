@@ -13,6 +13,8 @@ interface CardDataSource {
 
     fun getAllCardsByDeckId(deckId: Int): Flow<List<CardEntity>>
 
+    suspend fun getDeckById(cardId: Int): CardEntity
+
     suspend fun deleteCardsFromDeck(cardsIds: List<Int>, deckId: Int)
 
     suspend fun addCardsToDeck(cardIds: List<Int>, deckId: Int)
