@@ -36,6 +36,7 @@ import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.components.repeat_options.RepeatOptionData
 import com.mindeck.presentation.ui.components.repeat_options.RepeatOptionsButton
 import com.mindeck.presentation.ui.components.common.ActionBar
+import com.mindeck.presentation.ui.components.common.QuestionAndAnswerElement
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
 import com.mindeck.presentation.ui.theme.outline_variant_blue
 import com.mindeck.presentation.ui.theme.repeat_button_light_blue
@@ -151,39 +152,3 @@ fun CardStudyScreen(navController: NavController) {
         }
     )
 }
-
-@Composable
-private fun QuestionAndAnswerElement(
-    question: String,
-    answer: String,
-    questionStyle: TextStyle,
-    answerStyle: TextStyle,
-    modifier: Modifier
-) {
-    Column(
-        modifier = modifier
-    ) {
-        Text(
-            text = question,
-            style = questionStyle,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(dimenDpResource(R.dimen.padding_extra_small))
-                .wrapContentSize(Alignment.Center)
-        )
-        HorizontalDivider(
-            modifier = Modifier.fillMaxWidth(),
-            thickness = dimenDpResource(R.dimen.horizontal_divider_dot_two_five_height),
-            color = MaterialTheme.colorScheme.outline
-        )
-        Text(
-            text = answer,
-            style = answerStyle,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(dimenDpResource(R.dimen.padding_extra_small))
-                .wrapContentSize(Alignment.Center)
-        )
-    }
-}
-

@@ -37,7 +37,7 @@ object Mappers {
 
     fun Card.toData(): CardEntity {
         return CardEntity(
-            this.deckId,
+            this.cardId,
             this.cardName,
             this.cardQuestion,
             this.cardAnswer,
@@ -50,9 +50,9 @@ object Mappers {
 
     fun CardEntity.toDomain(): Card {
         return Card(
-            this.deckId,
-            this.cardName,
-            this.cardQuestion,
+            this.cardId,
+            this.cardName ?: "Card ${this.cardId}",
+            this.cardQuestion ?: "Question №${this.cardId}",
             this.cardAnswer,
             this.cardPriority,
             this.cardType,

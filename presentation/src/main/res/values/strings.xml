@@ -7,7 +7,7 @@
     <string name="enter_name_for_card">Введите название для карточки</string>
     <string name="enter_question_for_card">Введите вопрос для карточки</string>
     <string name="enter_answer_for_card">Введите ответ для карточки</string>
-    <string name="text_teg_input_field">Тег:</string>
+    <string name="text_tag_input_field">Тег:</string>
     <string name="text_save_card_button">Сохранить карточку</string>
     <string name="text_is_necessary_to_repeat">Необходимо повторить</string>
     <string name="title_text_folders">Папки</string>
@@ -15,11 +15,6 @@
     <string name="fab_menu_data_setting_list">Настройки</string>
     <string name="fab_menu_data_create_folder_list">Создать папку</string>
     <string name="fab_menu_data_create_card_list">Создать карточку</string>
-    <string name="dropdown_menu_data_rename_list">Изменить название</string>
-    <string name="dropdown_menu_data_remote_list">Удалить элемент</string>
-    <string name="dropdown_menu_data_create_folder_list">Создать папку</string>
-    <string name="dropdown_menu_data_create_deck_list">Создать колоду</string>
-    <string name="dropdown_menu_data_create_card">Создать карточку</string>
     <string name="create_item_dialog_text_creating_folder">Создание папки</string>
     <string name="create_item_dialog_text_input_name_folder">Введите название папки</string>
     <string name="create_item_dialog_text_create_folder">Создать папку</string>
@@ -30,6 +25,16 @@
     <string name="rename_item_dialog_text_input_title_folder">Введите название папки</string>
     <string name="rename_item_dialog_text_input_title_deck">Введите название колоды</string>
     <string name="save_text">Сохранить</string>
+
+    <string name="text_no_folder">Нет папки</string>
+
+    <string name="dropdown_menu_data_rename_list">Изменить название</string>
+    <string name="dropdown_menu_data_remote_list">Удалить элемент</string>
+    <string name="dropdown_menu_data_create_folder_list">Создать папку</string>
+    <string name="dropdown_menu_data_create_deck_list">Создать колоду</string>
+    <string name="dropdown_menu_data_create_card">Создать карточку</string>
+    <string name="dropdown_menu_data_edit_card">Редактировать</string>
+    <string name="dropdown_menu_data_remove_card">Удалить</string>
 
     //Repeat Option Text
     <string name="repeat_option_title_repeat_text">Повторить</string>
