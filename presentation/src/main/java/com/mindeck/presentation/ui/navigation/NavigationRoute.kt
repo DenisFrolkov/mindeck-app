@@ -10,6 +10,9 @@ sealed class NavigationRoute(val route: String) {
     object DeckScreen : NavigationRoute("deck_screen/{deckId}") {
         fun createRoute(deckId: Int): String = "deck_screen/$deckId"
     }
+    object CardScreen : NavigationRoute("card_screen/{cardId}") {
+        fun createRoute(cardId: Int): String = "card_screen/$cardId"
+    }
     object CardStudyScreen : NavigationRoute("card_study_screen/{folderId}") {
         fun createRoute(folderId: Int): String = "folder_screen/$folderId"
     }
