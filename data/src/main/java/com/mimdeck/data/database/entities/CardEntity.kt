@@ -20,8 +20,8 @@ data class CardEntity(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "card_id")
     val cardId: Int = 0,
-    @ColumnInfo(name = "card_name") val cardName: String,
-    @ColumnInfo(name = "card_question") val cardQuestion: String,
+    @ColumnInfo(name = "card_name") val cardName: String?,
+    @ColumnInfo(name = "card_question") val cardQuestion: String?,
     @ColumnInfo(name = "card_answer") val cardAnswer: String,
     @ColumnInfo(name = "card_priority") val cardPriority: String,
     @ColumnInfo(name = "card_type") val cardType: String,

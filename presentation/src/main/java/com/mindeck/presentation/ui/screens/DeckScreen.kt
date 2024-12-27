@@ -29,17 +29,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.mindeck.domain.models.Deck
-import com.mindeck.domain.models.Folder
 import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.components.common.ActionBar
 import com.mindeck.presentation.ui.components.common.DisplayItemCount
@@ -55,7 +48,6 @@ import com.mindeck.presentation.ui.components.utils.dimenFloatResource
 import com.mindeck.presentation.ui.navigation.NavigationRoute
 import com.mindeck.presentation.uiState.UiState
 import com.mindeck.presentation.viewmodel.DeckViewModel
-import kotlin.math.roundToInt
 
 @Composable
 fun DeckScreen(
@@ -152,7 +144,7 @@ fun DeckScreen(
                         )
 
                         LazyColumn {
-                            items(items = cards.data, key = { it.deckId }) { card ->
+                            items(items = cards.data, key = { it.cardId }) { card ->
                                 DisplayCardItem(
                                     showCount = false,
                                     itemIcon = painterResource(R.drawable.card_icon),
@@ -175,7 +167,7 @@ fun DeckScreen(
                                             interactionSource = remember { MutableInteractionSource() },
                                             indication = null
                                         ) {
-                                            navController.navigate(NavigationRoute.CreationCardScreen.route)
+                                            navController.navigate(NavigationRoute.CardScreen.route)
                                         }
                                 )
                                 Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_small)))

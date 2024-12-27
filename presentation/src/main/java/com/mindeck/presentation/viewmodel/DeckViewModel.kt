@@ -64,7 +64,7 @@ class DeckViewModel @Inject constructor(
                 _deckUIState.value = UiState.Success(deck)
             } catch (e: Exception) {
                 _deckUIState.value = UiState.Error(e)
-                Log.e("FolderViewModel", "Error fetching folder: ${e.message}")
+                Log.e("DeckViewModel", "Error fetching folder: ${e.message}")
             }
         }
     }

@@ -1,6 +1,5 @@
 package com.mindeck.presentation.ui.screens
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -32,10 +31,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.mindeck.domain.models.Card
 import com.mindeck.presentation.R
@@ -52,7 +47,6 @@ import com.mindeck.presentation.ui.theme.text_gray
 import com.mindeck.presentation.ui.theme.text_white
 import com.mindeck.presentation.viewmodel.CreationCardViewModel
 
-@SuppressLint("ResourceType")
 @Composable
 fun CreationCardScreen(
     navController: NavController,
@@ -168,7 +162,7 @@ fun CreationCardScreen(
                     )
                 Spacer(modifier = Modifier.height(height = dimenDpResource(R.dimen.spacer_medium)))
                 TegInputField(
-                    titleTextInput = stringResource(R.string.text_teg_input_field),
+                    titleTextInput = stringResource(R.string.text_tag_input_field),
                     value = tagInputValue,
                     onValueChange = {
                         tagInputValue = it
@@ -209,9 +203,10 @@ fun CreationCardScreen(
                                         cardPriority = "123441",
                                         cardType = "4123",
                                         cardTag = tagInputValue,
-                                        deckId = 1
+                                        deckId = 2
                                     )
                                 )
+                                navController.popBackStack()
                             }
 
                     )

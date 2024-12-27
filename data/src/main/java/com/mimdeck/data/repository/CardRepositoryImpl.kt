@@ -7,6 +7,7 @@ import com.mimdeck.data.exception.DatabaseException
 import com.mindeck.domain.exception.DomainException
 import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.Deck
+import com.mindeck.domain.models.Folder
 import com.mindeck.domain.repository.CardRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -50,9 +51,17 @@ class CardRepositoryImpl @Inject constructor(private val cardDataSource: CardDat
 
     override suspend fun getCardById(cardId: Int): Card {
         return try {
-            cardDataSource.getDeckById(cardId = cardId).toDomain()
+            cardDataSource.getCardById(cardId = cardId).toDomain()
         } catch (e: DatabaseException) {
             throw DomainException("Failed get card", e)
+        }
+    }
+
+    override suspend fun getFolderByCardId(cardId: Int): Folder? {
+        return try {
+            cardDataSource.getFolderByCardId(cardId = cardId)?.toDomain()
+        } catch (e: DatabaseException) {
+            throw DomainException("Failed get folder by cardId", e)
         }
     }
 
