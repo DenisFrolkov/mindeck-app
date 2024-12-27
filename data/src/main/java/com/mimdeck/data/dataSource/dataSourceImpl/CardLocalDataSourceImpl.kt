@@ -4,6 +4,7 @@ import android.database.SQLException
 import com.mimdeck.data.dataSource.CardDataSource
 import com.mimdeck.data.database.dao.CardDao
 import com.mimdeck.data.database.entities.CardEntity
+import com.mimdeck.data.database.entities.FolderEntity
 import com.mimdeck.data.exception.DatabaseException
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
@@ -61,9 +62,9 @@ class CardLocalDataSourceImpl @Inject constructor(private val cardDao: CardDao) 
         }
     }
 
-    override suspend fun getDeckById(cardId: Int): CardEntity {
+    override suspend fun getCardById(cardId: Int): CardEntity {
         return try {
-            cardDao.getDeckById(cardId = cardId)
+            cardDao.getCardById(cardId = cardId)
         } catch (e: SQLException) {
             throw DatabaseException(
                 "Failed to get card due to a constraint violation: ${e.localizedMessage}",
@@ -71,6 +72,19 @@ class CardLocalDataSourceImpl @Inject constructor(private val cardDao: CardDao) 
             )
         } catch (e: Exception) {
             throw DatabaseException("Error getting a card: ${e.localizedMessage}", e)
+        }
+    }
+
+    override suspend fun getFolderByCardId(cardId: Int): FolderEntity? {
+        return try {
+            cardDao.getFolderByCardId(cardId = cardId)
+        } catch (e: SQLException) {
+            throw DatabaseException(
+                "Failed to get folder by cardId due to a constraint violation: ${e.localizedMessage}",
+                e
+            )
+        } catch (e: Exception) {
+            throw DatabaseException("Error getting a folder by cardId: ${e.localizedMessage}", e)
         }
     }
 

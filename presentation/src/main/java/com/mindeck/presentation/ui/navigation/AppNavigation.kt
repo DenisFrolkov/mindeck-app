@@ -3,20 +3,20 @@ package com.mindeck.presentation.ui.navigation
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.mindeck.presentation.ui.screens.CardScreen
 import com.mindeck.presentation.ui.screens.CardStudyScreen
 import com.mindeck.presentation.ui.screens.CreationCardScreen
 import com.mindeck.presentation.ui.screens.DeckScreen
 import com.mindeck.presentation.ui.screens.FolderScreen
 import com.mindeck.presentation.ui.screens.FoldersScreen
 import com.mindeck.presentation.ui.screens.MainScreen
+import com.mindeck.presentation.viewmodel.CardViewModel
 import com.mindeck.presentation.viewmodel.CreationCardViewModel
 import com.mindeck.presentation.viewmodel.DeckViewModel
 import com.mindeck.presentation.viewmodel.FolderViewModel
@@ -29,6 +29,7 @@ fun AppNavigation(
     foldersViewModel: FoldersViewModel,
     folderViewModel: FolderViewModel,
     deckViewModel: DeckViewModel,
+    cardViewModel: CardViewModel,
     creationCardViewModel: CreationCardViewModel
 ) {
     val navController = rememberNavController()
@@ -93,15 +94,15 @@ fun AppNavigation(
             NavigationRoute.CardScreen.route,
             enterTransition = { fadeIn(animationSpec = tween(100)) },
             exitTransition = { fadeOut(animationSpec = tween(100)) },
-            arguments = listOf(navArgument("cardId") { type = NavType.IntType })
-        ) { backStackEntry ->
-            val cardId = backStackEntry.arguments?.getInt("cardId")
-            folderViewModel.getFolderById(folderId = cardId!!)
-            folderViewModel.getAllDecksByFolderId(folderId = cardId!!)
-            FolderScreen(
+//            arguments = listOf(navArgument("cardId") { type = NavType.IntType })
+        ) {
+//            backStackEntry ->
+//            val cardId = backStackEntry.arguments?.getInt("cardId")
+            cardViewModel.getCardById(cardId = 2)
+            cardViewModel.getFolderByCardId(cardId = 2)
+            CardScreen(
                 navController = navController,
-                folderViewModel = folderViewModel,
-                deckViewModel = deckViewModel
+                cardViewModel = cardViewModel
             )
         }
         composable(NavigationRoute.CardStudyScreen.route,
