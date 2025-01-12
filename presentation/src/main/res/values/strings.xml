@@ -3,7 +3,7 @@
     <string name="text_folder_dropdown_selector">Папка:</string>
     <string name="text_deck_dropdown_selector">Колода:</string>
     <string name="text_priority_dropdown_selector">Приоритет:</string>
-    <string name="text_tape_dropdown_selector">Тип:</string>
+    <string name="text_type_dropdown_selector">Тип:</string>
     <string name="enter_name_for_card">Введите название для карточки</string>
     <string name="enter_question_for_card">Введите вопрос для карточки</string>
     <string name="enter_answer_for_card">Введите ответ для карточки</string>

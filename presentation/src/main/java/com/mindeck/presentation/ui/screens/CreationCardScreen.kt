@@ -25,6 +25,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -34,12 +35,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.Deck
@@ -47,6 +45,8 @@ import com.mindeck.domain.models.Folder
 import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.components.buttons.ActionHandlerButton
 import com.mindeck.presentation.ui.components.buttons.SaveDataButton
+import com.mindeck.presentation.ui.components.dropdown.dropdown_selector.DropdownSelector
+import com.mindeck.presentation.ui.components.dropdown.dropdown_selector.DropdownSelectorData
 import com.mindeck.presentation.ui.components.dropdown.dropdown_selector.DropdownSelectorState
 import com.mindeck.presentation.ui.components.dropdown.dropdown_selector.SelectorDropdownMenu
 import com.mindeck.presentation.ui.components.textfields.CardInputField
@@ -54,7 +54,6 @@ import com.mindeck.presentation.ui.components.textfields.TegInputField
 import com.mindeck.presentation.ui.components.textfields.TitleInputField
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
 import com.mindeck.presentation.ui.components.utils.textInputModifier
-import com.mindeck.presentation.ui.theme.outline_medium_gray
 import com.mindeck.presentation.ui.theme.text_gray
 import com.mindeck.presentation.ui.theme.text_white
 import com.mindeck.presentation.uiState.UiState
@@ -66,10 +65,13 @@ fun CreationCardScreen(
     creationCardViewModel: CreationCardViewModel
 ) {
     val folder = creationCardViewModel.folderUIState.collectAsState().value
-
     val deck = creationCardViewModel.deckByIdrUIState.collectAsState().value
-
     val scrollState = rememberScrollState()
+
+    val typeDropdownList = listOf<Pair<String, Int>>(
+        Pair("Простая", 1),
+        Pair("Простая(с вводом ответа)", 1)
+    )
 
     var folderDropdownSelect by rememberSaveable {
         mutableStateOf<Pair<String, Int?>>(
@@ -87,8 +89,21 @@ fun CreationCardScreen(
             )
         )
     }
-    var priorityDropdownSelect by rememberSaveable { mutableStateOf("Карточка с вводом ответа") }
-    var tapeDropdownSelect by rememberSaveable { mutableStateOf("Простой") }
+
+    var typeDropdownSelect by rememberSaveable {
+        mutableStateOf<Pair<String, Int?>>(
+            Pair(
+                "Выберите тип карточки",
+                null
+            )
+        )
+    }
+
+    LaunchedEffect(folderDropdownSelect.second) {
+        if (folderDropdownSelect.second != null) {
+            creationCardViewModel.getAllDecksByFolderId(folderDropdownSelect.second!!)
+        }
+    }
 
     var titleInputFieldValue by rememberSaveable { mutableStateOf("") }
     var cardInputQuestionValue by rememberSaveable { mutableStateOf("") }
@@ -132,7 +147,13 @@ fun CreationCardScreen(
                     selectedFolder = folderDropdownSelect.first,
                     folder = folder,
                     onClick = { creationCardViewModel.getAllFolders() },
-                    onItemClick = { folderDropdownSelect = it },
+                    onItemClick = {
+                        folderDropdownSelect = it
+                        deckDropdownSelect = Pair(
+                            "Выберите колоду",
+                            null
+                        )
+                    },
                     textStyle = MaterialTheme.typography.bodyMedium
                 )
                 Spacer(modifier = Modifier.height(height = dimenDpResource(R.dimen.spacer_medium)))
@@ -140,32 +161,21 @@ fun CreationCardScreen(
                     selectedDeck = deckDropdownSelect.first,
                     deck = deck,
                     folderId = folderDropdownSelect.second,
-                    onClick = { creationCardViewModel.getAllDecksByFolderId(folderDropdownSelect.second!!) },
+                    onClick = { },
                     onItemClick = { deckDropdownSelect = it },
                     textStyle = MaterialTheme.typography.bodyMedium
                 )
-//                DropdownSelector(
-//                    dropdownSelectorData = DropdownSelectorData(
-//                        title = stringResource(R.string.text_folder_dropdown_selector),
-//                        selectedItem = folderDropdownSelect,
-//                        onItemClick = { folderDropdownSelect = it }
-//                    ),
-//                    textStyle = MaterialTheme.typography.bodyMedium,
-//                )
                 Spacer(modifier = Modifier.height(height = dimenDpResource(R.dimen.spacer_medium)))
-//                DropdownSelectors(
-//                    textStyle = MaterialTheme.typography.bodyMedium,
-//                    folderDropdownSelect = folderDropdownSelect,
-//                    deckDropdownSelect = deckDropdownSelect,
-//                    priorityDropdownSelect = priorityDropdownSelect,
-//                    tapeDropdownSelect = tapeDropdownSelect,
-//                    onPassFolderDropdownSelect = { folderDropdownSelect = it },
-//                    onPassDeckDropdownSelect = { deckDropdownSelect = it },
-//                    onPassPriorityDropdownSelect = { priorityDropdownSelect = it },
-//                    onPassTapeDropdownSelect = { tapeDropdownSelect = it },
-//                )
-//                Spacer(modifier = Modifier.height(height = dimenDpResource(R.dimen.spacer_large)))
-
+                DropdownSelector(
+                    dropdownSelectorData = DropdownSelectorData(
+                        title = stringResource(R.string.text_type_dropdown_selector),
+                        itemList = typeDropdownList,
+                        selectedItem = typeDropdownSelect.first,
+                        onItemClick = { typeDropdownSelect = it }
+                    ),
+                    textStyle = MaterialTheme.typography.bodyMedium,
+                )
+                Spacer(modifier = Modifier.height(height = dimenDpResource(R.dimen.spacer_medium)))
                 TitleInputField(
                     placeholder = stringResource(R.string.enter_name_for_card),
                     value = titleInputFieldValue,
@@ -269,7 +279,7 @@ fun CreationCardScreen(
                                             cardQuestion = cardInputQuestionValue,
                                             cardAnswer = cardInputAnswerValue,
                                             cardPriority = "123441",
-                                            cardType = "4123",
+                                            cardType = typeDropdownSelect.first,
                                             cardTag = tagInputValue,
                                             deckId = deckDropdownSelect.second!!
                                         )
@@ -521,7 +531,7 @@ fun DeckDropdownSelector(
                                 )
                         ) {
                             Text(
-                                "Выберите папку", style = textStyle
+                                "Папка не была выбрана", style = textStyle
                             )
                         }
                     }
@@ -529,47 +539,5 @@ fun DeckDropdownSelector(
             }
         }
     }
-}
-
-//Изменить реализацию drawBehind в DropdownMenu в DropdownSelector
-@Composable
-private fun DropdownSelectors(
-    textStyle: TextStyle,
-    folderDropdownSelect: String,
-    deckDropdownSelect: String,
-    priorityDropdownSelect: String,
-    tapeDropdownSelect: String,
-    onPassFolderDropdownSelect: (String) -> Unit,
-    onPassDeckDropdownSelect: (String) -> Unit,
-    onPassPriorityDropdownSelect: (String) -> Unit,
-    onPassTapeDropdownSelect: (String) -> Unit,
-) {
-
-//    DropdownSelector(
-//        dropdownSelectorData = DropdownSelectorData(
-//            title = stringResource(R.string.text_deck_dropdown_selector),
-//            selectedItem = deckDropdownSelect,
-//            onItemClick = onPassDeckDropdownSelect
-//        ),
-//        textStyle = textStyle,
-//    )
-//    Spacer(modifier = Modifier.height(height = dimenDpResource(R.dimen.spacer_medium)))
-//    DropdownSelector(
-//        dropdownSelectorData = DropdownSelectorData(
-//            title = stringResource(R.string.text_priority_dropdown_selector),
-//            selectedItem = priorityDropdownSelect,
-//            onItemClick = onPassPriorityDropdownSelect
-//        ),
-//        textStyle = textStyle,
-//    )
-//    Spacer(modifier = Modifier.height(height = dimenDpResource(R.dimen.spacer_medium)))
-//    DropdownSelector(
-//        dropdownSelectorData = DropdownSelectorData(
-//            title = stringResource(R.string.text_tape_dropdown_selector),
-//            selectedItem = tapeDropdownSelect,
-//            onItemClick = onPassTapeDropdownSelect
-//        ),
-//        textStyle = textStyle,
-//    )
 }
 
