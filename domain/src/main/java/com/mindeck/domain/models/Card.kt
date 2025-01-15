@@ -5,7 +5,6 @@ data class Card(
     val cardName: String,
     val cardQuestion: String,
     val cardAnswer: String,
-    val cardPriority: String,
     val cardType: String,
     val cardTag: String,
     val deckId: Int,

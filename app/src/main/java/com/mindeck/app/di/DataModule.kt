@@ -2,6 +2,8 @@ package com.mindeck.app.di
 
 import android.content.Context
 import androidx.room.Room
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.mimdeck.data.dataSource.CardDataSource
 import com.mimdeck.data.dataSource.DeckDataSource
 import com.mimdeck.data.dataSource.FolderDataSource
