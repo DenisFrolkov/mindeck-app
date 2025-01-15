@@ -33,21 +33,29 @@ import androidx.compose.ui.unit.dp
 import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
 import com.mindeck.presentation.ui.theme.outline_medium_gray
+import com.mindeck.presentation.ui.theme.text_black
+import com.mindeck.presentation.uiState.UiState
 
 @Composable
 fun DropdownSelector(
-    dropdownSelectorData: DropdownSelectorData,
-    textStyle: TextStyle,
-    modifier: Modifier = Modifier,
-    titleModifier: Modifier = Modifier
+    label: String,
+    validation: Boolean?,
+    selectedItem: Pair<String, Int?>,
+    itemsState: UiState<List<Pair<String, Int>>>,
+    isEnabled: Boolean = true,
+    onItemClick: (Pair<String, Int>) -> Unit,
+    onClick: () -> Unit,
+    textStyle: TextStyle
 ) {
     val dropdownSelectorState = remember { DropdownSelectorState() }
 
-    Row() {
+    val isError = selectedItem.second == null && validation != null && !validation
+
+    Row {
         Text(
-            text = dropdownSelectorData.title,
+            text = label,
             style = textStyle,
-            modifier = titleModifier
+            modifier = Modifier
                 .padding(dimenDpResource(R.dimen.padding_extra_small))
                 .wrapContentSize(Alignment.CenterStart)
                 .width(dimenDpResource(R.dimen.dropdown_min_weight))
@@ -55,55 +63,82 @@ fun DropdownSelector(
 
         Spacer(modifier = Modifier.width(dimenDpResource(R.dimen.spacer_small)))
 
-        Column(modifier = Modifier
-            .fillMaxWidth()
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null
-            ) {
-                dropdownSelectorState.toggle()
-            }) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                ) {
+                    onClick()
+                    dropdownSelectorState.toggle()
+                }
+        ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(
-                        color = MaterialTheme.colorScheme.onPrimary,
+                        color = if (isError) MaterialTheme.colorScheme.onError else MaterialTheme.colorScheme.onPrimary,
                         shape = MaterialTheme.shapes.extraSmall
                     )
-                    .height(height = dimenDpResource(R.dimen.dropdown_menu_item_height))
+                    .height(dimenDpResource(R.dimen.dropdown_menu_item_height))
                     .border(
                         dimenDpResource(R.dimen.border_width_dot_two_five),
-                        MaterialTheme.colorScheme.outline,
+                        color = if (isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.outline,
                         shape = if (dropdownSelectorState.isExpanded) RoundedCornerShape(
                             topStart = dimenDpResource(R.dimen.text_input_topStart_padding),
                             topEnd = dimenDpResource(R.dimen.text_input_topEnd_padding),
                         ) else MaterialTheme.shapes.extraSmall
                     )
                     .wrapContentSize(Alignment.Center)
-
             ) {
                 Text(
-                    text = dropdownSelectorData.selectedItem,
-                    style = textStyle
+                    text = selectedItem.first,
+                    style = textStyle.copy(color = if (isError) MaterialTheme.colorScheme.error else text_black)
                 )
             }
+
             if (dropdownSelectorState.isExpanded) {
-                Column(
-                    modifier = Modifier
-                        .border(
-                            dimenDpResource(R.dimen.border_width_dot_two_five),
-                            MaterialTheme.colorScheme.outline,
-                            shape = RoundedCornerShape(
-                                bottomStart = dimenDpResource(R.dimen.text_input_bottomStart_padding),
-                                bottomEnd = dimenDpResource(R.dimen.text_input_bottomEnd_padding)
+                if (isEnabled) {
+                    when (itemsState) {
+                        is UiState.Success -> {
+                            if (itemsState.data.isNotEmpty()) {
+                                Column(
+                                    modifier = Modifier
+                                        .border(
+                                            dimenDpResource(R.dimen.border_width_dot_two_five),
+                                            MaterialTheme.colorScheme.outline,
+                                            shape = RoundedCornerShape(
+                                                bottomStart = dimenDpResource(R.dimen.text_input_bottomStart_padding),
+                                                bottomEnd = dimenDpResource(R.dimen.text_input_bottomEnd_padding)
+                                            )
+                                        )
+                                ) {
+                                    SelectorDropdownMenu(
+                                        selectorItemList = itemsState.data,
+                                        onItemClick = onItemClick,
+                                        dropdownSelectorState = dropdownSelectorState,
+                                        textStyle = textStyle
+                                    )
+                                }
+                            } else {
+                                EmptyDropdownMessage(
+                                    message = "Нет элементов",
+                                    textStyle = textStyle
+                                )
+                            }
+                        }
+
+                        is UiState.Loading -> {
+                            EmptyDropdownMessage(
+                                message = "Загрузка...",
+                                textStyle = textStyle
                             )
-                        )
-                ) {
-                    DropdownMenu(
-                        selectorItemList = dropdownSelectorData.itemList,
-                        onStringClick = dropdownSelectorData.onItemClick,
-                        dropdownSelectorState = dropdownSelectorState,
-                        modifier = modifier,
+                        }
+                    }
+                } else {
+                    EmptyDropdownMessage(
+                        message = "Выберите папку",
                         textStyle = textStyle
                     )
                 }
@@ -113,11 +148,37 @@ fun DropdownSelector(
 }
 
 @Composable
-private fun DropdownMenu(
-    selectorItemList: List<String>,
+fun EmptyDropdownMessage(message: String, textStyle: TextStyle) {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(dimenDpResource(R.dimen.dropdown_menu_item_height))
+            .border(
+                dimenDpResource(R.dimen.border_width_dot_two_five),
+                MaterialTheme.colorScheme.outline,
+                shape = RoundedCornerShape(
+                    bottomStart = dimenDpResource(R.dimen.text_input_topStart_padding),
+                    bottomEnd = dimenDpResource(R.dimen.text_input_topEnd_padding),
+                )
+            )
+            .background(
+                color = MaterialTheme.colorScheme.onPrimary,
+                shape = RoundedCornerShape(
+                    bottomStart = dimenDpResource(R.dimen.dropdown_menu_item_bottomStart_padding),
+                    bottomEnd = dimenDpResource(R.dimen.dropdown_menu_item_bottomEnd_padding)
+                )
+            )
+    ) {
+        Text(text = message, style = textStyle)
+    }
+}
+
+@Composable
+fun SelectorDropdownMenu(
+    selectorItemList: List<Pair<String, Int>>,
     dropdownSelectorState: DropdownSelectorState,
-    onStringClick: (String) -> Unit,
-    modifier: Modifier,
+    onItemClick: (Pair<String, Int>) -> Unit,
     textStyle: TextStyle,
 ) {
     val animatedHeightIn = animateDropdownSelectorHeightIn(
@@ -133,7 +194,7 @@ private fun DropdownMenu(
         dropdownSelectorState.animationDuration
     )
 
-    val baseItemModifier = modifier
+    val baseItemModifier = Modifier
         .fillMaxWidth()
         .height(dimenDpResource(R.dimen.dropdown_menu_item_height))
         .alpha(alpha)
@@ -174,12 +235,12 @@ private fun DropdownMenu(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null
                     ) {
-                        onStringClick(it)
+                        onItemClick(it)
                         dropdownSelectorState.reset()
                     }
             ) {
                 Text(
-                    it, style = textStyle
+                    it.first, style = textStyle
                 )
             }
         }
