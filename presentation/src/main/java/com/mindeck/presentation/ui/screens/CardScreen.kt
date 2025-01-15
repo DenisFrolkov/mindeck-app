@@ -92,10 +92,6 @@ fun CardScreen(
                             value = card.data.deckId.toString()
                         ),
                         CardAttributes(
-                            title = stringResource(R.string.text_priority_dropdown_selector),
-                            value = card.data.cardPriority
-                        ),
-                        CardAttributes(
                             title = stringResource(R.string.text_type_dropdown_selector),
                             value = card.data.cardType
                         ),

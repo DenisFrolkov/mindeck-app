@@ -74,6 +74,8 @@ fun CreationCardScreen(
         Pair("Простая(с вводом ответа)", 2)
     )
 
+    val validation = creationCardViewModel.validateInput()
+
     val dropdownState by creationCardViewModel.dropdownState
     val cardState = creationCardViewModel.cardState.value
 
@@ -103,6 +105,7 @@ fun CreationCardScreen(
         content = { padding ->
             Content(
                 navController,
+                validation,
                 folder,
                 deck,
                 creationCardViewModel,
@@ -118,6 +121,7 @@ fun CreationCardScreen(
 @Composable
 private fun Content(
     navController: NavController,
+    validation: Boolean,
     folder: UiState<List<Folder>>,
     deck: UiState<List<Deck>>,
     creationCardViewModel: CreationCardViewModel,
@@ -266,13 +270,12 @@ private fun Content(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null
                     ) {
-                        if (creationCardViewModel.validateInput()) {
+                        if (validation) {
                             creationCardViewModel.createCard(
                                 Card(
                                     cardName = cardState.title,
                                     cardQuestion = cardState.question,
                                     cardAnswer = cardState.answer,
-                                    cardPriority = "123441",
                                     cardType = dropdownState.selectedType.first,
                                     cardTag = cardState.tag,
                                     deckId = dropdownState.selectedDeck.second!!

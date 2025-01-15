@@ -23,7 +23,6 @@ data class CardEntity(
     @ColumnInfo(name = "card_name") val cardName: String?,
     @ColumnInfo(name = "card_question") val cardQuestion: String?,
     @ColumnInfo(name = "card_answer") val cardAnswer: String,
-    @ColumnInfo(name = "card_priority") val cardPriority: String,
     @ColumnInfo(name = "card_type") val cardType: String,
     @ColumnInfo(name = "card_tag") val cardTag: String,
     @ColumnInfo(name = "deck_id") val deckId: Int,
