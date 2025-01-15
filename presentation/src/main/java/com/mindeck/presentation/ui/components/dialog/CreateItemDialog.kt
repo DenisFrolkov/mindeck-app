@@ -80,6 +80,7 @@ fun CreateItemDialog(
                 value = value,
                 singleLine = true,
                 onValueChange = onValueChange,
+                validation = true,
                 textStyle = MaterialTheme.typography.bodyMedium,
                 placeholderTextStyle = MaterialTheme.typography.bodyMedium.copy(
                     color = text_gray

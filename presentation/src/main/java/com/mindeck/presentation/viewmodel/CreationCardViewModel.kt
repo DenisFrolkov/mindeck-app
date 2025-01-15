@@ -14,6 +14,7 @@ import com.mindeck.presentation.uiState.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -41,6 +42,9 @@ class CreationCardViewModel @Inject constructor(
         CardState("", "", "", "", -1)
     )
     val cardState: State<CardState> = _cardState
+
+    private val _validation = MutableStateFlow<Boolean?>(null)
+    val validation: StateFlow<Boolean?> = _validation.asStateFlow()
 
     private var _dropdownState = mutableStateOf(
         DropdownState(
@@ -100,15 +104,20 @@ class CreationCardViewModel @Inject constructor(
         }
     }
 
-    fun validateInput(): Boolean {
-        return cardState.value.title.isNotBlank() &&
-                cardState.value.question.isNotBlank() &&
-                cardState.value.answer.isNotBlank() &&
-                dropdownState.value.selectedDeck.second != null &&
-                dropdownState.value.selectedType.second != null
+    fun validateInput(cardState: CardState, dropdownState: DropdownState) {
+        _validation.value = cardState.title.isNotBlank() &&
+                cardState.question.isNotBlank() &&
+                cardState.answer.isNotBlank() &&
+                dropdownState.selectedDeck.second != null &&
+                dropdownState.selectedType.second != null
+    }
+
+    fun resetValidation() {
+        _validation.value = null
     }
 
     fun clear() {
+        _validation.value = null
         updateCardState { copy(title = "", question = "", answer = "", tag = "", deckId = -1) }
         updateDropdownState { copy(
             selectedFolder = Pair("Выберите папку", null),

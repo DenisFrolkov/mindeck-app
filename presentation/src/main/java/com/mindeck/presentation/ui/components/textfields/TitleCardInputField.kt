@@ -11,6 +11,7 @@ fun TitleInputField(
     placeholder: String,
     value: String,
     onValueChange: (String) -> Unit,
+    validation: Boolean?,
     readOnly: Boolean,
     textStyle: TextStyle,
     placeholderTextStyle: TextStyle,
