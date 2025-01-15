@@ -41,7 +41,6 @@ object Mappers {
             this.cardName,
             this.cardQuestion,
             this.cardAnswer,
-            this.cardPriority,
             this.cardType,
             this.cardTag,
             this.deckId
@@ -54,7 +53,6 @@ object Mappers {
             this.cardName ?: "Card ${this.cardId}",
             this.cardQuestion ?: "Question №${this.cardId}",
             this.cardAnswer,
-            this.cardPriority,
             this.cardType,
             this.cardTag,
             this.deckId
