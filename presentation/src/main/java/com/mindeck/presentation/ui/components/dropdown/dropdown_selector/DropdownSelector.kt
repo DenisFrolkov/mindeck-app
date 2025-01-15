@@ -33,20 +33,25 @@ import androidx.compose.ui.unit.dp
 import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
 import com.mindeck.presentation.ui.theme.outline_medium_gray
+import com.mindeck.presentation.uiState.UiState
 
 @Composable
 fun DropdownSelector(
-    dropdownSelectorData: DropdownSelectorData,
-    textStyle: TextStyle,
-    titleModifier: Modifier = Modifier
+    label: String,
+    selectedItem: String,
+    itemsState: UiState<List<Pair<String, Int>>>,
+    isEnabled: Boolean = true,
+    onItemClick: (Pair<String, Int>) -> Unit,
+    onClick: () -> Unit,
+    textStyle: TextStyle
 ) {
     val dropdownSelectorState = remember { DropdownSelectorState() }
 
-    Row() {
+    Row {
         Text(
-            text = dropdownSelectorData.title,
+            text = label,
             style = textStyle,
-            modifier = titleModifier
+            modifier = Modifier
                 .padding(dimenDpResource(R.dimen.padding_extra_small))
                 .wrapContentSize(Alignment.CenterStart)
                 .width(dimenDpResource(R.dimen.dropdown_min_weight))
@@ -54,14 +59,17 @@ fun DropdownSelector(
 
         Spacer(modifier = Modifier.width(dimenDpResource(R.dimen.spacer_small)))
 
-        Column(modifier = Modifier
-            .fillMaxWidth()
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null
-            ) {
-                dropdownSelectorState.toggle()
-            }) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                ) {
+                    onClick()
+                    dropdownSelectorState.toggle()
+                }
+        ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -79,34 +87,83 @@ fun DropdownSelector(
                         ) else MaterialTheme.shapes.extraSmall
                     )
                     .wrapContentSize(Alignment.Center)
-
             ) {
-                Text(
-                    text = dropdownSelectorData.selectedItem,
-                    style = textStyle
-                )
+                Text(text = selectedItem, style = textStyle)
             }
+
             if (dropdownSelectorState.isExpanded) {
-                Column(
-                    modifier = Modifier
-                        .border(
-                            dimenDpResource(R.dimen.border_width_dot_two_five),
-                            MaterialTheme.colorScheme.outline,
-                            shape = RoundedCornerShape(
-                                bottomStart = dimenDpResource(R.dimen.text_input_bottomStart_padding),
-                                bottomEnd = dimenDpResource(R.dimen.text_input_bottomEnd_padding)
+                if (isEnabled) {
+                    when (itemsState) {
+                        is UiState.Success -> {
+                            if (itemsState.data.isNotEmpty()) {
+                                Column(
+                                    modifier = Modifier
+                                        .border(
+                                            dimenDpResource(R.dimen.border_width_dot_two_five),
+                                            MaterialTheme.colorScheme.outline,
+                                            shape = RoundedCornerShape(
+                                                bottomStart = dimenDpResource(R.dimen.text_input_bottomStart_padding),
+                                                bottomEnd = dimenDpResource(R.dimen.text_input_bottomEnd_padding)
+                                            )
+                                        )
+                                ) {
+                                    SelectorDropdownMenu(
+                                        selectorItemList = itemsState.data,
+                                        onItemClick = onItemClick,
+                                        dropdownSelectorState = dropdownSelectorState,
+                                        textStyle = textStyle
+                                    )
+                                }
+                            } else {
+                                EmptyDropdownMessage(
+                                    message = "Нет элементов",
+                                    textStyle = textStyle
+                                )
+                            }
+                        }
+
+                        is UiState.Loading -> {
+                            EmptyDropdownMessage(
+                                message = "Загрузка...",
+                                textStyle = textStyle
                             )
-                        )
-                ) {
-                    SelectorDropdownMenu(
-                        selectorItemList = dropdownSelectorData.itemList,
-                        dropdownSelectorState = dropdownSelectorState,
-                        onItemClick = dropdownSelectorData.onItemClick,
+                        }
+                    }
+                } else {
+                    EmptyDropdownMessage(
+                        message = "Выберите папку",
                         textStyle = textStyle
                     )
                 }
             }
         }
+    }
+}
+
+@Composable
+fun EmptyDropdownMessage(message: String, textStyle: TextStyle) {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(dimenDpResource(R.dimen.dropdown_menu_item_height))
+            .border(
+                dimenDpResource(R.dimen.border_width_dot_two_five),
+                MaterialTheme.colorScheme.outline,
+                shape = RoundedCornerShape(
+                    bottomStart = dimenDpResource(R.dimen.text_input_topStart_padding),
+                    bottomEnd = dimenDpResource(R.dimen.text_input_topEnd_padding),
+                )
+            )
+            .background(
+                color = MaterialTheme.colorScheme.onPrimary,
+                shape = RoundedCornerShape(
+                    bottomStart = dimenDpResource(R.dimen.dropdown_menu_item_bottomStart_padding),
+                    bottomEnd = dimenDpResource(R.dimen.dropdown_menu_item_bottomEnd_padding)
+                )
+            )
+    ) {
+        Text(text = message, style = textStyle)
     }
 }
 
