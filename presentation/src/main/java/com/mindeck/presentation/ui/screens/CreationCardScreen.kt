@@ -1,13 +1,11 @@
 package com.mindeck.presentation.ui.screens
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,16 +15,12 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -45,9 +39,6 @@ import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.components.buttons.ActionHandlerButton
 import com.mindeck.presentation.ui.components.buttons.SaveDataButton
 import com.mindeck.presentation.ui.components.dropdown.dropdown_selector.DropdownSelector
-import com.mindeck.presentation.ui.components.dropdown.dropdown_selector.DropdownSelectorData
-import com.mindeck.presentation.ui.components.dropdown.dropdown_selector.DropdownSelectorState
-import com.mindeck.presentation.ui.components.dropdown.dropdown_selector.SelectorDropdownMenu
 import com.mindeck.presentation.ui.components.textfields.CardInputField
 import com.mindeck.presentation.ui.components.textfields.TegInputField
 import com.mindeck.presentation.ui.components.textfields.TitleInputField
@@ -74,10 +65,10 @@ fun CreationCardScreen(
         Pair("Простая(с вводом ответа)", 2)
     )
 
-    val validation = creationCardViewModel.validateInput()
+    val validation = creationCardViewModel.validation.collectAsState().value
 
     val dropdownState by creationCardViewModel.dropdownState
-    val cardState = creationCardViewModel.cardState.value
+    val cardState by creationCardViewModel.cardState
 
     LaunchedEffect(dropdownState.selectedFolder.second) {
         if (dropdownState.selectedFolder.second != null) {
@@ -121,7 +112,7 @@ fun CreationCardScreen(
 @Composable
 private fun Content(
     navController: NavController,
-    validation: Boolean,
+    validation: Boolean?,
     folder: UiState<List<Folder>>,
     deck: UiState<List<Deck>>,
     creationCardViewModel: CreationCardViewModel,
@@ -139,9 +130,12 @@ private fun Content(
             .verticalScroll(scrollState)
     ) {
         FolderDropdownSelector(
-            selectedFolder = dropdownState.selectedFolder.first,
+            selectedFolder = dropdownState.selectedFolder,
+            validation = validation,
             folder = folder,
-            onClick = { creationCardViewModel.getAllFolders() },
+            onClick = {
+                creationCardViewModel.getAllFolders()
+            },
             onItemClick = {
                 creationCardViewModel.updateDropdownState { copy(selectedFolder = it) }
                 creationCardViewModel.getAllDecksByFolderId(it.second)
@@ -158,18 +152,22 @@ private fun Content(
         )
         Spacer(modifier = Modifier.height(height = dimenDpResource(R.dimen.spacer_medium)))
         DeckDropdownSelector(
-            selectedDeck = dropdownState.selectedDeck.first,
+            selectedDeck = dropdownState.selectedDeck,
+            validation = validation,
             deck = deck,
             folderId = dropdownState.selectedFolder.second,
             onClick = { },
-            onItemClick = { creationCardViewModel.updateDropdownState { copy(selectedDeck = it) } },
+            onItemClick = {
+                creationCardViewModel.updateDropdownState { copy(selectedDeck = it) }
+            },
             textStyle = MaterialTheme.typography.bodyMedium
         )
         Spacer(modifier = Modifier.height(height = dimenDpResource(R.dimen.spacer_medium)))
         DropdownSelector(
             textStyle = MaterialTheme.typography.bodyMedium,
+            validation = validation,
             label = stringResource(R.string.text_type_dropdown_selector),
-            selectedItem = dropdownState.selectedType.first,
+            selectedItem = dropdownState.selectedType,
             itemsState = UiState.Success(typeDropdownList),
             onItemClick = { creationCardViewModel.updateDropdownState { copy(selectedType = it) } },
             onClick = {}
@@ -180,12 +178,16 @@ private fun Content(
             placeholder = stringResource(R.string.enter_name_for_card),
             value = cardState.title,
             onValueChange = { creationCardViewModel.updateCardState { copy(title = it) } },
+            validation = validation,
             readOnly = false,
             textStyle = MaterialTheme.typography.bodyMedium,
             placeholderTextStyle = MaterialTheme.typography.bodyMedium.copy(
-                color = text_gray
+                color = if (cardState.title.isBlank() && validation != null && !validation) MaterialTheme.colorScheme.error else text_gray
             ),
-            modifier = textInputModifier(size = dimenDpResource(R.dimen.text_input_size_padding))
+            modifier = textInputModifier(
+                backgroundColor = if (cardState.title.isBlank() && validation != null && !validation) MaterialTheme.colorScheme.onError else MaterialTheme.colorScheme.onPrimary,
+                size = dimenDpResource(R.dimen.text_input_size_padding)
+            )
                 .fillMaxWidth()
                 .heightIn(min = dimenDpResource(R.dimen.text_input_min_height))
                 .wrapContentSize(Alignment.CenterStart)
@@ -195,11 +197,13 @@ private fun Content(
             placeholder = stringResource(R.string.enter_question_for_card),
             value = cardState.question,
             onValueChange = { creationCardViewModel.updateCardState { copy(question = it) } },
+            validation = validation,
             textStyle = MaterialTheme.typography.bodyMedium,
             placeholderTextStyle = MaterialTheme.typography.bodyMedium.copy(
-                color = text_gray
+                color = if (cardState.question.isBlank() && validation != null && !validation) MaterialTheme.colorScheme.error else text_gray
             ),
             modifier = textInputModifier(
+                backgroundColor = if (cardState.title.isBlank() && validation != null && !validation) MaterialTheme.colorScheme.onError else MaterialTheme.colorScheme.onPrimary,
                 topStart = dimenDpResource(R.dimen.text_input_topStart_padding),
                 topEnd = dimenDpResource(R.dimen.text_input_topEnd_padding),
                 bottomStart = dimenDpResource(R.dimen.text_input_bottomStart_zero_padding),
@@ -216,11 +220,13 @@ private fun Content(
             placeholder = stringResource(R.string.enter_answer_for_card),
             value = cardState.answer,
             onValueChange = { creationCardViewModel.updateCardState { copy(answer = it) } },
+            validation = validation,
             textStyle = MaterialTheme.typography.bodyMedium,
             placeholderTextStyle = MaterialTheme.typography.bodyMedium.copy(
-                color = text_gray
+                color = if (cardState.answer.isEmpty() && validation != null && !validation) MaterialTheme.colorScheme.error else text_gray
             ),
             modifier = textInputModifier(
+                backgroundColor = if (cardState.title.isBlank() && validation != null && !validation) MaterialTheme.colorScheme.onError else MaterialTheme.colorScheme.onPrimary,
                 topEnd = dimenDpResource(R.dimen.text_input_topEnd_zero_padding),
                 topStart = dimenDpResource(R.dimen.text_input_topStart_zero_padding),
                 bottomStart = dimenDpResource(R.dimen.text_input_topStart_padding),
@@ -270,7 +276,8 @@ private fun Content(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null
                     ) {
-                        if (validation) {
+                        creationCardViewModel.validateInput(cardState, dropdownState)
+                        if (validation != null && validation) {
                             creationCardViewModel.createCard(
                                 Card(
                                     cardName = cardState.title,
@@ -310,7 +317,8 @@ private fun TopBar(onClick: () -> Unit) {
 
 @Composable
 private fun FolderDropdownSelector(
-    selectedFolder: String,
+    selectedFolder: Pair<String, Int?>,
+    validation: Boolean?,
     folder: UiState<List<Folder>>,
     onItemClick: (Pair<String, Int>) -> Unit,
     onClick: () -> Unit,
@@ -318,6 +326,7 @@ private fun FolderDropdownSelector(
 ) {
     DropdownSelector(
         label = stringResource(R.string.text_folder_dropdown_selector),
+        validation = validation,
         selectedItem = selectedFolder,
         itemsState = folder.mapToUiState { folders ->
             folders.map { Pair(it.folderName, it.folderId) }
@@ -330,7 +339,8 @@ private fun FolderDropdownSelector(
 
 @Composable
 private fun DeckDropdownSelector(
-    selectedDeck: String,
+    selectedDeck: Pair<String, Int?>,
+    validation: Boolean?,
     deck: UiState<List<Deck>>,
     folderId: Int?,
     onItemClick: (Pair<String, Int>) -> Unit,
@@ -339,6 +349,7 @@ private fun DeckDropdownSelector(
 ) {
     DropdownSelector(
         label = stringResource(R.string.text_deck_dropdown_selector),
+        validation = validation,
         selectedItem = selectedDeck,
         itemsState = if (folderId != null) deck.mapToUiState { decks ->
             decks.map { Pair(it.deckName, it.deckId) }

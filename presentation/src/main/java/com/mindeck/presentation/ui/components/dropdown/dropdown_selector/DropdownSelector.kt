@@ -33,12 +33,14 @@ import androidx.compose.ui.unit.dp
 import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
 import com.mindeck.presentation.ui.theme.outline_medium_gray
+import com.mindeck.presentation.ui.theme.text_black
 import com.mindeck.presentation.uiState.UiState
 
 @Composable
 fun DropdownSelector(
     label: String,
-    selectedItem: String,
+    validation: Boolean?,
+    selectedItem: Pair<String, Int?>,
     itemsState: UiState<List<Pair<String, Int>>>,
     isEnabled: Boolean = true,
     onItemClick: (Pair<String, Int>) -> Unit,
@@ -46,6 +48,8 @@ fun DropdownSelector(
     textStyle: TextStyle
 ) {
     val dropdownSelectorState = remember { DropdownSelectorState() }
+
+    val isError = selectedItem.second == null && validation != null && !validation
 
     Row {
         Text(
@@ -74,13 +78,13 @@ fun DropdownSelector(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(
-                        color = MaterialTheme.colorScheme.onPrimary,
+                        color = if (isError) MaterialTheme.colorScheme.onError else MaterialTheme.colorScheme.onPrimary,
                         shape = MaterialTheme.shapes.extraSmall
                     )
-                    .height(height = dimenDpResource(R.dimen.dropdown_menu_item_height))
+                    .height(dimenDpResource(R.dimen.dropdown_menu_item_height))
                     .border(
                         dimenDpResource(R.dimen.border_width_dot_two_five),
-                        MaterialTheme.colorScheme.outline,
+                        color = if (isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.outline,
                         shape = if (dropdownSelectorState.isExpanded) RoundedCornerShape(
                             topStart = dimenDpResource(R.dimen.text_input_topStart_padding),
                             topEnd = dimenDpResource(R.dimen.text_input_topEnd_padding),
@@ -88,7 +92,10 @@ fun DropdownSelector(
                     )
                     .wrapContentSize(Alignment.Center)
             ) {
-                Text(text = selectedItem, style = textStyle)
+                Text(
+                    text = selectedItem.first,
+                    style = textStyle.copy(color = if (isError) MaterialTheme.colorScheme.error else text_black)
+                )
             }
 
             if (dropdownSelectorState.isExpanded) {
