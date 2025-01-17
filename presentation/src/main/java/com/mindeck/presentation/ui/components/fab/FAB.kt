@@ -26,15 +26,16 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.dp
 import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
 
 @Composable
 fun FAB(
-    fabColor: Color,
-    fabIconColor: Color,
     fabIcon: Painter,
     fabMenuItems: List<FabMenuData>,
+    fabColor: Color,
+    fabIconColor: Color,
     fabState: FabState,
     textStyle: TextStyle,
 ) {

@@ -13,6 +13,9 @@ class DialogState(
     var isOpeningDialog by mutableStateOf(initialDialog)
         private set
 
+    var validation by mutableStateOf<Boolean?>(null)
+        private set
+
     var isEnterDialogText by mutableStateOf("")
 
     var isOpeningRenameDialog by mutableStateOf(false)
@@ -39,9 +42,15 @@ class DialogState(
     }
 
     fun closeDialog() {
+        validation = null
         isEnterDialogText = ""
         isOpeningDialog = false
         isOpeningRenameDialog = false
         isOpeningCreateDialog = false
+    }
+
+    fun validationCreate(folderName: String): Boolean {
+        validation = folderName.isNotBlank()
+        return validation == true
     }
 }

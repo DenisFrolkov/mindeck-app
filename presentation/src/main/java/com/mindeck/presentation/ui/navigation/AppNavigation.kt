@@ -41,6 +41,7 @@ fun AppNavigation(
             enterTransition = { fadeIn(animationSpec = tween(100)) },
             exitTransition = { fadeOut(animationSpec = tween(100)) }
         ) {
+            mainViewModel.getAllFolders()
             MainScreen(
                 navController = navController,
                 mainViewModel = mainViewModel,
@@ -94,12 +95,12 @@ fun AppNavigation(
             NavigationRoute.CardScreen.route,
             enterTransition = { fadeIn(animationSpec = tween(100)) },
             exitTransition = { fadeOut(animationSpec = tween(100)) },
-//            arguments = listOf(navArgument("cardId") { type = NavType.IntType })
+            arguments = listOf(navArgument("cardId") { type = NavType.IntType })
         ) {
-//            backStackEntry ->
-//            val cardId = backStackEntry.arguments?.getInt("cardId")
-            cardViewModel.getCardById(cardId = 2)
-            cardViewModel.getFolderByCardId(cardId = 2)
+            backStackEntry ->
+            val cardId = backStackEntry.arguments?.getInt("cardId")
+            cardViewModel.getCardById(cardId = cardId!!)
+            cardViewModel.getFolderByCardId(cardId = cardId)
             CardScreen(
                 navController = navController,
                 cardViewModel = cardViewModel
