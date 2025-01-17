@@ -38,6 +38,7 @@ import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.components.dialog.CreateItemDialog
 import com.mindeck.presentation.ui.components.common.ActionBar
 import com.mindeck.presentation.ui.components.common.DisplayItemCount
+import com.mindeck.presentation.ui.components.dialog.DialogState
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenu
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenuData
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenuState
@@ -58,14 +59,15 @@ fun FolderScreen(
     deckViewModel: DeckViewModel
 ) {
     var dropdownMenuState = remember { DropdownMenuState() }
+    var dialogState = remember { DialogState() }
 
     val dropdownVisibleAnimation = animateDropdownMenuHeightIn(
         targetAlpha = dropdownMenuState.dropdownAlpha,
         animationDuration = dropdownMenuState.animationDuration
     )
     val dialogVisibleAnimation = animateDialogCreateItem(
-        targetAlpha = dropdownMenuState.dialogAlpha,
-        animationDuration = dropdownMenuState.animationDuration * 3
+        targetAlpha = dialogState.dialogAlpha,
+        animationDuration = dialogState.animationDuration * 3
     )
 
     val folder = folderViewModel.folderUIState.collectAsState().value
@@ -74,19 +76,17 @@ fun FolderScreen(
     val deleteFolderData =
         remember { mutableStateOf(Folder(folderId = 0, folderName = "")) }
 
-    var name by remember { mutableStateOf("") }
-
     var listDropdownMenu = listOf(
         DropdownMenuData(
             title = stringResource(R.string.dropdown_menu_data_rename_list),
             action = {
-                dropdownMenuState.openRenameDialog()
+                dialogState.openRenameDialog()
             }
         ),
         DropdownMenuData(
             title = stringResource(R.string.dropdown_menu_data_create_deck_list),
             action = {
-                dropdownMenuState.openCreateDialog()
+                dialogState.openCreateDialog()
             }
         ),
         DropdownMenuData(
@@ -207,7 +207,7 @@ fun FolderScreen(
         }
     )
 
-    if (dropdownMenuState.isOpeningDialog) {
+    if (dialogState.isOpeningDialog) {
         Box(modifier = Modifier.alpha(dialogVisibleAnimation)) {
             Box(
                 modifier = Modifier
@@ -221,38 +221,39 @@ fun FolderScreen(
             when (folder) {
                 is UiState.Success -> {
                     CreateItemDialog(
-                        titleDialog = if (dropdownMenuState.isOpeningRenameDialog) {
+                        titleDialog = if (dialogState.isOpeningRenameDialog) {
                             stringResource(R.string.rename_title_item_dialog)
                         } else {
                             stringResource(R.string.create_item_dialog_text_creating_deck)
                         },
                         placeholder = stringResource(R.string.create_item_dialog_text_input_title_folder),
-                        buttonText = if (dropdownMenuState.isOpeningRenameDialog) {
+                        buttonText = if (dialogState.isOpeningRenameDialog) {
                             stringResource(R.string.save_text)
                         } else {
                             stringResource(R.string.create_item_dialog_text_create_deck)
                         },
-                        value = name,
-                        onValueChange = { newValue -> name = newValue },
+                        value = dialogState.isEnterDialogText,
+                        validation = true,
+                        onValueChange = { newValue -> dialogState.isEnterDialogText = newValue },
                         onBackClick = {
-                            dropdownMenuState.closeDialog()
+                            dialogState.closeDialog()
                         },
                         onClickButton = {
-                            if (dropdownMenuState.isOpeningRenameDialog) {
+                            if (dialogState.isOpeningRenameDialog) {
                                 folderViewModel.renameFolder(
-                                    newFolderName = name,
+                                    newFolderName = dialogState.isEnterDialogText,
                                     folderId = folder.data.folderId
                                 )
                             } else {
                                 folderViewModel.createDeck(
                                     Deck(
-                                        deckName = name,
+                                        deckName = dialogState.isEnterDialogText,
                                         folderId = folder.data.folderId
                                     )
                                 )
                             }
 
-                            dropdownMenuState.closeDialog()
+                            dialogState.closeDialog()
                         },
                         modifier = Modifier
                             .fillMaxWidth()

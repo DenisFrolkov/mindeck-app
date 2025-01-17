@@ -38,6 +38,7 @@ import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.components.daily_progress_tracker.DailyProgressTracker
 import com.mindeck.presentation.ui.components.daily_progress_tracker.DailyProgressTrackerState
 import com.mindeck.presentation.ui.components.dialog.CreateItemDialog
+import com.mindeck.presentation.ui.components.dialog.DialogState
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenuState
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.animateDialogCreateItem
 import com.mindeck.presentation.ui.components.fab.FAB
@@ -57,25 +58,13 @@ fun MainScreen(
     mainViewModel: MainViewModel,
 ) {
     val scrollState = rememberScrollState()
-
-    var dropdownMenuState = remember { DropdownMenuState() }
-
-    val dailyProgressTrackerState = remember {
-        DailyProgressTrackerState(
-            totalCards = 500,
-            answeredCards = 30
-        )
-    }
-
-    val dialogVisibleAnimation = animateDialogCreateItem(
-        targetAlpha = dropdownMenuState.dialogAlpha,
-        animationDuration = dropdownMenuState.animationDuration * 3
-    )
-    var folderName by remember { mutableStateOf("") }
-
+    val dialogState = remember { DialogState() }
+    val dailyProgressTrackerState = remember { DailyProgressTrackerState(totalCards = 500, answeredCards = 30) }
+    val dialogVisibleAnimation = animateDialogCreateItem(targetAlpha = dialogState.dialogAlpha, animationDuration = dialogState.animationDuration * 3)
     val MAX_DISPLAY_ITEMS = 5
 
     val folders = mainViewModel.folderUIState.collectAsState().value
+    val validation = mainViewModel.validation.collectAsState().value
 
     val fabMenuItems = listOf(
         FabMenuData(
@@ -89,7 +78,7 @@ fun MainScreen(
             text = stringResource(R.string.fab_menu_data_create_folder_list),
             icon = R.drawable.fab_open_menu_create_folder_icon,
             navigation = {
-                dropdownMenuState.openCreateDialog()
+                dialogState.openCreateDialog()
             }
         ),
         FabMenuData(
@@ -220,7 +209,7 @@ fun MainScreen(
         )
     }
 
-    if (dropdownMenuState.isOpeningDialog) {
+    if (dialogState.isOpeningDialog) {
         Box(modifier = Modifier.alpha(dialogVisibleAnimation)) {
             Box(
                 modifier = Modifier
@@ -235,14 +224,18 @@ fun MainScreen(
                 titleDialog = stringResource(R.string.create_item_dialog_text_creating_folder),
                 placeholder = stringResource(R.string.create_item_dialog_text_input_title_folder),
                 buttonText = stringResource(R.string.create_item_dialog_text_create_folder),
-                value = folderName,
-                onValueChange = { newValue -> folderName = newValue },
+                validation = validation,
+                value = dialogState.isEnterDialogText,
+                onValueChange = { newValue -> dialogState.isEnterDialogText = newValue },
                 onBackClick = {
-                    dropdownMenuState.closeDialog()
+                    dialogState.closeDialog()
                 },
                 onClickButton = {
-                    mainViewModel.createFolder(Folder(folderName = folderName))
-                    dropdownMenuState.closeDialog()
+                    mainViewModel.validationCreate(dialogState.isEnterDialogText)
+                    if (validation != null && !validation) {
+                        mainViewModel.createFolder(Folder(folderName = dialogState.isEnterDialogText))
+                        dialogState.closeDialog()
+                    }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -256,7 +249,6 @@ fun MainScreen(
                     .padding(dimenDpResource(R.dimen.padding_small))
                     .size(dimenDpResource(R.dimen.padding_medium)),
             )
-
         }
     }
 }

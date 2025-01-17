@@ -12,7 +12,6 @@ fun CardInputField(
     placeholder: String,
     value: String,
     singleLine: Boolean = false,
-    validation: Boolean?,
     textStyle: TextStyle,
     placeholderTextStyle: TextStyle,
     onValueChange: (String) -> Unit,

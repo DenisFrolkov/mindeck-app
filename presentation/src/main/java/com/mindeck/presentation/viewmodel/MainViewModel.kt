@@ -9,6 +9,7 @@ import com.mindeck.presentation.uiState.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -17,8 +18,12 @@ class MainViewModel @Inject constructor(
     private val getAllFoldersUseCase: GetAllFoldersUseCase,
     private val createFolderUseCase: CreateFolderUseCase
 ) : ViewModel() {
+
     private val _folderUIState = MutableStateFlow<UiState<List<Folder>>>(UiState.Loading)
     val folderUIState: StateFlow<UiState<List<Folder>>> = _folderUIState
+
+    private val _validation = MutableStateFlow<Boolean?>(null)
+    val validation: StateFlow<Boolean?> = _validation.asStateFlow()
 
     init {
         getAllFolders()
@@ -40,5 +45,9 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             createFolderUseCase.invoke(folder)
         }
+    }
+
+    fun validationCreate(folderName: String) {
+        _validation.value = folderName == ""
     }
 }
