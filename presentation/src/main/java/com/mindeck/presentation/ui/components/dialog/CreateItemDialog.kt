@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,12 +34,14 @@ import com.mindeck.presentation.ui.theme.background_light_blue
 import com.mindeck.presentation.ui.theme.scrim_black
 import com.mindeck.presentation.ui.theme.text_gray
 import com.mindeck.presentation.ui.theme.text_white
+import javax.xml.validation.Validator
 
 @Composable
 fun CreateItemDialog(
     titleDialog: String,
     placeholder: String,
     buttonText: String,
+    validation: Boolean?,
     value: String,
     onValueChange: (String) -> Unit,
     onBackClick: () -> Unit,
@@ -75,19 +79,19 @@ fun CreateItemDialog(
                 )
             }
             Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_large)))
+
             CardInputField(
                 placeholder = placeholder,
                 value = value,
                 singleLine = true,
                 onValueChange = onValueChange,
-                validation = true,
                 textStyle = MaterialTheme.typography.bodyMedium,
                 placeholderTextStyle = MaterialTheme.typography.bodyMedium.copy(
-                    color = text_gray
+                    color = if (validation != null && validation) MaterialTheme.colorScheme.error else text_gray
                 ),
                 modifier = modifier
                     .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.onPrimary)
+                    .background(if (validation != null && validation) MaterialTheme.colorScheme.onError else MaterialTheme.colorScheme.onPrimary)
                     .border(
                         dimenDpResource(R.dimen.border_width_dot_two_five),
                         MaterialTheme.colorScheme.outline,
