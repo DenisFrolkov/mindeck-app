@@ -168,7 +168,9 @@ fun DeckScreen(
                                             interactionSource = remember { MutableInteractionSource() },
                                             indication = null
                                         ) {
-                                            navController.navigate(NavigationRoute.CardScreen.route)
+                                            navController.navigate(NavigationRoute.CardScreen.createRoute(
+                                                card.cardId
+                                            ))
                                         }
                                 )
                                 Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_small)))

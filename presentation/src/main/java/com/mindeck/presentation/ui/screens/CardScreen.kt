@@ -244,7 +244,7 @@ fun CardScreen(
 
                                     ) {
                                         Text(
-                                            text = "card.data.cardTag",
+                                            text = card.data.cardTag,
                                             style = MaterialTheme.typography.bodyMedium
                                         )
                                     }
