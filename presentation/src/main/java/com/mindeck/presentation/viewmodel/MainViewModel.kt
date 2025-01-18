@@ -38,5 +38,4 @@ class MainViewModel @Inject constructor(
             createFolderUseCase.invoke(Folder(folderName = folderName))
         }
     }
-
 }
