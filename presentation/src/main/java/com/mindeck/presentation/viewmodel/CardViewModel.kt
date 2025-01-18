@@ -9,10 +9,9 @@ import com.mindeck.domain.usecases.cardUseCase.DeleteCardUseCase
 import com.mindeck.domain.usecases.cardUseCase.GetCardByIdUseCase
 import com.mindeck.domain.usecases.cardUseCase.GetFolderByCardIdUseCase
 import com.mindeck.domain.usecases.cardUseCase.UpdateCardUseCase
-import com.mindeck.presentation.uiState.UiState
+import com.mindeck.presentation.state.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
