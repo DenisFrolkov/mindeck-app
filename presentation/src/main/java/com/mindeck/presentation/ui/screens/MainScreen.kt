@@ -3,7 +3,6 @@ package com.mindeck.presentation.ui.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,18 +15,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,6 +29,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.mindeck.domain.models.Folder
@@ -43,7 +38,7 @@ import com.mindeck.presentation.ui.components.daily_progress_tracker.DailyProgre
 import com.mindeck.presentation.ui.components.daily_progress_tracker.DailyProgressTrackerState
 import com.mindeck.presentation.ui.components.dialog.CreateItemDialog
 import com.mindeck.presentation.ui.components.dialog.DialogState
-import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.animateDialogCreateItem
+import com.mindeck.presentation.ui.components.dialog.animateDialogCreateItem
 import com.mindeck.presentation.ui.components.fab.FAB
 import com.mindeck.presentation.ui.components.fab.FabMenuData
 import com.mindeck.presentation.ui.components.fab.FabState
@@ -93,7 +88,13 @@ fun MainScreen(
                 )
             },
             content = { paddingValues ->
-                Content(paddingValues, dailyProgressTrackerState, folders, MAX_DISPLAY_ITEMS, navController)
+                Content(
+                    paddingValues,
+                    dailyProgressTrackerState,
+                    folders,
+                    MAX_DISPLAY_ITEMS,
+                    navController
+                )
                 BackgroundFAB(fabState)
                 OpeningCreateItemDialog(
                     dialogState,
@@ -135,6 +136,28 @@ private fun Content(
                     Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_small)))
                     ButtonAllFolders(navController)
                 }
+            }
+
+            is UiState.Loading -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentSize(Alignment.Center)
+                ) {
+                    CircularProgressIndicator(
+                        color = MaterialTheme.colorScheme.primary,
+                        strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight)
+                    )
+                }
+            }
+
+            is UiState.Error -> {
+                Text(
+                    stringResource(R.string.error_get_all_folders),
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.error)
+                )
             }
         }
     }
