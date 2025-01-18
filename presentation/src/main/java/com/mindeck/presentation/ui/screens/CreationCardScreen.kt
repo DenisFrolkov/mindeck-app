@@ -60,9 +60,10 @@ fun CreationCardScreen(
     creationCardViewModel: CreationCardViewModel
 ) {
     val typeDropdownList = listOf(
-        Pair("Простая", 1),
-        Pair("Простая(с вводом ответа)", 2)
+        Pair(stringResource(R.string.text_folder_dropdown_selector_simple), 0),
+        Pair(stringResource(R.string.text_folder_dropdown_selector_simple_with_answer_input), 1)
     )
+
 
     val dropdownState by creationCardViewModel.dropdownState
     val cardState by creationCardViewModel.cardState
