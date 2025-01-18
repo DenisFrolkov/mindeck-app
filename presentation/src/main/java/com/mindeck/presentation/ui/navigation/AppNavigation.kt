@@ -41,6 +41,7 @@ fun AppNavigation(
             enterTransition = { fadeIn(animationSpec = tween(100)) },
             exitTransition = { fadeOut(animationSpec = tween(100)) }
         ) {
+            mainViewModel.getAllFolders()
             MainScreen(
                 navController = navController,
                 mainViewModel = mainViewModel,
@@ -68,8 +69,8 @@ fun AppNavigation(
             arguments = listOf(navArgument("folderId") { type = NavType.IntType })
         ) { backStackEntry ->
             val folderId = backStackEntry.arguments?.getInt("folderId")
-            folderViewModel.getFolderById(folderId = folderId!!)
-            folderViewModel.getAllDecksByFolderId(folderId = folderId!!)
+            folderViewModel.getFolderById(folderId!!)
+            folderViewModel.getAllDecksByFolderId(folderId)
             FolderScreen(
                 navController = navController,
                 folderViewModel = folderViewModel,
@@ -83,8 +84,8 @@ fun AppNavigation(
             arguments = listOf(navArgument("deckId") { type = NavType.IntType })
         ) { backStackEntry ->
             val deckId = backStackEntry.arguments?.getInt("deckId")
-            deckViewModel.getDeckById(deckId = deckId!!)
-            deckViewModel.getAllCardsByDeckId(deckId!!)
+            deckViewModel.getDeckById(deckId!!)
+            deckViewModel.getAllCardsByDeckId(deckId)
             DeckScreen(
                 navController = navController,
                 deckViewModel = deckViewModel,
@@ -94,12 +95,12 @@ fun AppNavigation(
             NavigationRoute.CardScreen.route,
             enterTransition = { fadeIn(animationSpec = tween(100)) },
             exitTransition = { fadeOut(animationSpec = tween(100)) },
-//            arguments = listOf(navArgument("cardId") { type = NavType.IntType })
+            arguments = listOf(navArgument("cardId") { type = NavType.IntType })
         ) {
-//            backStackEntry ->
-//            val cardId = backStackEntry.arguments?.getInt("cardId")
-            cardViewModel.getCardById(cardId = 2)
-            cardViewModel.getFolderByCardId(cardId = 2)
+            backStackEntry ->
+            val cardId = backStackEntry.arguments?.getInt("cardId")
+            cardViewModel.getCardById(cardId = cardId!!)
+            cardViewModel.getFolderByCardId(cardId = cardId)
             CardScreen(
                 navController = navController,
                 cardViewModel = cardViewModel

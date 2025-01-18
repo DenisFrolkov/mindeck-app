@@ -31,10 +31,10 @@ import com.mindeck.presentation.ui.components.utils.dimenDpResource
 
 @Composable
 fun FAB(
-    fabColor: Color,
-    fabIconColor: Color,
     fabIcon: Painter,
     fabMenuItems: List<FabMenuData>,
+    fabColor: Color,
+    fabIconColor: Color,
     fabState: FabState,
     textStyle: TextStyle,
 ) {
@@ -57,17 +57,8 @@ fun FAB(
                 fabState.open()
             }
     ) {
-        if (!fabState.isExpanded) {
-            Icon(
-                painter = fabIcon,
-                contentDescription = stringResource(R.string.floating_action_button),
-                tint = fabIconColor,
-                modifier = Modifier
-                    .size(dimenDpResource(R.dimen.icon_size))
-                    .alpha(alphaFab)
-            )
-        } else {
-             Column(
+        if (fabState.isExpanded) {
+            Column(
                 modifier = Modifier.alpha(alphaMenu)
             ) {
                 fabMenuItems.forEachIndexed { index, menuItem ->
@@ -106,6 +97,15 @@ fun FAB(
                     }
                 }
             }
+        } else {
+            Icon(
+                painter = fabIcon,
+                contentDescription = stringResource(R.string.floating_action_button),
+                tint = fabIconColor,
+                modifier = Modifier
+                    .size(dimenDpResource(R.dimen.icon_size))
+                    .alpha(alphaFab)
+            )
         }
     }
 }

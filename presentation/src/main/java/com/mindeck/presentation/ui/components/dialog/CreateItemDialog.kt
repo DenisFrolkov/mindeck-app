@@ -38,6 +38,7 @@ fun CreateItemDialog(
     titleDialog: String,
     placeholder: String,
     buttonText: String,
+    validation: Boolean,
     value: String,
     onValueChange: (String) -> Unit,
     onBackClick: () -> Unit,
@@ -75,19 +76,19 @@ fun CreateItemDialog(
                 )
             }
             Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_large)))
+
             CardInputField(
                 placeholder = placeholder,
                 value = value,
                 singleLine = true,
                 onValueChange = onValueChange,
-                validation = true,
                 textStyle = MaterialTheme.typography.bodyMedium,
                 placeholderTextStyle = MaterialTheme.typography.bodyMedium.copy(
-                    color = text_gray
+                    color = if (validation) text_gray else MaterialTheme.colorScheme.error
                 ),
                 modifier = modifier
                     .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.onPrimary)
+                    .background(if (validation) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onError)
                     .border(
                         dimenDpResource(R.dimen.border_width_dot_two_five),
                         MaterialTheme.colorScheme.outline,

@@ -26,6 +26,8 @@
     <string name="rename_item_dialog_text_input_title_deck">Введите название колоды</string>
     <string name="save_text">Сохранить</string>
 
+    <string name="error_get_all_folders">Не получилось загрузить папки! (</string>
+
     <string name="text_no_folder">Нет папки</string>
 
     <string name="dropdown_menu_data_rename_list">Изменить название</string>

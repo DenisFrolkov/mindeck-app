@@ -37,10 +37,11 @@ import com.mindeck.domain.models.Folder
 import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.components.dialog.CreateItemDialog
 import com.mindeck.presentation.ui.components.common.ActionBar
+import com.mindeck.presentation.ui.components.dialog.DialogState
+import com.mindeck.presentation.ui.components.dialog.animateDialogCreateItem
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenu
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenuData
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenuState
-import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.animateDialogCreateItem
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.animateDropdownMenuHeightIn
 import com.mindeck.presentation.ui.components.folder.DisplayCardItem
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
@@ -57,17 +58,17 @@ fun FoldersScreen(
 ) {
 
     var dropdownMenuState = remember { DropdownMenuState() }
+    var dialogState = remember { DialogState() }
 
     val dropdownVisibleAnimation = animateDropdownMenuHeightIn(
         targetAlpha = dropdownMenuState.dropdownAlpha,
         animationDuration = dropdownMenuState.animationDuration
     )
     val dialogVisibleAnimation = animateDialogCreateItem(
-        targetAlpha = dropdownMenuState.dialogAlpha,
-        animationDuration = dropdownMenuState.animationDuration * 3
+        targetAlpha = dialogState.dialogAlpha,
+        animationDuration = dialogState.animationDuration * 3
     )
     val folders = foldersViewModel.folderUIState.collectAsState().value
-    var inputFolderName by remember { mutableStateOf("") }
 
     var listDropdownMenu = listOf(
         DropdownMenuData(
@@ -83,7 +84,7 @@ fun FoldersScreen(
         DropdownMenuData(
             title = stringResource(R.string.dropdown_menu_data_create_folder_list),
             action = {
-                dropdownMenuState.openDialog()
+                dialogState.openDialog()
             }
         )
     )
@@ -194,12 +195,12 @@ fun FoldersScreen(
             }
         }
     )
-    if (dropdownMenuState.isOpeningDialog) {
+    if (dialogState.isOpeningDialog) {
         Box(modifier = Modifier.alpha(dialogVisibleAnimation)) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.scrim.copy(dropdownMenuState.scrimDialogAlpha))
+                    .background(MaterialTheme.colorScheme.scrim.copy(dialogState.scrimDialogAlpha))
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null
@@ -211,14 +212,15 @@ fun FoldersScreen(
                 titleDialog = stringResource(R.string.create_item_dialog_text_creating_folder),
                 placeholder = stringResource(R.string.create_item_dialog_text_input_name_folder),
                 buttonText = stringResource(R.string.create_item_dialog_text_create_folder),
-                value = inputFolderName,
-                onValueChange = { newValue -> inputFolderName = newValue },
+                value = dialogState.isEnterDialogText,
+                validation = true,
+                onValueChange = { newValue -> dialogState.isEnterDialogText = newValue },
                 onBackClick = {
-                    dropdownMenuState.closeDialog()
+                    dialogState.closeDialog()
                 },
                 onClickButton = {
-                    foldersViewModel.createFolder(Folder(folderName = inputFolderName))
-                    dropdownMenuState.closeDialog()
+                    foldersViewModel.createFolder(Folder(folderName = dialogState.isEnterDialogText))
+                    dialogState.closeDialog()
                 },
                 modifier = Modifier
                     .fillMaxWidth()

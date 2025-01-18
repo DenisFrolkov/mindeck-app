@@ -17,14 +17,11 @@ class MainViewModel @Inject constructor(
     private val getAllFoldersUseCase: GetAllFoldersUseCase,
     private val createFolderUseCase: CreateFolderUseCase
 ) : ViewModel() {
+
     private val _folderUIState = MutableStateFlow<UiState<List<Folder>>>(UiState.Loading)
     val folderUIState: StateFlow<UiState<List<Folder>>> = _folderUIState
 
-    init {
-        getAllFolders()
-    }
-
-    private fun getAllFolders() {
+    fun getAllFolders() {
         viewModelScope.launch {
             try {
                 getAllFoldersUseCase().collect { folders ->
@@ -36,9 +33,9 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun createFolder(folder: Folder) {
+    fun createFolder(folderName: String) {
         viewModelScope.launch {
-            createFolderUseCase.invoke(folder)
+            createFolderUseCase.invoke(Folder(folderName = folderName))
         }
     }
 }
