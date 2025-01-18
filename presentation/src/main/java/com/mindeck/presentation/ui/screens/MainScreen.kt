@@ -47,7 +47,7 @@ import com.mindeck.presentation.ui.components.folder.DisplayCardItem
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
 import com.mindeck.presentation.ui.components.utils.dimenFloatResource
 import com.mindeck.presentation.ui.navigation.NavigationRoute
-import com.mindeck.presentation.uiState.UiState
+import com.mindeck.presentation.state.UiState
 import com.mindeck.presentation.viewmodel.MainViewModel
 
 @Composable

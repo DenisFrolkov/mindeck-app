@@ -13,7 +13,7 @@ import com.mindeck.domain.usecases.deckUseCases.MoveDecksBetweenFoldersUseCase
 import com.mindeck.domain.usecases.folderUseCases.DeleteFolderUseCase
 import com.mindeck.domain.usecases.folderUseCases.GetFolderByIdUseCase
 import com.mindeck.domain.usecases.folderUseCases.RenameFolderUseCase
-import com.mindeck.presentation.uiState.UiState
+import com.mindeck.presentation.state.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

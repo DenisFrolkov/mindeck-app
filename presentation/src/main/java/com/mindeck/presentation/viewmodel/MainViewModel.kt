@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.mindeck.domain.models.Folder
 import com.mindeck.domain.usecases.folderUseCases.CreateFolderUseCase
 import com.mindeck.domain.usecases.folderUseCases.GetAllFoldersUseCase
-import com.mindeck.presentation.uiState.UiState
+import com.mindeck.presentation.state.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

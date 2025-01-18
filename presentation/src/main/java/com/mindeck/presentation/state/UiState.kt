@@ -1,4 +1,4 @@
-package com.mindeck.presentation.uiState
+package com.mindeck.presentation.state
 
 open class UiState<out T> {
     object Loading : UiState<Nothing>()

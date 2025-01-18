@@ -41,7 +41,7 @@ import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMen
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenuState
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.animateDropdownMenuHeightIn
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
-import com.mindeck.presentation.uiState.UiState
+import com.mindeck.presentation.state.UiState
 import com.mindeck.presentation.viewmodel.CardViewModel
 
 @Composable
