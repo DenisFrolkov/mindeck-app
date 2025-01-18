@@ -39,10 +39,10 @@ import com.mindeck.presentation.ui.components.dialog.CreateItemDialog
 import com.mindeck.presentation.ui.components.common.ActionBar
 import com.mindeck.presentation.ui.components.common.DisplayItemCount
 import com.mindeck.presentation.ui.components.dialog.DialogState
+import com.mindeck.presentation.ui.components.dialog.animateDialogCreateItem
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenu
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenuData
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenuState
-import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.animateDialogCreateItem
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.animateDropdownMenuHeightIn
 import com.mindeck.presentation.ui.components.folder.DisplayCardItem
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
