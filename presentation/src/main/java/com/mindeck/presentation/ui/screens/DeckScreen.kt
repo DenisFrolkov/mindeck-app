@@ -37,10 +37,11 @@ import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.components.common.ActionBar
 import com.mindeck.presentation.ui.components.common.DisplayItemCount
 import com.mindeck.presentation.ui.components.dialog.CreateItemDialog
+import com.mindeck.presentation.ui.components.dialog.DialogState
+import com.mindeck.presentation.ui.components.dialog.animateDialogCreateItem
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenu
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenuData
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenuState
-import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.animateDialogCreateItem
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.animateDropdownMenuHeightIn
 import com.mindeck.presentation.ui.components.folder.DisplayCardItem
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
@@ -57,14 +58,16 @@ fun DeckScreen(
 
     var dropdownMenuState = remember { DropdownMenuState() }
 
+    var dialogState = remember { DialogState() }
+
     val dropdownVisibleAnimation = animateDropdownMenuHeightIn(
         targetAlpha = dropdownMenuState.dropdownAlpha,
         animationDuration = dropdownMenuState.animationDuration
     )
 
     val dialogVisibleAnimation = animateDialogCreateItem(
-        targetAlpha = dropdownMenuState.dialogAlpha,
-        animationDuration = dropdownMenuState.animationDuration * 3
+        targetAlpha = dialogState.dialogAlpha,
+        animationDuration = dialogState.animationDuration * 3
     )
 
     val cards = deckViewModel.cardUIState.collectAsState().value
@@ -73,13 +76,11 @@ fun DeckScreen(
     val deleteDeckData =
         remember { mutableStateOf(Deck(deckId = 0, deckName = "", folderId = 0)) }
 
-    var newName by remember { mutableStateOf("") }
-
     var listDropdownMenu = listOf(
         DropdownMenuData(
             title = stringResource(R.string.dropdown_menu_data_rename_list),
             action = {
-                dropdownMenuState.openRenameDialog()
+                dialogState.openRenameDialog()
             }
         ),
         DropdownMenuData(
@@ -167,7 +168,9 @@ fun DeckScreen(
                                             interactionSource = remember { MutableInteractionSource() },
                                             indication = null
                                         ) {
-                                            navController.navigate(NavigationRoute.CardScreen.route)
+                                            navController.navigate(NavigationRoute.CardScreen.createRoute(
+                                                card.cardId
+                                            ))
                                         }
                                 )
                                 Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_small)))
@@ -197,7 +200,7 @@ fun DeckScreen(
         }
     )
 
-    if (dropdownMenuState.isOpeningDialog) {
+    if (dialogState.isOpeningDialog) {
         Box(modifier = Modifier.alpha(dialogVisibleAnimation)) {
             Box(
                 modifier = Modifier
@@ -214,17 +217,18 @@ fun DeckScreen(
                         titleDialog = stringResource(R.string.rename_title_item_dialog),
                         placeholder = stringResource(R.string.rename_item_dialog_text_input_title_deck),
                         buttonText = stringResource(R.string.save_text),
-                        value = newName,
-                        onValueChange = { newValue -> newName = newValue },
+                        value = dialogState.isEnterDialogText,
+                        validation = true,
+                        onValueChange = { newValue -> dialogState.isEnterDialogText = newValue },
                         onBackClick = {
-                            dropdownMenuState.closeDialog()
+                            dialogState.closeDialog()
                         },
                         onClickButton = {
                             deckViewModel.renameDeck(
                                 deckId = deck.data.deckId,
-                                newDeckName = newName
+                                newDeckName = dialogState.isEnterDialogText
                             )
-                            dropdownMenuState.closeDialog()
+                            dialogState.closeDialog()
                             deckViewModel.getDeckById(deck.data.deckId)
                         },
                         modifier = Modifier

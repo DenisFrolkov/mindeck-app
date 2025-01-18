@@ -197,7 +197,6 @@ private fun Content(
             placeholder = stringResource(R.string.enter_question_for_card),
             value = cardState.question,
             onValueChange = { creationCardViewModel.updateCardState { copy(question = it) } },
-            validation = validation,
             textStyle = MaterialTheme.typography.bodyMedium,
             placeholderTextStyle = MaterialTheme.typography.bodyMedium.copy(
                 color = if (cardState.question.isBlank() && validation != null && !validation) MaterialTheme.colorScheme.error else text_gray
@@ -220,7 +219,6 @@ private fun Content(
             placeholder = stringResource(R.string.enter_answer_for_card),
             value = cardState.answer,
             onValueChange = { creationCardViewModel.updateCardState { copy(answer = it) } },
-            validation = validation,
             textStyle = MaterialTheme.typography.bodyMedium,
             placeholderTextStyle = MaterialTheme.typography.bodyMedium.copy(
                 color = if (cardState.answer.isEmpty() && validation != null && !validation) MaterialTheme.colorScheme.error else text_gray
