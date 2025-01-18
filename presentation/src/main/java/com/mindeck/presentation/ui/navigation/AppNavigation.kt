@@ -69,8 +69,8 @@ fun AppNavigation(
             arguments = listOf(navArgument("folderId") { type = NavType.IntType })
         ) { backStackEntry ->
             val folderId = backStackEntry.arguments?.getInt("folderId")
-            folderViewModel.getFolderById(folderId = folderId!!)
-            folderViewModel.getAllDecksByFolderId(folderId = folderId!!)
+            folderViewModel.getFolderById(folderId!!)
+            folderViewModel.getAllDecksByFolderId(folderId)
             FolderScreen(
                 navController = navController,
                 folderViewModel = folderViewModel,
@@ -84,8 +84,8 @@ fun AppNavigation(
             arguments = listOf(navArgument("deckId") { type = NavType.IntType })
         ) { backStackEntry ->
             val deckId = backStackEntry.arguments?.getInt("deckId")
-            deckViewModel.getDeckById(deckId = deckId!!)
-            deckViewModel.getAllCardsByDeckId(deckId!!)
+            deckViewModel.getDeckById(deckId!!)
+            deckViewModel.getAllCardsByDeckId(deckId)
             DeckScreen(
                 navController = navController,
                 deckViewModel = deckViewModel,
