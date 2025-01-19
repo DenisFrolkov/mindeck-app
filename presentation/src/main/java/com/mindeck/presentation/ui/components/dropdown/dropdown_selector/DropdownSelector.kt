@@ -34,12 +34,12 @@ import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
 import com.mindeck.presentation.ui.theme.outline_medium_gray
 import com.mindeck.presentation.ui.theme.text_black
-import com.mindeck.presentation.uiState.UiState
+import com.mindeck.presentation.state.UiState
 
 @Composable
 fun DropdownSelector(
     label: String,
-    validation: Boolean?,
+    validation: Boolean,
     selectedItem: Pair<String, Int?>,
     itemsState: UiState<List<Pair<String, Int>>>,
     isEnabled: Boolean = true,
@@ -49,7 +49,7 @@ fun DropdownSelector(
 ) {
     val dropdownSelectorState = remember { DropdownSelectorState() }
 
-    val isError = selectedItem.second == null && validation != null && !validation
+    val isValid = selectedItem.second != null || validation
 
     Row {
         Text(
@@ -78,13 +78,13 @@ fun DropdownSelector(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(
-                        color = if (isError) MaterialTheme.colorScheme.onError else MaterialTheme.colorScheme.onPrimary,
+                        color = if (isValid) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onError,
                         shape = MaterialTheme.shapes.extraSmall
                     )
                     .height(dimenDpResource(R.dimen.dropdown_menu_item_height))
                     .border(
                         dimenDpResource(R.dimen.border_width_dot_two_five),
-                        color = if (isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.outline,
+                        color = if (isValid) MaterialTheme.colorScheme.outline else MaterialTheme.colorScheme.error,
                         shape = if (dropdownSelectorState.isExpanded) RoundedCornerShape(
                             topStart = dimenDpResource(R.dimen.text_input_topStart_padding),
                             topEnd = dimenDpResource(R.dimen.text_input_topEnd_padding),
@@ -94,7 +94,7 @@ fun DropdownSelector(
             ) {
                 Text(
                     text = selectedItem.first,
-                    style = textStyle.copy(color = if (isError) MaterialTheme.colorScheme.error else text_black)
+                    style = textStyle.copy(color = if (isValid) text_black else MaterialTheme.colorScheme.error)
                 )
             }
 
