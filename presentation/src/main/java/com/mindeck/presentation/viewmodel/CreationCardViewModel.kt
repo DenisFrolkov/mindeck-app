@@ -10,27 +10,15 @@ import com.mindeck.domain.models.Folder
 import com.mindeck.domain.usecases.cardUseCase.CreateCardUseCase
 import com.mindeck.domain.usecases.deckUseCases.GetAllDecksByFolderIdUseCase
 import com.mindeck.domain.usecases.folderUseCases.GetAllFoldersUseCase
-import com.mindeck.presentation.uiState.UiState
+import com.mindeck.presentation.state.CardState
+import com.mindeck.presentation.state.DropdownState
+import com.mindeck.presentation.state.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
-data class CardState(
-    var title: String,
-    var question: String,
-    var answer: String,
-    var tag: String,
-    var deckId: Int
-)
-
-data class DropdownState(
-    var selectedFolder: Pair<String, Int?>,
-    var selectedDeck: Pair<String, Int?>,
-    var selectedType: Pair<String, Int?>
-)
 
 @HiltViewModel
 class CreationCardViewModel @Inject constructor(
@@ -104,25 +92,22 @@ class CreationCardViewModel @Inject constructor(
         }
     }
 
-    fun validateInput(cardState: CardState, dropdownState: DropdownState) {
+    fun validateInput(cardState: CardState, dropdownState: DropdownState): Boolean {
         _validation.value = cardState.title.isNotBlank() &&
                 cardState.question.isNotBlank() &&
                 cardState.answer.isNotBlank() &&
                 dropdownState.selectedDeck.second != null &&
                 dropdownState.selectedType.second != null
-    }
-
-    fun resetValidation() {
-        _validation.value = null
+        return _validation.value == true
     }
 
     fun clear() {
-        _validation.value = null
         updateCardState { copy(title = "", question = "", answer = "", tag = "", deckId = -1) }
         updateDropdownState { copy(
             selectedFolder = Pair("Выберите папку", null),
             selectedDeck = Pair("Выберите колоду", null),
             selectedType = Pair("Выберите тип карточки", null)
         ) }
+        _validation.value = null
     }
 }
