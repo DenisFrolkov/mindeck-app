@@ -32,6 +32,7 @@
 
     //Dimens for DisplayCardItem
     <dimen name="display_card_item_size">48dp</dimen>
+    <dimen name="display_card_item_animation_size">24dp</dimen>
 
     //Divider
     <dimen name="horizontal_divider_one_height">1dp</dimen>

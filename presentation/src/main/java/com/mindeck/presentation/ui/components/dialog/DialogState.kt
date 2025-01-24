@@ -13,6 +13,9 @@ class DialogState(
     var isOpeningDialog by mutableStateOf(initialDialog)
         private set
 
+    var isOpeningMoveDialog by mutableStateOf(false)
+        private set
+
     var validation by mutableStateOf<Boolean?>(null)
         private set
 
@@ -37,8 +40,14 @@ class DialogState(
         isOpeningDialog = true
     }
 
-    fun openDialog() {
+    fun openMoveDialog() {
+        isOpeningMoveDialog = true
         isOpeningDialog = true
+    }
+
+    fun closeMoveDialog() {
+        isOpeningMoveDialog = false
+        isOpeningDialog = false
     }
 
     fun closeDialog() {
@@ -47,6 +56,7 @@ class DialogState(
         isOpeningDialog = false
         isOpeningRenameDialog = false
         isOpeningCreateDialog = false
+        isOpeningMoveDialog = false
     }
 
     fun validationCreate(folderName: String): Boolean {

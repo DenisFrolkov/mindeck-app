@@ -1,5 +1,11 @@
 package com.mindeck.presentation.ui.components.folder
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.with
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -8,6 +14,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -24,9 +32,13 @@ import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
 import com.mindeck.presentation.ui.components.utils.formatNumber
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun DisplayCardItem(
     showCount: Boolean,
+    showEditMode: Boolean = false,
+    isSelected: Boolean = false,
+    onCheckedChange: () -> Unit = {},
     itemIcon: Painter,
     numberOfCards: Int = 0,
     itemName: String,
@@ -40,7 +52,6 @@ fun DisplayCardItem(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
     ) {
-
         if (showCount) {
             Text(
                 text = formatNumber(numberOfCards),
@@ -86,12 +97,32 @@ fun DisplayCardItem(
                 .size(dimenDpResource(R.dimen.display_card_item_size))
                 .background(color = backgroundColor)
         ) {
-            Icon(
-                modifier = Modifier.size(dimenDpResource(R.dimen.icon_size)),
-                painter = itemIcon,
-                tint = iconColor,
-                contentDescription = stringResource(R.string.folder_icon)
-            )
+            AnimatedContent(
+                modifier = Modifier
+                    .size(dimenDpResource(R.dimen.display_card_item_animation_size))
+                    .align(Alignment.Center),
+                targetState = showEditMode,
+                transitionSpec = {
+                    fadeIn(animationSpec = tween(200)) with fadeOut(animationSpec = tween(200))
+                }
+            ) { editModeEnabled ->
+                if (editModeEnabled) {
+                    Checkbox(
+                        checked = isSelected,
+                        onCheckedChange = {
+                            onCheckedChange()
+                        },
+                        colors = CheckboxDefaults.colors(uncheckedColor = MaterialTheme.colorScheme.primary)
+                    )
+                } else {
+                    Icon(
+                        modifier = Modifier.size(dimenDpResource(R.dimen.icon_size)),
+                        painter = itemIcon,
+                        tint = iconColor,
+                        contentDescription = stringResource(R.string.folder_icon)
+                    )
+                }
+            }
         }
     }
 }

@@ -81,7 +81,7 @@ fun FoldersScreen(
         DropdownMenuData(
             title = stringResource(R.string.dropdown_menu_data_create_folder_list),
             action = {
-                dialogState.openDialog()
+                dialogState.openCreateDialog()
             }
         )
     )
