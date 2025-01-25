@@ -74,7 +74,6 @@ fun AppNavigation(
             FolderScreen(
                 navController = navController,
                 folderViewModel = folderViewModel,
-                deckViewModel = deckViewModel
             )
         }
         composable(
