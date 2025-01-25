@@ -3,6 +3,7 @@ package com.mindeck.presentation.ui.components.dialog
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import kotlinx.coroutines.flow.MutableStateFlow
 
 class DialogState(
     initialDialog: Boolean = false,
@@ -10,6 +11,10 @@ class DialogState(
     val scrimDialogAlpha: Float = 0.5f,
     val animationDuration: Int = 100
 ) {
+
+    var isSelectItem = MutableStateFlow<Int?>(null)
+        private set
+
     var isOpeningDialog by mutableStateOf(initialDialog)
         private set
 
@@ -48,6 +53,7 @@ class DialogState(
     fun closeMoveDialog() {
         isOpeningMoveDialog = false
         isOpeningDialog = false
+        isSelectItem.value = null
     }
 
     fun closeDialog() {
@@ -62,5 +68,9 @@ class DialogState(
     fun validationCreate(folderName: String): Boolean {
         validation = folderName.isNotBlank()
         return validation == true
+    }
+
+    fun updateSelectItem(folderId: Int?) {
+        isSelectItem.value = folderId
     }
 }

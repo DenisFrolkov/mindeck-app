@@ -15,14 +15,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -31,7 +29,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -39,21 +36,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.mindeck.domain.models.Deck
 import com.mindeck.domain.models.Folder
 import com.mindeck.presentation.R
 import com.mindeck.presentation.state.UiState
 import com.mindeck.presentation.state.UiState.Loading.mapSuccess
-import com.mindeck.presentation.ui.components.buttons.ActionHandlerButton
-import com.mindeck.presentation.ui.components.buttons.SaveDataButton
+import com.mindeck.presentation.state.mapToUiState
 import com.mindeck.presentation.ui.components.common.ActionBar
+import com.mindeck.presentation.ui.components.common.ButtonMoveMode
 import com.mindeck.presentation.ui.components.common.DisplayItemCount
 import com.mindeck.presentation.ui.components.dialog.CreateItemDialog
 import com.mindeck.presentation.ui.components.dialog.DialogState
@@ -67,9 +60,6 @@ import com.mindeck.presentation.ui.components.folder.DisplayCardItem
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
 import com.mindeck.presentation.ui.components.utils.dimenFloatResource
 import com.mindeck.presentation.ui.navigation.NavigationRoute
-import com.mindeck.presentation.ui.theme.background_light_blue
-import com.mindeck.presentation.ui.theme.scrim_black
-import com.mindeck.presentation.ui.theme.text_white
 import com.mindeck.presentation.viewmodel.FolderViewModel
 
 @Composable
@@ -96,11 +86,10 @@ fun FolderScreen(
 
     val selectedDecks by folderViewModel.selectedDecks.collectAsState()
     val validation = dialogState.validation
-
-    val selectFolder by folderViewModel.isSelectFolder.collectAsState()
+    val selectedElement by dialogState.isSelectItem.collectAsState()
 
     var listDropdownMenu =
-        dropdownMenuDataList(dialogState, folderViewModel, navController, dropdownMenuState)
+        dropdownMenuDataList(dialogState, folderViewModel, navController, dropdownMenuState, folder)
 
     Surface(
         modifier = Modifier
@@ -119,10 +108,10 @@ fun FolderScreen(
                         )
                     }
                 ) { editModeEnabled ->
-                    if (!editModeEnabled) {
-                        FolderTopBar(navController, dropdownMenuState)
+                    if (editModeEnabled) {
+                        FolderEditTopBar(selectedDecks, dialogState, folderViewModel)
                     } else {
-                        FolderEditTopBar(folderViewModel, selectedDecks, dialogState)
+                        FolderTopBar(navController, dropdownMenuState)
                     }
                 }
             },
@@ -143,10 +132,10 @@ fun FolderScreen(
         )
 
         FolderDialog(
+            selectedElement,
             dialogState,
             dialogVisibleAnimation,
             folder,
-            selectFolder,
             folders,
             validation,
             folderViewModel
@@ -156,9 +145,9 @@ fun FolderScreen(
 
 @Composable
 private fun FolderEditTopBar(
-    folderViewModel: FolderViewModel,
     selectedDecks: Set<Int>,
-    dialogState: DialogState
+    dialogState: DialogState,
+    folderViewModel: FolderViewModel
 ) {
     Box(
         modifier = Modifier
@@ -170,45 +159,15 @@ private fun FolderEditTopBar(
             horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .clip(shape = MaterialTheme.shapes.extraLarge)
-                    .background(
-                        color = MaterialTheme.colorScheme.outlineVariant,
-                        shape = MaterialTheme.shapes.extraLarge
-                    )
-                    .padding(horizontal = 12.dp, vertical = 8.dp)
-                    .width(110.dp)
-                    .clickable { folderViewModel.clearSelection() }
-            ) {
-                Text(
-                    text = "Отменить",
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    fontSize = 14.sp
-                )
-            }
+            ButtonMoveMode(
+                buttonTitle = stringResource(R.string.text_move_mode_top_bar_back_button),
+                onClickButton = { folderViewModel.clearSelectDeck() }
+            )
             if (selectedDecks.isNotEmpty()) {
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier
-                        .clip(shape = MaterialTheme.shapes.extraLarge)
-                        .background(
-                            color = MaterialTheme.colorScheme.outlineVariant,
-                            shape = MaterialTheme.shapes.extraLarge
-                        )
-                        .padding(horizontal = 12.dp, vertical = 8.dp)
-                        .width(110.dp)
-                        .clickable {
-                            dialogState.openMoveDialog()
-                        }
-                ) {
-                    Text(
-                        text = "Редактировать",
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        fontSize = 14.sp
-                    )
-                }
+                ButtonMoveMode(
+                    buttonTitle = stringResource(R.string.text_move_mode_top_bar_edit_button),
+                    onClickButton = { dialogState.openMoveDialog() }
+                )
             }
         }
     }
@@ -261,7 +220,8 @@ private fun Content(
             .padding(horizontal = dimenDpResource(R.dimen.padding_medium))
             .statusBarsPadding()
     ) {
-        FolderInfo(folder, decks)
+        FolderInfo(folder)
+        Spacer(Modifier.height(dimenDpResource(R.dimen.spacer_medium)))
         DeckInfo(
             navController,
             decks,
@@ -278,9 +238,9 @@ private fun dropdownMenuDataList(
     dialogState: DialogState,
     folderViewModel: FolderViewModel,
     navController: NavController,
-    dropdownMenuState: DropdownMenuState
+    dropdownMenuState: DropdownMenuState,
+    folder: UiState<Folder>
 ): List<DropdownMenuData> {
-    val folder = folderViewModel.folderUIState.collectAsState().value
     return listOf(
         DropdownMenuData(
             title = stringResource(R.string.dropdown_menu_data_rename_list),
@@ -306,13 +266,9 @@ private fun dropdownMenuDataList(
         DropdownMenuData(
             title = stringResource(R.string.dropdown_menu_data_remote_list),
             action = {
-                when (folder) {
-                    is UiState.Success -> {
-                        dropdownMenuState.reset()
-                        folderViewModel.deleteFolder(folder = folder.data)
-                        navController.popBackStack()
-                    }
-                }
+                dropdownMenuState.reset()
+                folder.mapSuccess { it }?.let { folderViewModel.deleteFolder(it) }
+                navController.popBackStack()
             }
         )
     )
@@ -322,26 +278,17 @@ private fun dropdownMenuDataList(
 @Composable
 private fun FolderInfo(
     folder: UiState<Folder>,
-    decks: UiState<List<Deck>>
 ) {
     when (folder) {
         is UiState.Success -> {
-            Text(
-                text = folder.data.folderName,
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentSize(Alignment.Center)
-            )
-            Spacer(Modifier.height(dimenDpResource(R.dimen.spacer_medium)))
-            when (decks) {
-                is UiState.Success -> {
-                    DisplayItemCount(
-                        plurals = R.plurals.deck_amount,
-                        count = decks.data.size,
-                        textStyle = MaterialTheme.typography.bodyMedium
-                    )
-                }
+            Column {
+                Text(
+                    text = folder.data.folderName,
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentSize(Alignment.Center)
+                )
             }
         }
     }
@@ -357,6 +304,11 @@ private fun DeckInfo(
 ) {
     when (decks) {
         is UiState.Success -> {
+            DisplayItemCount(
+                plurals = R.plurals.deck_amount,
+                count = decks.data.size,
+                textStyle = MaterialTheme.typography.bodyMedium
+            )
             LazyColumn(modifier = Modifier) {
                 items(items = decks.data, key = { it.deckId }) { deck ->
                     DisplayCardItem(
@@ -402,10 +354,10 @@ private fun DeckInfo(
 
 @Composable
 private fun FolderDialog(
+    selectedElement: Int?,
     dialogState: DialogState,
     dialogVisibleAnimation: Float,
     folder: UiState<Folder>,
-    selectFolder: Int?,
     folders: UiState<List<Folder>>,
     validation: Boolean?,
     folderViewModel: FolderViewModel
@@ -479,7 +431,26 @@ private fun FolderDialog(
                 }
 
             } else if (dialogState.isOpeningMoveDialog) {
-                SelectItemDialog(dialogState, folderViewModel, folders, selectFolder, folderId = folder.mapSuccess { it.folderId }!!)
+                SelectItemDialog(
+                    titleDialog = stringResource(R.string.dialog_select_folder),
+                    dialogState = dialogState,
+                    selectItems = folders.mapToUiState { folders ->
+                        folders.map { Pair(it.folderName, it.folderId) }
+                    },
+                    selectedElement = selectedElement,
+                    sourceLocation = folder.mapSuccess { it.folderId }!!,
+                    fetchList = { folderViewModel.getAllFolders() },
+                    onClickSave = {
+                        folderViewModel.moveDecksBetweenFolders(
+                            sourceFolderId = folder.mapSuccess { it.folderId }!!,
+                            targetFolderId = selectedElement!!,
+                            deckIds = folderViewModel.selectedDecks.value.sorted().toList()
+                        )
+                        dialogState.closeMoveDialog()
+                        folderViewModel.updateEditMode()
+                        folderViewModel.clearSelectDeck()
+                    },
+                )
             }
         }
     }

@@ -34,6 +34,11 @@ private val Typography = Typography(
         fontSize = 16.sp,
         color = text_black
     ),
+    bodyLarge = TextStyle(
+        fontFamily = FontFamily(Font(R.font.opensans_medium)),
+        fontSize = 16.sp,
+        color = text_black
+    ),
     bodyMedium = TextStyle(
         fontFamily = FontFamily(Font(R.font.opensans_medium)),
         fontSize = 14.sp,

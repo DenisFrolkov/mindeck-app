@@ -1,9 +1,6 @@
 package com.mindeck.presentation.ui.components.dialog
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -28,38 +25,33 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.mindeck.domain.models.Folder
 import com.mindeck.presentation.R
 import com.mindeck.presentation.state.UiState
 import com.mindeck.presentation.ui.components.buttons.ActionHandlerButton
 import com.mindeck.presentation.ui.components.buttons.SaveDataButton
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
 import com.mindeck.presentation.ui.components.utils.dimenFloatResource
-import com.mindeck.presentation.ui.theme.background_light_blue
-import com.mindeck.presentation.ui.theme.scrim_black
 import com.mindeck.presentation.ui.theme.text_white
-import com.mindeck.presentation.viewmodel.FolderViewModel
 
 @Composable
 fun SelectItemDialog(
+    titleDialog: String,
     dialogState: DialogState,
-    folderViewModel: FolderViewModel,
-    folders: UiState<List<Folder>>,
-    selectFolder: Int?,
-    folderId: Int
+    selectedElement: Int?,
+    sourceLocation: Int,
+    selectItems: UiState<List<Pair<String, Int>>>,
+    fetchList: () -> Unit,
+    onClickSave: () -> Unit,
 ) {
     LaunchedEffect(dialogState.isOpeningMoveDialog) {
-        folderViewModel.getAllFolders()
+        fetchList()
     }
 
-    when (folders) {
+    when (selectItems) {
         is UiState.Success -> {
             Box(
                 contentAlignment = Alignment.Center,
@@ -71,7 +63,7 @@ fun SelectItemDialog(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
                         .background(
-                            color = background_light_blue,
+                            color = MaterialTheme.colorScheme.background,
                             shape = MaterialTheme.shapes.small
                         )
                         .clip(MaterialTheme.shapes.small)
@@ -93,32 +85,36 @@ fun SelectItemDialog(
                                 .size(dimenDpResource(R.dimen.padding_medium)),
                         )
                         Text(
-                            text = "Выберите папку",
+                            text = titleDialog,
                             style = MaterialTheme.typography.titleMedium,
-                            color = scrim_black,
                             textAlign = TextAlign.Center,
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
                     Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacer_large)))
-                    LazyColumn(modifier = Modifier.heightIn(max = 115.dp)) {
-                        items(folders.data) { data ->
-                            if (data.folderId != folderId) {
-                                SelectItem(selectFolder == data.folderId, folderViewModel, data)
+                    LazyColumn(modifier = Modifier.heightIn(max = dimenDpResource(R.dimen.dialog_list_move_item_max_height))) {
+                        items(selectItems.data) { item ->
+                            if (item.second != sourceLocation) {
+                                SelectItem(
+                                    itemSelected = selectedElement == item.second,
+                                    item = item,
+                                    onItemSelected = {
+                                        if (selectedElement == item.second) {
+                                            dialogState.updateSelectItem(null)
+                                        } else {
+                                            dialogState.updateSelectItem(item.second)
+                                        }
+                                    }
+                                )
                                 Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacer_small)))
                             }
                         }
                     }
-                    Spacer(
-                        modifier = Modifier
-                            .background(Color.Red)
-                            .height(dimensionResource(R.dimen.spacer_medium))
-                    )
                     AnimatedVisibility(
-                        visible = selectFolder != null
+                        visible = selectedElement != null
                     ) {
                         SaveDataButton(
-                            text = "Сохранить",
+                            text = stringResource(R.string.save_text),
                             textStyle = MaterialTheme.typography.bodyMedium.copy(
                                 color = text_white
                             ),
@@ -131,15 +127,7 @@ fun SelectItemDialog(
                                     interactionSource = remember { MutableInteractionSource() },
                                     indication = null
                                 ) {
-                                    folderViewModel.moveDecksBetweenFolders(
-                                        sourceFolderId = folderId,
-                                        targetFolderId = selectFolder!!,
-                                        deckIds = folderViewModel.selectedDecks.value.sorted().toList()
-                                    )
-                                    dialogState.closeMoveDialog()
-                                    folderViewModel.updateEditMode()
-                                    folderViewModel.updateSelectFolder(null)
-                                    folderViewModel.clearSelectDeck()
+                                    onClickSave()
                                 }
                         )
                     }
@@ -151,16 +139,18 @@ fun SelectItemDialog(
 
 @Composable
 private fun SelectItem(
-    selectFolder: Boolean,
-    folderViewModel: FolderViewModel,
-    data: Folder
+    itemSelected: Boolean,
+    item: Pair<String, Int>,
+    onItemSelected: () -> Unit
 ) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .background(
                 MaterialTheme.colorScheme.secondary.copy(
-                    alpha = if (selectFolder) 1f else .25f
+                    alpha = if (itemSelected) dimenFloatResource(R.dimen.dialog_background_selected_item) else dimenFloatResource(
+                        R.dimen.dialog_background_unselected_item
+                    )
                 )
             )
             .border(
@@ -169,18 +159,12 @@ private fun SelectItem(
                 MaterialTheme.shapes.extraSmall
             )
             .clickable {
-                if (selectFolder) {
-                    folderViewModel.updateSelectFolder(null)
-                } else {
-                    folderViewModel.updateSelectFolder(data.folderId)
-                }
+                onItemSelected()
             }
     ) {
         Text(
-            text = data.folderName,
-            style = MaterialTheme.typography.bodyMedium.copy(
-                fontSize = 16.sp
-            ),
+            text = item.first,
+            style = MaterialTheme.typography.bodyLarge,
             modifier = Modifier
                 .padding(start = dimenDpResource(R.dimen.padding_extra_small))
                 .padding(
