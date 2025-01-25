@@ -85,8 +85,8 @@ fun FolderScreen(
     val isEditModeEnabled = folderViewModel.isEditModeEnabled.collectAsState().value
 
     val selectedDecks by folderViewModel.selectedDecks.collectAsState()
-    val validation = dialogState.validation
     val selectedElement by dialogState.isSelectItem.collectAsState()
+    val validation = dialogState.validation
 
     var listDropdownMenu =
         dropdownMenuDataList(dialogState, folderViewModel, navController, dropdownMenuState, folder)

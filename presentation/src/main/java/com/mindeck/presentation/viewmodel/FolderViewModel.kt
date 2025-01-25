@@ -24,14 +24,14 @@ import javax.inject.Inject
 @HiltViewModel
 class FolderViewModel @Inject constructor(
     private val getAllFoldersUseCase: GetAllFoldersUseCase,
-    private val getFolderByIdUseCase: GetFolderByIdUseCase,
     private val getAllDecksByFolderIdUseCase: GetAllDecksByFolderIdUseCase,
+    private val getFolderByIdUseCase: GetFolderByIdUseCase,
+    private val moveDecksBetweenFoldersUseCase: MoveDecksBetweenFoldersUseCase,
     private val createDeckUseCase: CreateDeckUseCase,
     private val renameFolderUseCase: RenameFolderUseCase,
     private val deleteFolderUseCase: DeleteFolderUseCase,
     private val deleteDecksFromFolderUseCase: DeleteDecksFromFolderUseCase,
     private val addDecksToFolderUseCase: AddDecksToFolderUseCase,
-    private val moveDecksBetweenFoldersUseCase: MoveDecksBetweenFoldersUseCase
 ) : ViewModel() {
 
     private val _folderUIState = MutableStateFlow<UiState<Folder>>(UiState.Loading)
@@ -49,17 +49,6 @@ class FolderViewModel @Inject constructor(
     private val _selectedDecks = MutableStateFlow<Set<Int>>(emptySet())
     val selectedDecks: StateFlow<Set<Int>> = _selectedDecks
 
-    fun getFolderById(folderId: Int) {
-        viewModelScope.launch {
-            try {
-                val folder = getFolderByIdUseCase(folderId = folderId)
-                _folderUIState.value = UiState.Success(folder)
-            } catch (e: Exception) {
-                _folderUIState.value = UiState.Error(e)
-            }
-        }
-    }
-
     fun getAllFolders() {
         viewModelScope.launch {
             try {
@@ -76,12 +65,33 @@ class FolderViewModel @Inject constructor(
     fun getAllDecksByFolderId(folderId: Int) {
         viewModelScope.launch {
             try {
-                getAllDecksByFolderIdUseCase(folderId = folderId).collect { decks ->
+                getAllDecksByFolderIdUseCase(folderId).collect { decks ->
                     _deckByIdrUIState.value = UiState.Success(decks)
                 }
             } catch (e: Exception) {
                 _deckByIdrUIState.value = UiState.Error(e)
             }
+        }
+    }
+
+    fun getFolderById(folderId: Int) {
+        viewModelScope.launch {
+            try {
+                val folder = getFolderByIdUseCase(folderId)
+                _folderUIState.value = UiState.Success(folder)
+            } catch (e: Exception) {
+                _folderUIState.value = UiState.Error(e)
+            }
+        }
+    }
+
+    fun moveDecksBetweenFolders(
+        deckIds: List<Int>,
+        sourceFolderId: Int,
+        targetFolderId: Int
+    ) {
+        viewModelScope.launch {
+            moveDecksBetweenFoldersUseCase.invoke(deckIds, sourceFolderId, targetFolderId)
         }
     }
 
@@ -95,13 +105,13 @@ class FolderViewModel @Inject constructor(
         }
     }
 
+    fun updateEditMode() {
+        _isEditModeEnabled.value = !_isEditModeEnabled.value
+    }
+
     fun clearSelectDeck() {
         _selectedDecks.value = emptySet()
         updateEditMode()
-    }
-
-    fun updateEditMode() {
-        _isEditModeEnabled.value = !_isEditModeEnabled.value
     }
 
     fun createDeck(deck: Deck) {
@@ -119,28 +129,6 @@ class FolderViewModel @Inject constructor(
     fun deleteFolder(folder: Folder) {
         viewModelScope.launch {
             deleteFolderUseCase.invoke(folder)
-        }
-    }
-
-    fun addDecksToFolder(deckIds: List<Int>, folderId: Int) {
-        viewModelScope.launch {
-            addDecksToFolderUseCase.invoke(deckIds = deckIds, folderId = folderId)
-        }
-    }
-
-    fun deleteDecksFromFolder(deckIds: List<Int>, folderId: Int) {
-        viewModelScope.launch {
-            deleteDecksFromFolderUseCase.invoke(deckIds = deckIds, folderId = folderId)
-        }
-    }
-
-    fun moveDecksBetweenFolders(
-        deckIds: List<Int>,
-        sourceFolderId: Int,
-        targetFolderId: Int
-    ) {
-        viewModelScope.launch {
-            moveDecksBetweenFoldersUseCase.invoke(deckIds, sourceFolderId, targetFolderId)
         }
     }
 }

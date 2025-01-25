@@ -11,25 +11,24 @@ class DialogState(
     val scrimDialogAlpha: Float = 0.5f,
     val animationDuration: Int = 100
 ) {
-
-    var isSelectItem = MutableStateFlow<Int?>(null)
-        private set
-
     var isOpeningDialog by mutableStateOf(initialDialog)
         private set
 
     var isOpeningMoveDialog by mutableStateOf(false)
         private set
 
-    var validation by mutableStateOf<Boolean?>(null)
-        private set
-
-    var isEnterDialogText by mutableStateOf("")
-
     var isOpeningRenameDialog by mutableStateOf(false)
         private set
 
     var isOpeningCreateDialog by mutableStateOf(false)
+        private set
+
+    var isEnterDialogText by mutableStateOf("")
+
+    var isSelectItem = MutableStateFlow<Int?>(null)
+        private set
+
+    var validation by mutableStateOf<Boolean?>(null)
         private set
 
     val dialogAlpha: Float
