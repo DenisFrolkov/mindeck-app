@@ -81,4 +81,14 @@
     //CircularProgressIndicator Width
     <dimen name="circular_progress_indicator_weight">3dp</dimen>
 
+    //Dialog
+    <dimen name="dialog_list_move_item_max_height">115dp</dimen>
+    <dimen name="dialog_background_selected_item">1f</dimen>
+    <dimen name="dialog_background_unselected_item">0.25f</dimen>
+
+    //MoveMode
+    <dimen name="button_move_mode_wight">110dp</dimen>
+    <dimen name="button_move_mode_horizontal_padding">12dp</dimen>
+    <dimen name="button_move_mode_vertical_padding">10.5dp</dimen>
+
 </resources>

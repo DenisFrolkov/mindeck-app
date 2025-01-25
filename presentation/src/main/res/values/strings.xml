@@ -33,6 +33,11 @@
 
     <string name="text_no_folder">Нет папки</string>
 
+    <string name="dialog_select_folder">Выберите папку</string>
+
+    <string name="text_move_mode_top_bar_back_button">Отменить</string>
+    <string name="text_move_mode_top_bar_edit_button">Редактировать</string>
+
     <string name="dropdown_menu_data_rename_list">Изменить название</string>
     <string name="dropdown_menu_data_edit_list">Редактировать колоды</string>
     <string name="dropdown_menu_data_remote_list">Удалить элемент</string>

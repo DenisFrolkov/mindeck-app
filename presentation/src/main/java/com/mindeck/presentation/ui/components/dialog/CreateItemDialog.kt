@@ -55,7 +55,10 @@ fun CreateItemDialog(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
-                .background(color = background_light_blue, shape = MaterialTheme.shapes.small)
+                .background(
+                    color = MaterialTheme.colorScheme.background,
+                    shape = MaterialTheme.shapes.small
+                )
                 .clip(MaterialTheme.shapes.small)
                 .padding(dimenDpResource(R.dimen.card_input_field_item_padding))
         ) {
@@ -70,7 +73,6 @@ fun CreateItemDialog(
                 Text(
                     text = titleDialog,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = scrim_black,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
                 )

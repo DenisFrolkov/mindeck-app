@@ -34,9 +34,6 @@ class FolderViewModel @Inject constructor(
     private val moveDecksBetweenFoldersUseCase: MoveDecksBetweenFoldersUseCase
 ) : ViewModel() {
 
-    private val _isSelectFolder = MutableStateFlow<Int?>(null)
-    val isSelectFolder: StateFlow<Int?> = _isSelectFolder.asStateFlow()
-
     private val _folderUIState = MutableStateFlow<UiState<Folder>>(UiState.Loading)
     val folderUIState: StateFlow<UiState<Folder>> = _folderUIState
 
@@ -100,15 +97,7 @@ class FolderViewModel @Inject constructor(
 
     fun clearSelectDeck() {
         _selectedDecks.value = emptySet()
-    }
-
-    fun clearSelection() {
-        _selectedDecks.value = emptySet()
-        _isEditModeEnabled.value = false
-    }
-
-    fun updateSelectFolder(folderId: Int?) {
-        _isSelectFolder.value = folderId
+        updateEditMode()
     }
 
     fun updateEditMode() {
