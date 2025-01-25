@@ -3,6 +3,7 @@ package com.mindeck.presentation.ui.components.dialog
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import kotlinx.coroutines.flow.MutableStateFlow
 
 class DialogState(
     initialDialog: Boolean = false,
@@ -13,15 +14,21 @@ class DialogState(
     var isOpeningDialog by mutableStateOf(initialDialog)
         private set
 
-    var validation by mutableStateOf<Boolean?>(null)
+    var isOpeningMoveDialog by mutableStateOf(false)
         private set
-
-    var isEnterDialogText by mutableStateOf("")
 
     var isOpeningRenameDialog by mutableStateOf(false)
         private set
 
     var isOpeningCreateDialog by mutableStateOf(false)
+        private set
+
+    var isEnterDialogText by mutableStateOf("")
+
+    var isSelectItem = MutableStateFlow<Int?>(null)
+        private set
+
+    var validation by mutableStateOf<Boolean?>(null)
         private set
 
     val dialogAlpha: Float
@@ -37,8 +44,15 @@ class DialogState(
         isOpeningDialog = true
     }
 
-    fun openDialog() {
+    fun openMoveDialog() {
+        isOpeningMoveDialog = true
         isOpeningDialog = true
+    }
+
+    fun closeMoveDialog() {
+        isOpeningMoveDialog = false
+        isOpeningDialog = false
+        isSelectItem.value = null
     }
 
     fun closeDialog() {
@@ -47,10 +61,15 @@ class DialogState(
         isOpeningDialog = false
         isOpeningRenameDialog = false
         isOpeningCreateDialog = false
+        isOpeningMoveDialog = false
     }
 
     fun validationCreate(folderName: String): Boolean {
         validation = folderName.isNotBlank()
         return validation == true
+    }
+
+    fun updateSelectItem(folderId: Int?) {
+        isSelectItem.value = folderId
     }
 }
