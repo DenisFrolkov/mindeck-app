@@ -34,6 +34,7 @@
     <string name="text_no_folder">Нет папки</string>
 
     <string name="dialog_select_folder">Выберите папку</string>
+    <string name="warning_no_elements">Нет элементов для выбора</string>
 
     <string name="text_move_mode_top_bar_back_button">Отменить</string>
     <string name="text_move_mode_top_bar_edit_button">Редактировать</string>

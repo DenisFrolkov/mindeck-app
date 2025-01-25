@@ -92,23 +92,37 @@ fun SelectItemDialog(
                         )
                     }
                     Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacer_large)))
-                    LazyColumn(modifier = Modifier.heightIn(max = dimenDpResource(R.dimen.dialog_list_move_item_max_height))) {
-                        items(selectItems.data) { item ->
-                            if (item.second != sourceLocation) {
-                                SelectItem(
-                                    itemSelected = selectedElement == item.second,
-                                    item = item,
-                                    onItemSelected = {
-                                        if (selectedElement == item.second) {
-                                            dialogState.updateSelectItem(null)
-                                        } else {
-                                            dialogState.updateSelectItem(item.second)
+                    if (selectItems.data.size > 1) {
+                        LazyColumn(modifier = Modifier.heightIn(max = dimenDpResource(R.dimen.dialog_list_move_item_max_height))) {
+                            items(selectItems.data) { item ->
+                                if (item.second != sourceLocation) {
+                                    SelectItem(
+                                        itemSelected = selectedElement == item.second,
+                                        item = item,
+                                        onItemSelected = {
+                                            if (selectedElement == item.second) {
+                                                dialogState.updateSelectItem(null)
+                                            } else {
+                                                dialogState.updateSelectItem(item.second)
+                                            }
                                         }
-                                    }
-                                )
-                                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacer_small)))
+                                    )
+                                    Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacer_small)))
+                                }
                             }
                         }
+                    } else {
+                        Text(
+                            stringResource(R.string.warning_no_elements),
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier
+                                .padding(start = dimenDpResource(R.dimen.padding_extra_small))
+                                .padding(
+                                    vertical = dimenDpResource(
+                                        R.dimen.padding_extra_small
+                                    )
+                                )
+                        )
                     }
                     AnimatedVisibility(
                         visible = selectedElement != null
@@ -134,6 +148,7 @@ fun SelectItemDialog(
                 }
             }
         }
+
     }
 }
 

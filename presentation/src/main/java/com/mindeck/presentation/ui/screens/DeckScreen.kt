@@ -80,11 +80,11 @@ fun DeckScreen(
     )
 
     val deck = deckViewModel.deckUIState.collectAsState().value
-    val cards = deckViewModel.cardUIState.collectAsState().value
-    val decks = deckViewModel.decksState.collectAsState().value
+    val cards = deckViewModel.listCardsUiState.collectAsState().value
+    val decks = deckViewModel.listDecksUiState.collectAsState().value
     val isEditModeEnabled = deckViewModel.isEditModeEnabled.collectAsState().value
 
-    val selectedCards by deckViewModel.selectedCards.collectAsState()
+    val selectedCards by deckViewModel.listSelectedCards.collectAsState()
     val validation = dialogState.validation
     val selectedElement by dialogState.isSelectItem.collectAsState()
 
@@ -123,11 +123,11 @@ fun DeckScreen(
             },
             content = { padding ->
                 Content(
-                    deckViewModel,
+                    navController = navController,
                     padding = padding,
+                    deckViewModel = deckViewModel,
                     deck = deck,
                     cards = cards,
-                    navController = navController,
                     dropdownMenuState = dropdownMenuState,
                     listDropdownMenu = listDropdownMenu,
                     dropdownVisibleAnimation = dropdownVisibleAnimation,
@@ -138,13 +138,13 @@ fun DeckScreen(
         )
 
         DeckDialog(
-            dialogState,
-            dialogVisibleAnimation,
-            deck,
-            validation,
-            deckViewModel,
-            decks,
-            selectedElement
+            deckViewModel = deckViewModel,
+            dialogState = dialogState,
+            deck = deck,
+            decks = decks,
+            selectedElement = selectedElement,
+            validation = validation,
+            dialogVisibleAnimation = dialogVisibleAnimation
         )
     }
 }
@@ -424,7 +424,7 @@ private fun DeckDialog(
                         deckViewModel.moveCardsBetweenDecks(
                             sourceFolderId = deck.mapSuccess { it.deckId }!!,
                             targetFolderId = selectedElement!!,
-                            deckIds = deckViewModel.selectedCards.value.sorted().toList()
+                            deckIds = deckViewModel.listSelectedCards.value.sorted().toList()
                         )
                         dialogState.closeMoveDialog()
                         deckViewModel.updateEditMode()
