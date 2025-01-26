@@ -17,7 +17,13 @@ class DialogState(
     var isOpeningMoveDialog by mutableStateOf(false)
         private set
 
+    var isOpeningDeleteDialog by mutableStateOf(false)
+        private set
+
     var isOpeningRenameDialog by mutableStateOf(false)
+        private set
+
+    var isOpenMoveItemsAndDeleteItem by mutableStateOf(false)
         private set
 
     var isOpeningCreateDialog by mutableStateOf(false)
@@ -49,8 +55,27 @@ class DialogState(
         isOpeningDialog = true
     }
 
+    fun openMoveItemsAndDeleteItem() {
+        isOpenMoveItemsAndDeleteItem = true
+    }
+
+    fun closeMoveItemsAndDeleteItem() {
+        isOpenMoveItemsAndDeleteItem = false
+    }
+
     fun closeMoveDialog() {
         isOpeningMoveDialog = false
+        isOpeningDialog = false
+        isSelectItem.value = null
+    }
+
+    fun openDeleteDialog() {
+        isOpeningDeleteDialog = true
+        isOpeningDialog = true
+    }
+
+    fun closeDeleteDialog() {
+        isOpeningDeleteDialog = false
         isOpeningDialog = false
         isSelectItem.value = null
     }
