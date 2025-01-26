@@ -95,6 +95,15 @@ class FolderViewModel @Inject constructor(
         }
     }
 
+    fun addDecksToFolder(
+        deckIds: List<Int>,
+        targetFolderId: Int
+    ) {
+        viewModelScope.launch {
+           addDecksToFolderUseCase.invoke(deckIds, targetFolderId)
+        }
+    }
+
     fun toggleDeckSelection(deckId: Int) {
         _selectedDecks.value = _selectedDecks.value.toMutableSet().apply {
             if (contains(deckId)) {

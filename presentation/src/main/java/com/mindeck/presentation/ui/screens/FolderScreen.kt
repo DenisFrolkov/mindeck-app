@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -38,6 +39,8 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.mindeck.domain.models.Deck
 import com.mindeck.domain.models.Folder
@@ -45,6 +48,7 @@ import com.mindeck.presentation.R
 import com.mindeck.presentation.state.UiState
 import com.mindeck.presentation.state.UiState.Loading.mapSuccess
 import com.mindeck.presentation.state.mapToUiState
+import com.mindeck.presentation.ui.components.buttons.DeleteItemButton
 import com.mindeck.presentation.ui.components.common.ActionBar
 import com.mindeck.presentation.ui.components.common.ButtonMoveMode
 import com.mindeck.presentation.ui.components.common.DisplayItemCount
@@ -89,7 +93,14 @@ fun FolderScreen(
     val validation = dialogState.validation
 
     var listDropdownMenu =
-        dropdownMenuDataList(dialogState, folderViewModel, navController, dropdownMenuState, folder)
+        dropdownMenuDataList(
+            dialogState,
+            folderViewModel,
+            navController,
+            dropdownMenuState,
+            folder,
+            decks
+        )
 
     Surface(
         modifier = Modifier
@@ -132,6 +143,7 @@ fun FolderScreen(
         )
 
         FolderDialog(
+            navController,
             selectedElement,
             dialogState,
             dialogVisibleAnimation,
@@ -166,7 +178,9 @@ private fun FolderEditTopBar(
             if (selectedDecks.isNotEmpty()) {
                 ButtonMoveMode(
                     buttonTitle = stringResource(R.string.text_move_mode_top_bar_edit_button),
-                    onClickButton = { dialogState.openMoveDialog() }
+                    onClickButton = {
+                        dialogState.openMoveDialog()
+                    }
                 )
             }
         }
@@ -239,7 +253,8 @@ private fun dropdownMenuDataList(
     folderViewModel: FolderViewModel,
     navController: NavController,
     dropdownMenuState: DropdownMenuState,
-    folder: UiState<Folder>
+    folder: UiState<Folder>,
+    decks: UiState<List<Deck>>
 ): List<DropdownMenuData> {
     return listOf(
         DropdownMenuData(
@@ -267,8 +282,16 @@ private fun dropdownMenuDataList(
             title = stringResource(R.string.dropdown_menu_data_remote_list),
             action = {
                 dropdownMenuState.reset()
-                folder.mapSuccess { it }?.let { folderViewModel.deleteFolder(it) }
-                navController.popBackStack()
+                when (decks) {
+                    is UiState.Success -> {
+                        if (decks.data.isNotEmpty()) {
+                            dialogState.openDeleteDialog()
+                        } else {
+                            folder.mapSuccess { it }?.let { folderViewModel.deleteFolder(it) }
+                            navController.popBackStack()
+                        }
+                    }
+                }
             }
         )
     )
@@ -354,6 +377,7 @@ private fun DeckInfo(
 
 @Composable
 private fun FolderDialog(
+    navController: NavController,
     selectedElement: Int?,
     dialogState: DialogState,
     dialogVisibleAnimation: Float,
@@ -363,7 +387,10 @@ private fun FolderDialog(
     folderViewModel: FolderViewModel
 ) {
     if (dialogState.isOpeningDialog) {
-        Box(modifier = Modifier.alpha(dialogVisibleAnimation)) {
+        Box(
+            modifier = Modifier
+                .alpha(dialogVisibleAnimation)
+        ) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -441,16 +468,76 @@ private fun FolderDialog(
                     sourceLocation = folder.mapSuccess { it.folderId }!!,
                     fetchList = { folderViewModel.getAllFolders() },
                     onClickSave = {
-                        folderViewModel.moveDecksBetweenFolders(
-                            sourceFolderId = folder.mapSuccess { it.folderId }!!,
-                            targetFolderId = selectedElement!!,
-                            deckIds = folderViewModel.selectedDecks.value.sorted().toList()
-                        )
-                        dialogState.closeMoveDialog()
-                        folderViewModel.updateEditMode()
-                        folderViewModel.clearSelectDeck()
+                        if (dialogState.isOpeningMoveDialog && !dialogState.isOpenMoveItemsAndDeleteItem) {
+                            folderViewModel.moveDecksBetweenFolders(
+                                sourceFolderId = folder.mapSuccess { it.folderId }!!,
+                                targetFolderId = selectedElement!!,
+                                deckIds = folderViewModel.selectedDecks.value.sorted().toList()
+                            )
+                            dialogState.closeMoveDialog()
+                            folderViewModel.updateEditMode()
+                            folderViewModel.clearSelectDeck()
+                        } else if (dialogState.isOpeningMoveDialog && dialogState.isOpenMoveItemsAndDeleteItem) {
+                            folderViewModel.addDecksToFolder(
+                                targetFolderId = selectedElement!!,
+                                deckIds = folderViewModel.selectedDecks.value.sorted().toList()
+                            )
+                            folder.mapSuccess { it }
+                                ?.let { folderViewModel.deleteFolder(it) }
+                            folderViewModel.clearSelectDeck()
+                            dialogState.closeMoveDialog()
+                            dialogState.closeMoveItemsAndDeleteItem()
+                            navController.popBackStack()
+                        }
                     },
                 )
+            } else if (dialogState.isOpeningDeleteDialog) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .fillMaxHeight(dimenFloatResource(R.dimen.alpha_menu_dialog_height))
+                        .padding(horizontal = dimenDpResource(R.dimen.card_input_field_background_horizontal_padding))
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier
+                            .background(
+                                color = MaterialTheme.colorScheme.background,
+                                shape = MaterialTheme.shapes.small
+                            )
+                            .clip(MaterialTheme.shapes.small)
+                            .padding(dimenDpResource(R.dimen.card_input_field_item_padding))
+                    ) {
+                        Text(
+                            text = "Вы хотите удалить папку вместе со всеми колодами или переместить колоды в другую папку?",
+                            style = MaterialTheme.typography.bodyMedium,
+                            textAlign = TextAlign.Start,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Row(
+                            horizontalArrangement = Arrangement.SpaceAround,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            DeleteItemButton(
+                                titleButton = "Удалить все",
+                                onClick = {
+                                    folder.mapSuccess { it }
+                                        ?.let { folderViewModel.deleteFolder(it) }
+                                    navController.popBackStack()
+                                }
+                            )
+                            DeleteItemButton(
+                                titleButton = "Удалить частично",
+                                onClick = {
+                                    dialogState.closeDeleteDialog()
+                                    folderViewModel.updateEditMode()
+                                    dialogState.openMoveItemsAndDeleteItem()
+                                }
+                            )
+                        }
+                    }
+                }
             }
         }
     }
