@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -38,6 +39,8 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.Deck
@@ -58,6 +61,7 @@ import com.mindeck.presentation.ui.navigation.NavigationRoute
 import com.mindeck.presentation.state.UiState
 import com.mindeck.presentation.state.UiState.Loading.mapSuccess
 import com.mindeck.presentation.state.mapToUiState
+import com.mindeck.presentation.ui.components.buttons.DeleteItemButton
 import com.mindeck.presentation.ui.components.common.ButtonMoveMode
 import com.mindeck.presentation.ui.components.dialog.SelectItemDialog
 import com.mindeck.presentation.viewmodel.DeckViewModel
@@ -94,7 +98,8 @@ fun DeckScreen(
             navController,
             deckViewModel,
             dropdownMenuState,
-            deck
+            deck,
+            cards
         )
 
     Surface(
@@ -138,6 +143,7 @@ fun DeckScreen(
         )
 
         DeckDialog(
+            navController = navController,
             deckViewModel = deckViewModel,
             dialogState = dialogState,
             deck = deck,
@@ -245,7 +251,8 @@ private fun dropdownMenuDataList(
     navController: NavController,
     deckViewModel: DeckViewModel,
     dropdownMenuState: DropdownMenuState,
-    deck: UiState<Deck>
+    deck: UiState<Deck>,
+    cards: UiState<List<Card>>
 ): List<DropdownMenuData> {
     return listOf(
         DropdownMenuData(
@@ -271,8 +278,16 @@ private fun dropdownMenuDataList(
             title = stringResource(R.string.dropdown_menu_data_remote_list),
             action = {
                 dropdownMenuState.reset()
-                deck.mapSuccess { it }?.let { deckViewModel.deleteDeck(it) }
-                navController.popBackStack()
+                when (cards) {
+                    is UiState.Success -> {
+                        if (cards.data.isNotEmpty()) {
+                            dialogState.openDeleteDialog()
+                        } else {
+                            deck.mapSuccess { it }?.let { deckViewModel.deleteDeck(it) }
+                            navController.popBackStack()
+                        }
+                    }
+                }
             }
         )
     )
@@ -354,6 +369,7 @@ private fun CardInfo(
 
 @Composable
 private fun DeckDialog(
+    navController: NavController,
     dialogState: DialogState,
     dialogVisibleAnimation: Float,
     deck: UiState<Deck>,
@@ -363,7 +379,10 @@ private fun DeckDialog(
     selectedElement: Int?
 ) {
     if (dialogState.isOpeningDialog) {
-        Box(modifier = Modifier.alpha(dialogVisibleAnimation)) {
+        Box(
+            modifier = Modifier
+                .alpha(dialogVisibleAnimation)
+        ) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -421,16 +440,76 @@ private fun DeckDialog(
                     sourceLocation = deck.mapSuccess { it.deckId }!!,
                     fetchList = { deckViewModel.getAllDecksByFolderId(deck.mapSuccess { it.folderId }!!) },
                     onClickSave = {
-                        deckViewModel.moveCardsBetweenDecks(
-                            sourceFolderId = deck.mapSuccess { it.deckId }!!,
-                            targetFolderId = selectedElement!!,
-                            deckIds = deckViewModel.listSelectedCards.value.sorted().toList()
-                        )
-                        dialogState.closeMoveDialog()
-                        deckViewModel.updateEditMode()
-                        deckViewModel.clearSelection()
+                        if (dialogState.isOpeningMoveDialog && !dialogState.isOpenMoveItemsAndDeleteItem) {
+                            deckViewModel.moveCardsBetweenDecks(
+                                sourceDeckId = deck.mapSuccess { it.deckId }!!,
+                                targetDeckId = selectedElement!!,
+                                deckIds = deckViewModel.listSelectedCards.value.sorted().toList()
+                            )
+                            dialogState.closeMoveDialog()
+                            deckViewModel.updateEditMode()
+                            deckViewModel.clearSelection()
+                        } else if (dialogState.isOpeningMoveDialog && dialogState.isOpenMoveItemsAndDeleteItem) {
+                            deckViewModel.addCardsToDeck(
+                                targetDeckId = selectedElement!!,
+                                cardIds = deckViewModel.listSelectedCards.value.sorted().toList()
+                            )
+                            deck.mapSuccess { it }
+                                ?.let { deckViewModel.deleteDeck(it) }
+                            deckViewModel.clearSelection()
+                            dialogState.closeMoveDialog()
+                            dialogState.closeMoveItemsAndDeleteItem()
+                            navController.popBackStack()
+                        }
                     },
                 )
+            }else if (dialogState.isOpeningDeleteDialog) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .fillMaxHeight(dimenFloatResource(R.dimen.alpha_menu_dialog_height))
+                        .padding(horizontal = dimenDpResource(R.dimen.card_input_field_background_horizontal_padding))
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier
+                            .background(
+                                color = MaterialTheme.colorScheme.background,
+                                shape = MaterialTheme.shapes.small
+                            )
+                            .clip(MaterialTheme.shapes.small)
+                            .padding(dimenDpResource(R.dimen.card_input_field_item_padding))
+                    ) {
+                        Text(
+                            text = stringResource(R.string.deck_management_options_message),
+                            style = MaterialTheme.typography.bodyMedium,
+                            textAlign = TextAlign.Start,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_medium)))
+                        Row(
+                            horizontalArrangement = Arrangement.SpaceAround,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            DeleteItemButton(
+                                titleButton = stringResource(R.string.delete_all_button_text),
+                                onClick = {
+                                    deck.mapSuccess { it }
+                                        ?.let { deckViewModel.deleteDeck(it) }
+                                    navController.popBackStack()
+                                }
+                            )
+                            DeleteItemButton(
+                                titleButton = stringResource(R.string.delete_partially_button_text),
+                                onClick = {
+                                    dialogState.closeDeleteDialog()
+                                    deckViewModel.updateEditMode()
+                                    dialogState.openMoveItemsAndDeleteItem()
+                                }
+                            )
+                        }
+                    }
+                }
             }
         }
     }
