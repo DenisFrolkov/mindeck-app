@@ -4,11 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.Deck
+import com.mindeck.domain.usecases.cardUseCase.AddCardsToDeckUseCase
 import com.mindeck.domain.usecases.cardUseCase.DeleteCardsFromDeckUseCase
 import com.mindeck.domain.usecases.cardUseCase.GetAllCardsByDeckIdUseCase
 import com.mindeck.domain.usecases.cardUseCase.MoveCardsBetweenDeckUseCase
 import com.mindeck.domain.usecases.cardUseCase.UpdateCardUseCase
-import com.mindeck.domain.usecases.deckUseCases.AddDecksToFolderUseCase
 import com.mindeck.domain.usecases.deckUseCases.DeleteDeckUseCase
 import com.mindeck.domain.usecases.deckUseCases.GetAllDecksByFolderIdUseCase
 import com.mindeck.domain.usecases.deckUseCases.GetDeckByIdUseCase
@@ -29,7 +29,7 @@ class DeckViewModel @Inject constructor(
     private val moveCardsBetweenDeckUseCase: MoveCardsBetweenDeckUseCase,
     private val renameDeckUseCase: RenameDeckUseCase,
     private val deleteDeckUseCase: DeleteDeckUseCase,
-    private val addDecksToFolderUseCase: AddDecksToFolderUseCase,
+    private val addCardsToDeckUseCase: AddCardsToDeckUseCase,
     private val deleteCardsFromDeckUseCase: DeleteCardsFromDeckUseCase,
     private val updateCardUseCase: UpdateCardUseCase
 ) : ViewModel() {
@@ -94,6 +94,25 @@ class DeckViewModel @Inject constructor(
         }
     }
 
+    fun moveCardsBetweenDecks(
+        deckIds: List<Int>,
+        sourceDeckId: Int,
+        targetDeckId: Int
+    ) {
+        viewModelScope.launch {
+            moveCardsBetweenDeckUseCase.invoke(deckIds, sourceDeckId, targetDeckId)
+        }
+    }
+
+    fun addCardsToDeck(
+        cardIds: List<Int>,
+        targetDeckId: Int
+    ) {
+        viewModelScope.launch {
+            addCardsToDeckUseCase.invoke(cardIds, targetDeckId)
+        }
+    }
+
     fun updateEditMode() {
         _isEditModeEnabled.value = !_isEditModeEnabled.value
     }
@@ -112,16 +131,6 @@ class DeckViewModel @Inject constructor(
     fun deleteDeck(deck: Deck) {
         viewModelScope.launch {
             deleteDeckUseCase.invoke(deck = deck)
-        }
-    }
-
-    fun moveCardsBetweenDecks(
-        deckIds: List<Int>,
-        sourceFolderId: Int,
-        targetFolderId: Int
-    ) {
-        viewModelScope.launch {
-            moveCardsBetweenDeckUseCase.invoke(deckIds, sourceFolderId, targetFolderId)
         }
     }
 }
