@@ -10,7 +10,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import com.mindeck.presentation.R
+import com.mindeck.presentation.ui.components.utils.dimenDpResource
 
 @Composable
 fun DeleteItemButton(titleButton: String, onClick: () -> Unit) {
@@ -30,8 +31,8 @@ fun DeleteItemButton(titleButton: String, onClick: () -> Unit) {
             text = titleButton,
             style = MaterialTheme.typography.labelMedium.copy(color = MaterialTheme.colorScheme.onPrimary),
             modifier = Modifier.padding(
-                vertical = 8.dp,
-                horizontal = 10.dp
+                vertical = dimenDpResource(R.dimen.padding_extra_small),
+                horizontal = dimenDpResource(R.dimen.padding_small)
             )
         )
     }

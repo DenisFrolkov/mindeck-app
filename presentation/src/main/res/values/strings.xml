@@ -35,9 +35,13 @@
 
     <string name="dialog_select_folder">Выберите папку</string>
     <string name="warning_no_elements">Нет элементов для выбора</string>
+    <string name="folder_management_options_message">Вы хотите удалить папку вместе со всеми колодами или переместить колоды в другую папку?</string>
+    <string name="deck_management_options_message">Вы хотите удалить колоду вместе со всеми карточками или переместить карточки в другую колоду</string>
+    <string name="delete_all_button_text">Удалить</string>
+    <string name="delete_partially_button_text">Переместить</string>
 
     <string name="text_move_mode_top_bar_back_button">Отменить</string>
-    <string name="text_move_mode_top_bar_edit_button">Редактировать</string>
+    <string name="text_move_mode_top_bar_edit_button">Переместить</string>
 
     <string name="dropdown_menu_data_rename_list">Изменить название</string>
     <string name="dropdown_menu_data_edit_list">Редактировать колоды</string>
