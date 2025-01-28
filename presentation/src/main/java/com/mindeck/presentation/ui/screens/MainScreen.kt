@@ -263,7 +263,7 @@ private fun fabMenuDataList(
             text = stringResource(R.string.fab_menu_data_create_folder_list),
             icon = R.drawable.fab_open_menu_create_folder_icon,
             navigation = {
-                dialogState.openCreateDialog()
+                dialogState.toggleCreateDialog()
             }
         ),
         FabMenuData(
@@ -304,16 +304,16 @@ private fun OpeningCreateItemDialog(
                 validation = validation == true || validation == null,
                 value = dialogState.isEnterDialogText,
                 onValueChange = { newValue ->
-                    dialogState.validationCreate(newValue)
+                    dialogState.validationCreateAndRename(newValue)
                     dialogState.isEnterDialogText = newValue
                 },
                 onBackClick = {
-                    dialogState.closeDialog()
+                    dialogState.toggleEditNameDialog()
                 },
                 onClickButton = {
-                    if (dialogState.validationCreate(dialogState.isEnterDialogText)) {
+                    if (dialogState.validationCreateAndRename(dialogState.isEnterDialogText)) {
                         mainViewModel.createFolder(dialogState.isEnterDialogText)
-                        dialogState.closeDialog()
+                        dialogState.toggleCreateDialog()
                     }
                 },
                 modifier = Modifier

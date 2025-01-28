@@ -40,56 +40,37 @@ class DialogState(
     val dialogAlpha: Float
         get() = if (isOpeningDialog) animateExpandedAlpha else 0f
 
-    fun openRenameDialog() {
-        isOpeningRenameDialog = true
-        isOpeningDialog = true
-    }
-
-    fun openCreateDialog() {
-        isOpeningCreateDialog = true
-        isOpeningDialog = true
-    }
-
-    fun openMoveDialog() {
-        isOpeningMoveDialog = true
-        isOpeningDialog = true
-    }
-
-    fun openMoveItemsAndDeleteItem() {
-        isOpenMoveItemsAndDeleteItem = true
-    }
-
-    fun closeMoveItemsAndDeleteItem() {
-        isOpenMoveItemsAndDeleteItem = false
-    }
-
-    fun closeMoveDialog() {
-        isOpeningMoveDialog = false
-        isOpeningDialog = false
-        isSelectItem.value = null
-    }
-
-    fun openDeleteDialog() {
-        isOpeningDeleteDialog = true
-        isOpeningDialog = true
-    }
-
-    fun closeDeleteDialog() {
-        isOpeningDeleteDialog = false
-        isOpeningDialog = false
-        isSelectItem.value = null
-    }
-
-    fun closeDialog() {
+    fun toggleEditNameDialog() {
         validation = null
         isEnterDialogText = ""
-        isOpeningDialog = false
-        isOpeningRenameDialog = false
-        isOpeningCreateDialog = false
-        isOpeningMoveDialog = false
+        isOpeningRenameDialog = !isOpeningRenameDialog
+        isOpeningDialog = !isOpeningDialog
     }
 
-    fun validationCreate(folderName: String): Boolean {
+    fun toggleCreateDialog() {
+        validation = null
+        isEnterDialogText = ""
+        isOpeningCreateDialog = !isOpeningCreateDialog
+        isOpeningDialog = !isOpeningDialog
+    }
+
+    fun toggleMoveDialog() {
+        isOpeningMoveDialog = !isOpeningMoveDialog
+        isOpeningDialog = !isOpeningDialog
+        isSelectItem.value = null
+    }
+
+    fun toggleMoveItemsAndDeleteItem() {
+        isOpenMoveItemsAndDeleteItem = !isOpenMoveItemsAndDeleteItem
+    }
+
+    fun toggleDeleteItemDialog() {
+        isOpeningDeleteDialog = !isOpeningDeleteDialog
+        isOpeningDialog = !isOpeningDialog
+        isSelectItem.value = null
+    }
+
+    fun validationCreateAndRename(folderName: String): Boolean {
         validation = folderName.isNotBlank()
         return validation == true
     }

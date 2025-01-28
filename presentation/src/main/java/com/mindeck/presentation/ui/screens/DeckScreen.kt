@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -39,8 +38,6 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.Deck
@@ -61,8 +58,8 @@ import com.mindeck.presentation.ui.navigation.NavigationRoute
 import com.mindeck.presentation.state.UiState
 import com.mindeck.presentation.state.UiState.Loading.mapSuccess
 import com.mindeck.presentation.state.mapToUiState
-import com.mindeck.presentation.ui.components.buttons.DeleteItemButton
 import com.mindeck.presentation.ui.components.common.ButtonMoveMode
+import com.mindeck.presentation.ui.components.dialog.DeleteItemDialog
 import com.mindeck.presentation.ui.components.dialog.SelectItemDialog
 import com.mindeck.presentation.viewmodel.DeckViewModel
 
@@ -178,7 +175,7 @@ private fun DeckEditTopBar(
             if (selectedCards.isNotEmpty()) {
                 ButtonMoveMode(
                     buttonTitle = stringResource(R.string.text_move_mode_top_bar_edit_button),
-                    onClickButton = { dialogState.openMoveDialog() }
+                    onClickButton = { dialogState.toggleMoveDialog() }
                 )
             }
         }
@@ -258,7 +255,8 @@ private fun dropdownMenuDataList(
         DropdownMenuData(
             title = stringResource(R.string.dropdown_menu_data_rename_list),
             action = {
-                dialogState.openRenameDialog()
+                dropdownMenuState.reset()
+                dialogState.toggleEditNameDialog()
             }
         ),
         DropdownMenuData(
@@ -271,6 +269,7 @@ private fun dropdownMenuDataList(
         DropdownMenuData(
             title = stringResource(R.string.dropdown_menu_data_create_card),
             action = {
+                dropdownMenuState.reset()
                 navController.navigate(NavigationRoute.CreationCardScreen.route)
             }
         ),
@@ -281,7 +280,7 @@ private fun dropdownMenuDataList(
                 when (cards) {
                     is UiState.Success -> {
                         if (cards.data.isNotEmpty()) {
-                            dialogState.openDeleteDialog()
+                            dialogState.toggleDeleteItemDialog()
                         } else {
                             deck.mapSuccess { it }?.let { deckViewModel.deleteDeck(it) }
                             navController.popBackStack()
@@ -392,7 +391,7 @@ private fun DeckDialog(
                         indication = null
                     ) {}
             )
-            if (dialogState.isOpeningRenameDialog || dialogState.isOpeningCreateDialog) {
+            if (dialogState.isOpeningRenameDialog) {
                 when (deck) {
                     is UiState.Success -> {
                         CreateItemDialog(
@@ -402,18 +401,21 @@ private fun DeckDialog(
                             value = dialogState.isEnterDialogText,
                             validation = validation == true || validation == null,
                             onValueChange = { newValue ->
+                                dialogState.validationCreateAndRename(newValue)
                                 dialogState.isEnterDialogText = newValue
                             },
                             onBackClick = {
-                                dialogState.closeDialog()
+                                dialogState.toggleEditNameDialog()
                             },
                             onClickButton = {
-                                deckViewModel.renameDeck(
-                                    deckId = deck.data.deckId,
-                                    newDeckName = dialogState.isEnterDialogText
-                                )
-                                dialogState.closeDialog()
-                                deckViewModel.getDeckById(deck.data.deckId)
+                                if (dialogState.validationCreateAndRename(dialogState.isEnterDialogText)) {
+                                    deckViewModel.renameDeck(
+                                        deckId = deck.data.deckId,
+                                        newDeckName = dialogState.isEnterDialogText
+                                    )
+                                    dialogState.toggleEditNameDialog()
+                                    deckViewModel.getDeckById(deck.data.deckId)
+                                }
                             },
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -446,7 +448,7 @@ private fun DeckDialog(
                                 targetDeckId = selectedElement!!,
                                 deckIds = deckViewModel.listSelectedCards.value.sorted().toList()
                             )
-                            dialogState.closeMoveDialog()
+                            dialogState.toggleMoveDialog()
                             deckViewModel.updateEditMode()
                             deckViewModel.clearSelection()
                         } else if (dialogState.isOpeningMoveDialog && dialogState.isOpenMoveItemsAndDeleteItem) {
@@ -457,59 +459,25 @@ private fun DeckDialog(
                             deck.mapSuccess { it }
                                 ?.let { deckViewModel.deleteDeck(it) }
                             deckViewModel.clearSelection()
-                            dialogState.closeMoveDialog()
-                            dialogState.closeMoveItemsAndDeleteItem()
+                            dialogState.toggleMoveDialog()
+                            dialogState.toggleMoveItemsAndDeleteItem()
                             navController.popBackStack()
                         }
                     },
                 )
-            }else if (dialogState.isOpeningDeleteDialog) {
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier
-                        .fillMaxHeight(dimenFloatResource(R.dimen.alpha_menu_dialog_height))
-                        .padding(horizontal = dimenDpResource(R.dimen.card_input_field_background_horizontal_padding))
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier
-                            .background(
-                                color = MaterialTheme.colorScheme.background,
-                                shape = MaterialTheme.shapes.small
-                            )
-                            .clip(MaterialTheme.shapes.small)
-                            .padding(dimenDpResource(R.dimen.card_input_field_item_padding))
-                    ) {
-                        Text(
-                            text = stringResource(R.string.deck_management_options_message),
-                            style = MaterialTheme.typography.bodyMedium,
-                            textAlign = TextAlign.Start,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_medium)))
-                        Row(
-                            horizontalArrangement = Arrangement.SpaceAround,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            DeleteItemButton(
-                                titleButton = stringResource(R.string.delete_all_button_text),
-                                onClick = {
-                                    deck.mapSuccess { it }
-                                        ?.let { deckViewModel.deleteDeck(it) }
-                                    navController.popBackStack()
-                                }
-                            )
-                            DeleteItemButton(
-                                titleButton = stringResource(R.string.delete_partially_button_text),
-                                onClick = {
-                                    dialogState.closeDeleteDialog()
-                                    deckViewModel.updateEditMode()
-                                    dialogState.openMoveItemsAndDeleteItem()
-                                }
-                            )
-                        }
+            } else if (dialogState.isOpeningDeleteDialog) {
+                DeleteItemDialog(
+                    onClickDeleteAll = {
+                        deck.mapSuccess { it }
+                            ?.let { deckViewModel.deleteDeck(it) }
+                        navController.popBackStack()
+                    },
+                    onClickDeletePartially = {
+                        dialogState.toggleDeleteItemDialog()
+                        deckViewModel.updateEditMode()
+                        dialogState.toggleMoveItemsAndDeleteItem()
                     }
-                }
+                )
             }
         }
     }
