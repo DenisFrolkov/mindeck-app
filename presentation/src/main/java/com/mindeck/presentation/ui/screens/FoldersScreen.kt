@@ -81,7 +81,7 @@ fun FoldersScreen(
         DropdownMenuData(
             title = stringResource(R.string.dropdown_menu_data_create_folder_list),
             action = {
-                dialogState.openCreateDialog()
+                dialogState.toggleCreateDialog()
             }
         )
     )
@@ -213,11 +213,11 @@ fun FoldersScreen(
                 validation = true,
                 onValueChange = { newValue -> dialogState.isEnterDialogText = newValue },
                 onBackClick = {
-                    dialogState.closeDialog()
+                    dialogState.toggleEditNameDialog()
                 },
                 onClickButton = {
                     foldersViewModel.createFolder(Folder(folderName = dialogState.isEnterDialogText))
-                    dialogState.closeDialog()
+                    dialogState.toggleCreateDialog()
                 },
                 modifier = Modifier
                     .fillMaxWidth()
