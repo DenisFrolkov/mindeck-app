@@ -481,18 +481,18 @@ private fun DeckDialog(
                             .padding(dimenDpResource(R.dimen.card_input_field_item_padding))
                     ) {
                         Text(
-                            text = "Вы хотите удалить папку вместе со всеми колодами или переместить колоды в другую папку?",
+                            text = stringResource(R.string.deck_management_options_message),
                             style = MaterialTheme.typography.bodyMedium,
                             textAlign = TextAlign.Start,
                             modifier = Modifier.fillMaxWidth()
                         )
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_medium)))
                         Row(
                             horizontalArrangement = Arrangement.SpaceAround,
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             DeleteItemButton(
-                                titleButton = "Удалить все",
+                                titleButton = stringResource(R.string.delete_all_button_text),
                                 onClick = {
                                     deck.mapSuccess { it }
                                         ?.let { deckViewModel.deleteDeck(it) }
@@ -500,7 +500,7 @@ private fun DeckDialog(
                                 }
                             )
                             DeleteItemButton(
-                                titleButton = "Удалить частично",
+                                titleButton = stringResource(R.string.delete_partially_button_text),
                                 onClick = {
                                     dialogState.closeDeleteDialog()
                                     deckViewModel.updateEditMode()

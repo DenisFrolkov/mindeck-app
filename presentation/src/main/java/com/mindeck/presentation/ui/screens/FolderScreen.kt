@@ -40,7 +40,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.mindeck.domain.models.Deck
 import com.mindeck.domain.models.Folder
@@ -509,18 +508,18 @@ private fun FolderDialog(
                             .padding(dimenDpResource(R.dimen.card_input_field_item_padding))
                     ) {
                         Text(
-                            text = "Вы хотите удалить папку вместе со всеми колодами или переместить колоды в другую папку?",
+                            text = stringResource(R.string.folder_management_options_message),
                             style = MaterialTheme.typography.bodyMedium,
                             textAlign = TextAlign.Start,
                             modifier = Modifier.fillMaxWidth()
                         )
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_medium)))
                         Row(
                             horizontalArrangement = Arrangement.SpaceAround,
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             DeleteItemButton(
-                                titleButton = "Удалить все",
+                                titleButton = stringResource(R.string.delete_all_button_text),
                                 onClick = {
                                     folder.mapSuccess { it }
                                         ?.let { folderViewModel.deleteFolder(it) }
@@ -528,7 +527,7 @@ private fun FolderDialog(
                                 }
                             )
                             DeleteItemButton(
-                                titleButton = "Удалить частично",
+                                titleButton = stringResource(R.string.delete_partially_button_text),
                                 onClick = {
                                     dialogState.closeDeleteDialog()
                                     folderViewModel.updateEditMode()
