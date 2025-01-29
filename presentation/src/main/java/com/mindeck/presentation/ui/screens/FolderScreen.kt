@@ -38,6 +38,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.mindeck.domain.models.Deck
 import com.mindeck.domain.models.Folder
@@ -51,6 +52,7 @@ import com.mindeck.presentation.ui.components.common.DisplayItemCount
 import com.mindeck.presentation.ui.components.dialog.CreateItemDialog
 import com.mindeck.presentation.ui.components.dialog.DeleteItemDialog
 import com.mindeck.presentation.ui.components.dialog.DialogState
+import com.mindeck.presentation.ui.components.dialog.DialogType
 import com.mindeck.presentation.ui.components.dialog.SelectItemDialog
 import com.mindeck.presentation.ui.components.dialog.animateDialogCreateItem
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenu
@@ -76,7 +78,7 @@ fun FolderScreen(
         animationDuration = dropdownMenuState.animationDuration
     )
     val dialogVisibleAnimation = animateDialogCreateItem(
-        targetAlpha = dialogState.dialogAlpha,
+        targetAlpha = dialogState.animateExpandedAlpha,
         animationDuration = dialogState.animationDuration * 3
     )
 
@@ -87,7 +89,7 @@ fun FolderScreen(
 
     val selectedDecks by folderViewModel.selectedDecks.collectAsState()
     val selectedElement by dialogState.isSelectItem.collectAsState()
-    val validation = dialogState.validation
+    val validation = dialogState.dialogData.isValid
 
     var listDropdownMenu =
         dropdownMenuDataList(
@@ -176,7 +178,11 @@ private fun FolderEditTopBar(
                 ButtonMoveMode(
                     buttonTitle = stringResource(R.string.text_move_mode_top_bar_edit_button),
                     onClickButton = {
-                        dialogState.toggleMoveDialog()
+                        if (!dialogState.isSelectingDecksForMoveAndDelete) {
+                            dialogState.openMoveDialog()
+                        } else {
+                            dialogState.openMoveItemsAndDeleteItemDialog()
+                        }
                     }
                 )
             }
@@ -258,7 +264,7 @@ private fun dropdownMenuDataList(
             title = stringResource(R.string.dropdown_menu_data_rename_list),
             action = {
                 dropdownMenuState.reset()
-                dialogState.toggleEditNameDialog()
+                dialogState.openRenameDialog()
             }
         ),
         DropdownMenuData(
@@ -272,7 +278,7 @@ private fun dropdownMenuDataList(
             title = stringResource(R.string.dropdown_menu_data_create_deck_list),
             action = {
                 dropdownMenuState.reset()
-                dialogState.toggleCreateDialog()
+                dialogState.openCreateDialog()
             }
         ),
         DropdownMenuData(
@@ -282,7 +288,7 @@ private fun dropdownMenuDataList(
                 when (decks) {
                     is UiState.Success -> {
                         if (decks.data.isNotEmpty()) {
-                            dialogState.toggleDeleteItemDialog()
+                            dialogState.openDeleteDialog()
                         } else {
                             folder.mapSuccess { it }?.let { folderViewModel.deleteFolder(it) }
                             navController.popBackStack()
@@ -383,7 +389,7 @@ private fun FolderDialog(
     validation: Boolean?,
     folderViewModel: FolderViewModel
 ) {
-    if (dialogState.isOpeningDialog) {
+    if (dialogState.isDialogVisible) {
         Box(
             modifier = Modifier
                 .alpha(dialogVisibleAnimation)
@@ -397,111 +403,116 @@ private fun FolderDialog(
                         indication = null
                     ) {}
             )
-            if (dialogState.isOpeningRenameDialog || dialogState.isOpeningCreateDialog) {
-                when (folder) {
-                    is UiState.Success -> {
-                        CreateItemDialog(
-                            titleDialog = if (dialogState.isOpeningRenameDialog) {
-                                stringResource(R.string.rename_title_item_dialog)
-                            } else {
-                                stringResource(R.string.create_item_dialog_text_creating_deck)
-                            },
-                            placeholder = stringResource(R.string.create_item_dialog_text_input_title_folder),
-                            buttonText = if (dialogState.isOpeningRenameDialog) {
-                                stringResource(R.string.save_text)
-                            } else {
-                                stringResource(R.string.create_item_dialog_text_create_deck)
-                            },
-                            value = dialogState.isEnterDialogText,
-                            validation = validation == true || validation == null,
-                            onValueChange = { newValue ->
-                                dialogState.validationCreateAndRename(newValue)
-                                dialogState.isEnterDialogText = newValue
-                            },
-                            onBackClick = {
-                                dialogState.toggleEditNameDialog()
-                            },
-                            onClickButton = {
-                                if (dialogState.validationCreateAndRename(dialogState.isEnterDialogText)) {
-                                    if (dialogState.isOpeningRenameDialog) {
-                                        folderViewModel.renameFolder(
-                                            newFolderName = dialogState.isEnterDialogText,
-                                            folderId = folder.data.folderId
-                                        )
-                                        dialogState.toggleEditNameDialog()
-                                    } else {
-                                        folderViewModel.createDeck(
-                                            Deck(
-                                                deckName = dialogState.isEnterDialogText,
+            when {
+                dialogState.currentDialogType == DialogType.Rename || dialogState.currentDialogType == DialogType.Create -> {
+                    when (folder) {
+                        is UiState.Success -> {
+                            CreateItemDialog(
+                                titleDialog = if (dialogState.currentDialogType == DialogType.Rename) {
+                                    stringResource(R.string.rename_title_item_dialog)
+                                } else {
+                                    stringResource(R.string.create_item_dialog_text_creating_deck)
+                                },
+                                placeholder = stringResource(R.string.create_item_dialog_text_input_title_folder),
+                                buttonText = if (dialogState.currentDialogType == DialogType.Rename) {
+                                    stringResource(R.string.save_text)
+                                } else {
+                                    stringResource(R.string.create_item_dialog_text_create_deck)
+                                },
+                                value = dialogState.dialogData.text,
+                                validation = validation == true || validation == null,
+                                onValueChange = { newValue ->
+                                    dialogState.validateFolderName(newValue)
+                                    dialogState.updateDialogText(newValue)
+                                },
+                                onBackClick = {
+                                    dialogState.closeDialog()
+                                },
+                                onClickButton = {
+                                    if (dialogState.validateFolderName(dialogState.dialogData.text)) {
+                                        if (dialogState.currentDialogType == DialogType.Rename) {
+                                            folderViewModel.renameFolder(
+                                                newFolderName = dialogState.dialogData.text,
                                                 folderId = folder.data.folderId
                                             )
-                                        )
-                                        dialogState.toggleCreateDialog()
+                                            dialogState.closeDialog()
+                                        } else {
+                                            folderViewModel.createDeck(
+                                                Deck(
+                                                    deckName = dialogState.dialogData.text,
+                                                    folderId = folder.data.folderId
+                                                )
+                                            )
+                                            dialogState.closeDialog()
+                                        }
                                     }
-                                }
-                            },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .wrapContentSize(Alignment.CenterStart),
-                            iconModifier = Modifier
-                                .clip(shape = MaterialTheme.shapes.extraLarge)
-                                .background(
-                                    color = MaterialTheme.colorScheme.outlineVariant,
-                                    shape = MaterialTheme.shapes.extraLarge
-                                )
-                                .padding(dimenDpResource(R.dimen.padding_small))
-                                .size(dimenDpResource(R.dimen.padding_medium)),
-                        )
+                                },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .wrapContentSize(Alignment.CenterStart),
+                                iconModifier = Modifier
+                                    .clip(shape = MaterialTheme.shapes.extraLarge)
+                                    .background(
+                                        color = MaterialTheme.colorScheme.outlineVariant,
+                                        shape = MaterialTheme.shapes.extraLarge
+                                    )
+                                    .padding(dimenDpResource(R.dimen.padding_small))
+                                    .size(dimenDpResource(R.dimen.padding_medium)),
+                            )
+                        }
                     }
                 }
 
-            } else if (dialogState.isOpeningMoveDialog) {
-                SelectItemDialog(
-                    titleDialog = stringResource(R.string.dialog_select_folder),
-                    dialogState = dialogState,
-                    selectItems = folders.mapToUiState { folders ->
-                        folders.map { Pair(it.folderName, it.folderId) }
-                    },
-                    selectedElement = selectedElement,
-                    sourceLocation = folder.mapSuccess { it.folderId }!!,
-                    fetchList = { folderViewModel.getAllFolders() },
-                    onClickSave = {
-                        if (dialogState.isOpeningMoveDialog && !dialogState.isOpenMoveItemsAndDeleteItem) {
-                            folderViewModel.moveDecksBetweenFolders(
-                                sourceFolderId = folder.mapSuccess { it.folderId }!!,
-                                targetFolderId = selectedElement!!,
-                                deckIds = folderViewModel.selectedDecks.value.sorted().toList()
-                            )
-                            dialogState.toggleMoveDialog()
-                            folderViewModel.updateEditMode()
-                            folderViewModel.clearSelectDeck()
-                        } else if (dialogState.isOpeningMoveDialog && dialogState.isOpenMoveItemsAndDeleteItem) {
-                            folderViewModel.addDecksToFolder(
-                                targetFolderId = selectedElement!!,
-                                deckIds = folderViewModel.selectedDecks.value.sorted().toList()
-                            )
+                (dialogState.currentDialogType == DialogType.Move || dialogState.currentDialogType == DialogType.MoveItemsAndDeleteItem) -> {
+                    SelectItemDialog(
+                        titleDialog = stringResource(R.string.dialog_select_folder),
+                        dialogState = dialogState,
+                        selectItems = folders.mapToUiState { folders ->
+                            folders.map { Pair(it.folderName, it.folderId) }
+                        },
+                        selectedElement = selectedElement,
+                        sourceLocation = folder.mapSuccess { it.folderId }!!,
+                        fetchList = { folderViewModel.getAllFolders() },
+                        onClickSave = {
+                            if (dialogState.currentDialogType == DialogType.Move) {
+                                folderViewModel.moveDecksBetweenFolders(
+                                    sourceFolderId = folder.mapSuccess { it.folderId }!!,
+                                    targetFolderId = selectedElement!!,
+                                    deckIds = folderViewModel.selectedDecks.value.sorted().toList()
+                                )
+                                dialogState.closeDialog()
+                                folderViewModel.updateEditMode()
+                                folderViewModel.clearSelectDeck()
+                            } else if (dialogState.currentDialogType == DialogType.MoveItemsAndDeleteItem) {
+                                folderViewModel.addDecksToFolder(
+                                    targetFolderId = selectedElement!!,
+                                    deckIds = folderViewModel.selectedDecks.value.sorted().toList()
+                                )
+                                folder.mapSuccess { it }
+                                    ?.let { folderViewModel.deleteFolder(it) }
+                                folderViewModel.clearSelectDeck()
+                                dialogState.closeDialog()
+                                dialogState.stopSelectingDecksForMoveAndDelete()
+                                navController.popBackStack()
+                            }
+                        },
+                    )
+                }
+
+                dialogState.currentDialogType == DialogType.Delete -> {
+                    DeleteItemDialog(
+                        onClickDeleteAll = {
                             folder.mapSuccess { it }
                                 ?.let { folderViewModel.deleteFolder(it) }
-                            folderViewModel.clearSelectDeck()
-                            dialogState.toggleMoveDialog()
-                            dialogState.toggleMoveItemsAndDeleteItem()
                             navController.popBackStack()
+                        },
+                        onClickDeletePartially = {
+                            folderViewModel.updateEditMode()
+                            dialogState.closeDialog()
+                            dialogState.startSelectingDecksForMoveAndDelete()
                         }
-                    },
-                )
-            } else if (dialogState.isOpeningDeleteDialog) {
-                DeleteItemDialog(
-                    onClickDeleteAll = {
-                        folder.mapSuccess { it }
-                            ?.let { folderViewModel.deleteFolder(it) }
-                        navController.popBackStack()
-                    },
-                    onClickDeletePartially = {
-                        dialogState.toggleDeleteItemDialog()
-                        folderViewModel.updateEditMode()
-                        dialogState.toggleMoveItemsAndDeleteItem()
-                    }
-                )
+                    )
+                }
             }
         }
     }

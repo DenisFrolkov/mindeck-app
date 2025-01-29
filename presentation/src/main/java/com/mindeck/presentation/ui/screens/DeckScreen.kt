@@ -1,6 +1,7 @@
 package com.mindeck.presentation.ui.screens
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -38,6 +39,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.Deck
@@ -60,6 +62,7 @@ import com.mindeck.presentation.state.UiState.Loading.mapSuccess
 import com.mindeck.presentation.state.mapToUiState
 import com.mindeck.presentation.ui.components.common.ButtonMoveMode
 import com.mindeck.presentation.ui.components.dialog.DeleteItemDialog
+import com.mindeck.presentation.ui.components.dialog.DialogType
 import com.mindeck.presentation.ui.components.dialog.SelectItemDialog
 import com.mindeck.presentation.viewmodel.DeckViewModel
 
@@ -76,7 +79,7 @@ fun DeckScreen(
         animationDuration = dropdownMenuState.animationDuration
     )
     val dialogVisibleAnimation = animateDialogCreateItem(
-        targetAlpha = dialogState.dialogAlpha,
+        targetAlpha = dialogState.animateExpandedAlpha,
         animationDuration = dialogState.animationDuration * 3
     )
 
@@ -86,7 +89,7 @@ fun DeckScreen(
     val isEditModeEnabled = deckViewModel.isEditModeEnabled.collectAsState().value
 
     val selectedCards by deckViewModel.listSelectedCards.collectAsState()
-    val validation = dialogState.validation
+    val validation = dialogState.dialogData.isValid
     val selectedElement by dialogState.isSelectItem.collectAsState()
 
     var listDropdownMenu =
@@ -175,7 +178,13 @@ private fun DeckEditTopBar(
             if (selectedCards.isNotEmpty()) {
                 ButtonMoveMode(
                     buttonTitle = stringResource(R.string.text_move_mode_top_bar_edit_button),
-                    onClickButton = { dialogState.toggleMoveDialog() }
+                    onClickButton = {
+                        if (!dialogState.isSelectingDecksForMoveAndDelete) {
+                            dialogState.openMoveDialog()
+                        } else {
+                            dialogState.openMoveItemsAndDeleteItemDialog()
+                        }
+                    }
                 )
             }
         }
@@ -256,7 +265,7 @@ private fun dropdownMenuDataList(
             title = stringResource(R.string.dropdown_menu_data_rename_list),
             action = {
                 dropdownMenuState.reset()
-                dialogState.toggleEditNameDialog()
+                dialogState.openRenameDialog()
             }
         ),
         DropdownMenuData(
@@ -280,7 +289,7 @@ private fun dropdownMenuDataList(
                 when (cards) {
                     is UiState.Success -> {
                         if (cards.data.isNotEmpty()) {
-                            dialogState.toggleDeleteItemDialog()
+                            dialogState.openDeleteDialog()
                         } else {
                             deck.mapSuccess { it }?.let { deckViewModel.deleteDeck(it) }
                             navController.popBackStack()
@@ -377,7 +386,7 @@ private fun DeckDialog(
     decks: UiState<List<Deck>>,
     selectedElement: Int?
 ) {
-    if (dialogState.isOpeningDialog) {
+    if (dialogState.isDialogVisible) {
         Box(
             modifier = Modifier
                 .alpha(dialogVisibleAnimation)
@@ -391,93 +400,102 @@ private fun DeckDialog(
                         indication = null
                     ) {}
             )
-            if (dialogState.isOpeningRenameDialog) {
-                when (deck) {
-                    is UiState.Success -> {
-                        CreateItemDialog(
-                            titleDialog = stringResource(R.string.rename_title_item_dialog),
-                            placeholder = stringResource(R.string.rename_item_dialog_text_input_title_deck),
-                            buttonText = stringResource(R.string.save_text),
-                            value = dialogState.isEnterDialogText,
-                            validation = validation == true || validation == null,
-                            onValueChange = { newValue ->
-                                dialogState.validationCreateAndRename(newValue)
-                                dialogState.isEnterDialogText = newValue
-                            },
-                            onBackClick = {
-                                dialogState.toggleEditNameDialog()
-                            },
-                            onClickButton = {
-                                if (dialogState.validationCreateAndRename(dialogState.isEnterDialogText)) {
-                                    deckViewModel.renameDeck(
-                                        deckId = deck.data.deckId,
-                                        newDeckName = dialogState.isEnterDialogText
+            when {
+                dialogState.currentDialogType == DialogType.Rename -> {
+                    when (deck) {
+                        is UiState.Success -> {
+                            CreateItemDialog(
+                                titleDialog = stringResource(R.string.rename_title_item_dialog),
+                                placeholder = stringResource(R.string.rename_item_dialog_text_input_title_deck),
+                                buttonText = stringResource(R.string.save_text),
+                                value = dialogState.dialogData.text,
+                                validation = validation == true || validation == null,
+                                onValueChange = { newValue ->
+                                    dialogState.validateFolderName(newValue)
+                                    dialogState.updateDialogText(newValue)
+                                },
+                                onBackClick = {
+                                    dialogState.closeDialog()
+                                },
+                                onClickButton = {
+                                    if (dialogState.validateFolderName(dialogState.dialogData.text)) {
+                                        deckViewModel.renameDeck(
+                                            deckId = deck.data.deckId,
+                                            newDeckName = dialogState.dialogData.text
+                                        )
+                                        dialogState.closeDialog()
+                                        deckViewModel.getDeckById(deck.data.deckId)
+                                    }
+                                },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .wrapContentSize(Alignment.CenterStart),
+                                iconModifier = Modifier
+                                    .clip(shape = MaterialTheme.shapes.extraLarge)
+                                    .background(
+                                        color = MaterialTheme.colorScheme.outlineVariant,
+                                        shape = MaterialTheme.shapes.extraLarge
                                     )
-                                    dialogState.toggleEditNameDialog()
-                                    deckViewModel.getDeckById(deck.data.deckId)
-                                }
-                            },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .wrapContentSize(Alignment.CenterStart),
-                            iconModifier = Modifier
-                                .clip(shape = MaterialTheme.shapes.extraLarge)
-                                .background(
-                                    color = MaterialTheme.colorScheme.outlineVariant,
-                                    shape = MaterialTheme.shapes.extraLarge
-                                )
-                                .padding(dimenDpResource(R.dimen.padding_small))
-                                .size(dimenDpResource(R.dimen.padding_medium)),
-                        )
+                                    .padding(dimenDpResource(R.dimen.padding_small))
+                                    .size(dimenDpResource(R.dimen.padding_medium)),
+                            )
+                        }
                     }
                 }
-            } else if (dialogState.isOpeningMoveDialog) {
-                SelectItemDialog(
-                    titleDialog = stringResource(R.string.dialog_select_folder),
-                    dialogState = dialogState,
-                    selectItems = decks.mapToUiState { deck ->
-                        deck.map { Pair(it.deckName, it.deckId) }
-                    },
-                    selectedElement = selectedElement,
-                    sourceLocation = deck.mapSuccess { it.deckId }!!,
-                    fetchList = { deckViewModel.getAllDecksByFolderId(deck.mapSuccess { it.folderId }!!) },
-                    onClickSave = {
-                        if (dialogState.isOpeningMoveDialog && !dialogState.isOpenMoveItemsAndDeleteItem) {
-                            deckViewModel.moveCardsBetweenDecks(
-                                sourceDeckId = deck.mapSuccess { it.deckId }!!,
-                                targetDeckId = selectedElement!!,
-                                deckIds = deckViewModel.listSelectedCards.value.sorted().toList()
-                            )
-                            dialogState.toggleMoveDialog()
-                            deckViewModel.updateEditMode()
-                            deckViewModel.clearSelection()
-                        } else if (dialogState.isOpeningMoveDialog && dialogState.isOpenMoveItemsAndDeleteItem) {
-                            deckViewModel.addCardsToDeck(
-                                targetDeckId = selectedElement!!,
-                                cardIds = deckViewModel.listSelectedCards.value.sorted().toList()
-                            )
+
+                (dialogState.currentDialogType == DialogType.Move || dialogState.currentDialogType == DialogType.MoveItemsAndDeleteItem) -> {
+                    SelectItemDialog(
+                        titleDialog = stringResource(R.string.dialog_select_folder),
+                        dialogState = dialogState,
+                        selectItems = decks.mapToUiState { deck ->
+                            deck.map { Pair(it.deckName, it.deckId) }
+                        },
+                        selectedElement = selectedElement,
+                        sourceLocation = deck.mapSuccess { it.deckId }!!,
+                        fetchList = { deckViewModel.getAllDecksByFolderId(deck.mapSuccess { it.folderId }!!) },
+                        onClickSave = {
+                            if (dialogState.currentDialogType == DialogType.Move) {
+                                deckViewModel.moveCardsBetweenDecks(
+                                    sourceDeckId = deck.mapSuccess { it.deckId }!!,
+                                    targetDeckId = selectedElement!!,
+                                    deckIds = deckViewModel.listSelectedCards.value.sorted()
+                                        .toList()
+                                )
+                                dialogState.closeDialog()
+                                deckViewModel.updateEditMode()
+                                deckViewModel.clearSelection()
+                            } else if (dialogState.currentDialogType == DialogType.MoveItemsAndDeleteItem) {
+                                deckViewModel.addCardsToDeck(
+                                    targetDeckId = selectedElement!!,
+                                    cardIds = deckViewModel.listSelectedCards.value.sorted()
+                                        .toList()
+                                )
+                                deck.mapSuccess { it }
+                                    ?.let { deckViewModel.deleteDeck(it) }
+                                deckViewModel.clearSelection()
+                                dialogState.closeDialog()
+                                dialogState.stopSelectingDecksForMoveAndDelete()
+                                navController.popBackStack()
+                            }
+                        },
+                    )
+                }
+
+                dialogState.currentDialogType == DialogType.Delete -> {
+                    DeleteItemDialog(
+                        onClickDeleteAll = {
                             deck.mapSuccess { it }
                                 ?.let { deckViewModel.deleteDeck(it) }
-                            deckViewModel.clearSelection()
-                            dialogState.toggleMoveDialog()
-                            dialogState.toggleMoveItemsAndDeleteItem()
                             navController.popBackStack()
+                        },
+                        onClickDeletePartially = {
+                            deckViewModel.updateEditMode()
+                            dialogState.closeDialog()
+                            dialogState.startSelectingDecksForMoveAndDelete()
                         }
-                    },
-                )
-            } else if (dialogState.isOpeningDeleteDialog) {
-                DeleteItemDialog(
-                    onClickDeleteAll = {
-                        deck.mapSuccess { it }
-                            ?.let { deckViewModel.deleteDeck(it) }
-                        navController.popBackStack()
-                    },
-                    onClickDeletePartially = {
-                        dialogState.toggleDeleteItemDialog()
-                        deckViewModel.updateEditMode()
-                        dialogState.toggleMoveItemsAndDeleteItem()
-                    }
-                )
+                    )
+
+                }
             }
         }
     }

@@ -47,7 +47,7 @@ fun SelectItemDialog(
     fetchList: () -> Unit,
     onClickSave: () -> Unit,
 ) {
-    LaunchedEffect(dialogState.isOpeningMoveDialog) {
+    LaunchedEffect(dialogState.currentDialogType == DialogType.Move) {
         fetchList()
     }
 
@@ -74,7 +74,7 @@ fun SelectItemDialog(
                             iconPainter = painterResource(R.drawable.back_icon),
                             contentDescription = stringResource(R.string.back_screen_icon_button),
                             iconTint = MaterialTheme.colorScheme.onPrimary,
-                            onClick = { dialogState.toggleMoveDialog() },
+                            onClick = { dialogState.closeDialog() },
                             iconModifier = Modifier
                                 .clip(shape = MaterialTheme.shapes.extraLarge)
                                 .background(
@@ -92,7 +92,7 @@ fun SelectItemDialog(
                         )
                     }
                     Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacer_large)))
-                    if (selectItems.data.size > 1) {
+                    if (selectItems.data.isNotEmpty()) {
                         LazyColumn(modifier = Modifier.heightIn(max = dimenDpResource(R.dimen.dialog_list_move_item_max_height))) {
                             items(selectItems.data) { item ->
                                 if (item.second != sourceLocation) {

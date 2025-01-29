@@ -59,7 +59,7 @@ fun MainScreen(
     val dailyProgressTrackerState =
         remember { DailyProgressTrackerState(totalCards = 500, answeredCards = 30) }
     val dialogVisibleAnimation = animateDialogCreateItem(
-        targetAlpha = dialogState.dialogAlpha,
+        targetAlpha = dialogState.animateExpandedAlpha,
         animationDuration = dialogState.animationDuration * 3
     )
     val MAX_DISPLAY_ITEMS = 5
@@ -67,7 +67,7 @@ fun MainScreen(
     val fabState = remember { FabState(expandedHeight = ITEM_HEIGHT.dp * fabMenuItems.size) }
 
     val folders = mainViewModel.folderUIState.collectAsState().value
-    val validation = dialogState.validation
+    val validation = dialogState.dialogData.isValid
 
     Surface(
         modifier = Modifier
@@ -263,7 +263,7 @@ private fun fabMenuDataList(
             text = stringResource(R.string.fab_menu_data_create_folder_list),
             icon = R.drawable.fab_open_menu_create_folder_icon,
             navigation = {
-                dialogState.toggleCreateDialog()
+                dialogState.openCreateDialog()
             }
         ),
         FabMenuData(
@@ -282,7 +282,7 @@ private fun OpeningCreateItemDialog(
     validation: Boolean?,
     mainViewModel: MainViewModel
 ) {
-    if (dialogState.isOpeningDialog) {
+    if (dialogState.isDialogVisible) {
         Box(modifier = Modifier.alpha(dialogVisibleAnimation)) {
             Box(
                 modifier = Modifier
@@ -302,18 +302,18 @@ private fun OpeningCreateItemDialog(
                 placeholder = stringResource(R.string.create_item_dialog_text_input_title_folder),
                 buttonText = stringResource(R.string.create_item_dialog_text_create_folder),
                 validation = validation == true || validation == null,
-                value = dialogState.isEnterDialogText,
+                value = dialogState.dialogData.text,
                 onValueChange = { newValue ->
-                    dialogState.validationCreateAndRename(newValue)
-                    dialogState.isEnterDialogText = newValue
+                    dialogState.validateFolderName(newValue)
+                    dialogState.updateDialogText(newValue)
                 },
                 onBackClick = {
-                    dialogState.toggleEditNameDialog()
+                    dialogState.closeDialog()
                 },
                 onClickButton = {
-                    if (dialogState.validationCreateAndRename(dialogState.isEnterDialogText)) {
-                        mainViewModel.createFolder(dialogState.isEnterDialogText)
-                        dialogState.toggleCreateDialog()
+                    if (dialogState.validateFolderName(dialogState.dialogData.text)) {
+                        mainViewModel.createFolder(dialogState.dialogData.text)
+                        dialogState.closeDialog()
                     }
                 },
                 modifier = Modifier

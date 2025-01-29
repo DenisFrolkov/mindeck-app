@@ -62,7 +62,7 @@ fun FoldersScreen(
         animationDuration = dropdownMenuState.animationDuration
     )
     val dialogVisibleAnimation = animateDialogCreateItem(
-        targetAlpha = dialogState.dialogAlpha,
+        targetAlpha = dialogState.animateExpandedAlpha,
         animationDuration = dialogState.animationDuration * 3
     )
     val folders = foldersViewModel.folderUIState.collectAsState().value
@@ -81,7 +81,7 @@ fun FoldersScreen(
         DropdownMenuData(
             title = stringResource(R.string.dropdown_menu_data_create_folder_list),
             action = {
-                dialogState.toggleCreateDialog()
+                dialogState.openCreateDialog()
             }
         )
     )
@@ -192,7 +192,7 @@ fun FoldersScreen(
             }
         }
     )
-    if (dialogState.isOpeningDialog) {
+    if (dialogState.isDialogVisible) {
         Box(modifier = Modifier.alpha(dialogVisibleAnimation)) {
             Box(
                 modifier = Modifier
@@ -209,15 +209,17 @@ fun FoldersScreen(
                 titleDialog = stringResource(R.string.create_item_dialog_text_creating_folder),
                 placeholder = stringResource(R.string.create_item_dialog_text_input_name_folder),
                 buttonText = stringResource(R.string.create_item_dialog_text_create_folder),
-                value = dialogState.isEnterDialogText,
+                value = dialogState.dialogData.text,
                 validation = true,
-                onValueChange = { newValue -> dialogState.isEnterDialogText = newValue },
+                onValueChange = { newValue ->
+                    dialogState.updateDialogText(newValue)
+                },
                 onBackClick = {
-                    dialogState.toggleEditNameDialog()
+                    dialogState.closeDialog()
                 },
                 onClickButton = {
-                    foldersViewModel.createFolder(Folder(folderName = dialogState.isEnterDialogText))
-                    dialogState.toggleCreateDialog()
+                    foldersViewModel.createFolder(Folder(folderName = dialogState.dialogData.text))
+                    dialogState.closeDialog()
                 },
                 modifier = Modifier
                     .fillMaxWidth()

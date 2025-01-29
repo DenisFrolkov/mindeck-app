@@ -7,75 +7,78 @@ import kotlinx.coroutines.flow.MutableStateFlow
 
 class DialogState(
     initialDialog: Boolean = false,
-    private val animateExpandedAlpha: Float = 1f,
+    val animateExpandedAlpha: Float = 1f,
     val scrimDialogAlpha: Float = 0.5f,
     val animationDuration: Int = 100
 ) {
-    var isOpeningDialog by mutableStateOf(initialDialog)
+    var isDialogVisible by mutableStateOf(initialDialog)
         private set
 
-    var isOpeningMoveDialog by mutableStateOf(false)
+    var currentDialogType by mutableStateOf<DialogType>(DialogType.None)
         private set
 
-    var isOpeningDeleteDialog by mutableStateOf(false)
+    var dialogData by mutableStateOf(DialogData())
         private set
-
-    var isOpeningRenameDialog by mutableStateOf(false)
-        private set
-
-    var isOpenMoveItemsAndDeleteItem by mutableStateOf(false)
-        private set
-
-    var isOpeningCreateDialog by mutableStateOf(false)
-        private set
-
-    var isEnterDialogText by mutableStateOf("")
 
     var isSelectItem = MutableStateFlow<Int?>(null)
         private set
 
-    var validation by mutableStateOf<Boolean?>(null)
+    var isSelectingDecksForMoveAndDelete by mutableStateOf(false)
         private set
 
-    val dialogAlpha: Float
-        get() = if (isOpeningDialog) animateExpandedAlpha else 0f
-
-    fun toggleEditNameDialog() {
-        validation = null
-        isEnterDialogText = ""
-        isOpeningRenameDialog = !isOpeningRenameDialog
-        isOpeningDialog = !isOpeningDialog
+    private fun openDialog(dialogType: DialogType) {
+        dialogData = DialogData()
+        currentDialogType = dialogType
+        isDialogVisible = true
+        if (dialogType != DialogType.Move) {
+            isSelectItem.value = null
+        }
     }
 
-    fun toggleCreateDialog() {
-        validation = null
-        isEnterDialogText = ""
-        isOpeningCreateDialog = !isOpeningCreateDialog
-        isOpeningDialog = !isOpeningDialog
-    }
-
-    fun toggleMoveDialog() {
-        isOpeningMoveDialog = !isOpeningMoveDialog
-        isOpeningDialog = !isOpeningDialog
+    fun closeDialog() {
+        currentDialogType = DialogType.None
+        isDialogVisible = false
         isSelectItem.value = null
     }
 
-    fun toggleMoveItemsAndDeleteItem() {
-        isOpenMoveItemsAndDeleteItem = !isOpenMoveItemsAndDeleteItem
+    fun openCreateDialog() {
+        openDialog(DialogType.Create)
     }
 
-    fun toggleDeleteItemDialog() {
-        isOpeningDeleteDialog = !isOpeningDeleteDialog
-        isOpeningDialog = !isOpeningDialog
-        isSelectItem.value = null
+    fun openRenameDialog() {
+        openDialog(DialogType.Rename)
     }
 
-    fun validationCreateAndRename(folderName: String): Boolean {
-        validation = folderName.isNotBlank()
-        return validation == true
+    fun openDeleteDialog() {
+        openDialog(DialogType.Delete)
+    }
+
+    fun openMoveDialog() {
+        openDialog(DialogType.Move)
+    }
+
+    fun openMoveItemsAndDeleteItemDialog() {
+        openDialog(DialogType.MoveItemsAndDeleteItem)
+    }
+
+    fun validateFolderName(folderName: String): Boolean {
+        dialogData = dialogData.copy(isValid = folderName.isNotBlank())
+        return dialogData.isValid == true
     }
 
     fun updateSelectItem(folderId: Int?) {
         isSelectItem.value = folderId
+    }
+
+    fun updateDialogText(text: String) {
+        dialogData = dialogData.copy(text = text)
+    }
+
+    fun startSelectingDecksForMoveAndDelete() {
+        isSelectingDecksForMoveAndDelete = true
+    }
+
+    fun stopSelectingDecksForMoveAndDelete() {
+        isSelectingDecksForMoveAndDelete = false
     }
 }
