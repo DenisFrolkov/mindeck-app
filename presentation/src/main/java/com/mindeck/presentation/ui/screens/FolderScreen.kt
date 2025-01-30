@@ -36,30 +36,30 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.mindeck.domain.models.Deck
 import com.mindeck.domain.models.Folder
 import com.mindeck.presentation.R
 import com.mindeck.presentation.state.UiState
 import com.mindeck.presentation.state.UiState.Loading.mapSuccess
-import com.mindeck.presentation.state.mapToUiState
+import com.mindeck.presentation.state.UiState.Loading.mapToUiState
 import com.mindeck.presentation.ui.components.common.ActionBar
 import com.mindeck.presentation.ui.components.common.ButtonMoveMode
 import com.mindeck.presentation.ui.components.common.DisplayItemCount
-import com.mindeck.presentation.ui.components.dialog.CreateItemDialog
+import com.mindeck.presentation.ui.components.dataclasses.DisplayItemData
+import com.mindeck.presentation.ui.components.dataclasses.DisplayItemStyle
+import com.mindeck.presentation.ui.components.dialog.data_class.CreateItemDialog
 import com.mindeck.presentation.ui.components.dialog.DeleteItemDialog
 import com.mindeck.presentation.ui.components.dialog.DialogState
-import com.mindeck.presentation.ui.components.dialog.DialogType
+import com.mindeck.presentation.ui.components.dialog.data_class.DialogType
 import com.mindeck.presentation.ui.components.dialog.SelectItemDialog
 import com.mindeck.presentation.ui.components.dialog.animateDialogCreateItem
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenu
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenuData
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenuState
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.animateDropdownMenuHeightIn
-import com.mindeck.presentation.ui.components.folder.DisplayCardItem
+import com.mindeck.presentation.ui.components.folder.DisplayItem
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
 import com.mindeck.presentation.ui.components.utils.dimenFloatResource
 import com.mindeck.presentation.ui.navigation.NavigationRoute
@@ -70,8 +70,8 @@ fun FolderScreen(
     navController: NavController,
     folderViewModel: FolderViewModel,
 ) {
-    var dropdownMenuState = remember { DropdownMenuState() }
-    var dialogState = remember { DialogState() }
+    val dropdownMenuState = remember { DropdownMenuState() }
+    val dialogState = remember { DialogState() }
 
     val dropdownVisibleAnimation = animateDropdownMenuHeightIn(
         targetAlpha = dropdownMenuState.dropdownAlpha,
@@ -89,16 +89,16 @@ fun FolderScreen(
 
     val selectedDecks by folderViewModel.selectedDecks.collectAsState()
     val selectedElement by dialogState.isSelectItem.collectAsState()
-    val validation = dialogState.dialogData.isValid
+    val validation = dialogState.dialogStateData.isValid
 
     var listDropdownMenu =
         dropdownMenuDataList(
-            dialogState,
-            folderViewModel,
-            navController,
-            dropdownMenuState,
-            folder,
-            decks
+            navController = navController,
+            folder = folder,
+            decks = decks,
+            folderViewModel = folderViewModel,
+            dialogState = dialogState,
+            dropdownMenuState = dropdownMenuState
         )
 
     Surface(
@@ -119,37 +119,44 @@ fun FolderScreen(
                     }
                 ) { editModeEnabled ->
                     if (editModeEnabled) {
-                        FolderEditTopBar(selectedDecks, dialogState, folderViewModel)
+                        FolderEditTopBar(
+                            selectedDecks = selectedDecks,
+                            folderViewModel = folderViewModel,
+                            dialogState = dialogState
+                        )
                     } else {
-                        FolderTopBar(navController, dropdownMenuState)
+                        FolderTopBar(
+                            navController = navController,
+                            dropdownMenuState = dropdownMenuState
+                        )
                     }
                 }
             },
             content = { padding ->
                 Content(
-                    padding,
-                    folderViewModel,
-                    isEditModeEnabled,
-                    selectedDecks,
-                    folder,
-                    decks,
-                    navController,
-                    dropdownMenuState,
-                    listDropdownMenu,
-                    dropdownVisibleAnimation
+                    navController = navController,
+                    padding = padding,
+                    isEditModeEnabled = isEditModeEnabled,
+                    selectedDecks = selectedDecks,
+                    folder = folder,
+                    decks = decks,
+                    dropdownVisibleAnimation = dropdownVisibleAnimation,
+                    listDropdownMenu = listDropdownMenu,
+                    folderViewModel = folderViewModel,
+                    dropdownMenuState = dropdownMenuState
                 )
             }
         )
 
         FolderDialog(
-            navController,
-            selectedElement,
-            dialogState,
-            dialogVisibleAnimation,
-            folder,
-            folders,
-            validation,
-            folderViewModel
+            navController = navController,
+            selectedElement = selectedElement,
+            dialogVisibleAnimation = dialogVisibleAnimation,
+            folder = folder,
+            folders = folders,
+            validation = validation,
+            folderViewModel = folderViewModel,
+            dialogState = dialogState
         )
     }
 }
@@ -157,8 +164,8 @@ fun FolderScreen(
 @Composable
 private fun FolderEditTopBar(
     selectedDecks: Set<Int>,
-    dialogState: DialogState,
-    folderViewModel: FolderViewModel
+    folderViewModel: FolderViewModel,
+    dialogState: DialogState
 ) {
     Box(
         modifier = Modifier
@@ -220,16 +227,16 @@ private fun FolderTopBar(
 
 @Composable
 private fun Content(
+    navController: NavController,
     padding: PaddingValues,
-    folderViewModel: FolderViewModel,
     isEditModeEnabled: Boolean,
     selectedDecks: Set<Int>,
     folder: UiState<Folder>,
     decks: UiState<List<Deck>>,
-    navController: NavController,
-    dropdownMenuState: DropdownMenuState,
+    dropdownVisibleAnimation: Float,
     listDropdownMenu: List<DropdownMenuData>,
-    dropdownVisibleAnimation: Float
+    folderViewModel: FolderViewModel,
+    dropdownMenuState: DropdownMenuState
 ) {
     Column(
         modifier = Modifier
@@ -237,27 +244,34 @@ private fun Content(
             .padding(horizontal = dimenDpResource(R.dimen.padding_medium))
             .statusBarsPadding()
     ) {
-        FolderInfo(folder)
+        FolderInfo(folder = folder)
         Spacer(Modifier.height(dimenDpResource(R.dimen.spacer_medium)))
         DeckInfo(
-            navController,
-            decks,
+            navController = navController,
+            decks = decks,
             isEditModeEnabled = isEditModeEnabled,
-            folderViewModel = folderViewModel,
-            selectedDecks = selectedDecks
+            selectedDecks = selectedDecks,
+            folderViewModel = folderViewModel
         )
     }
-    FolderDropdownMenu(dropdownMenuState, listDropdownMenu, padding, dropdownVisibleAnimation)
+    if (dropdownMenuState.isExpanded) {
+        FolderDropdownMenu(
+            padding = padding,
+            listDropdownMenu = listDropdownMenu,
+            dropdownVisibleAnimation = dropdownVisibleAnimation,
+            dropdownMenuState = dropdownMenuState
+        )
+    }
 }
 
 @Composable
 private fun dropdownMenuDataList(
-    dialogState: DialogState,
-    folderViewModel: FolderViewModel,
     navController: NavController,
-    dropdownMenuState: DropdownMenuState,
     folder: UiState<Folder>,
-    decks: UiState<List<Deck>>
+    decks: UiState<List<Deck>>,
+    folderViewModel: FolderViewModel,
+    dialogState: DialogState,
+    dropdownMenuState: DropdownMenuState
 ): List<DropdownMenuData> {
     return listOf(
         DropdownMenuData(
@@ -290,7 +304,7 @@ private fun dropdownMenuDataList(
                         if (decks.data.isNotEmpty()) {
                             dialogState.openDeleteDialog()
                         } else {
-                            folder.mapSuccess { it }?.let { folderViewModel.deleteFolder(it) }
+                            folder.mapSuccess { folderViewModel.deleteFolder(it) }
                             navController.popBackStack()
                         }
                     }
@@ -303,7 +317,7 @@ private fun dropdownMenuDataList(
 
 @Composable
 private fun FolderInfo(
-    folder: UiState<Folder>,
+    folder: UiState<Folder>
 ) {
     when (folder) {
         is UiState.Success -> {
@@ -324,9 +338,9 @@ private fun FolderInfo(
 private fun DeckInfo(
     navController: NavController,
     decks: UiState<List<Deck>>,
-    folderViewModel: FolderViewModel,
     selectedDecks: Set<Int>,
-    isEditModeEnabled: Boolean
+    isEditModeEnabled: Boolean,
+    folderViewModel: FolderViewModel,
 ) {
     when (decks) {
         is UiState.Success -> {
@@ -337,19 +351,7 @@ private fun DeckInfo(
             )
             LazyColumn(modifier = Modifier) {
                 items(items = decks.data, key = { it.deckId }) { deck ->
-                    DisplayCardItem(
-                        showCount = false,
-                        showEditMode = isEditModeEnabled,
-                        isSelected = selectedDecks.contains(deck.deckId),
-                        onCheckedChange = { folderViewModel.toggleDeckSelection(deck.deckId) },
-                        itemIcon = painterResource(R.drawable.deck_icon),
-                        numberOfCards = deck.deckId,
-                        itemName = deck.deckName,
-                        backgroundColor = MaterialTheme.colorScheme.secondary.copy(
-                            dimenFloatResource(R.dimen.float_zero_dot_five_significance)
-                        ),
-                        iconColor = MaterialTheme.colorScheme.outlineVariant,
-                        textStyle = MaterialTheme.typography.bodyMedium,
+                    DisplayItem(
                         modifier = Modifier
                             .fillMaxWidth()
                             .border(
@@ -368,7 +370,23 @@ private fun DeckInfo(
                                         deck.deckId
                                     )
                                 )
-                            }
+                            },
+                        showCount = false,
+                        showEditMode = isEditModeEnabled,
+                        isSelected = selectedDecks.contains(deck.deckId),
+                        onCheckedChange = { folderViewModel.toggleDeckSelection(deck.deckId) },
+                        displayItemData = DisplayItemData(
+                            itemIcon = R.drawable.deck_icon,
+                            numberOfCards = deck.deckId,
+                            itemName = deck.deckName,
+                        ),
+                        displayItemStyle = DisplayItemStyle(
+                            backgroundColor = MaterialTheme.colorScheme.secondary.copy(
+                                dimenFloatResource(R.dimen.float_zero_dot_five_significance)
+                            ),
+                            iconColor = MaterialTheme.colorScheme.outlineVariant,
+                            textStyle = MaterialTheme.typography.bodyMedium
+                        )
                     )
                     Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_small)))
                 }
@@ -382,12 +400,12 @@ private fun DeckInfo(
 private fun FolderDialog(
     navController: NavController,
     selectedElement: Int?,
-    dialogState: DialogState,
     dialogVisibleAnimation: Float,
     folder: UiState<Folder>,
     folders: UiState<List<Folder>>,
     validation: Boolean?,
-    folderViewModel: FolderViewModel
+    folderViewModel: FolderViewModel,
+    dialogState: DialogState,
 ) {
     if (dialogState.isDialogVisible) {
         Box(
@@ -405,113 +423,22 @@ private fun FolderDialog(
             )
             when {
                 dialogState.currentDialogType == DialogType.Rename || dialogState.currentDialogType == DialogType.Create -> {
-                    when (folder) {
-                        is UiState.Success -> {
-                            CreateItemDialog(
-                                titleDialog = if (dialogState.currentDialogType == DialogType.Rename) {
-                                    stringResource(R.string.rename_title_item_dialog)
-                                } else {
-                                    stringResource(R.string.create_item_dialog_text_creating_deck)
-                                },
-                                placeholder = stringResource(R.string.create_item_dialog_text_input_title_folder),
-                                buttonText = if (dialogState.currentDialogType == DialogType.Rename) {
-                                    stringResource(R.string.save_text)
-                                } else {
-                                    stringResource(R.string.create_item_dialog_text_create_deck)
-                                },
-                                value = dialogState.dialogData.text,
-                                validation = validation == true || validation == null,
-                                onValueChange = { newValue ->
-                                    dialogState.validateFolderName(newValue)
-                                    dialogState.updateDialogText(newValue)
-                                },
-                                onBackClick = {
-                                    dialogState.closeDialog()
-                                },
-                                onClickButton = {
-                                    if (dialogState.validateFolderName(dialogState.dialogData.text)) {
-                                        if (dialogState.currentDialogType == DialogType.Rename) {
-                                            folderViewModel.renameFolder(
-                                                newFolderName = dialogState.dialogData.text,
-                                                folderId = folder.data.folderId
-                                            )
-                                            dialogState.closeDialog()
-                                        } else {
-                                            folderViewModel.createDeck(
-                                                Deck(
-                                                    deckName = dialogState.dialogData.text,
-                                                    folderId = folder.data.folderId
-                                                )
-                                            )
-                                            dialogState.closeDialog()
-                                        }
-                                    }
-                                },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .wrapContentSize(Alignment.CenterStart),
-                                iconModifier = Modifier
-                                    .clip(shape = MaterialTheme.shapes.extraLarge)
-                                    .background(
-                                        color = MaterialTheme.colorScheme.outlineVariant,
-                                        shape = MaterialTheme.shapes.extraLarge
-                                    )
-                                    .padding(dimenDpResource(R.dimen.padding_small))
-                                    .size(dimenDpResource(R.dimen.padding_medium)),
-                            )
-                        }
-                    }
+                    FolderRenameOrCreateDialog(folder, dialogState, validation, folderViewModel)
                 }
 
                 (dialogState.currentDialogType == DialogType.Move || dialogState.currentDialogType == DialogType.MoveItemsAndDeleteItem) -> {
-                    SelectItemDialog(
-                        titleDialog = stringResource(R.string.dialog_select_folder),
-                        dialogState = dialogState,
-                        selectItems = folders.mapToUiState { folders ->
-                            folders.map { Pair(it.folderName, it.folderId) }
-                        },
-                        selectedElement = selectedElement,
-                        sourceLocation = folder.mapSuccess { it.folderId }!!,
-                        fetchList = { folderViewModel.getAllFolders() },
-                        onClickSave = {
-                            if (dialogState.currentDialogType == DialogType.Move) {
-                                folderViewModel.moveDecksBetweenFolders(
-                                    sourceFolderId = folder.mapSuccess { it.folderId }!!,
-                                    targetFolderId = selectedElement!!,
-                                    deckIds = folderViewModel.selectedDecks.value.sorted().toList()
-                                )
-                                dialogState.closeDialog()
-                                folderViewModel.updateEditMode()
-                                folderViewModel.clearSelectDeck()
-                            } else if (dialogState.currentDialogType == DialogType.MoveItemsAndDeleteItem) {
-                                folderViewModel.addDecksToFolder(
-                                    targetFolderId = selectedElement!!,
-                                    deckIds = folderViewModel.selectedDecks.value.sorted().toList()
-                                )
-                                folder.mapSuccess { it }
-                                    ?.let { folderViewModel.deleteFolder(it) }
-                                folderViewModel.clearSelectDeck()
-                                dialogState.closeDialog()
-                                dialogState.stopSelectingDecksForMoveAndDelete()
-                                navController.popBackStack()
-                            }
-                        },
+                    FolderMoveDialog(
+                        dialogState,
+                        folders,
+                        selectedElement,
+                        folder,
+                        folderViewModel,
+                        navController
                     )
                 }
 
                 dialogState.currentDialogType == DialogType.Delete -> {
-                    DeleteItemDialog(
-                        onClickDeleteAll = {
-                            folder.mapSuccess { it }
-                                ?.let { folderViewModel.deleteFolder(it) }
-                            navController.popBackStack()
-                        },
-                        onClickDeletePartially = {
-                            folderViewModel.updateEditMode()
-                            dialogState.closeDialog()
-                            dialogState.startSelectingDecksForMoveAndDelete()
-                        }
-                    )
+                    FolderDeleteDialog(folder, folderViewModel, navController, dialogState)
                 }
             }
         }
@@ -519,29 +446,174 @@ private fun FolderDialog(
 }
 
 @Composable
-private fun FolderDropdownMenu(
-    dropdownMenuState: DropdownMenuState,
-    listDropdownMenu: List<DropdownMenuData>,
-    padding: PaddingValues,
-    dropdownVisibleAnimation: Float
+private fun FolderRenameOrCreateDialog(
+    folder: UiState<Folder>,
+    dialogState: DialogState,
+    validation: Boolean?,
+    folderViewModel: FolderViewModel
 ) {
-    if (dropdownMenuState.isExpanded) {
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null
-            ) { dropdownMenuState.toggle() }
-        )
-        DropdownMenu(
-            listDropdownMenuItem = listDropdownMenu,
-            dropdownModifier = Modifier
-                .padding(horizontal = dimenDpResource(R.dimen.padding_medium))
-                .padding(padding)
-                .alpha(dropdownVisibleAnimation)
-                .fillMaxWidth()
-                .padding(top = dimenDpResource(R.dimen.spacer_extra_small))
-                .wrapContentSize(Alignment.TopEnd)
-        )
+    when (folder) {
+        is UiState.Success -> {
+            CreateItemDialog(
+                titleDialog = if (dialogState.currentDialogType == DialogType.Rename) {
+                    stringResource(R.string.rename_title_item_dialog)
+                } else {
+                    stringResource(R.string.create_item_dialog_text_creating_deck)
+                },
+                placeholder = stringResource(R.string.create_item_dialog_text_input_title_folder),
+                buttonText = if (dialogState.currentDialogType == DialogType.Rename) {
+                    stringResource(R.string.save_text)
+                } else {
+                    stringResource(R.string.create_item_dialog_text_create_deck)
+                },
+                inputValue = dialogState.dialogStateData.text,
+                isInputValid = validation == true || validation == null,
+                onInputChange = { newValue ->
+                    dialogState.validateFolderName(newValue)
+                    dialogState.updateDialogText(newValue)
+                },
+                onBackClick = {
+                    dialogState.closeDialog()
+                },
+                onSaveClick = {
+                    if (dialogState.validateFolderName(dialogState.dialogStateData.text)) {
+                        if (dialogState.currentDialogType == DialogType.Rename) {
+                            folderViewModel.renameFolder(
+                                newFolderName = dialogState.dialogStateData.text,
+                                folderId = folder.data.folderId
+                            )
+                        } else {
+                            folderViewModel.createDeck(
+                                Deck(
+                                    deckName = dialogState.dialogStateData.text,
+                                    folderId = folder.data.folderId
+                                )
+                            )
+                        }
+                        dialogState.closeDialog()
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentSize(Alignment.CenterStart),
+                iconModifier = Modifier
+                    .clip(shape = MaterialTheme.shapes.extraLarge)
+                    .background(
+                        color = MaterialTheme.colorScheme.outlineVariant,
+                        shape = MaterialTheme.shapes.extraLarge
+                    )
+                    .padding(dimenDpResource(R.dimen.padding_small))
+                    .size(dimenDpResource(R.dimen.padding_medium)),
+            )
+        }
     }
+}
+
+@Composable
+private fun FolderMoveDialog(
+    dialogState: DialogState,
+    folders: UiState<List<Folder>>,
+    selectedElement: Int?,
+    folder: UiState<Folder>,
+    folderViewModel: FolderViewModel,
+    navController: NavController
+) {
+    when (folder) {
+        is UiState.Success -> {
+            SelectItemDialog(
+                titleDialog = stringResource(R.string.dialog_select_folder),
+                dialogState = dialogState,
+                selectItems = folders.mapToUiState { folderPairs ->
+                    folderPairs.map { Pair(it.folderName, it.folderId) }
+                },
+                selectedElement = selectedElement,
+                sourceLocation = folder.data.folderId,
+                fetchList = { folderViewModel.getAllFolders() },
+                onClickSave = {
+                    handleSave(dialogState, selectedElement, folderViewModel, folder, navController)
+                },
+            )
+
+        }
+    }
+
+}
+
+private fun handleSave(
+    dialogState: DialogState,
+    selectedElement: Int?,
+    folderViewModel: FolderViewModel,
+    folder: UiState.Success<Folder>,
+    navController: NavController
+) {
+    if (dialogState.currentDialogType == DialogType.Move) {
+        selectedElement?.let {
+            folderViewModel.moveDecksBetweenFolders(
+                sourceFolderId = folder.data.folderId,
+                targetFolderId = it,
+                deckIds = folderViewModel.selectedDecks.value.sorted().toList()
+            )
+        }
+        dialogState.closeDialog()
+        folderViewModel.updateEditMode()
+        folderViewModel.clearSelectDeck()
+    } else if (dialogState.currentDialogType == DialogType.MoveItemsAndDeleteItem) {
+        selectedElement?.let {
+            folderViewModel.addDecksToFolder(
+                targetFolderId = it,
+                deckIds = folderViewModel.selectedDecks.value.sorted().toList()
+            )
+        }
+        folderViewModel.deleteFolder(folder.data)
+        folderViewModel.clearSelectDeck()
+        dialogState.closeDialog()
+        dialogState.stopSelectingDecksForMoveAndDelete()
+        navController.popBackStack()
+    }
+}
+
+@Composable
+private fun FolderDeleteDialog(
+    folder: UiState<Folder>,
+    folderViewModel: FolderViewModel,
+    navController: NavController,
+    dialogState: DialogState
+) {
+    DeleteItemDialog(
+        onClickDeleteAll = {
+            folder.mapSuccess { folderViewModel.deleteFolder(it) }
+            navController.popBackStack()
+        },
+        onClickDeletePartially = {
+            folderViewModel.updateEditMode()
+            dialogState.closeDialog()
+            dialogState.startSelectingDecksForMoveAndDelete()
+        }
+    )
+}
+
+@Composable
+private fun FolderDropdownMenu(
+    padding: PaddingValues,
+    listDropdownMenu: List<DropdownMenuData>,
+    dropdownVisibleAnimation: Float,
+    dropdownMenuState: DropdownMenuState
+) {
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .clickable(
+            interactionSource = remember { MutableInteractionSource() },
+            indication = null
+        ) { dropdownMenuState.toggle() }
+    )
+    DropdownMenu(
+        listDropdownMenuItem = listDropdownMenu,
+        dropdownModifier = Modifier
+            .padding(horizontal = dimenDpResource(R.dimen.padding_medium))
+            .padding(padding)
+            .alpha(dropdownVisibleAnimation)
+            .fillMaxWidth()
+            .padding(top = dimenDpResource(R.dimen.spacer_extra_small))
+            .wrapContentSize(Alignment.TopEnd)
+    )
 }

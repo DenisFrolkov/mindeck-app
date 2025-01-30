@@ -3,6 +3,8 @@ package com.mindeck.presentation.ui.components.dialog
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.mindeck.presentation.ui.components.dialog.data_class.DialogStateData
+import com.mindeck.presentation.ui.components.dialog.data_class.DialogType
 import kotlinx.coroutines.flow.MutableStateFlow
 
 class DialogState(
@@ -17,7 +19,7 @@ class DialogState(
     var currentDialogType by mutableStateOf<DialogType>(DialogType.None)
         private set
 
-    var dialogData by mutableStateOf(DialogData())
+    var dialogStateData by mutableStateOf(DialogStateData())
         private set
 
     var isSelectItem = MutableStateFlow<Int?>(null)
@@ -27,7 +29,7 @@ class DialogState(
         private set
 
     private fun openDialog(dialogType: DialogType) {
-        dialogData = DialogData()
+        dialogStateData = DialogStateData()
         currentDialogType = dialogType
         isDialogVisible = true
         if (dialogType != DialogType.Move) {
@@ -62,8 +64,8 @@ class DialogState(
     }
 
     fun validateFolderName(folderName: String): Boolean {
-        dialogData = dialogData.copy(isValid = folderName.isNotBlank())
-        return dialogData.isValid == true
+        dialogStateData = dialogStateData.copy(isValid = folderName.isNotBlank())
+        return folderName.isNotBlank()
     }
 
     fun updateSelectItem(folderId: Int?) {
@@ -71,7 +73,7 @@ class DialogState(
     }
 
     fun updateDialogText(text: String) {
-        dialogData = dialogData.copy(text = text)
+        dialogStateData = dialogStateData.copy(text = text)
     }
 
     fun startSelectingDecksForMoveAndDelete() {

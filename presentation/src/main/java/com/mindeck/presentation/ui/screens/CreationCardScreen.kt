@@ -32,7 +32,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.Deck
@@ -51,7 +50,7 @@ import com.mindeck.presentation.ui.components.utils.textInputModifier
 import com.mindeck.presentation.ui.theme.text_gray
 import com.mindeck.presentation.ui.theme.text_white
 import com.mindeck.presentation.state.UiState
-import com.mindeck.presentation.state.mapToUiState
+import com.mindeck.presentation.state.UiState.Loading.mapToUiState
 import com.mindeck.presentation.viewmodel.CreationCardViewModel
 
 @Composable
@@ -236,8 +235,8 @@ private fun FolderDropdownSelector(
         label = stringResource(R.string.text_folder_dropdown_selector),
         validation = validation,
         selectedItem = selectedFolder,
-        itemsState = folder.mapToUiState { folders ->
-            folders.map { Pair(it.folderName, it.folderId) }
+        itemsState = folder.mapToUiState { folderPairs ->
+            folderPairs.map { Pair(it.folderName, it.folderId) }
         },
         onItemClick = onItemClick,
         onClick = onClick,
