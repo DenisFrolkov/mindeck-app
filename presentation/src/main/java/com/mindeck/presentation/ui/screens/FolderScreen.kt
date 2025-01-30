@@ -29,6 +29,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -68,8 +69,14 @@ import com.mindeck.presentation.viewmodel.FolderViewModel
 @Composable
 fun FolderScreen(
     navController: NavController,
+    folderId: Int,
     folderViewModel: FolderViewModel,
 ) {
+    LaunchedEffect(folderId) {
+        folderViewModel.loadFolderByFolderId(folderId)
+        folderViewModel.loadDecksByFolder(folderId)
+    }
+
     val dropdownMenuState = remember { DropdownMenuState() }
     val dialogState = remember { DialogState() }
 
@@ -82,12 +89,12 @@ fun FolderScreen(
         animationDuration = dialogState.animationDuration * 3
     )
 
-    val folder = folderViewModel.folderUIState.collectAsState().value
-    val folders = folderViewModel.foldersUIState.collectAsState().value
-    val decks = folderViewModel.deckByIdrUIState.collectAsState().value
+    val folder = folderViewModel.folderByFolderIdUIState.collectAsState().value
+    val folders = folderViewModel.foldersState.collectAsState().value
+    val decks = folderViewModel.decksByFolderIdState.collectAsState().value
     val isEditModeEnabled = folderViewModel.isEditModeEnabled.collectAsState().value
+    val selectedDecks by folderViewModel.selectedDeckIdSet.collectAsState()
 
-    val selectedDecks by folderViewModel.selectedDecks.collectAsState()
     val selectedElement by dialogState.isSelectItem.collectAsState()
     val validation = dialogState.dialogStateData.isValid
 
@@ -179,7 +186,7 @@ private fun FolderEditTopBar(
         ) {
             ButtonMoveMode(
                 buttonTitle = stringResource(R.string.text_move_mode_top_bar_back_button),
-                onClickButton = { folderViewModel.clearSelectDeck() }
+                onClickButton = { folderViewModel.clearSelectedDeck() }
             )
             if (selectedDecks.isNotEmpty()) {
                 ButtonMoveMode(
@@ -285,7 +292,7 @@ private fun dropdownMenuDataList(
             title = stringResource(R.string.dropdown_menu_data_edit_list),
             action = {
                 dropdownMenuState.reset()
-                folderViewModel.updateEditMode()
+                folderViewModel.toggleEditMode()
             }
         ),
         DropdownMenuData(
@@ -484,10 +491,8 @@ private fun FolderRenameOrCreateDialog(
                             )
                         } else {
                             folderViewModel.createDeck(
-                                Deck(
-                                    deckName = dialogState.dialogStateData.text,
-                                    folderId = folder.data.folderId
-                                )
+                                deckName = dialogState.dialogStateData.text,
+                                folderId = folder.data.folderId
                             )
                         }
                         dialogState.closeDialog()
@@ -528,7 +533,7 @@ private fun FolderMoveDialog(
                 },
                 selectedElement = selectedElement,
                 sourceLocation = folder.data.folderId,
-                fetchList = { folderViewModel.getAllFolders() },
+                fetchList = {  },
                 onClickSave = {
                     handleSave(dialogState, selectedElement, folderViewModel, folder, navController)
                 },
@@ -551,21 +556,21 @@ private fun handleSave(
             folderViewModel.moveDecksBetweenFolders(
                 sourceFolderId = folder.data.folderId,
                 targetFolderId = it,
-                deckIds = folderViewModel.selectedDecks.value.sorted().toList()
+                deckIds = folderViewModel.selectedDeckIdSet.value.sorted().toList()
             )
         }
         dialogState.closeDialog()
-        folderViewModel.updateEditMode()
-        folderViewModel.clearSelectDeck()
+        folderViewModel.toggleEditMode()
+        folderViewModel.clearSelectedDeck()
     } else if (dialogState.currentDialogType == DialogType.MoveItemsAndDeleteItem) {
         selectedElement?.let {
             folderViewModel.addDecksToFolder(
                 targetFolderId = it,
-                deckIds = folderViewModel.selectedDecks.value.sorted().toList()
+                deckIds = folderViewModel.selectedDeckIdSet.value.sorted().toList()
             )
         }
         folderViewModel.deleteFolder(folder.data)
-        folderViewModel.clearSelectDeck()
+        folderViewModel.clearSelectedDeck()
         dialogState.closeDialog()
         dialogState.stopSelectingDecksForMoveAndDelete()
         navController.popBackStack()
@@ -585,7 +590,7 @@ private fun FolderDeleteDialog(
             navController.popBackStack()
         },
         onClickDeletePartially = {
-            folderViewModel.updateEditMode()
+            folderViewModel.toggleEditMode()
             dialogState.closeDialog()
             dialogState.startSelectingDecksForMoveAndDelete()
         }

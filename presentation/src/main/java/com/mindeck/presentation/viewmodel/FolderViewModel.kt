@@ -14,16 +14,24 @@ import com.mindeck.domain.usecases.folderUseCases.GetAllFoldersUseCase
 import com.mindeck.domain.usecases.folderUseCases.GetFolderByIdUseCase
 import com.mindeck.domain.usecases.folderUseCases.RenameFolderUseCase
 import com.mindeck.presentation.state.UiState
+import com.mindeck.presentation.viewmodel.managers.EditModeManager
+import com.mindeck.presentation.viewmodel.managers.SelectionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class FolderViewModel @Inject constructor(
-    private val getAllFoldersUseCase: GetAllFoldersUseCase,
+    getAllFoldersUseCase: GetAllFoldersUseCase,
     private val getAllDecksByFolderIdUseCase: GetAllDecksByFolderIdUseCase,
     private val getFolderByIdUseCase: GetFolderByIdUseCase,
     private val moveDecksBetweenFoldersUseCase: MoveDecksBetweenFoldersUseCase,
@@ -32,58 +40,90 @@ class FolderViewModel @Inject constructor(
     private val deleteFolderUseCase: DeleteFolderUseCase,
     private val deleteDecksFromFolderUseCase: DeleteDecksFromFolderUseCase,
     private val addDecksToFolderUseCase: AddDecksToFolderUseCase,
+    private val editModeManager: EditModeManager,
+    private val selectionManager: SelectionManager,
 ) : ViewModel() {
 
-    private val _folderUIState = MutableStateFlow<UiState<Folder>>(UiState.Loading)
-    val folderUIState: StateFlow<UiState<Folder>> = _folderUIState
+    val foldersState: StateFlow<UiState<List<Folder>>> = getAllFoldersUseCase()
+        .map<List<Folder>, UiState<List<Folder>>> { UiState.Success(it) }
+        .catch { emit(UiState.Error(it)) }
+        .stateIn(viewModelScope, SharingStarted.Lazily, UiState.Loading)
 
-    private val _foldersUIState = MutableStateFlow<UiState<List<Folder>>>(UiState.Loading)
-    val foldersUIState: StateFlow<UiState<List<Folder>>> = _foldersUIState
+    private val _decksByFolderIdState = MutableStateFlow<UiState<List<Deck>>>(UiState.Loading)
+    val decksByFolderIdState: StateFlow<UiState<List<Deck>>> = _decksByFolderIdState
 
-    private val _deckByIdrUIState = MutableStateFlow<UiState<List<Deck>>>(UiState.Loading)
-    val deckByIdrUIState: StateFlow<UiState<List<Deck>>> = _deckByIdrUIState
-
-    private val _isEditModeEnabled = MutableStateFlow(false)
-    val isEditModeEnabled: StateFlow<Boolean> = _isEditModeEnabled.asStateFlow()
-
-    private val _selectedDecks = MutableStateFlow<Set<Int>>(emptySet())
-    val selectedDecks: StateFlow<Set<Int>> = _selectedDecks
-
-    fun getAllFolders() {
+    fun loadDecksByFolder(folderId: Int) {
         viewModelScope.launch {
-            try {
-                _foldersUIState.value = UiState.Loading
-                getAllFoldersUseCase().collect { folders ->
-                    _foldersUIState.value = UiState.Success(folders)
+            getAllDecksByFolderIdUseCase(folderId)
+                .map<List<Deck>, UiState<List<Deck>>> { UiState.Success(it) }
+                .catch { emit(UiState.Error(it)) }
+                .collect { state ->
+                    _decksByFolderIdState.value = state
                 }
+        }
+    }
+
+    private val _folderByFolderIdUIState = MutableStateFlow<UiState<Folder>>(UiState.Loading)
+    val folderByFolderIdUIState: StateFlow<UiState<Folder>> = _folderByFolderIdUIState
+
+    fun loadFolderByFolderId(folderId: Int) {
+        viewModelScope.launch {
+            _folderByFolderIdUIState.value = try {
+                UiState.Success(getFolderByIdUseCase(folderId))
             } catch (e: Exception) {
-                _foldersUIState.value = UiState.Error(e)
+                UiState.Error(e)
             }
         }
     }
 
-    fun getAllDecksByFolderId(folderId: Int) {
+    private val _createDeckState = MutableStateFlow<UiState<Unit>>(UiState.Loading)
+    val createDeckState: StateFlow<UiState<Unit>> = _createDeckState
+
+    fun createDeck(
+        deckName: String,
+        folderId: Int,
+    ) {
         viewModelScope.launch {
-            try {
-                getAllDecksByFolderIdUseCase(folderId).collect { decks ->
-                    _deckByIdrUIState.value = UiState.Success(decks)
-                }
+            _createDeckState.value = try {
+                createDeckUseCase(Deck(deckName = deckName, folderId = folderId))
+                UiState.Success(Unit)
             } catch (e: Exception) {
-                _deckByIdrUIState.value = UiState.Error(e)
+                UiState.Error(e)
             }
         }
     }
 
-    fun getFolderById(folderId: Int) {
+    private val _renameDeckState = MutableStateFlow<UiState<Unit>>(UiState.Loading)
+    val renameDeckState: StateFlow<UiState<Unit>> = _renameDeckState
+
+    fun renameFolder(folderId: Int, newFolderName: String) {
         viewModelScope.launch {
-            try {
-                val folder = getFolderByIdUseCase(folderId)
-                _folderUIState.value = UiState.Success(folder)
+            _renameDeckState.value = try {
+                renameFolderUseCase(folderId = folderId, newName = newFolderName)
+                UiState.Success(Unit)
             } catch (e: Exception) {
-                _folderUIState.value = UiState.Error(e)
+                UiState.Error(e)
             }
         }
     }
+
+    private val _deleteDeckState = MutableStateFlow<UiState<Unit>>(UiState.Loading)
+    val deleteDeckState: StateFlow<UiState<Unit>> = _deleteDeckState
+
+    fun deleteFolder(folder: Folder) {
+        viewModelScope.launch {
+            _deleteDeckState.value = try {
+                deleteFolderUseCase(folder)
+                UiState.Success(Unit)
+            } catch (e: Exception) {
+                UiState.Error(e)
+            }
+        }
+    }
+
+    private val _moveDecksBetweenFoldersState = MutableStateFlow<UiState<Unit>>(UiState.Loading)
+    val moveDecksBetweenFoldersState: StateFlow<UiState<Unit>> = _moveDecksBetweenFoldersState
+
 
     fun moveDecksBetweenFolders(
         deckIds: List<Int>,
@@ -91,53 +131,46 @@ class FolderViewModel @Inject constructor(
         targetFolderId: Int
     ) {
         viewModelScope.launch {
-            moveDecksBetweenFoldersUseCase.invoke(deckIds, sourceFolderId, targetFolderId)
+            _moveDecksBetweenFoldersState.value = try {
+                moveDecksBetweenFoldersUseCase(deckIds, sourceFolderId, targetFolderId)
+                UiState.Success(Unit)
+            } catch (e: Exception) {
+                UiState.Error(e)
+            }
         }
     }
+
+    private val _addDecksToFolder = MutableStateFlow<UiState<Unit>>(UiState.Loading)
+    val addDecksToFolder: StateFlow<UiState<Unit>> = _addDecksToFolder
 
     fun addDecksToFolder(
         deckIds: List<Int>,
         targetFolderId: Int
     ) {
         viewModelScope.launch {
-           addDecksToFolderUseCase.invoke(deckIds, targetFolderId)
-        }
-    }
-
-    fun toggleDeckSelection(deckId: Int) {
-        _selectedDecks.value = _selectedDecks.value.toMutableSet().apply {
-            if (contains(deckId)) {
-                remove(deckId)
-            } else {
-                add(deckId)
+            _addDecksToFolder.value = try {
+                addDecksToFolderUseCase(deckIds, targetFolderId)
+                UiState.Success(Unit)
+            } catch (e: Exception) {
+                UiState.Error(e)
             }
         }
     }
 
-    fun updateEditMode() {
-        _isEditModeEnabled.value = !_isEditModeEnabled.value
+    val isEditModeEnabled: StateFlow<Boolean> = editModeManager.isEditModeEnabled
+
+    fun toggleEditMode() {
+        editModeManager.toggleEditMode()
     }
 
-    fun clearSelectDeck() {
-        _selectedDecks.value = emptySet()
-        updateEditMode()
+    val selectedDeckIdSet: StateFlow<Set<Int>> = selectionManager.selectedItemIds
+
+    fun toggleDeckSelection(deckId: Int) {
+        selectionManager.toggleDeckSelection(deckId)
     }
 
-    fun createDeck(deck: Deck) {
-        viewModelScope.launch {
-            createDeckUseCase.invoke(deck = deck)
-        }
-    }
-
-    fun renameFolder(folderId: Int, newFolderName: String) {
-        viewModelScope.launch {
-            renameFolderUseCase.invoke(folderId = folderId, newName = newFolderName)
-        }
-    }
-
-    fun deleteFolder(folder: Folder) {
-        viewModelScope.launch {
-            deleteFolderUseCase.invoke(folder)
-        }
+    fun clearSelectedDeck() {
+        selectionManager.clearSelectedDeck()
+        toggleEditMode()
     }
 }
