@@ -8,34 +8,36 @@ import com.mindeck.domain.usecases.folderUseCases.GetAllFoldersUseCase
 import com.mindeck.presentation.state.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val getAllFoldersUseCase: GetAllFoldersUseCase,
+    getAllFoldersUseCase: GetAllFoldersUseCase,
     private val createFolderUseCase: CreateFolderUseCase
 ) : ViewModel() {
 
-    private val _folderUIState = MutableStateFlow<UiState<List<Folder>>>(UiState.Loading)
-    val folderUIState: StateFlow<UiState<List<Folder>>> = _folderUIState
+    val foldersState: StateFlow<UiState<List<Folder>>> = getAllFoldersUseCase()
+        .map<List<Folder>, UiState<List<Folder>>> { UiState.Success(it) }
+        .catch { emit(UiState.Error(it)) }
+        .stateIn(viewModelScope, SharingStarted.Lazily, UiState.Loading)
 
-    fun getAllFolders() {
-        viewModelScope.launch {
-            try {
-                getAllFoldersUseCase().collect { folders ->
-                    _folderUIState.value = UiState.Success(folders)
-                }
-            } catch (e: Exception) {
-                _folderUIState.value = UiState.Error(e)
-            }
-        }
-    }
+    private val _createFolderState = MutableStateFlow<UiState<Unit>>(UiState.Loading)
+    val createFolderState: StateFlow<UiState<Unit>> = _createFolderState
 
     fun createFolder(folderName: String) {
         viewModelScope.launch {
-            createFolderUseCase.invoke(Folder(folderName = folderName))
+            _createFolderState.value = try {
+                createFolderUseCase(Folder(folderName = folderName))
+                UiState.Success(Unit)
+            } catch (e: Exception) {
+                UiState.Error(e)
+            }
         }
     }
 }

@@ -41,7 +41,6 @@ fun AppNavigation(
             enterTransition = { fadeIn(animationSpec = tween(100)) },
             exitTransition = { fadeOut(animationSpec = tween(100)) }
         ) {
-            mainViewModel.getAllFolders()
             MainScreen(
                 navController = navController,
                 mainViewModel = mainViewModel,
@@ -69,12 +68,15 @@ fun AppNavigation(
             arguments = listOf(navArgument("folderId") { type = NavType.IntType })
         ) { backStackEntry ->
             val folderId = backStackEntry.arguments?.getInt("folderId")
-            folderViewModel.getFolderById(folderId!!)
-            folderViewModel.getAllDecksByFolderId(folderId)
-            FolderScreen(
-                navController = navController,
-                folderViewModel = folderViewModel,
-            )
+            if (folderId != null) {
+                FolderScreen(
+                    navController = navController,
+                    folderId = folderId,
+                    folderViewModel = folderViewModel,
+                )
+            } else {
+                navController.popBackStack()
+            }
         }
         composable(
             NavigationRoute.DeckScreen.route,
