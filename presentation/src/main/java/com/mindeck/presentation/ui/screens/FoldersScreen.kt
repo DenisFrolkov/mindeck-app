@@ -26,13 +26,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
 import com.mindeck.domain.models.Folder
 import com.mindeck.presentation.R
-import com.mindeck.presentation.ui.components.dialog.CreateItemDialog
+import com.mindeck.presentation.ui.components.dialog.data_class.CreateItemDialog
 import com.mindeck.presentation.ui.components.common.ActionBar
 import com.mindeck.presentation.ui.components.dialog.DialogState
 import com.mindeck.presentation.ui.components.dialog.animateDialogCreateItem
@@ -40,12 +39,12 @@ import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMen
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenuData
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenuState
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.animateDropdownMenuHeightIn
-import com.mindeck.presentation.ui.components.folder.DisplayCardItem
+import com.mindeck.presentation.ui.components.folder.DisplayItem
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
 import com.mindeck.presentation.ui.navigation.NavigationRoute
-import com.mindeck.presentation.ui.theme.outline_variant_blue
-import com.mindeck.presentation.ui.theme.repeat_button_light_blue
 import com.mindeck.presentation.state.UiState
+import com.mindeck.presentation.ui.components.dataclasses.DisplayItemData
+import com.mindeck.presentation.ui.components.dataclasses.DisplayItemStyle
 import com.mindeck.presentation.viewmodel.FoldersViewModel
 
 @Composable
@@ -62,7 +61,7 @@ fun FoldersScreen(
         animationDuration = dropdownMenuState.animationDuration
     )
     val dialogVisibleAnimation = animateDialogCreateItem(
-        targetAlpha = dialogState.dialogAlpha,
+        targetAlpha = dialogState.animateExpandedAlpha,
         animationDuration = dialogState.animationDuration * 3
     )
     val folders = foldersViewModel.folderUIState.collectAsState().value
@@ -138,14 +137,7 @@ fun FoldersScreen(
                             items(
                                 items = folders.data,
                                 key = { it.folderId }) { folder ->
-                                DisplayCardItem(
-                                    showCount = false,
-                                    itemIcon = painterResource(R.drawable.folder_icon),
-                                    numberOfCards = folder.folderId,
-                                    itemName = folder.folderName,
-                                    backgroundColor = outline_variant_blue,
-                                    iconColor = repeat_button_light_blue,
-                                    textStyle = MaterialTheme.typography.bodyMedium,
+                                DisplayItem(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .border(
@@ -164,7 +156,18 @@ fun FoldersScreen(
                                                     folder.folderId
                                                 )
                                             )
-                                        }
+                                        },
+                                    showCount = false,
+                                    displayItemData = DisplayItemData(
+                                        itemIcon = R.drawable.folder_icon,
+                                        numberOfCards = folder.folderId,
+                                        itemName = folder.folderName,
+                                    ),
+                                    displayItemStyle = DisplayItemStyle(
+                                        backgroundColor = MaterialTheme.colorScheme.onPrimary,
+                                        iconColor = MaterialTheme.colorScheme.outlineVariant,
+                                        textStyle = MaterialTheme.typography.bodyMedium
+                                    )
                                 )
                                 Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_small)))
                             }
@@ -192,7 +195,7 @@ fun FoldersScreen(
             }
         }
     )
-    if (dialogState.isOpeningDialog) {
+    if (dialogState.isDialogVisible) {
         Box(modifier = Modifier.alpha(dialogVisibleAnimation)) {
             Box(
                 modifier = Modifier
@@ -209,14 +212,16 @@ fun FoldersScreen(
                 titleDialog = stringResource(R.string.create_item_dialog_text_creating_folder),
                 placeholder = stringResource(R.string.create_item_dialog_text_input_name_folder),
                 buttonText = stringResource(R.string.create_item_dialog_text_create_folder),
-                value = dialogState.isEnterDialogText,
-                validation = true,
-                onValueChange = { newValue -> dialogState.isEnterDialogText = newValue },
+                inputValue = dialogState.dialogStateData.text,
+                isInputValid = true,
+                onInputChange = { newValue ->
+                    dialogState.updateDialogText(newValue)
+                },
                 onBackClick = {
                     dialogState.closeDialog()
                 },
-                onClickButton = {
-                    foldersViewModel.createFolder(Folder(folderName = dialogState.isEnterDialogText))
+                onSaveClick = {
+                    foldersViewModel.createFolder(Folder(folderName = dialogState.dialogStateData.text))
                     dialogState.closeDialog()
                 },
                 modifier = Modifier
