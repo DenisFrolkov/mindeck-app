@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -33,6 +34,7 @@ import com.mindeck.presentation.R
 import com.mindeck.presentation.state.UiState
 import com.mindeck.presentation.ui.components.buttons.ActionHandlerButton
 import com.mindeck.presentation.ui.components.buttons.SaveDataButton
+import com.mindeck.presentation.ui.components.dialog.data_class.DialogType
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
 import com.mindeck.presentation.ui.components.utils.dimenFloatResource
 import com.mindeck.presentation.ui.theme.text_white
@@ -51,104 +53,104 @@ fun SelectItemDialog(
         fetchList()
     }
 
-    when (selectItems) {
-        is UiState.Success -> {
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .fillMaxHeight(dimenFloatResource(R.dimen.alpha_menu_dialog_height))
-                    .padding(horizontal = dimenDpResource(R.dimen.card_input_field_background_horizontal_padding))
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier
+            .fillMaxHeight(dimenFloatResource(R.dimen.alpha_menu_dialog_height))
+            .padding(horizontal = dimenDpResource(R.dimen.card_input_field_background_horizontal_padding))
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .background(
+                    color = MaterialTheme.colorScheme.background,
+                    shape = MaterialTheme.shapes.small
+                )
+                .clip(MaterialTheme.shapes.small)
+                .padding(dimenDpResource(R.dimen.card_input_field_item_padding))
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                ActionHandlerButton(
+                    iconPainter = painterResource(R.drawable.back_icon),
+                    contentDescription = stringResource(R.string.back_screen_icon_button),
+                    iconTint = MaterialTheme.colorScheme.onPrimary,
+                    onClick = { dialogState.closeDialog() },
+                    iconModifier = Modifier
+                        .clip(shape = MaterialTheme.shapes.extraLarge)
                         .background(
-                            color = MaterialTheme.colorScheme.background,
-                            shape = MaterialTheme.shapes.small
+                            color = MaterialTheme.colorScheme.outlineVariant,
+                            shape = MaterialTheme.shapes.extraLarge
                         )
-                        .clip(MaterialTheme.shapes.small)
-                        .padding(dimenDpResource(R.dimen.card_input_field_item_padding))
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        ActionHandlerButton(
-                            iconPainter = painterResource(R.drawable.back_icon),
-                            contentDescription = stringResource(R.string.back_screen_icon_button),
-                            iconTint = MaterialTheme.colorScheme.onPrimary,
-                            onClick = { dialogState.closeDialog() },
-                            iconModifier = Modifier
-                                .clip(shape = MaterialTheme.shapes.extraLarge)
-                                .background(
-                                    color = MaterialTheme.colorScheme.outlineVariant,
-                                    shape = MaterialTheme.shapes.extraLarge
-                                )
-                                .padding(dimenDpResource(R.dimen.padding_small))
-                                .size(dimenDpResource(R.dimen.padding_medium)),
+                        .padding(dimenDpResource(R.dimen.padding_small))
+                        .size(dimenDpResource(R.dimen.padding_medium)),
+                )
+                Text(
+                    text = titleDialog,
+                    style = MaterialTheme.typography.titleMedium,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacer_large)))
+            ItemList(selectItems, sourceLocation, selectedElement, dialogState)
+            AnimatedVisibility(
+                visible = selectedElement != null
+            ) {
+                SaveDataButton(
+                    text = stringResource(R.string.save_text),
+                    textStyle = MaterialTheme.typography.bodyMedium.copy(
+                        color = text_white
+                    ),
+                    buttonModifier = Modifier
+                        .background(
+                            color = MaterialTheme.colorScheme.outlineVariant,
+                            shape = MaterialTheme.shapes.medium
                         )
-                        Text(
-                            text = titleDialog,
-                            style = MaterialTheme.typography.titleMedium,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacer_large)))
-                    if (selectItems.data.isNotEmpty()) {
-                        LazyColumn(modifier = Modifier.heightIn(max = dimenDpResource(R.dimen.dialog_list_move_item_max_height))) {
-                            items(selectItems.data) { item ->
-                                if (item.second != sourceLocation) {
-                                    SelectItem(
-                                        itemSelected = selectedElement == item.second,
-                                        item = item,
-                                        onItemSelected = {
-                                            if (selectedElement == item.second) {
-                                                dialogState.updateSelectItem(null)
-                                            } else {
-                                                dialogState.updateSelectItem(item.second)
-                                            }
-                                        }
-                                    )
-                                    Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacer_small)))
-                                }
-                            }
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null
+                        ) {
+                            onClickSave()
                         }
-                    } else {
-                        Text(
-                            stringResource(R.string.warning_no_elements),
-                            style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier
-                                .padding(start = dimenDpResource(R.dimen.padding_extra_small))
-                                .padding(
-                                    vertical = dimenDpResource(
-                                        R.dimen.padding_extra_small
-                                    )
-                                )
-                        )
-                    }
-                    AnimatedVisibility(
-                        visible = selectedElement != null
-                    ) {
-                        SaveDataButton(
-                            text = stringResource(R.string.save_text),
-                            textStyle = MaterialTheme.typography.bodyMedium.copy(
-                                color = text_white
-                            ),
-                            buttonModifier = Modifier
-                                .background(
-                                    color = MaterialTheme.colorScheme.outlineVariant,
-                                    shape = MaterialTheme.shapes.medium
-                                )
-                                .clickable(
-                                    interactionSource = remember { MutableInteractionSource() },
-                                    indication = null
-                                ) {
-                                    onClickSave()
-                                }
-                        )
-                    }
-                }
+                )
             }
         }
 
+    }
+}
+
+@Composable
+private fun ItemList(
+    selectItems: UiState<List<Pair<String, Int>>>,
+    sourceLocation: Int,
+    selectedElement: Int?,
+    dialogState: DialogState
+) {
+    when (selectItems) {
+        is UiState.Success -> {
+            if (selectItems.data.isNotEmpty()) {
+                LazyColumn(modifier = Modifier.heightIn(max = dimenDpResource(R.dimen.dialog_list_move_item_max_height))) {
+                    items(selectItems.data) { item ->
+                        if (item.second != sourceLocation) {
+                            SelectItem(
+                                itemSelected = selectedElement == item.second,
+                                item = item,
+                                onItemSelected = { dialogState.updateSelectItem(item.second) }
+                            )
+                            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacer_small)))
+                        }
+                    }
+                }
+            } else {
+                Text(
+                    stringResource(R.string.warning_no_elements),
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier
+                        .padding(start = dimenDpResource(R.dimen.padding_extra_small))
+                        .padding(vertical = dimenDpResource(R.dimen.padding_extra_small))
+                )
+            }
+        }
     }
 }
 

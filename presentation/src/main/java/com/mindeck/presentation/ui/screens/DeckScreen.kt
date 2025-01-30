@@ -1,7 +1,6 @@
 package com.mindeck.presentation.ui.screens
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -37,32 +36,32 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.Deck
 import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.components.common.ActionBar
 import com.mindeck.presentation.ui.components.common.DisplayItemCount
-import com.mindeck.presentation.ui.components.dialog.CreateItemDialog
+import com.mindeck.presentation.ui.components.dialog.data_class.CreateItemDialog
 import com.mindeck.presentation.ui.components.dialog.DialogState
 import com.mindeck.presentation.ui.components.dialog.animateDialogCreateItem
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenu
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenuData
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenuState
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.animateDropdownMenuHeightIn
-import com.mindeck.presentation.ui.components.folder.DisplayCardItem
+import com.mindeck.presentation.ui.components.folder.DisplayItem
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
 import com.mindeck.presentation.ui.components.utils.dimenFloatResource
 import com.mindeck.presentation.ui.navigation.NavigationRoute
 import com.mindeck.presentation.state.UiState
 import com.mindeck.presentation.state.UiState.Loading.mapSuccess
-import com.mindeck.presentation.state.mapToUiState
+import com.mindeck.presentation.state.UiState.Loading.mapToUiState
 import com.mindeck.presentation.ui.components.common.ButtonMoveMode
+import com.mindeck.presentation.ui.components.dataclasses.DisplayItemData
+import com.mindeck.presentation.ui.components.dataclasses.DisplayItemStyle
 import com.mindeck.presentation.ui.components.dialog.DeleteItemDialog
-import com.mindeck.presentation.ui.components.dialog.DialogType
+import com.mindeck.presentation.ui.components.dialog.data_class.DialogType
 import com.mindeck.presentation.ui.components.dialog.SelectItemDialog
 import com.mindeck.presentation.viewmodel.DeckViewModel
 
@@ -89,17 +88,17 @@ fun DeckScreen(
     val isEditModeEnabled = deckViewModel.isEditModeEnabled.collectAsState().value
 
     val selectedCards by deckViewModel.listSelectedCards.collectAsState()
-    val validation = dialogState.dialogData.isValid
+    val validation = dialogState.dialogStateData.isValid
     val selectedElement by dialogState.isSelectItem.collectAsState()
 
     var listDropdownMenu =
         dropdownMenuDataList(
-            dialogState,
-            navController,
-            deckViewModel,
-            dropdownMenuState,
-            deck,
-            cards
+            navController = navController,
+            deck = deck,
+            cards = cards,
+            deckViewModel = deckViewModel,
+            dialogState = dialogState,
+            dropdownMenuState = dropdownMenuState
         )
 
     Surface(
@@ -221,16 +220,16 @@ private fun DeckTopBar(
 
 @Composable
 private fun Content(
-    deckViewModel: DeckViewModel,
+    navController: NavController,
     padding: PaddingValues,
     deck: UiState<Deck>,
     isEditModeEnabled: Boolean,
     selectedCards: Set<Int>,
     cards: UiState<List<Card>>,
-    navController: NavController,
-    dropdownMenuState: DropdownMenuState,
     listDropdownMenu: List<DropdownMenuData>,
-    dropdownVisibleAnimation: Float
+    dropdownVisibleAnimation: Float,
+    deckViewModel: DeckViewModel,
+    dropdownMenuState: DropdownMenuState
 ) {
     Column(
         modifier = Modifier
@@ -253,12 +252,12 @@ private fun Content(
 
 @Composable
 private fun dropdownMenuDataList(
-    dialogState: DialogState,
     navController: NavController,
-    deckViewModel: DeckViewModel,
-    dropdownMenuState: DropdownMenuState,
     deck: UiState<Deck>,
-    cards: UiState<List<Card>>
+    cards: UiState<List<Card>>,
+    deckViewModel: DeckViewModel,
+    dialogState: DialogState,
+    dropdownMenuState: DropdownMenuState
 ): List<DropdownMenuData> {
     return listOf(
         DropdownMenuData(
@@ -291,7 +290,7 @@ private fun dropdownMenuDataList(
                         if (cards.data.isNotEmpty()) {
                             dialogState.openDeleteDialog()
                         } else {
-                            deck.mapSuccess { it }?.let { deckViewModel.deleteDeck(it) }
+                            deck.mapSuccess { deckViewModel.deleteDeck(it) }
                             navController.popBackStack()
                         }
                     }
@@ -336,18 +335,7 @@ private fun CardInfo(
 
             LazyColumn {
                 items(items = cards.data, key = { it.cardId }) { card ->
-                    DisplayCardItem(
-                        showCount = false,
-                        showEditMode = isEditModeEnabled,
-                        isSelected = selectedCards.contains(card.cardId),
-                        onCheckedChange = { deckViewModel.toggleCardSelection(card.cardId) },
-                        itemIcon = painterResource(R.drawable.card_icon),
-                        itemName = card.cardName,
-                        backgroundColor = MaterialTheme.colorScheme.secondary.copy(
-                            dimenFloatResource(R.dimen.float_zero_dot_five_significance)
-                        ),
-                        iconColor = MaterialTheme.colorScheme.outlineVariant,
-                        textStyle = MaterialTheme.typography.bodyMedium,
+                    DisplayItem(
                         modifier = Modifier
                             .fillMaxWidth()
                             .border(
@@ -366,7 +354,22 @@ private fun CardInfo(
                                         card.cardId
                                     )
                                 )
-                            }
+                            },
+                        showCount = false,
+                        showEditMode = isEditModeEnabled,
+                        isSelected = selectedCards.contains(card.cardId),
+                        onCheckedChange = { deckViewModel.toggleCardSelection(card.cardId) },
+                        displayItemData = DisplayItemData(
+                            itemIcon = R.drawable.card_icon,
+                            itemName = card.cardName,
+                        ),
+                        displayItemStyle = DisplayItemStyle(
+                            backgroundColor = MaterialTheme.colorScheme.secondary.copy(
+                                dimenFloatResource(R.dimen.float_zero_dot_five_significance)
+                            ),
+                            iconColor = MaterialTheme.colorScheme.outlineVariant,
+                            textStyle = MaterialTheme.typography.bodyMedium,
+                        )
                     )
                     Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_small)))
                 }
@@ -402,103 +405,153 @@ private fun DeckDialog(
             )
             when {
                 dialogState.currentDialogType == DialogType.Rename -> {
-                    when (deck) {
-                        is UiState.Success -> {
-                            CreateItemDialog(
-                                titleDialog = stringResource(R.string.rename_title_item_dialog),
-                                placeholder = stringResource(R.string.rename_item_dialog_text_input_title_deck),
-                                buttonText = stringResource(R.string.save_text),
-                                value = dialogState.dialogData.text,
-                                validation = validation == true || validation == null,
-                                onValueChange = { newValue ->
-                                    dialogState.validateFolderName(newValue)
-                                    dialogState.updateDialogText(newValue)
-                                },
-                                onBackClick = {
-                                    dialogState.closeDialog()
-                                },
-                                onClickButton = {
-                                    if (dialogState.validateFolderName(dialogState.dialogData.text)) {
-                                        deckViewModel.renameDeck(
-                                            deckId = deck.data.deckId,
-                                            newDeckName = dialogState.dialogData.text
-                                        )
-                                        dialogState.closeDialog()
-                                        deckViewModel.getDeckById(deck.data.deckId)
-                                    }
-                                },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .wrapContentSize(Alignment.CenterStart),
-                                iconModifier = Modifier
-                                    .clip(shape = MaterialTheme.shapes.extraLarge)
-                                    .background(
-                                        color = MaterialTheme.colorScheme.outlineVariant,
-                                        shape = MaterialTheme.shapes.extraLarge
-                                    )
-                                    .padding(dimenDpResource(R.dimen.padding_small))
-                                    .size(dimenDpResource(R.dimen.padding_medium)),
-                            )
-                        }
-                    }
+                    DeckRenameDialog(deck, dialogState, validation, deckViewModel)
                 }
 
                 (dialogState.currentDialogType == DialogType.Move || dialogState.currentDialogType == DialogType.MoveItemsAndDeleteItem) -> {
-                    SelectItemDialog(
-                        titleDialog = stringResource(R.string.dialog_select_folder),
-                        dialogState = dialogState,
-                        selectItems = decks.mapToUiState { deck ->
-                            deck.map { Pair(it.deckName, it.deckId) }
-                        },
-                        selectedElement = selectedElement,
-                        sourceLocation = deck.mapSuccess { it.deckId }!!,
-                        fetchList = { deckViewModel.getAllDecksByFolderId(deck.mapSuccess { it.folderId }!!) },
-                        onClickSave = {
-                            if (dialogState.currentDialogType == DialogType.Move) {
-                                deckViewModel.moveCardsBetweenDecks(
-                                    sourceDeckId = deck.mapSuccess { it.deckId }!!,
-                                    targetDeckId = selectedElement!!,
-                                    deckIds = deckViewModel.listSelectedCards.value.sorted()
-                                        .toList()
-                                )
-                                dialogState.closeDialog()
-                                deckViewModel.updateEditMode()
-                                deckViewModel.clearSelection()
-                            } else if (dialogState.currentDialogType == DialogType.MoveItemsAndDeleteItem) {
-                                deckViewModel.addCardsToDeck(
-                                    targetDeckId = selectedElement!!,
-                                    cardIds = deckViewModel.listSelectedCards.value.sorted()
-                                        .toList()
-                                )
-                                deck.mapSuccess { it }
-                                    ?.let { deckViewModel.deleteDeck(it) }
-                                deckViewModel.clearSelection()
-                                dialogState.closeDialog()
-                                dialogState.stopSelectingDecksForMoveAndDelete()
-                                navController.popBackStack()
-                            }
-                        },
+                    DeckMoveDialog(
+                        dialogState,
+                        decks,
+                        selectedElement,
+                        deck,
+                        deckViewModel,
+                        navController
                     )
                 }
 
                 dialogState.currentDialogType == DialogType.Delete -> {
-                    DeleteItemDialog(
-                        onClickDeleteAll = {
-                            deck.mapSuccess { it }
-                                ?.let { deckViewModel.deleteDeck(it) }
-                            navController.popBackStack()
-                        },
-                        onClickDeletePartially = {
-                            deckViewModel.updateEditMode()
-                            dialogState.closeDialog()
-                            dialogState.startSelectingDecksForMoveAndDelete()
-                        }
-                    )
-
+                    DeckDeleteDialog(deck, deckViewModel, navController, dialogState)
                 }
             }
         }
     }
+}
+
+@Composable
+private fun DeckRenameDialog(
+    deck: UiState<Deck>,
+    dialogState: DialogState,
+    validation: Boolean?,
+    deckViewModel: DeckViewModel
+) {
+    when (deck) {
+        is UiState.Success -> {
+            CreateItemDialog(
+                titleDialog = stringResource(R.string.rename_title_item_dialog),
+                placeholder = stringResource(R.string.rename_item_dialog_text_input_title_deck),
+                buttonText = stringResource(R.string.save_text),
+                inputValue = dialogState.dialogStateData.text,
+                isInputValid = validation == true || validation == null,
+                onInputChange = { newValue ->
+                    dialogState.validateFolderName(newValue)
+                    dialogState.updateDialogText(newValue)
+                },
+                onBackClick = {
+                    dialogState.closeDialog()
+                },
+                onSaveClick = {
+                    if (dialogState.validateFolderName(dialogState.dialogStateData.text)) {
+                        deckViewModel.renameDeck(
+                            deckId = deck.data.deckId,
+                            newDeckName = dialogState.dialogStateData.text
+                        )
+                        dialogState.closeDialog()
+                        deckViewModel.getDeckById(deck.data.deckId)
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentSize(Alignment.CenterStart),
+                iconModifier = Modifier
+                    .clip(shape = MaterialTheme.shapes.extraLarge)
+                    .background(
+                        color = MaterialTheme.colorScheme.outlineVariant,
+                        shape = MaterialTheme.shapes.extraLarge
+                    )
+                    .padding(dimenDpResource(R.dimen.padding_small))
+                    .size(dimenDpResource(R.dimen.padding_medium)),
+            )
+        }
+    }
+}
+
+@Composable
+private fun DeckMoveDialog(
+    dialogState: DialogState,
+    decks: UiState<List<Deck>>,
+    selectedElement: Int?,
+    deck: UiState<Deck>,
+    deckViewModel: DeckViewModel,
+    navController: NavController
+) {
+    when (deck) {
+        is UiState.Success -> {
+            SelectItemDialog(
+                titleDialog = stringResource(R.string.dialog_select_folder),
+                dialogState = dialogState,
+                selectItems = decks.mapToUiState { deckPairs ->
+                    deckPairs.map { Pair(it.deckName, it.deckId) }
+                },
+                selectedElement = selectedElement,
+                sourceLocation = deck.data.deckId,
+                fetchList = { deckViewModel.getAllDecksByFolderId(deck.data.folderId) },
+                onClickSave = {
+                    handleDeckMoveSave(dialogState, deckViewModel, deck, selectedElement, navController)
+                },
+            )
+        }
+    }
+}
+
+private fun handleDeckMoveSave(
+    dialogState: DialogState,
+    deckViewModel: DeckViewModel,
+    deck: UiState.Success<Deck>,
+    selectedElement: Int?,
+    navController: NavController
+) {
+    if (dialogState.currentDialogType == DialogType.Move) {
+        deckViewModel.moveCardsBetweenDecks(
+            sourceDeckId = deck.data.deckId,
+            targetDeckId = selectedElement!!,
+            deckIds = deckViewModel.listSelectedCards.value.sorted()
+                .toList()
+        )
+        dialogState.closeDialog()
+        deckViewModel.updateEditMode()
+        deckViewModel.clearSelection()
+    } else if (dialogState.currentDialogType == DialogType.MoveItemsAndDeleteItem) {
+        deckViewModel.addCardsToDeck(
+            targetDeckId = selectedElement!!,
+            cardIds = deckViewModel.listSelectedCards.value.sorted()
+                .toList()
+        )
+        deck.mapSuccess { deckViewModel.deleteDeck(it) }
+        deckViewModel.clearSelection()
+        dialogState.closeDialog()
+        dialogState.stopSelectingDecksForMoveAndDelete()
+        navController.popBackStack()
+    }
+}
+
+@Composable
+private fun DeckDeleteDialog(
+    deck: UiState<Deck>,
+    deckViewModel: DeckViewModel,
+    navController: NavController,
+    dialogState: DialogState
+) {
+    DeleteItemDialog(
+        onClickDeleteAll = {
+            deck.mapSuccess { deckViewModel.deleteDeck(it) }
+            navController.popBackStack()
+        },
+        onClickDeletePartially = {
+            deckViewModel.updateEditMode()
+            dialogState.closeDialog()
+            dialogState.startSelectingDecksForMoveAndDelete()
+        }
+    )
 }
 
 @Composable

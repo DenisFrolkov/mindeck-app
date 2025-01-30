@@ -1,4 +1,4 @@
-package com.mindeck.presentation.ui.components.dialog
+package com.mindeck.presentation.ui.components.dialog.data_class
 
 sealed interface DialogType {
     object None : DialogType
