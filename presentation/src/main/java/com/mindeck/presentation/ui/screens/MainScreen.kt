@@ -36,18 +36,20 @@ import com.mindeck.domain.models.Folder
 import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.components.daily_progress_tracker.DailyProgressTracker
 import com.mindeck.presentation.ui.components.daily_progress_tracker.DailyProgressTrackerState
-import com.mindeck.presentation.ui.components.dialog.CreateItemDialog
+import com.mindeck.presentation.ui.components.dialog.data_class.CreateItemDialog
 import com.mindeck.presentation.ui.components.dialog.DialogState
 import com.mindeck.presentation.ui.components.dialog.animateDialogCreateItem
 import com.mindeck.presentation.ui.components.fab.FAB
 import com.mindeck.presentation.ui.components.fab.FabMenuData
 import com.mindeck.presentation.ui.components.fab.FabState
 import com.mindeck.presentation.ui.components.fab.FabState.Companion.ITEM_HEIGHT
-import com.mindeck.presentation.ui.components.folder.DisplayCardItem
+import com.mindeck.presentation.ui.components.folder.DisplayItem
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
 import com.mindeck.presentation.ui.components.utils.dimenFloatResource
 import com.mindeck.presentation.ui.navigation.NavigationRoute
 import com.mindeck.presentation.state.UiState
+import com.mindeck.presentation.ui.components.dataclasses.DisplayItemData
+import com.mindeck.presentation.ui.components.dataclasses.DisplayItemStyle
 import com.mindeck.presentation.viewmodel.MainViewModel
 
 @Composable
@@ -59,7 +61,7 @@ fun MainScreen(
     val dailyProgressTrackerState =
         remember { DailyProgressTrackerState(totalCards = 500, answeredCards = 30) }
     val dialogVisibleAnimation = animateDialogCreateItem(
-        targetAlpha = dialogState.dialogAlpha,
+        targetAlpha = dialogState.animateExpandedAlpha,
         animationDuration = dialogState.animationDuration * 3
     )
     val MAX_DISPLAY_ITEMS = 5
@@ -67,7 +69,7 @@ fun MainScreen(
     val fabState = remember { FabState(expandedHeight = ITEM_HEIGHT.dp * fabMenuItems.size) }
 
     val folders = mainViewModel.folderUIState.collectAsState().value
-    val validation = dialogState.validation
+    val validation = dialogState.dialogStateData.isValid
 
     Surface(
         modifier = Modifier
@@ -201,7 +203,7 @@ private fun FolderItem(
     navController: NavController,
     folder: Folder
 ) {
-    DisplayCardItem(
+    DisplayItem(
         modifier = Modifier
             .fillMaxWidth()
             .border(
@@ -222,12 +224,18 @@ private fun FolderItem(
                 )
             },
         showCount = false,
-        itemIcon = painterResource(R.drawable.folder_icon),
-        numberOfCards = folder.folderId,
-        itemName = folder.folderName,
-        backgroundColor = MaterialTheme.colorScheme.outlineVariant,
-        iconColor = MaterialTheme.colorScheme.secondary,
-        textStyle = MaterialTheme.typography.bodyMedium,
+        displayItemData = DisplayItemData(
+            itemIcon = R.drawable.folder_icon,
+            numberOfCards = folder.folderId,
+            itemName = folder.folderName
+        ),
+        displayItemStyle = DisplayItemStyle(
+            backgroundColor = MaterialTheme.colorScheme.secondary.copy(
+                dimenFloatResource(R.dimen.float_zero_dot_five_significance)
+            ),
+            iconColor = MaterialTheme.colorScheme.outlineVariant,
+            textStyle = MaterialTheme.typography.bodyMedium,
+        )
     )
 }
 
@@ -282,7 +290,7 @@ private fun OpeningCreateItemDialog(
     validation: Boolean?,
     mainViewModel: MainViewModel
 ) {
-    if (dialogState.isOpeningDialog) {
+    if (dialogState.isDialogVisible) {
         Box(modifier = Modifier.alpha(dialogVisibleAnimation)) {
             Box(
                 modifier = Modifier
@@ -301,18 +309,18 @@ private fun OpeningCreateItemDialog(
                 titleDialog = stringResource(R.string.create_item_dialog_text_creating_folder),
                 placeholder = stringResource(R.string.create_item_dialog_text_input_title_folder),
                 buttonText = stringResource(R.string.create_item_dialog_text_create_folder),
-                validation = validation == true || validation == null,
-                value = dialogState.isEnterDialogText,
-                onValueChange = { newValue ->
-                    dialogState.validationCreate(newValue)
-                    dialogState.isEnterDialogText = newValue
+                isInputValid = validation == true || validation == null,
+                inputValue = dialogState.dialogStateData.text,
+                onInputChange = { newValue ->
+                    dialogState.validateFolderName(newValue)
+                    dialogState.updateDialogText(newValue)
                 },
                 onBackClick = {
                     dialogState.closeDialog()
                 },
-                onClickButton = {
-                    if (dialogState.validationCreate(dialogState.isEnterDialogText)) {
-                        mainViewModel.createFolder(dialogState.isEnterDialogText)
+                onSaveClick = {
+                    if (dialogState.validateFolderName(dialogState.dialogStateData.text)) {
+                        mainViewModel.createFolder(dialogState.dialogStateData.text)
                         dialogState.closeDialog()
                     }
                 },

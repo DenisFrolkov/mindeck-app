@@ -25,28 +25,26 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import com.mindeck.presentation.R
+import com.mindeck.presentation.ui.components.dataclasses.DisplayItemData
+import com.mindeck.presentation.ui.components.dataclasses.DisplayItemStyle
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
 import com.mindeck.presentation.ui.components.utils.formatNumber
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun DisplayCardItem(
+fun DisplayItem(
+    modifier: Modifier = Modifier,
     showCount: Boolean,
     showEditMode: Boolean = false,
     isSelected: Boolean = false,
     onCheckedChange: () -> Unit = {},
-    itemIcon: Painter,
-    numberOfCards: Int = 0,
-    itemName: String,
-    backgroundColor: Color,
-    iconColor: Color,
-    textStyle: TextStyle,
-    textMaxLines: Int = 1,
-    modifier: Modifier = Modifier
+    displayItemData: DisplayItemData,
+    displayItemStyle: DisplayItemStyle,
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -54,8 +52,8 @@ fun DisplayCardItem(
     ) {
         if (showCount) {
             Text(
-                text = formatNumber(numberOfCards),
-                style = textStyle,
+                text = formatNumber(displayItemData.numberOfCards),
+                style = displayItemStyle.textStyle,
                 modifier = Modifier
                     .background(MaterialTheme.colorScheme.onPrimary)
                     .size(dimenDpResource(R.dimen.display_card_item_size))
@@ -78,10 +76,10 @@ fun DisplayCardItem(
                 .padding(horizontal = dimenDpResource(R.dimen.padding_extra_small))
         ) {
             Text(
-                text = itemName,
-                maxLines = textMaxLines,
+                text = displayItemData.itemName,
+                maxLines = displayItemStyle.textMaxLines,
                 overflow = TextOverflow.Ellipsis,
-                style = textStyle,
+                style = displayItemStyle.textStyle,
             )
         }
 
@@ -95,7 +93,7 @@ fun DisplayCardItem(
             contentAlignment = Alignment.Center,
             modifier = Modifier
                 .size(dimenDpResource(R.dimen.display_card_item_size))
-                .background(color = backgroundColor)
+                .background(color = displayItemStyle.backgroundColor)
         ) {
             AnimatedContent(
                 modifier = Modifier
@@ -117,8 +115,8 @@ fun DisplayCardItem(
                 } else {
                     Icon(
                         modifier = Modifier.size(dimenDpResource(R.dimen.icon_size)),
-                        painter = itemIcon,
-                        tint = iconColor,
+                        painter = painterResource(displayItemData.itemIcon),
+                        tint = displayItemStyle.iconColor,
                         contentDescription = stringResource(R.string.folder_icon)
                     )
                 }

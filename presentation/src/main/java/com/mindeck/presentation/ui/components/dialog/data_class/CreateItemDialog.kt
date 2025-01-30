@@ -1,4 +1,4 @@
-package com.mindeck.presentation.ui.components.dialog
+package com.mindeck.presentation.ui.components.dialog.data_class
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -28,8 +28,6 @@ import com.mindeck.presentation.ui.components.buttons.SaveDataButton
 import com.mindeck.presentation.ui.components.textfields.CardInputField
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
 import com.mindeck.presentation.ui.components.utils.dimenFloatResource
-import com.mindeck.presentation.ui.theme.background_light_blue
-import com.mindeck.presentation.ui.theme.scrim_black
 import com.mindeck.presentation.ui.theme.text_gray
 import com.mindeck.presentation.ui.theme.text_white
 
@@ -38,11 +36,11 @@ fun CreateItemDialog(
     titleDialog: String,
     placeholder: String,
     buttonText: String,
-    validation: Boolean,
-    value: String,
-    onValueChange: (String) -> Unit,
+    inputValue: String,
+    onInputChange: (String) -> Unit,
+    isInputValid: Boolean,
     onBackClick: () -> Unit,
-    onClickButton: () -> Unit,
+    onSaveClick: () -> Unit,
     modifier: Modifier,
     iconModifier: Modifier,
 ) {
@@ -81,16 +79,16 @@ fun CreateItemDialog(
 
             CardInputField(
                 placeholder = placeholder,
-                value = value,
+                value = inputValue,
                 singleLine = true,
-                onValueChange = onValueChange,
+                onValueChange = onInputChange,
                 textStyle = MaterialTheme.typography.bodyMedium,
                 placeholderTextStyle = MaterialTheme.typography.bodyMedium.copy(
-                    color = if (validation) text_gray else MaterialTheme.colorScheme.error
+                    color = if (isInputValid) text_gray else MaterialTheme.colorScheme.error
                 ),
                 modifier = modifier
                     .fillMaxWidth()
-                    .background(if (validation) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onError)
+                    .background(if (isInputValid) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onError)
                     .border(
                         dimenDpResource(R.dimen.border_width_dot_two_five),
                         MaterialTheme.colorScheme.outline,
@@ -113,7 +111,7 @@ fun CreateItemDialog(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null
                     ) {
-                        onClickButton()
+                        onSaveClick()
                     }
             )
         }
