@@ -15,3 +15,12 @@ fun animateDialogCreateItem(targetAlpha: Float, animationDuration: Int): Float {
     )
     return animatedFloatIn
 }
+
+@Composable
+fun animateToastItem(targetAlpha: Float, animationDuration: Int): Float {
+    val animatedFloatIn by animateFloatAsState(
+        targetValue = targetAlpha,
+        animationSpec = tween(durationMillis = animationDuration), label = ""
+    )
+    return animatedFloatIn
+}
