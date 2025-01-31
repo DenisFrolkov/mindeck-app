@@ -69,7 +69,6 @@ fun MainScreen(
     val fabState = remember { FabState(expandedHeight = ITEM_HEIGHT.dp * fabMenuItems.size) }
 
     val folders = mainViewModel.foldersState.collectAsState().value
-    val errorCreateFolder = mainViewModel.createFolderState.collectAsState().value
     val validation = dialogState.dialogStateData.isValid
 
     Surface(

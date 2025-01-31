@@ -56,6 +56,10 @@
     <dimen name="float_zero_dot_five_significance">0.5f</dimen>
     <dimen name="float_zero_significance">0f</dimen>
 
+    //Toast
+    <dimen name="toast_corner_shape">20dp</dimen>
+    <dimen name="toast_padding_bottom">40dp</dimen>
+
     //Dimens for TextInput
     <dimen name="text_input_max_height">200dp</dimen>
     <dimen name="text_input_min_height">46dp</dimen>

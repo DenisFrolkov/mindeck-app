@@ -52,6 +52,9 @@
     <string name="dropdown_menu_data_edit_card">Редактировать</string>
     <string name="dropdown_menu_data_remove_card">Удалить</string>
 
+    //Toast
+    <string name="toast_message_impossible_change_the_name">Невозможно изменить название :(.</string>
+
     //Repeat Option Text
     <string name="repeat_option_title_repeat_text">Повторить</string>
     <string name="repeat_option_title_easy_text">Легко</string>
