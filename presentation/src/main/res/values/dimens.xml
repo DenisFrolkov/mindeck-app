@@ -83,7 +83,9 @@
     <dimen name="repeat_options_button_spacer_height">2dp</dimen>
 
     //CircularProgressIndicator Width
-    <dimen name="circular_progress_indicator_weight">3dp</dimen>
+    <dimen name="circular_progress_indicator_weight_one">3dp</dimen>
+    <dimen name="circular_progress_indicator_weight_two">1.5dp</dimen>
+    <dimen name="circular_progress_indicator_size">30dp</dimen>
 
     //Dialog
     <dimen name="dialog_list_move_item_max_height">115dp</dimen>

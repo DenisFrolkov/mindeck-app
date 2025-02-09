@@ -148,7 +148,7 @@ private fun Content(
                 ) {
                     CircularProgressIndicator(
                         color = MaterialTheme.colorScheme.primary,
-                        strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight)
+                        strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_one)
                     )
                 }
             }
