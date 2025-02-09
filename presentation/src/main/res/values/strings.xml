@@ -29,7 +29,9 @@
     <string name="rename_item_dialog_text_input_title_deck">Введите название колоды</string>
     <string name="save_text">Сохранить</string>
 
-    <string name="error_get_all_folders">Не получилось загрузить папки! (</string>
+    <string name="error_get_all_folders">Не получилось загрузить папки!</string>
+    <string name="error_get_decks_by_folder_id">Не получилось загрузить колоды!</string>
+    <string name="error_get_info_about_folder">Не получилось загрузить информацию о папке!</string>
 
     <string name="text_no_folder">Нет папки</string>
 
@@ -53,7 +55,11 @@
     <string name="dropdown_menu_data_remove_card">Удалить</string>
 
     //Toast
-    <string name="toast_message_impossible_change_the_name">Невозможно изменить название :(.</string>
+    <string name="toast_message_impossible_change_the_name">Невозможно изменить название.</string>
+    <string name="toast_message_impossible_create_deck">Невозможно создать колоду.</string>
+    <string name="toast_message_impossible_move_deck">Невозможно изменить расположение колод.</string>
+    <string name="toast_message_impossible_perform_action">Невозможно выполнить это действие.</string>
+    <string name="toast_message_impossible_delete_folder">Невозможно выполнить удаление папки.</string>
 
     //Repeat Option Text
     <string name="repeat_option_title_repeat_text">Повторить</string>

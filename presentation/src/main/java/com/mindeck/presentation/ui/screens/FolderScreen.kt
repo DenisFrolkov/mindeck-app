@@ -2,7 +2,6 @@ package com.mindeck.presentation.ui.screens
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -38,15 +37,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.mindeck.domain.models.Deck
@@ -210,7 +207,13 @@ fun FolderScreen(
                     modifier = Modifier
                         .alpha(toastAlphaAnimation)
                         .clip(RoundedCornerShape(dimenDpResource(R.dimen.toast_corner_shape)))
-                        .background(MaterialTheme.colorScheme.onError.copy(alpha = dimenFloatResource(R.dimen.float_zero_dot_five_significance)))
+                        .background(
+                            MaterialTheme.colorScheme.onError.copy(
+                                alpha = dimenFloatResource(
+                                    R.dimen.float_zero_dot_five_significance
+                                )
+                            )
+                        )
                         .padding(dimenDpResource(R.dimen.padding_small))
                 )
             }
@@ -378,15 +381,37 @@ private fun FolderInfo(
 ) {
     when (folder) {
         is UiState.Success -> {
-            Column {
-                Text(
-                    text = folder.data.folderName,
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentSize(Alignment.Center)
+            Text(
+                text = folder.data.folderName,
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentSize(Alignment.Center)
+            )
+        }
+
+        is UiState.Loading -> {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = dimenDpResource(R.dimen.padding_large))
+                    .wrapContentSize(Alignment.Center)
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(dimenDpResource(R.dimen.circular_progress_indicator_size)),
+                    color = MaterialTheme.colorScheme.primary,
+                    strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_two)
                 )
             }
+        }
+
+        is UiState.Error -> {
+            Text(
+                stringResource(R.string.error_get_info_about_folder),
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.error)
+            )
         }
     }
 }
@@ -449,6 +474,29 @@ private fun DeckInfo(
                 }
             }
         }
+
+        is UiState.Loading -> {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = dimenDpResource(R.dimen.padding_large))
+                    .wrapContentSize(Alignment.Center)
+            ) {
+                CircularProgressIndicator(
+                    color = MaterialTheme.colorScheme.primary,
+                    strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_one)
+                )
+            }
+        }
+
+        is UiState.Error -> {
+            Text(
+                stringResource(R.string.error_get_decks_by_folder_id),
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.error)
+            )
+        }
     }
 }
 
@@ -467,30 +515,51 @@ private fun FolderDialog(
     if (dialogState.isDialogVisible) {
         Box(
             modifier = Modifier
-                .fillMaxSize()
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null
-                ) {}
-        )
-        when {
-            dialogState.currentDialogType == DialogType.Rename || dialogState.currentDialogType == DialogType.Create -> {
-                FolderRenameOrCreateDialog(folder, dialogState, validation, dialogVisibleAnimation, folderViewModel)
-            }
+                .alpha(dialogVisibleAnimation)
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        MaterialTheme.colorScheme.outline.copy(
+                            dimenFloatResource(R.dimen.float_zero_dot_five_significance)
+                        )
+                    )
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) {}
+            )
+            when {
+                dialogState.currentDialogType == DialogType.Rename || dialogState.currentDialogType == DialogType.Create -> {
+                    FolderRenameOrCreateDialog(
+                        folder,
+                        dialogState,
+                        validation,
+                        dialogVisibleAnimation,
+                        folderViewModel
+                    )
+                }
 
-            (dialogState.currentDialogType == DialogType.Move || dialogState.currentDialogType == DialogType.MoveItemsAndDeleteItem) -> {
-                FolderMoveDialog(
-                    dialogState,
-                    folders,
-                    selectedElement,
-                    folder,
-                    folderViewModel,
-                    navController
-                )
-            }
+                (dialogState.currentDialogType == DialogType.Move || dialogState.currentDialogType == DialogType.MoveItemsAndDeleteItem) -> {
+                    FolderMoveDialog(
+                        dialogState,
+                        folders,
+                        selectedElement,
+                        folder,
+                        folderViewModel,
+                        navController
+                    )
+                }
 
-            dialogState.currentDialogType == DialogType.Delete -> {
-                FolderDeleteDialog(folder, folderViewModel, navController, dialogState)
+                dialogState.currentDialogType == DialogType.Delete -> {
+                    FolderDeleteDialog(
+                        folder,
+                        folderViewModel,
+                        navController,
+                        dialogState
+                    )
+                }
             }
         }
     }
@@ -510,7 +579,11 @@ private fun FolderRenameOrCreateDialog(
                 modifier = Modifier
                     .fillMaxWidth()
                     .alpha(dialogVisibleAnimation)
-                    .background(MaterialTheme.colorScheme.outline.copy(dimenFloatResource(R.dimen.float_zero_dot_five_significance)))
+                    .background(
+                        MaterialTheme.colorScheme.outline.copy(
+                            dimenFloatResource(R.dimen.float_zero_dot_five_significance)
+                        )
+                    )
                     .wrapContentSize(Alignment.CenterStart),
                 iconModifier = Modifier
                     .clip(shape = MaterialTheme.shapes.extraLarge)
@@ -562,22 +635,26 @@ private fun FolderRenameOrCreateDialog(
         is UiState.Loading -> {
             Box(
                 modifier = Modifier
-                    .fillMaxHeight(dimenFloatResource(R.dimen.alpha_menu_dialog_height))
-                    .fillMaxWidth()
-                    .alpha(dialogVisibleAnimation)
-                    .background(MaterialTheme.colorScheme.outline.copy(dimenFloatResource(R.dimen.float_zero_dot_five_significance)))
+                    .fillMaxSize()
+                    .background(
+                        MaterialTheme.colorScheme.outline.copy(
+                            dimenFloatResource(R.dimen.float_zero_dot_five_significance)
+                        )
+                    )
                     .wrapContentSize(Alignment.Center)
             ) {
                 CircularProgressIndicator(
                     color = MaterialTheme.colorScheme.primary,
-                    strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight)
+                    strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_one)
                 )
             }
         }
 
         is UiState.Error -> {
             dialogState.closeDialog()
-            dialogState.showErrorToast(stringResource(R.string.toast_message_impossible_change_the_name))
+            dialogState.showErrorToast(
+                stringResource(R.string.toast_message_impossible_perform_action)
+            )
         }
     }
 }
@@ -612,10 +689,31 @@ private fun FolderMoveDialog(
                     )
                 },
             )
+        }
 
+        is UiState.Loading -> {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        MaterialTheme.colorScheme.outline.copy(
+                            dimenFloatResource(R.dimen.float_zero_dot_five_significance)
+                        )
+                    )
+                    .wrapContentSize(Alignment.Center)
+            ) {
+                CircularProgressIndicator(
+                    color = MaterialTheme.colorScheme.primary,
+                    strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_one)
+                )
+            }
+        }
+
+        is UiState.Error -> {
+            dialogState.closeDialog()
+            dialogState.showErrorToast(stringResource(R.string.toast_message_impossible_move_deck))
         }
     }
-
 }
 
 private fun handleSave(
@@ -658,17 +756,44 @@ private fun FolderDeleteDialog(
     navController: NavController,
     dialogState: DialogState
 ) {
-    DeleteItemDialog(
-        onClickDeleteAll = {
-            folder.mapSuccess { folderViewModel.deleteFolder(it) }
-            navController.popBackStack()
-        },
-        onClickDeletePartially = {
-            folderViewModel.toggleEditMode()
-            dialogState.closeDialog()
-            dialogState.startSelectingDecksForMoveAndDelete()
+    when (folder) {
+        is UiState.Success -> {
+            DeleteItemDialog(
+                onClickDeleteAll = {
+                    folder.mapSuccess { folderViewModel.deleteFolder(it) }
+                    navController.popBackStack()
+                },
+                onClickDeletePartially = {
+                    folderViewModel.toggleEditMode()
+                    dialogState.closeDialog()
+                    dialogState.startSelectingDecksForMoveAndDelete()
+                }
+            )
         }
-    )
+
+        is UiState.Loading -> {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        MaterialTheme.colorScheme.outline.copy(
+                            dimenFloatResource(R.dimen.float_zero_dot_five_significance)
+                        )
+                    )
+                    .wrapContentSize(Alignment.Center)
+            ) {
+                CircularProgressIndicator(
+                    color = MaterialTheme.colorScheme.primary,
+                    strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_one)
+                )
+            }
+        }
+
+        is UiState.Error -> {
+            dialogState.closeDialog()
+            dialogState.showErrorToast(stringResource(R.string.toast_message_impossible_delete_folder))
+        }
+    }
 }
 
 @Composable
