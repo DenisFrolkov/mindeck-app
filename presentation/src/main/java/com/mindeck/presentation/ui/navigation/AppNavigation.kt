@@ -71,8 +71,7 @@ fun AppNavigation(
             if (folderId != null) {
                 FolderScreen(
                     navController = navController,
-                    folderId = folderId,
-                    folderViewModel = folderViewModel,
+                    folderId = folderId
                 )
             } else {
                 navController.popBackStack()

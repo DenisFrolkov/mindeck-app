@@ -42,25 +42,19 @@ class FolderViewModel @Inject constructor(
     private val selectionManager: SelectionManager,
 ) : ViewModel() {
 
-    val foldersState: StateFlow<UiState<List<Folder>>> = getAllFoldersUseCase()
-        .map<List<Folder>, UiState<List<Folder>>> { UiState.Success(it) }
-        .catch { emit(UiState.Error(it)) }
-        .stateIn(viewModelScope, SharingStarted.Lazily, UiState.Loading)
-
     private val _decksByFolderId = MutableStateFlow<List<Deck>>(emptyList())
     private val _decksByFolderIdState = MutableStateFlow<UiState<List<Deck>>>(UiState.Loading)
     val decksByFolderIdState: StateFlow<UiState<List<Deck>>> = _decksByFolderIdState
 
     fun loadDecksByFolder(folderId: Int) {
         viewModelScope.launch {
-            _decksByFolderIdState.value = UiState.Error(Throwable())
             _decksByFolderId.value = emptyList()
-//            getAllDecksByFolderIdUseCase(folderId)
-//                .map<List<Deck>, UiState<List<Deck>>> { UiState.Success(it) }
-//                .catch { emit(UiState.Error(it)) }
-//                .collect { state ->
-//                    _decksByFolderIdState.value = state
-//                }
+            getAllDecksByFolderIdUseCase(folderId)
+                .map<List<Deck>, UiState<List<Deck>>> { UiState.Success(it) }
+                .catch { emit(UiState.Error(it)) }
+                .collect { state ->
+                    _decksByFolderIdState.value = state
+                }
         }
     }
 
@@ -69,12 +63,11 @@ class FolderViewModel @Inject constructor(
 
     fun loadFolderByFolderId(folderId: Int) {
         viewModelScope.launch {
-            _folderByFolderIdUIState.value = UiState.Error(Throwable())
-//            _folderByFolderIdUIState.value = try {
-//                UiState.Success(getFolderByIdUseCase(folderId))
-//            } catch (e: Exception) {
-//                UiState.Error(e)
-//            }
+            _folderByFolderIdUIState.value = try {
+                UiState.Success(getFolderByIdUseCase(folderId))
+            } catch (e: Exception) {
+                UiState.Error(e)
+            }
         }
     }
 
@@ -94,6 +87,11 @@ class FolderViewModel @Inject constructor(
             }
         }
     }
+
+    val foldersState: StateFlow<UiState<List<Folder>>> = getAllFoldersUseCase()
+        .map<List<Folder>, UiState<List<Folder>>> { UiState.Success(it) }
+        .catch { emit(UiState.Error(it)) }
+        .stateIn(viewModelScope, SharingStarted.Lazily, UiState.Loading)
 
     private val _renameDeckState = MutableStateFlow<UiState<Unit>>(UiState.Loading)
     val renameDeckState: StateFlow<UiState<Unit>> = _renameDeckState
