@@ -84,20 +84,21 @@ fun AppNavigation(
             arguments = listOf(navArgument("deckId") { type = NavType.IntType })
         ) { backStackEntry ->
             val deckId = backStackEntry.arguments?.getInt("deckId")
-            deckViewModel.getDeckById(deckId!!)
-            deckViewModel.getAllCardsByDeckId(deckId)
-            DeckScreen(
-                navController = navController,
-                deckViewModel = deckViewModel,
-            )
+            if (deckId != null) {
+                DeckScreen(
+                    navController = navController,
+                    deckId = deckId
+                )
+            } else {
+                navController.popBackStack()
+            }
         }
         composable(
             NavigationRoute.CardScreen.route,
             enterTransition = { fadeIn(animationSpec = tween(100)) },
             exitTransition = { fadeOut(animationSpec = tween(100)) },
             arguments = listOf(navArgument("cardId") { type = NavType.IntType })
-        ) {
-            backStackEntry ->
+        ) { backStackEntry ->
             val cardId = backStackEntry.arguments?.getInt("cardId")
             cardViewModel.getCardById(cardId = cardId!!)
             cardViewModel.getFolderByCardId(cardId = cardId)

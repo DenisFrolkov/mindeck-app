@@ -1,6 +1,7 @@
 package com.mindeck.presentation.ui.screens
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -18,17 +19,21 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -37,6 +42,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.Deck
@@ -63,15 +70,36 @@ import com.mindeck.presentation.ui.components.dataclasses.DisplayItemStyle
 import com.mindeck.presentation.ui.components.dialog.DeleteItemDialog
 import com.mindeck.presentation.ui.components.dialog.data_class.DialogType
 import com.mindeck.presentation.ui.components.dialog.SelectItemDialog
+import com.mindeck.presentation.ui.components.dialog.animateToastItem
 import com.mindeck.presentation.viewmodel.DeckViewModel
+import kotlinx.coroutines.delay
 
 @Composable
 fun DeckScreen(
     navController: NavController,
-    deckViewModel: DeckViewModel,
+    deckId: Int
 ) {
-    var dropdownMenuState = remember { DropdownMenuState() }
-    var dialogState = remember { DialogState() }
+    val deckViewModel: DeckViewModel = hiltViewModel(navController.currentBackStackEntry!!)
+
+    LaunchedEffect(deckId) {
+        deckViewModel.getDeckById(deckId)
+        deckViewModel.loadCardsForDeck(deckId)
+    }
+
+
+    val deck by deckViewModel.deckUIState.collectAsState()
+    val cards by deckViewModel.listCardsUiState.collectAsState()
+    val decks by deckViewModel.listDecksUiState.collectAsState()
+    val isEditModeEnabled by deckViewModel.isEditModeEnabled.collectAsState()
+    val selectedCards by deckViewModel.selectedCardIdSet.collectAsState()
+
+    val dropdownMenuState = remember { DropdownMenuState() }
+    val dialogState = remember { DialogState() }
+
+    val selectedElement by dialogState.isSelectItem.collectAsState()
+    val validation = dialogState.dialogStateData.isValid
+    val toastMessage = dialogState.toastTextEvent
+    val toastValue = dialogState.toastBooleanEvent
 
     val dropdownVisibleAnimation = animateDropdownMenuHeightIn(
         targetAlpha = dropdownMenuState.dropdownAlpha,
@@ -82,14 +110,17 @@ fun DeckScreen(
         animationDuration = dialogState.animationDuration * 3
     )
 
-    val deck = deckViewModel.deckUIState.collectAsState().value
-    val cards = deckViewModel.listCardsUiState.collectAsState().value
-    val decks = deckViewModel.listDecksUiState.collectAsState().value
-    val isEditModeEnabled = deckViewModel.isEditModeEnabled.collectAsState().value
+    val toastAlphaAnimation = animateToastItem(
+        targetAlpha = dialogState.toastAlpha,
+        animationDuration = dialogState.animationDuration * 5
+    )
 
-    val selectedCards by deckViewModel.listSelectedCards.collectAsState()
-    val validation = dialogState.dialogStateData.isValid
-    val selectedElement by dialogState.isSelectItem.collectAsState()
+    if (toastMessage.isNotBlank()) {
+        LaunchedEffect(toastValue) {
+            delay(2000)
+            dialogState.clearToast()
+        }
+    }
 
     var listDropdownMenu =
         dropdownMenuDataList(
@@ -119,9 +150,16 @@ fun DeckScreen(
                     }
                 ) { editModeEnabled ->
                     if (editModeEnabled) {
-                        DeckEditTopBar(selectedCards, dialogState, deckViewModel)
+                        DeckEditTopBar(
+                            selectedCards = selectedCards,
+                            dialogState = dialogState,
+                            deckViewModel = deckViewModel
+                        )
                     } else {
-                        DeckTopBar(navController, dropdownMenuState)
+                        DeckTopBar(
+                            navController = navController,
+                            dropdownMenuState = dropdownMenuState
+                        )
                     }
                 }
             },
@@ -129,14 +167,14 @@ fun DeckScreen(
                 Content(
                     navController = navController,
                     padding = padding,
-                    deckViewModel = deckViewModel,
+                    isEditModeEnabled = isEditModeEnabled,
+                    selectedCards = selectedCards,
                     deck = deck,
                     cards = cards,
-                    dropdownMenuState = dropdownMenuState,
-                    listDropdownMenu = listDropdownMenu,
                     dropdownVisibleAnimation = dropdownVisibleAnimation,
-                    isEditModeEnabled = isEditModeEnabled,
-                    selectedCards = selectedCards
+                    listDropdownMenu = listDropdownMenu,
+                    dropdownMenuState = dropdownMenuState,
+                    deckViewModel = deckViewModel,
                 )
             }
         )
@@ -144,13 +182,43 @@ fun DeckScreen(
         DeckDialog(
             navController = navController,
             deckViewModel = deckViewModel,
-            dialogState = dialogState,
+            dialogVisibleAnimation = dialogVisibleAnimation,
             deck = deck,
             decks = decks,
             selectedElement = selectedElement,
             validation = validation,
-            dialogVisibleAnimation = dialogVisibleAnimation
+            dialogState = dialogState,
         )
+
+        AnimatedVisibility(
+            visible = toastValue && toastMessage.isNotBlank(),
+            enter = fadeIn(animationSpec = tween(500)),
+            exit = fadeOut(animationSpec = tween(500))
+        ) {
+            Box(
+                contentAlignment = Alignment.BottomCenter,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .navigationBarsPadding()
+                    .padding(bottom = dimenDpResource(R.dimen.toast_padding_bottom))
+            ) {
+                Text(
+                    text = toastMessage,
+                    style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.error),
+                    modifier = Modifier
+                        .alpha(toastAlphaAnimation)
+                        .clip(RoundedCornerShape(dimenDpResource(R.dimen.toast_corner_shape)))
+                        .background(
+                            MaterialTheme.colorScheme.onError.copy(
+                                alpha = dimenFloatResource(
+                                    R.dimen.float_zero_dot_five_significance
+                                )
+                            )
+                        )
+                        .padding(dimenDpResource(R.dimen.padding_small))
+                )
+            }
+        }
     }
 }
 
@@ -172,7 +240,7 @@ private fun DeckEditTopBar(
         ) {
             ButtonMoveMode(
                 buttonTitle = stringResource(R.string.text_move_mode_top_bar_back_button),
-                onClickButton = { deckViewModel.clearSelection() }
+                onClickButton = { deckViewModel.clearCardSelection() }
             )
             if (selectedCards.isNotEmpty()) {
                 ButtonMoveMode(
@@ -247,7 +315,14 @@ private fun Content(
             selectedCards = selectedCards
         )
     }
-    DeckDropdownMenu(dropdownMenuState, listDropdownMenu, padding, dropdownVisibleAnimation)
+    if (dropdownMenuState.isExpanded) {
+        DeckDropdownMenu(
+            padding = padding,
+            listDropdownMenu = listDropdownMenu,
+            dropdownVisibleAnimation = dropdownVisibleAnimation,
+            dropdownMenuState = dropdownMenuState,
+        )
+    }
 }
 
 @Composable
@@ -268,10 +343,14 @@ private fun dropdownMenuDataList(
             }
         ),
         DropdownMenuData(
-            title = stringResource(R.string.dropdown_menu_data_edit_list),
+            title = stringResource(R.string.dropdown_menu_data_edit_cards_list),
             action = {
                 dropdownMenuState.reset()
-                deckViewModel.updateEditMode()
+                when (cards) {
+                    is UiState.Success -> {
+                        deckViewModel.toggleEditMode()
+                    }
+                }
             }
         ),
         DropdownMenuData(
@@ -314,6 +393,30 @@ private fun DeckInfo(
                     .wrapContentSize(Alignment.Center)
             )
         }
+
+        is UiState.Loading -> {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = dimenDpResource(R.dimen.padding_large))
+                    .wrapContentSize(Alignment.Center)
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(dimenDpResource(R.dimen.circular_progress_indicator_size)),
+                    color = MaterialTheme.colorScheme.primary,
+                    strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_two)
+                )
+            }
+        }
+
+        is UiState.Error -> {
+            Text(
+                stringResource(R.string.error_get_info_about_deck),
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.error)
+            )
+        }
     }
 }
 
@@ -332,7 +435,6 @@ private fun CardInfo(
                 count = cards.data.size,
                 textStyle = MaterialTheme.typography.bodyMedium
             )
-
             LazyColumn {
                 items(items = cards.data, key = { it.cardId }) { card ->
                     DisplayItem(
@@ -374,6 +476,29 @@ private fun CardInfo(
                     Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_small)))
                 }
             }
+        }
+
+        is UiState.Loading -> {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = dimenDpResource(R.dimen.padding_large))
+                    .wrapContentSize(Alignment.Center)
+            ) {
+                CircularProgressIndicator(
+                    color = MaterialTheme.colorScheme.primary,
+                    strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_one)
+                )
+            }
+        }
+
+        is UiState.Error -> {
+            Text(
+                stringResource(R.string.error_get_cards_by_deck_id),
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.error)
+            )
         }
     }
 }
@@ -472,6 +597,31 @@ private fun DeckRenameDialog(
                     .size(dimenDpResource(R.dimen.padding_medium)),
             )
         }
+
+        is UiState.Loading -> {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        MaterialTheme.colorScheme.outline.copy(
+                            dimenFloatResource(R.dimen.float_zero_dot_five_significance)
+                        )
+                    )
+                    .wrapContentSize(Alignment.Center)
+            ) {
+                CircularProgressIndicator(
+                    color = MaterialTheme.colorScheme.primary,
+                    strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_one)
+                )
+            }
+        }
+
+        is UiState.Error -> {
+            dialogState.closeDialog()
+            dialogState.showErrorToast(
+                stringResource(R.string.toast_message_impossible_perform_action)
+            )
+        }
     }
 }
 
@@ -487,7 +637,7 @@ private fun DeckMoveDialog(
     when (deck) {
         is UiState.Success -> {
             SelectItemDialog(
-                titleDialog = stringResource(R.string.dialog_select_folder),
+                titleDialog = stringResource(R.string.dialog_select_deck),
                 dialogState = dialogState,
                 selectItems = decks.mapToUiState { deckPairs ->
                     deckPairs.map { Pair(it.deckName, it.deckId) }
@@ -496,9 +646,38 @@ private fun DeckMoveDialog(
                 sourceLocation = deck.data.deckId,
                 fetchList = { deckViewModel.getAllDecksByFolderId(deck.data.folderId) },
                 onClickSave = {
-                    handleDeckMoveSave(dialogState, deckViewModel, deck, selectedElement, navController)
+                    handleDeckMoveSave(
+                        dialogState,
+                        deckViewModel,
+                        deck,
+                        selectedElement,
+                        navController
+                    )
                 },
             )
+        }
+
+        is UiState.Loading -> {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        MaterialTheme.colorScheme.outline.copy(
+                            dimenFloatResource(R.dimen.float_zero_dot_five_significance)
+                        )
+                    )
+                    .wrapContentSize(Alignment.Center)
+            ) {
+                CircularProgressIndicator(
+                    color = MaterialTheme.colorScheme.primary,
+                    strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_one)
+                )
+            }
+        }
+
+        is UiState.Error -> {
+            dialogState.closeDialog()
+            dialogState.showErrorToast(stringResource(R.string.toast_message_impossible_move_cards))
         }
     }
 }
@@ -514,20 +693,20 @@ private fun handleDeckMoveSave(
         deckViewModel.moveCardsBetweenDecks(
             sourceDeckId = deck.data.deckId,
             targetDeckId = selectedElement!!,
-            deckIds = deckViewModel.listSelectedCards.value.sorted()
+            deckIds = deckViewModel.selectedCardIdSet.value.sorted()
                 .toList()
         )
         dialogState.closeDialog()
-        deckViewModel.updateEditMode()
-        deckViewModel.clearSelection()
+        deckViewModel.toggleEditMode()
+        deckViewModel.clearCardSelection()
     } else if (dialogState.currentDialogType == DialogType.MoveItemsAndDeleteItem) {
         deckViewModel.addCardsToDeck(
             targetDeckId = selectedElement!!,
-            cardIds = deckViewModel.listSelectedCards.value.sorted()
+            cardIds = deckViewModel.selectedCardIdSet.value.sorted()
                 .toList()
         )
         deck.mapSuccess { deckViewModel.deleteDeck(it) }
-        deckViewModel.clearSelection()
+        deckViewModel.clearCardSelection()
         dialogState.closeDialog()
         dialogState.stopSelectingDecksForMoveAndDelete()
         navController.popBackStack()
@@ -541,42 +720,68 @@ private fun DeckDeleteDialog(
     navController: NavController,
     dialogState: DialogState
 ) {
-    DeleteItemDialog(
-        onClickDeleteAll = {
-            deck.mapSuccess { deckViewModel.deleteDeck(it) }
-            navController.popBackStack()
-        },
-        onClickDeletePartially = {
-            deckViewModel.updateEditMode()
-            dialogState.closeDialog()
-            dialogState.startSelectingDecksForMoveAndDelete()
+    when (deck) {
+        is UiState.Success -> {
+            DeleteItemDialog(
+                onClickDeleteAll = {
+                    deck.data.deckId
+                    navController.popBackStack()
+                },
+                onClickDeletePartially = {
+                    deckViewModel.toggleEditMode()
+                    dialogState.closeDialog()
+                    dialogState.startSelectingDecksForMoveAndDelete()
+                }
+            )
         }
-    )
+
+        is UiState.Loading -> {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        MaterialTheme.colorScheme.outline.copy(
+                            dimenFloatResource(R.dimen.float_zero_dot_five_significance)
+                        )
+                    )
+                    .wrapContentSize(Alignment.Center)
+            ) {
+                CircularProgressIndicator(
+                    color = MaterialTheme.colorScheme.primary,
+                    strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_one)
+                )
+            }
+        }
+
+        is UiState.Error -> {
+            dialogState.closeDialog()
+            dialogState.showErrorToast(stringResource(R.string.toast_message_impossible_delete_deck))
+        }
+    }
 }
 
 @Composable
 private fun DeckDropdownMenu(
-    dropdownMenuState: DropdownMenuState,
-    listDropdownMenu: List<DropdownMenuData>,
     padding: PaddingValues,
-    dropdownVisibleAnimation: Float
+    listDropdownMenu: List<DropdownMenuData>,
+    dropdownVisibleAnimation: Float,
+    dropdownMenuState: DropdownMenuState
 ) {
-    if (dropdownMenuState.isExpanded) {
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null
-            ) { dropdownMenuState.toggle() })
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .clickable(
+            interactionSource = remember { MutableInteractionSource() },
+            indication = null
+        ) { dropdownMenuState.toggle() })
 
-        DropdownMenu(
-            listDropdownMenuItem = listDropdownMenu,
-            dropdownModifier = Modifier
-                .padding(padding)
-                .alpha(dropdownVisibleAnimation)
-                .fillMaxWidth()
-                .padding(top = dimenDpResource(R.dimen.spacer_extra_small))
-                .wrapContentSize(Alignment.TopEnd)
-        )
-    }
+    DropdownMenu(
+        listDropdownMenuItem = listDropdownMenu,
+        dropdownModifier = Modifier
+            .padding(horizontal = dimenDpResource(R.dimen.padding_medium))
+            .padding(padding)
+            .alpha(dropdownVisibleAnimation)
+            .fillMaxWidth()
+            .padding(top = dimenDpResource(R.dimen.spacer_extra_small))
+            .wrapContentSize(Alignment.TopEnd)
+    )
 }
