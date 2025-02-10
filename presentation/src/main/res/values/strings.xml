@@ -31,11 +31,14 @@
 
     <string name="error_get_all_folders">Не получилось загрузить папки!</string>
     <string name="error_get_decks_by_folder_id">Не получилось загрузить колоды!</string>
+    <string name="error_get_cards_by_deck_id">Не получилось загрузить карточки!</string>
     <string name="error_get_info_about_folder">Не получилось загрузить информацию о папке!</string>
+    <string name="error_get_info_about_deck">Не получилось загрузить информацию о колоде!</string>
 
     <string name="text_no_folder">Нет папки</string>
 
     <string name="dialog_select_folder">Выберите папку</string>
+    <string name="dialog_select_deck">Выберите колоду</string>
     <string name="warning_no_elements">Нет элементов для выбора</string>
     <string name="folder_management_options_message">Вы хотите удалить папку вместе со всеми колодами или переместить колоды в другую папку?</string>
     <string name="deck_management_options_message">Вы хотите удалить колоду вместе со всеми карточками или переместить карточки в другую колоду</string>
@@ -46,7 +49,8 @@
     <string name="text_move_mode_top_bar_edit_button">Переместить</string>
 
     <string name="dropdown_menu_data_rename_list">Изменить название</string>
-    <string name="dropdown_menu_data_edit_list">Редактировать колоды</string>
+    <string name="dropdown_menu_data_edit_decks_list">Редактировать колоды</string>
+    <string name="dropdown_menu_data_edit_cards_list">Редактировать карточки</string>
     <string name="dropdown_menu_data_remote_list">Удалить элемент</string>
     <string name="dropdown_menu_data_create_folder_list">Создать папку</string>
     <string name="dropdown_menu_data_create_deck_list">Создать колоду</string>
@@ -57,9 +61,11 @@
     //Toast
     <string name="toast_message_impossible_change_the_name">Невозможно изменить название.</string>
     <string name="toast_message_impossible_create_deck">Невозможно создать колоду.</string>
-    <string name="toast_message_impossible_move_deck">Невозможно изменить расположение колод.</string>
+    <string name="toast_message_impossible_move_decks">Невозможно изменить расположение колод.</string>
+    <string name="toast_message_impossible_move_cards">Невозможно изменить расположение карочек.</string>
     <string name="toast_message_impossible_perform_action">Невозможно выполнить это действие.</string>
     <string name="toast_message_impossible_delete_folder">Невозможно выполнить удаление папки.</string>
+    <string name="toast_message_impossible_delete_deck">Невозможно выполнить удаление колоды.</string>
 
     //Repeat Option Text
     <string name="repeat_option_title_repeat_text">Повторить</string>

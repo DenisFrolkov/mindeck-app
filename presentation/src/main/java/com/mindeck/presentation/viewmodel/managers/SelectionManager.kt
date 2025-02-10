@@ -9,7 +9,7 @@ class SelectionManager @Inject constructor() {
     private val _selectedItemIds = MutableStateFlow<Set<Int>>(emptySet())
     val selectedItemIds: StateFlow<Set<Int>> = _selectedItemIds
 
-    fun toggleDeckSelection(deckId: Int) {
+    fun toggleSelection(deckId: Int) {
         _selectedItemIds.update { selectedDeckIds ->
             selectedDeckIds.toMutableSet().apply {
                 if (contains(deckId)) {
@@ -21,7 +21,7 @@ class SelectionManager @Inject constructor() {
         }
     }
 
-    fun clearSelectedDeck() {
+    fun clearSelected() {
         _selectedItemIds.value = emptySet()
     }
 }
