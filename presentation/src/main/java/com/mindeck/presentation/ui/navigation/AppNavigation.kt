@@ -59,7 +59,7 @@ fun AppNavigation(
             enterTransition = { fadeIn(animationSpec = tween(150)) },
             exitTransition = { fadeOut(animationSpec = tween(150)) }
         ) {
-            FoldersScreen(navController = navController, foldersViewModel = foldersViewModel)
+            FoldersScreen(navController = navController)
         }
         composable(
             NavigationRoute.FolderScreen.route,

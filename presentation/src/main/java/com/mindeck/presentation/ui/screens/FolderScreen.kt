@@ -178,16 +178,18 @@ fun FolderScreen(
             }
         )
 
-        FolderDialog(
-            navController = navController,
-            selectedElement = selectedElement,
-            dialogVisibleAnimation = dialogVisibleAnimation,
-            folder = folder,
-            folders = folders,
-            validation = validation,
-            folderViewModel = folderViewModel,
-            dialogState = dialogState
-        )
+        if (dialogState.isDialogVisible) {
+            FolderDialog(
+                navController = navController,
+                selectedElement = selectedElement,
+                dialogVisibleAnimation = dialogVisibleAnimation,
+                folder = folder,
+                folders = folders,
+                validation = validation,
+                folderViewModel = folderViewModel,
+                dialogState = dialogState
+            )
+        }
 
         AnimatedVisibility(
             visible = toastValue && toastMessage.isNotBlank(),
@@ -516,54 +518,52 @@ private fun FolderDialog(
     folderViewModel: FolderViewModel,
     dialogState: DialogState,
 ) {
-    if (dialogState.isDialogVisible) {
+    Box(
+        modifier = Modifier
+            .alpha(dialogVisibleAnimation)
+    ) {
         Box(
             modifier = Modifier
-                .alpha(dialogVisibleAnimation)
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        MaterialTheme.colorScheme.outline.copy(
-                            dimenFloatResource(R.dimen.float_zero_dot_five_significance)
-                        )
+                .fillMaxSize()
+                .background(
+                    MaterialTheme.colorScheme.outline.copy(
+                        dimenFloatResource(R.dimen.float_zero_dot_five_significance)
                     )
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null
-                    ) {}
-            )
-            when {
-                dialogState.currentDialogType == DialogType.Rename || dialogState.currentDialogType == DialogType.Create -> {
-                    FolderRenameOrCreateDialog(
-                        folder,
-                        dialogState,
-                        validation,
-                        dialogVisibleAnimation,
-                        folderViewModel
-                    )
-                }
+                )
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) {}
+        )
+        when {
+            dialogState.currentDialogType == DialogType.Rename || dialogState.currentDialogType == DialogType.Create -> {
+                FolderRenameOrCreateDialog(
+                    folder,
+                    dialogState,
+                    validation,
+                    dialogVisibleAnimation,
+                    folderViewModel
+                )
+            }
 
-                (dialogState.currentDialogType == DialogType.Move || dialogState.currentDialogType == DialogType.MoveItemsAndDeleteItem) -> {
-                    FolderMoveDialog(
-                        dialogState,
-                        folders,
-                        selectedElement,
-                        folder,
-                        folderViewModel,
-                        navController
-                    )
-                }
+            (dialogState.currentDialogType == DialogType.Move || dialogState.currentDialogType == DialogType.MoveItemsAndDeleteItem) -> {
+                FolderMoveDialog(
+                    dialogState,
+                    folders,
+                    selectedElement,
+                    folder,
+                    folderViewModel,
+                    navController
+                )
+            }
 
-                dialogState.currentDialogType == DialogType.Delete -> {
-                    FolderDeleteDialog(
-                        folder,
-                        folderViewModel,
-                        navController,
-                        dialogState
-                    )
-                }
+            dialogState.currentDialogType == DialogType.Delete -> {
+                FolderDeleteDialog(
+                    folder,
+                    folderViewModel,
+                    navController,
+                    dialogState
+                )
             }
         }
     }

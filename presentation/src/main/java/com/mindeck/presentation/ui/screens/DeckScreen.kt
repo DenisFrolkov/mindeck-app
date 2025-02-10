@@ -179,16 +179,18 @@ fun DeckScreen(
             }
         )
 
-        DeckDialog(
-            navController = navController,
-            deckViewModel = deckViewModel,
-            dialogVisibleAnimation = dialogVisibleAnimation,
-            deck = deck,
-            decks = decks,
-            selectedElement = selectedElement,
-            validation = validation,
-            dialogState = dialogState,
-        )
+        if (dialogState.isDialogVisible) {
+            DeckDialog(
+                navController = navController,
+                deckViewModel = deckViewModel,
+                dialogVisibleAnimation = dialogVisibleAnimation,
+                deck = deck,
+                decks = decks,
+                selectedElement = selectedElement,
+                validation = validation,
+                dialogState = dialogState,
+            )
+        }
 
         AnimatedVisibility(
             visible = toastValue && toastMessage.isNotBlank(),
@@ -514,39 +516,37 @@ private fun DeckDialog(
     decks: UiState<List<Deck>>,
     selectedElement: Int?
 ) {
-    if (dialogState.isDialogVisible) {
+    Box(
+        modifier = Modifier
+            .alpha(dialogVisibleAnimation)
+    ) {
         Box(
             modifier = Modifier
-                .alpha(dialogVisibleAnimation)
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.outline.copy(dimenFloatResource(R.dimen.float_zero_dot_five_significance)))
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null
-                    ) {}
-            )
-            when {
-                dialogState.currentDialogType == DialogType.Rename -> {
-                    DeckRenameDialog(deck, dialogState, validation, deckViewModel)
-                }
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.outline.copy(dimenFloatResource(R.dimen.float_zero_dot_five_significance)))
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) {}
+        )
+        when {
+            dialogState.currentDialogType == DialogType.Rename -> {
+                DeckRenameDialog(deck, dialogState, validation, deckViewModel)
+            }
 
-                (dialogState.currentDialogType == DialogType.Move || dialogState.currentDialogType == DialogType.MoveItemsAndDeleteItem) -> {
-                    DeckMoveDialog(
-                        dialogState,
-                        decks,
-                        selectedElement,
-                        deck,
-                        deckViewModel,
-                        navController
-                    )
-                }
+            (dialogState.currentDialogType == DialogType.Move || dialogState.currentDialogType == DialogType.MoveItemsAndDeleteItem) -> {
+                DeckMoveDialog(
+                    dialogState,
+                    decks,
+                    selectedElement,
+                    deck,
+                    deckViewModel,
+                    navController
+                )
+            }
 
-                dialogState.currentDialogType == DialogType.Delete -> {
-                    DeckDeleteDialog(deck, deckViewModel, navController, dialogState)
-                }
+            dialogState.currentDialogType == DialogType.Delete -> {
+                DeckDeleteDialog(deck, deckViewModel, navController, dialogState)
             }
         }
     }
