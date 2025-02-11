@@ -51,8 +51,7 @@ fun AppNavigation(
             exitTransition = { fadeOut(animationSpec = tween(150)) }
         ) {
             CreationCardScreen(
-                navController = navController,
-                creationCardViewModel = creationCardViewModel
+                navController = navController
             )
         }
         composable(NavigationRoute.FoldersScreen.route,
