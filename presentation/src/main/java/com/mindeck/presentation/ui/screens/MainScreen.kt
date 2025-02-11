@@ -31,6 +31,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.mindeck.domain.models.Folder
 import com.mindeck.presentation.R
@@ -55,9 +56,15 @@ import com.mindeck.presentation.viewmodel.MainViewModel
 @Composable
 fun MainScreen(
     navController: NavController,
-    mainViewModel: MainViewModel,
 ) {
+    val mainViewModel: MainViewModel = hiltViewModel(navController.currentBackStackEntry!!)
+
+    val folders = mainViewModel.foldersState.collectAsState().value
+
     val dialogState = remember { DialogState() }
+
+    val validation = dialogState.dialogStateData.isValid
+
     val dailyProgressTrackerState =
         remember { DailyProgressTrackerState(totalCards = 500, answeredCards = 30) }
     val dialogVisibleAnimation = animateDialogCreateItem(
@@ -67,9 +74,6 @@ fun MainScreen(
     val MAX_DISPLAY_ITEMS = 5
     val fabMenuItems = fabMenuDataList(dialogState, navController)
     val fabState = remember { FabState(expandedHeight = ITEM_HEIGHT.dp * fabMenuItems.size) }
-
-    val folders = mainViewModel.foldersState.collectAsState().value
-    val validation = dialogState.dialogStateData.isValid
 
     Surface(
         modifier = Modifier
