@@ -14,22 +14,27 @@ import com.mindeck.domain.usecases.deckUseCases.GetAllDecksByFolderIdUseCase
 import com.mindeck.domain.usecases.deckUseCases.GetDeckByIdUseCase
 import com.mindeck.domain.usecases.deckUseCases.RenameDeckUseCase
 import com.mindeck.presentation.state.UiState
+import com.mindeck.presentation.viewmodel.managers.EditModeManager
+import com.mindeck.presentation.viewmodel.managers.SelectionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class DeckViewModel @Inject constructor(
-    private val getAllDecksByFolderIdUseCase: GetAllDecksByFolderIdUseCase,
     private val getAllCardsByDeckIdUseCase: GetAllCardsByDeckIdUseCase,
     private val getDeckByIdUseCase: GetDeckByIdUseCase,
-    private val moveCardsBetweenDeckUseCase: MoveCardsBetweenDeckUseCase,
+    private val getAllDecksByFolderIdUseCase: GetAllDecksByFolderIdUseCase,
     private val renameDeckUseCase: RenameDeckUseCase,
+    private val moveCardsBetweenDeckUseCase: MoveCardsBetweenDeckUseCase,
     private val deleteDeckUseCase: DeleteDeckUseCase,
     private val addCardsToDeckUseCase: AddCardsToDeckUseCase,
+    private val editModeManager: EditModeManager,
+    private val selectionManager: SelectionManager,
     private val deleteCardsFromDeckUseCase: DeleteCardsFromDeckUseCase,
     private val updateCardUseCase: UpdateCardUseCase
 ) : ViewModel() {
@@ -37,62 +42,64 @@ class DeckViewModel @Inject constructor(
     private val _listCardsUiState = MutableStateFlow<UiState<List<Card>>>(UiState.Loading)
     val listCardsUiState: StateFlow<UiState<List<Card>>> = _listCardsUiState
 
+    fun loadCardsForDeck(deckId: Int) {
+        viewModelScope.launch {
+            getAllCardsByDeckIdUseCase(deckId = deckId)
+                .map<List<Card>, UiState<List<Card>>> {
+                    UiState.Success(it)
+                }
+                .catch { emit(UiState.Error(it)) }
+                .collect { state ->
+                    _listCardsUiState.value = state
+                }
+        }
+    }
+
     private val _deckUiState = MutableStateFlow<UiState<Deck>>(UiState.Loading)
     val deckUIState: StateFlow<UiState<Deck>> = _deckUiState
+
+    fun getDeckById(deckId: Int) {
+        viewModelScope.launch {
+            _deckUiState.value = try {
+                UiState.Success(getDeckByIdUseCase(deckId = deckId))
+            } catch (e: Exception) {
+                UiState.Error(e)
+            }
+        }
+    }
 
     private val _listDecksUiState = MutableStateFlow<UiState<List<Deck>>>(UiState.Loading)
     val listDecksUiState: StateFlow<UiState<List<Deck>>> = _listDecksUiState
 
-    private val _listSelectedCards = MutableStateFlow<Set<Int>>(emptySet())
-    val listSelectedCards: StateFlow<Set<Int>> = _listSelectedCards
-
-    private val _isEditModeEnabled = MutableStateFlow(false)
-    val isEditModeEnabled: StateFlow<Boolean> = _isEditModeEnabled.asStateFlow()
-
     fun getAllDecksByFolderId(folderId: Int) {
         viewModelScope.launch {
-            try {
-                getAllDecksByFolderIdUseCase(folderId = folderId).collect { decks ->
-                    _listDecksUiState.value = UiState.Success(decks)
+            getAllDecksByFolderIdUseCase(folderId = folderId)
+                .map<List<Deck>, UiState<List<Deck>>> {
+                    UiState.Success(it)
                 }
-            } catch (e: Exception) {
-                _listDecksUiState.value = UiState.Error(e)
-            }
-        }
-    }
-
-    fun getAllCardsByDeckId(deckId: Int) {
-        viewModelScope.launch {
-            try {
-                getAllCardsByDeckIdUseCase.invoke(deckId = deckId).collect { card ->
-                    _listCardsUiState.value = UiState.Success(card)
+                .catch { emit(UiState.Error(it)) }
+                .collect { state ->
+                    _listDecksUiState.value = state
                 }
-            } catch (e: Exception) {
-                _listCardsUiState.value = UiState.Error(e)
-            }
         }
     }
 
-    fun getDeckById(deckId: Int) {
+    private val _renameDeckState = MutableStateFlow<UiState<Unit>>(UiState.Loading)
+    val renameDeckState: StateFlow<UiState<Unit>> = _renameDeckState
+
+    fun renameDeck(deckId: Int, newDeckName: String) {
         viewModelScope.launch {
-            try {
-                val deck = getDeckByIdUseCase(deckId = deckId)
-                _deckUiState.value = UiState.Success(deck)
+            _renameDeckState.value = try {
+                renameDeckUseCase(deckId = deckId, newName = newDeckName)
+                UiState.Success(Unit)
             } catch (e: Exception) {
-                _deckUiState.value = UiState.Error(e)
+                UiState.Error(e)
             }
         }
     }
 
-    fun toggleCardSelection(cardId: Int) {
-        _listSelectedCards.value = _listSelectedCards.value.toMutableSet().apply {
-            if (contains(cardId)) {
-                remove(cardId)
-            } else {
-                add(cardId)
-            }
-        }
-    }
+    private val _moveCardsBetweenDecksState = MutableStateFlow<UiState<Unit>>(UiState.Loading)
+    val moveCardsBetweenDecksState: StateFlow<UiState<Unit>> = _moveCardsBetweenDecksState
 
     fun moveCardsBetweenDecks(
         deckIds: List<Int>,
@@ -100,37 +107,60 @@ class DeckViewModel @Inject constructor(
         targetDeckId: Int
     ) {
         viewModelScope.launch {
-            moveCardsBetweenDeckUseCase.invoke(deckIds, sourceDeckId, targetDeckId)
+            _moveCardsBetweenDecksState.value = try {
+                moveCardsBetweenDeckUseCase(deckIds, sourceDeckId, targetDeckId)
+                UiState.Success(Unit)
+            } catch (e: Exception) {
+                UiState.Error(e)
+            }
         }
     }
+
+    private val _deleteDeckState = MutableStateFlow<UiState<Unit>>(UiState.Loading)
+    val deleteDeckState: StateFlow<UiState<Unit>> = _deleteDeckState
+
+    fun deleteDeck(deck: Deck) {
+        viewModelScope.launch {
+            _deleteDeckState.value = try {
+                deleteDeckUseCase(deck = deck)
+                UiState.Success(Unit)
+            } catch (e: Exception) {
+                UiState.Error(e)
+            }
+        }
+    }
+
+    private val _addDecksToFolder = MutableStateFlow<UiState<Unit>>(UiState.Loading)
+    val addDecksToFolder: StateFlow<UiState<Unit>> = _addDecksToFolder
 
     fun addCardsToDeck(
         cardIds: List<Int>,
         targetDeckId: Int
     ) {
         viewModelScope.launch {
-            addCardsToDeckUseCase.invoke(cardIds, targetDeckId)
+            _addDecksToFolder.value = try {
+                addCardsToDeckUseCase(cardIds, targetDeckId)
+                UiState.Success(Unit)
+            } catch (e: Exception) {
+                UiState.Error(e)
+            }
         }
     }
 
-    fun updateEditMode() {
-        _isEditModeEnabled.value = !_isEditModeEnabled.value
+    val isEditModeEnabled: StateFlow<Boolean> = editModeManager.isEditModeEnabled
+
+    val selectedCardIdSet: StateFlow<Set<Int>> = selectionManager.selectedItemIds
+
+    fun toggleCardSelection(cardId: Int) {
+        selectionManager.toggleSelection(cardId)
     }
 
-    fun clearSelection() {
-        _listSelectedCards.value = emptySet()
-        updateEditMode()
+    fun toggleEditMode() {
+        editModeManager.toggleEditMode()
     }
 
-    fun renameDeck(deckId: Int, newDeckName: String) {
-        viewModelScope.launch {
-            renameDeckUseCase.invoke(deckId = deckId, newName = newDeckName)
-        }
-    }
-
-    fun deleteDeck(deck: Deck) {
-        viewModelScope.launch {
-            deleteDeckUseCase.invoke(deck = deck)
-        }
+    fun clearCardSelection() {
+        selectionManager.clearSelected()
+        toggleEditMode()
     }
 }

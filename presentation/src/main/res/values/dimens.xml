@@ -56,6 +56,10 @@
     <dimen name="float_zero_dot_five_significance">0.5f</dimen>
     <dimen name="float_zero_significance">0f</dimen>
 
+    //Toast
+    <dimen name="toast_corner_shape">20dp</dimen>
+    <dimen name="toast_padding_bottom">40dp</dimen>
+
     //Dimens for TextInput
     <dimen name="text_input_max_height">200dp</dimen>
     <dimen name="text_input_min_height">46dp</dimen>
@@ -79,7 +83,10 @@
     <dimen name="repeat_options_button_spacer_height">2dp</dimen>
 
     //CircularProgressIndicator Width
-    <dimen name="circular_progress_indicator_weight">3dp</dimen>
+    <dimen name="circular_progress_indicator_weight_one">3dp</dimen>
+    <dimen name="circular_progress_indicator_weight_two">1.5dp</dimen>
+    <dimen name="circular_progress_indicator_size">30dp</dimen>
+    <dimen name="circular_progress_indicator_size_mini">20dp</dimen>
 
     //Dialog
     <dimen name="dialog_list_move_item_max_height">115dp</dimen>

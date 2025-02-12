@@ -15,24 +15,25 @@ import com.mindeck.presentation.state.DropdownState
 import com.mindeck.presentation.state.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class CreationCardViewModel @Inject constructor(
     private val createCardUseCase: CreateCardUseCase,
-    private val getAllFoldersUseCase: GetAllFoldersUseCase,
+    getAllFoldersUseCase: GetAllFoldersUseCase,
     private val getAllDecksByFolderIdUseCase: GetAllDecksByFolderIdUseCase
 ) : ViewModel() {
     private var _cardState = mutableStateOf(
         CardState("", "", "", "", -1)
     )
     val cardState: State<CardState> = _cardState
-
-    private val _validation = MutableStateFlow<Boolean?>(null)
-    val validation: StateFlow<Boolean?> = _validation.asStateFlow()
 
     private var _dropdownState = mutableStateOf(
         DropdownState(
@@ -43,71 +44,76 @@ class CreationCardViewModel @Inject constructor(
     )
     val dropdownState: State<DropdownState> = _dropdownState
 
-    private val _foldersState = MutableStateFlow<UiState<List<Folder>>>(UiState.Loading)
-    val foldersState: StateFlow<UiState<List<Folder>>> = _foldersState
+    val foldersState: StateFlow<UiState<List<Folder>>> = getAllFoldersUseCase()
+        .map<List<Folder>, UiState<List<Folder>>> { UiState.Success(it) }
+        .catch { emit(UiState.Error(it)) }
+        .stateIn(viewModelScope, SharingStarted.Lazily, UiState.Loading)
 
-    private val _deckState = MutableStateFlow<UiState<List<Deck>>>(UiState.Loading)
-    val deckState: StateFlow<UiState<List<Deck>>> = _deckState
+    private val _validation = MutableStateFlow<Boolean?>(null)
+    val validation: StateFlow<Boolean?> = _validation.asStateFlow()
 
-    fun getAllFolders() {
-        viewModelScope.launch {
-            try {
-                _foldersState.value = UiState.Loading
-                getAllFoldersUseCase().collect { folders ->
-                    _foldersState.value = UiState.Success(folders)
-                }
-            } catch (e: Exception) {
-                _foldersState.value = UiState.Error(e)
-            }
-        }
-    }
+    private val _listDecksUiState = MutableStateFlow<UiState<List<Deck>>>(UiState.Loading)
+    val listDecksUiState: StateFlow<UiState<List<Deck>>> = _listDecksUiState
 
     fun getAllDecksByFolderId(folderId: Int) {
         viewModelScope.launch {
-            try {
-                getAllDecksByFolderIdUseCase(folderId = folderId).collect { decks ->
-                    _deckState.value = UiState.Success(decks)
+            getAllDecksByFolderIdUseCase(folderId = folderId)
+                .map<List<Deck>, UiState<List<Deck>>> {
+                    UiState.Success(it)
                 }
-            } catch (e: Exception) {
-                _deckState.value = UiState.Error(e)
-            }
+                .catch { emit(UiState.Error(it)) }
+                .collect { state ->
+                    _listDecksUiState.value = state
+                }
         }
     }
 
-    fun createCard(card: Card) {
+    private val _createCardState = MutableStateFlow<UiState<Unit>>(UiState.Loading)
+    val createCardState: StateFlow<UiState<Unit>> = _createCardState
+
+    fun createCard(
+        cardName: String,
+        cardQuestion: String,
+        cardAnswer: String,
+        cardType: String,
+        cardTag: String,
+        deckId: Int
+    ) {
         viewModelScope.launch {
-            createCardUseCase.invoke(card)
+            _createCardState.value = try {
+                createCardUseCase(
+                    card = Card(
+                        cardName = cardName,
+                        cardQuestion = cardQuestion,
+                        cardAnswer = cardAnswer,
+                        cardType = cardType,
+                        cardTag = cardTag,
+                        deckId = deckId
+                    )
+                )
+                UiState.Success(Unit)
+            } catch (e: Exception) {
+                UiState.Error(e)
+            }
         }
     }
 
     fun updateCardState(update: CardState.() -> CardState) {
-        viewModelScope.launch {
-            _cardState.value = _cardState.value.update()
-        }
+        _cardState.value = _cardState.value.update()
     }
 
     fun updateDropdownState(update: DropdownState.() -> DropdownState) {
-        viewModelScope.launch {
-            _dropdownState.value = _dropdownState.value.update()
-        }
+        _dropdownState.value = _dropdownState.value.update()
     }
 
-    fun validateInput(cardState: CardState, dropdownState: DropdownState): Boolean {
-        _validation.value = cardState.title.isNotBlank() &&
-                cardState.question.isNotBlank() &&
-                cardState.answer.isNotBlank() &&
-                dropdownState.selectedDeck.second != null &&
-                dropdownState.selectedType.second != null
-        return _validation.value == true
-    }
+    fun validateInput(): Boolean {
+        val isValid = cardState.value.title.isNotBlank() &&
+                cardState.value.question.isNotBlank() &&
+                cardState.value.answer.isNotBlank() &&
+                dropdownState.value.selectedDeck.second != null &&
+                dropdownState.value.selectedType.second != null
 
-    fun clear() {
-        updateCardState { copy(title = "", question = "", answer = "", tag = "", deckId = -1) }
-        updateDropdownState { copy(
-            selectedFolder = Pair("Выберите папку", null),
-            selectedDeck = Pair("Выберите колоду", null),
-            selectedType = Pair("Выберите тип карточки", null)
-        ) }
-        _validation.value = null
+        _validation.value = isValid
+        return isValid
     }
 }

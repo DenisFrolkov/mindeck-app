@@ -33,6 +33,8 @@ import com.mindeck.presentation.ui.theme.text_white
 
 @Composable
 fun CreateItemDialog(
+    modifier: Modifier,
+    iconModifier: Modifier,
     titleDialog: String,
     placeholder: String,
     buttonText: String,
@@ -40,9 +42,7 @@ fun CreateItemDialog(
     onInputChange: (String) -> Unit,
     isInputValid: Boolean,
     onBackClick: () -> Unit,
-    onSaveClick: () -> Unit,
-    modifier: Modifier,
-    iconModifier: Modifier,
+    onSaveClick: () -> Unit
 ) {
     Box(
         contentAlignment = Alignment.Center,
