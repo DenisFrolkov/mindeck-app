@@ -1,56 +1,232 @@
 package com.mindeck.presentation.ui.screens
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.mindeck.domain.models.Card
 import com.mindeck.presentation.R
-import com.mindeck.presentation.ui.components.repeat_options.RepeatOptionData
-import com.mindeck.presentation.ui.components.repeat_options.RepeatOptionsButton
+import com.mindeck.presentation.state.UiState
 import com.mindeck.presentation.ui.components.common.ActionBar
 import com.mindeck.presentation.ui.components.common.QuestionAndAnswerElement
+import com.mindeck.presentation.ui.components.repeat_options.RepeatOptionData
+import com.mindeck.presentation.ui.components.repeat_options.RepeatOptionsButton
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
 import com.mindeck.presentation.ui.theme.outline_variant_blue
 import com.mindeck.presentation.ui.theme.repeat_button_light_blue
 import com.mindeck.presentation.ui.theme.repeat_button_light_mint
 import com.mindeck.presentation.ui.theme.repeat_button_light_red
 import com.mindeck.presentation.ui.theme.repeat_button_light_yellow
-import com.mindeck.presentation.ui.theme.outline_medium_gray
+import com.mindeck.presentation.viewmodel.CardStudyViewModel
 
 @Composable
-fun CardStudyScreen(navController: NavController) {
+fun CardStudyScreen(
+    navController: NavController,
+    cardId: Int
+) {
+    val cardStudyViewModel: CardStudyViewModel =
+        hiltViewModel(navController.currentBackStackEntry!!)
+
+    LaunchedEffect(cardId) {
+        cardStudyViewModel.loadCardById(cardId)
+    }
+
+    val card by cardStudyViewModel.cardByCardIdUIState.collectAsState()
 
     val scrollState = rememberScrollState()
 
-    var repeatOptionsButton = listOf(
+    var repeatOptionsButton = repeatOptionDataList()
+
+    Surface(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+    ) {
+        Scaffold(
+            topBar = {
+                CardStudyTopBar(
+                    navController = navController
+                )
+            },
+            content = { padding ->
+                Content(
+                    padding = padding,
+                    card = card,
+                    scrollState = scrollState,
+                    repeatOptionsButton = repeatOptionsButton
+                )
+            }
+        )
+    }
+}
+
+@Composable
+private fun Content(
+    padding: PaddingValues,
+    card: UiState<Card>,
+    scrollState: ScrollState,
+    repeatOptionsButton: List<RepeatOptionData>
+) {
+    Box(
+        modifier = Modifier
+            .padding(padding)
+            .padding(horizontal = dimenDpResource(R.dimen.padding_medium))
+            .statusBarsPadding()
+            .verticalScroll(state = scrollState)
+    ) {
+        CardInfo(padding = padding, card = card)
+    }
+    RepeatButtons(repeatOptionsButton = repeatOptionsButton)
+}
+
+@Composable
+private fun RepeatButtons(repeatOptionsButton: List<RepeatOptionData>) {
+    Row(
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.Bottom,
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = dimenDpResource(R.dimen.padding_medium))
+            .padding(bottom = dimenDpResource(R.dimen.padding_medium))
+            .navigationBarsPadding()
+    ) {
+        repeatOptionsButton.forEach {
+            RepeatOptionsButton(
+                buttonColor = it.color,
+                textDifficultyOfRepetition = it.title,
+                repeatTimeText = it.time,
+                onClick = it.action,
+                titleTextStyle = MaterialTheme.typography.labelMedium.copy(
+                    textAlign = TextAlign.Center
+                ),
+                subtitleTextStyle = MaterialTheme.typography.labelSmall.copy(
+                    textAlign = TextAlign.Center
+                )
+            )
+        }
+    }
+}
+
+@Composable
+private fun CardInfo(
+    padding: PaddingValues,
+    card: UiState<Card>
+) {
+    Column(
+        modifier = Modifier.padding(padding)
+    ) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .fillMaxSize()
+        ) {
+            when (card) {
+                is UiState.Success -> {
+                    QuestionAndAnswerElement(
+                        question = card.data.cardQuestion,
+                        answer = card.data.cardAnswer,
+                        questionStyle = MaterialTheme.typography.bodyMedium.copy(
+                            textAlign = TextAlign.Center
+                        ),
+                        answerStyle = MaterialTheme.typography.bodyMedium.copy(
+                            textAlign = TextAlign.Center
+                        ),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(MaterialTheme.colorScheme.onPrimary)
+                            .border(
+                                dimenDpResource(R.dimen.border_width_dot_five),
+                                MaterialTheme.colorScheme.outline,
+                                MaterialTheme.shapes.extraSmall
+                            )
+                    )
+                }
+
+                is UiState.Loading -> {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = dimenDpResource(R.dimen.padding_large))
+                            .wrapContentSize(Alignment.Center)
+                    ) {
+                        CircularProgressIndicator(
+                            color = MaterialTheme.colorScheme.primary,
+                            strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_one)
+                        )
+                    }
+                }
+
+                is UiState.Error -> {
+                    Text(
+                        stringResource(R.string.error_get_card_by_card_id),
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.error)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun CardStudyTopBar(navController: NavController) {
+    Box(
+        modifier = Modifier
+            .padding(horizontal = dimenDpResource(R.dimen.padding_medium))
+            .padding(top = dimenDpResource(R.dimen.padding_medium))
+            .statusBarsPadding()
+    ) {
+        ActionBar(
+            onBackClick = { navController.popBackStack() },
+            onMenuClick = { },
+            containerModifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = dimenDpResource(R.dimen.padding_medium)),
+            iconModifier = Modifier
+                .clip(shape = MaterialTheme.shapes.extraLarge)
+                .background(
+                    color = outline_variant_blue,
+                    shape = MaterialTheme.shapes.extraLarge
+                )
+                .padding(all = dimenDpResource(R.dimen.padding_small))
+                .size(size = dimenDpResource(R.dimen.padding_medium)),
+        )
+    }
+}
+
+@Composable
+private fun repeatOptionDataList(): List<RepeatOptionData> {
+    return listOf(
         RepeatOptionData(
             title = stringResource(R.string.repeat_option_title_repeat_text),
             time = stringResource(R.string.repeat_option_time_one_minute_text),
@@ -71,84 +247,5 @@ fun CardStudyScreen(navController: NavController) {
             time = stringResource(R.string.repeat_option_time_one_day_text),
             color = repeat_button_light_red,
             action = { })
-    )
-
-    Scaffold(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .padding(horizontal = dimenDpResource(R.dimen.padding_medium))
-            .padding(top = dimenDpResource(R.dimen.padding_medium))
-            .statusBarsPadding(),
-        containerColor = MaterialTheme.colorScheme.background,
-        topBar = {
-            ActionBar(
-                onBackClick = { navController.popBackStack() },
-                onMenuClick = { },
-                containerModifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = dimenDpResource(R.dimen.padding_medium)),
-                iconModifier = Modifier
-                    .clip(shape = MaterialTheme.shapes.extraLarge)
-                    .background(color = outline_variant_blue, shape = MaterialTheme.shapes.extraLarge)
-                    .padding(all = dimenDpResource(R.dimen.padding_small))
-                    .size(size = dimenDpResource(R.dimen.padding_medium)),
-            )
-        },
-        content = { padding ->
-            Box(
-                modifier = Modifier
-                    .padding(padding)
-                    .verticalScroll(state = scrollState)
-            ) {
-                Column(modifier = Modifier.padding(padding)) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                    ) {
-                        QuestionAndAnswerElement(
-                            question = "43214123",
-                            answer = "43214123",
-                            questionStyle = MaterialTheme.typography.bodyMedium.copy(
-                                textAlign = TextAlign.Center
-                            ),
-                            answerStyle = MaterialTheme.typography.bodyMedium.copy(
-                                textAlign = TextAlign.Center
-                            ),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(MaterialTheme.colorScheme.onPrimary)
-                                .border(
-                                    dimenDpResource(R.dimen.border_width_dot_five),
-                                    MaterialTheme.colorScheme.outline,
-                                    MaterialTheme.shapes.extraSmall
-                                )
-                        )
-                    }
-                }
-            }
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Bottom,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(bottom = dimenDpResource(R.dimen.padding_medium))
-            ) {
-                repeatOptionsButton.forEach {
-                    RepeatOptionsButton(
-                        buttonColor = it.color,
-                        textDifficultyOfRepetition = it.title,
-                        repeatTimeText = it.time,
-                        onClick = it.action,
-                        titleTextStyle = MaterialTheme.typography.labelMedium.copy(
-                            textAlign = TextAlign.Center
-                        ),
-                        subtitleTextStyle = MaterialTheme.typography.labelSmall.copy(
-                            textAlign = TextAlign.Center
-                        )
-                    )
-                }
-            }
-        }
     )
 }

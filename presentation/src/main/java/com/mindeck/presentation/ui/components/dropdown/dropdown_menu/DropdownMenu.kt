@@ -41,7 +41,7 @@ fun DropdownMenu(
             items(listDropdownMenuItem) { item ->
                 Text(
                     text = item.title,
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = item.titleStyle,
                     modifier = Modifier
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },

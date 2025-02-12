@@ -1,17 +1,10 @@
 package com.mindeck.presentation.ui.screens
 
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -20,14 +13,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -37,23 +28,21 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.Folder
 import com.mindeck.presentation.R
+import com.mindeck.presentation.state.UiState
+import com.mindeck.presentation.state.UiState.Loading.getOrNull
+import com.mindeck.presentation.state.UiState.Loading.mapSuccess
 import com.mindeck.presentation.ui.components.common.ActionBar
 import com.mindeck.presentation.ui.components.common.QuestionAndAnswerElement
 import com.mindeck.presentation.ui.components.dataclasses.CardAttributes
@@ -62,11 +51,8 @@ import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMen
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenuState
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.animateDropdownMenuHeightIn
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
-import com.mindeck.presentation.state.UiState
-import com.mindeck.presentation.state.UiState.Loading.getOrNull
-import com.mindeck.presentation.state.UiState.Loading.mapSuccess
+import com.mindeck.presentation.ui.navigation.NavigationRoute
 import com.mindeck.presentation.viewmodel.CardViewModel
-import com.mindeck.presentation.viewmodel.FoldersViewModel
 
 @Composable
 fun CardScreen(
@@ -93,6 +79,7 @@ fun CardScreen(
     )
 
     var listDropdownMenu = dropdownMenuDataList(
+        navController = navController,
         card = card,
         dropdownMenuState = dropdownMenuState,
         cardViewModel = cardViewModel
@@ -126,29 +113,67 @@ fun CardScreen(
 
 @Composable
 private fun dropdownMenuDataList(
+    navController: NavController,
     card: UiState<Card>,
     dropdownMenuState: DropdownMenuState,
     cardViewModel: CardViewModel
 ): List<DropdownMenuData> {
-    return listOf(
-        DropdownMenuData(
-            title = stringResource(R.string.dropdown_menu_data_edit_card),
-            action = {
-                dropdownMenuState.reset()
-            }
-        ),
-        DropdownMenuData(
-            title = stringResource(R.string.dropdown_menu_data_remove_card),
-            action = {
-                dropdownMenuState.reset()
-                when (card) {
-                    is UiState.Success -> {
-                        cardViewModel.deleteDeck(card = card.data)
+    when (card) {
+        is UiState.Success -> {
+            return listOf(
+                DropdownMenuData(
+                    title = stringResource(R.string.dropdown_menu_data_study_card),
+                    titleStyle = MaterialTheme.typography.bodyMedium,
+                    action = {
+                        dropdownMenuState.reset()
+                        navController.navigate(
+                            NavigationRoute.CardStudyScreen.createRoute(
+                                card.data.cardId
+                            )
+                        )
                     }
-                }
-            }
-        )
-    )
+                ),
+                DropdownMenuData(
+                    title = stringResource(R.string.dropdown_menu_data_edit_card),
+                    titleStyle = MaterialTheme.typography.bodyMedium,
+                    action = {
+                        dropdownMenuState.reset()
+                    }
+                ),
+                DropdownMenuData(
+                    title = stringResource(R.string.dropdown_menu_data_remove_card),
+                    titleStyle = MaterialTheme.typography.bodyMedium,
+                    action = {
+                        dropdownMenuState.reset()
+                        cardViewModel.deleteDeck(card = card.data)
+
+                    }
+                )
+            )
+        }
+
+        is UiState.Loading -> {
+            return listOf(
+                DropdownMenuData(
+                    title = stringResource(R.string.text_loading),
+                    titleStyle = MaterialTheme.typography.bodyMedium,
+                    action = {}
+                )
+            )
+        }
+
+        else -> {
+            return listOf(
+                DropdownMenuData(
+                    title = stringResource(R.string.text_error_loading),
+                    titleStyle = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.error),
+                    action = {
+                        dropdownMenuState.reset()
+                    }
+                )
+            )
+        }
+    }
 }
 
 @Composable
@@ -180,7 +205,11 @@ private fun CardTopBar(
 }
 
 @Composable
-fun cardAttributesList(card: UiState<Card>, folder: UiState<Folder?>): List<CardAttributes> {
+
+fun cardAttributesList(
+    card: UiState<Card>,
+    folder: UiState<Folder?>
+): List<CardAttributes> {
     return when (card) {
         is UiState.Success -> listOf(
             CardAttributes(
@@ -231,6 +260,7 @@ fun cardAttributesList(card: UiState<Card>, folder: UiState<Folder?>): List<Card
 }
 
 @Composable
+
 private fun Content(
     padding: PaddingValues,
     scrollState: ScrollState,
@@ -239,6 +269,7 @@ private fun Content(
     cardAttributes: List<CardAttributes>,
     listDropdownMenu: List<DropdownMenuData>,
     dropdownMenuState: DropdownMenuState
+
 ) {
     Column(
         modifier = Modifier
@@ -319,7 +350,10 @@ private fun CardAttributesList(cardAttributes: List<CardAttributes>) {
 }
 
 @Composable
-private fun CardInfo(card: UiState<Card>) {
+
+private fun CardInfo(
+    card: UiState<Card>
+) {
     when (card) {
         is UiState.Success -> {
             Box(
@@ -441,6 +475,7 @@ private fun CardDropdownMenu(
         listDropdownMenuItem = listDropdownMenu,
         dropdownModifier = Modifier
             .padding(padding)
+            .padding(horizontal = dimenDpResource(R.dimen.padding_medium))
             .alpha(dropdownVisibleAnimation)
             .fillMaxWidth()
             .padding(top = dimenDpResource(R.dimen.spacer_extra_small))

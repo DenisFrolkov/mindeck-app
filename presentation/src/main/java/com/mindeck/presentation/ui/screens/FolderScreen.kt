@@ -338,6 +338,7 @@ private fun dropdownMenuDataList(
     return listOf(
         DropdownMenuData(
             title = stringResource(R.string.dropdown_menu_data_rename_list),
+            titleStyle = MaterialTheme.typography.bodyMedium,
             action = {
                 dropdownMenuState.reset()
                 dialogState.openRenameDialog()
@@ -345,6 +346,7 @@ private fun dropdownMenuDataList(
         ),
         DropdownMenuData(
             title = stringResource(R.string.dropdown_menu_data_edit_decks_list),
+            titleStyle = MaterialTheme.typography.bodyMedium,
             action = {
                 dropdownMenuState.reset()
                 when (decks) {
@@ -356,6 +358,7 @@ private fun dropdownMenuDataList(
         ),
         DropdownMenuData(
             title = stringResource(R.string.dropdown_menu_data_create_deck_list),
+            titleStyle = MaterialTheme.typography.bodyMedium,
             action = {
                 dropdownMenuState.reset()
                 dialogState.openCreateDialog()
@@ -363,6 +366,7 @@ private fun dropdownMenuDataList(
         ),
         DropdownMenuData(
             title = stringResource(R.string.dropdown_menu_data_remote_list),
+            titleStyle = MaterialTheme.typography.bodyMedium,
             action = {
                 dropdownMenuState.reset()
                 when (decks) {
