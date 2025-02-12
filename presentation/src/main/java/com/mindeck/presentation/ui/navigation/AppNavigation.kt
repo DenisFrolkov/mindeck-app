@@ -16,22 +16,9 @@ import com.mindeck.presentation.ui.screens.DeckScreen
 import com.mindeck.presentation.ui.screens.FolderScreen
 import com.mindeck.presentation.ui.screens.FoldersScreen
 import com.mindeck.presentation.ui.screens.MainScreen
-import com.mindeck.presentation.viewmodel.CardViewModel
-import com.mindeck.presentation.viewmodel.CreationCardViewModel
-import com.mindeck.presentation.viewmodel.DeckViewModel
-import com.mindeck.presentation.viewmodel.FolderViewModel
-import com.mindeck.presentation.viewmodel.FoldersViewModel
-import com.mindeck.presentation.viewmodel.MainViewModel
 
 @Composable
-fun AppNavigation(
-    mainViewModel: MainViewModel,
-    foldersViewModel: FoldersViewModel,
-    folderViewModel: FolderViewModel,
-    deckViewModel: DeckViewModel,
-    cardViewModel: CardViewModel,
-    creationCardViewModel: CreationCardViewModel
-) {
+fun AppNavigation() {
     val navController = rememberNavController()
 
     NavHost(
@@ -107,11 +94,18 @@ fun AppNavigation(
                 navController.popBackStack()
             }
         }
-        composable(NavigationRoute.CardStudyScreen.route,
+        composable(
+            NavigationRoute.CardStudyScreen.route,
             enterTransition = { fadeIn(animationSpec = tween(100)) },
-            exitTransition = { fadeOut(animationSpec = tween(100)) }
-        ) {
-            CardStudyScreen(navController = navController)
+            exitTransition = { fadeOut(animationSpec = tween(100)) },
+            arguments = listOf(navArgument("cardId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val cardId = backStackEntry.arguments?.getInt("cardId")
+            if (cardId != null) {
+                CardStudyScreen(navController = navController, cardId = cardId)
+            } else {
+                navController.popBackStack()
+            }
         }
     }
 }
