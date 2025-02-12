@@ -37,6 +37,8 @@
 
     <string name="text_no_folder">Нет папки</string>
 
+    <string name="text_error_loading">Ошибка загрузки</string>
+
     <string name="dialog_select_folder">Выберите папку</string>
     <string name="dialog_select_deck">Выберите колоду</string>
     <string name="warning_no_elements">Нет элементов для выбора</string>

@@ -20,4 +20,8 @@ open class UiState<out T> {
             else -> Loading
         }
     }
+
+    fun <T> UiState<T>.getOrNull(): T? {
+        return if (this is Success) data else null
+    }
 }
