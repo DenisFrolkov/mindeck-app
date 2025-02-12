@@ -8,39 +8,36 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import com.mindeck.domain.usecases.folderUseCases.GetAllFoldersUseCase
 import com.mindeck.presentation.state.UiState
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class FoldersViewModel @Inject constructor(
-    private val getAllFoldersUseCase: GetAllFoldersUseCase,
+    getAllFoldersUseCase: GetAllFoldersUseCase,
     private val createFolderUseCase: CreateFolderUseCase
 ) : ViewModel() {
 
-    private val _folderUIState = MutableStateFlow<UiState<List<Folder>>>(UiState.Loading)
-    val folderUIState: StateFlow<UiState<List<Folder>>> = _folderUIState
+    val foldersState: StateFlow<UiState<List<Folder>>> = getAllFoldersUseCase()
+        .map<List<Folder>, UiState<List<Folder>>> { UiState.Success(it) }
+        .catch { emit(UiState.Error(it)) }
+        .stateIn(viewModelScope, SharingStarted.Lazily, UiState.Loading)
 
-    init {
-        getAllFolders()
-    }
+    private val _createFolderState = MutableStateFlow<UiState<Unit>>(UiState.Loading)
+    val createFolderState: StateFlow<UiState<Unit>> = _createFolderState
 
-    private fun getAllFolders() {
+    fun createFolder(folderName: String) {
         viewModelScope.launch {
-            try {
-                _folderUIState.value = UiState.Loading
-                getAllFoldersUseCase().collect { folders ->
-                    _folderUIState.value = UiState.Success(folders)
-                }
+            _createFolderState.value = try {
+                createFolderUseCase(Folder(folderName = folderName))
+                UiState.Success(Unit)
             } catch (e: Exception) {
-                _folderUIState.value = UiState.Error(e)
+                UiState.Error(e)
             }
-        }
-    }
-
-    fun createFolder(folder: Folder) {
-        viewModelScope.launch {
-            createFolderUseCase.invoke(folder)
         }
     }
 }

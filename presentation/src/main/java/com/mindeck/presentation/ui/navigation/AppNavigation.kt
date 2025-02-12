@@ -16,22 +16,9 @@ import com.mindeck.presentation.ui.screens.DeckScreen
 import com.mindeck.presentation.ui.screens.FolderScreen
 import com.mindeck.presentation.ui.screens.FoldersScreen
 import com.mindeck.presentation.ui.screens.MainScreen
-import com.mindeck.presentation.viewmodel.CardViewModel
-import com.mindeck.presentation.viewmodel.CreationCardViewModel
-import com.mindeck.presentation.viewmodel.DeckViewModel
-import com.mindeck.presentation.viewmodel.FolderViewModel
-import com.mindeck.presentation.viewmodel.FoldersViewModel
-import com.mindeck.presentation.viewmodel.MainViewModel
 
 @Composable
-fun AppNavigation(
-    mainViewModel: MainViewModel,
-    foldersViewModel: FoldersViewModel,
-    folderViewModel: FolderViewModel,
-    deckViewModel: DeckViewModel,
-    cardViewModel: CardViewModel,
-    creationCardViewModel: CreationCardViewModel
-) {
+fun AppNavigation() {
     val navController = rememberNavController()
 
     NavHost(
@@ -41,10 +28,8 @@ fun AppNavigation(
             enterTransition = { fadeIn(animationSpec = tween(100)) },
             exitTransition = { fadeOut(animationSpec = tween(100)) }
         ) {
-            mainViewModel.getAllFolders()
             MainScreen(
-                navController = navController,
-                mainViewModel = mainViewModel,
+                navController = navController
             )
         }
         composable(NavigationRoute.CreationCardScreen.route,
@@ -52,15 +37,14 @@ fun AppNavigation(
             exitTransition = { fadeOut(animationSpec = tween(150)) }
         ) {
             CreationCardScreen(
-                navController = navController,
-                creationCardViewModel = creationCardViewModel
+                navController = navController
             )
         }
         composable(NavigationRoute.FoldersScreen.route,
             enterTransition = { fadeIn(animationSpec = tween(150)) },
             exitTransition = { fadeOut(animationSpec = tween(150)) }
         ) {
-            FoldersScreen(navController = navController, foldersViewModel = foldersViewModel)
+            FoldersScreen(navController = navController)
         }
         composable(
             NavigationRoute.FolderScreen.route,
@@ -69,12 +53,14 @@ fun AppNavigation(
             arguments = listOf(navArgument("folderId") { type = NavType.IntType })
         ) { backStackEntry ->
             val folderId = backStackEntry.arguments?.getInt("folderId")
-            folderViewModel.getFolderById(folderId!!)
-            folderViewModel.getAllDecksByFolderId(folderId)
-            FolderScreen(
-                navController = navController,
-                folderViewModel = folderViewModel,
-            )
+            if (folderId != null) {
+                FolderScreen(
+                    navController = navController,
+                    folderId = folderId
+                )
+            } else {
+                navController.popBackStack()
+            }
         }
         composable(
             NavigationRoute.DeckScreen.route,
@@ -83,33 +69,43 @@ fun AppNavigation(
             arguments = listOf(navArgument("deckId") { type = NavType.IntType })
         ) { backStackEntry ->
             val deckId = backStackEntry.arguments?.getInt("deckId")
-            deckViewModel.getDeckById(deckId!!)
-            deckViewModel.getAllCardsByDeckId(deckId)
-            DeckScreen(
-                navController = navController,
-                deckViewModel = deckViewModel,
-            )
+            if (deckId != null) {
+                DeckScreen(
+                    navController = navController,
+                    deckId = deckId
+                )
+            } else {
+                navController.popBackStack()
+            }
         }
         composable(
             NavigationRoute.CardScreen.route,
             enterTransition = { fadeIn(animationSpec = tween(100)) },
             exitTransition = { fadeOut(animationSpec = tween(100)) },
             arguments = listOf(navArgument("cardId") { type = NavType.IntType })
-        ) {
-            backStackEntry ->
+        ) { backStackEntry ->
             val cardId = backStackEntry.arguments?.getInt("cardId")
-            cardViewModel.getCardById(cardId = cardId!!)
-            cardViewModel.getFolderByCardId(cardId = cardId)
-            CardScreen(
-                navController = navController,
-                cardViewModel = cardViewModel
-            )
+            if (cardId != null) {
+                CardScreen(
+                    navController = navController,
+                    cardId = cardId
+                )
+            } else {
+                navController.popBackStack()
+            }
         }
-        composable(NavigationRoute.CardStudyScreen.route,
+        composable(
+            NavigationRoute.CardStudyScreen.route,
             enterTransition = { fadeIn(animationSpec = tween(100)) },
-            exitTransition = { fadeOut(animationSpec = tween(100)) }
-        ) {
-            CardStudyScreen(navController = navController)
+            exitTransition = { fadeOut(animationSpec = tween(100)) },
+            arguments = listOf(navArgument("cardId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val cardId = backStackEntry.arguments?.getInt("cardId")
+            if (cardId != null) {
+                CardStudyScreen(navController = navController, cardId = cardId)
+            } else {
+                navController.popBackStack()
+            }
         }
     }
 }

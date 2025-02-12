@@ -5,13 +5,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.mindeck.presentation.ui.components.dialog.data_class.DialogStateData
 import com.mindeck.presentation.ui.components.dialog.data_class.DialogType
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 
 class DialogState(
     initialDialog: Boolean = false,
     val animateExpandedAlpha: Float = 1f,
     val scrimDialogAlpha: Float = 0.5f,
-    val animationDuration: Int = 100
+    val animationDuration: Int = 100,
 ) {
     var isDialogVisible by mutableStateOf(initialDialog)
         private set
@@ -27,6 +28,14 @@ class DialogState(
 
     var isSelectingDecksForMoveAndDelete by mutableStateOf(false)
         private set
+
+    var toastBooleanEvent by mutableStateOf(false)
+        private set
+
+    var toastTextEvent by mutableStateOf("")
+
+    val toastAlpha: Float
+        get() = if (toastBooleanEvent) animateExpandedAlpha else 0f
 
     private fun openDialog(dialogType: DialogType) {
         dialogStateData = DialogStateData()
@@ -82,5 +91,17 @@ class DialogState(
 
     fun stopSelectingDecksForMoveAndDelete() {
         isSelectingDecksForMoveAndDelete = false
+    }
+
+    fun showErrorToast(message: String) {
+        toastTextEvent = message
+        toastBooleanEvent = true
+
+    }
+
+    suspend fun clearToast() {
+        toastBooleanEvent = false
+        delay(1000)
+        toastTextEvent = ""
     }
 }

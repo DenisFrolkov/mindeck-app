@@ -49,10 +49,6 @@ fun SelectItemDialog(
     fetchList: () -> Unit,
     onClickSave: () -> Unit,
 ) {
-    LaunchedEffect(dialogState.currentDialogType == DialogType.Move) {
-        fetchList()
-    }
-
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier

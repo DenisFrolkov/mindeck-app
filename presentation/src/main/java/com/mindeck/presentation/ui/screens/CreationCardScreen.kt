@@ -32,6 +32,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.Deck
@@ -52,29 +53,28 @@ import com.mindeck.presentation.ui.theme.text_white
 import com.mindeck.presentation.state.UiState
 import com.mindeck.presentation.state.UiState.Loading.mapToUiState
 import com.mindeck.presentation.viewmodel.CreationCardViewModel
+import com.mindeck.presentation.viewmodel.FoldersViewModel
 
 @Composable
 fun CreationCardScreen(
     navController: NavController,
-    creationCardViewModel: CreationCardViewModel
 ) {
-    val typeDropdownList = listOf(
-        Pair(stringResource(R.string.text_folder_dropdown_selector_simple), 0),
-        Pair(stringResource(R.string.text_folder_dropdown_selector_simple_with_answer_input), 1)
-    )
-
+    val creationCardViewModel: CreationCardViewModel =
+        hiltViewModel(navController.currentBackStackEntry!!)
 
     val dropdownState by creationCardViewModel.dropdownState
     val cardState by creationCardViewModel.cardState
-    val validation = creationCardViewModel.validation.collectAsState().value
-    val folder = creationCardViewModel.foldersState.collectAsState().value
-    val deck = creationCardViewModel.deckState.collectAsState().value
+    val validation by creationCardViewModel.validation.collectAsState()
+    val folder by creationCardViewModel.foldersState.collectAsState()
+    val deck by creationCardViewModel.listDecksUiState.collectAsState()
 
     LaunchedEffect(dropdownState.selectedFolder.second) {
         if (dropdownState.selectedFolder.second != null) {
             creationCardViewModel.getAllDecksByFolderId(dropdownState.selectedFolder.second!!)
         }
     }
+
+    val typeDropdownList = dropdownMenuTypeList()
 
     Surface(
         modifier = Modifier
@@ -83,31 +83,19 @@ fun CreationCardScreen(
     ) {
         Scaffold(
             topBar = {
-                Box(
-                    modifier = Modifier
-                        .statusBarsPadding()
-                        .padding(horizontal = dimenDpResource(R.dimen.padding_medium))
-                        .padding(top = dimenDpResource(R.dimen.padding_large))
-                ) {
-                    TopBar(
-                        onClick = {
-                            navController.popBackStack()
-                            creationCardViewModel.clear()
-                        }
-                    )
-                }
+                TopBar(onClick = { navController.popBackStack() })
             },
             content = { padding ->
                 Content(
-                    navController,
-                    validation,
-                    folder,
-                    deck,
-                    creationCardViewModel,
-                    padding,
-                    typeDropdownList,
-                    dropdownState,
-                    cardState,
+                    navController = navController,
+                    padding = padding,
+                    folder = folder,
+                    deck = deck,
+                    typeDropdownList = typeDropdownList,
+                    validation = validation,
+                    dropdownState = dropdownState,
+                    cardState = cardState,
+                    creationCardViewModel = creationCardViewModel,
                 )
             }
         )
@@ -116,34 +104,41 @@ fun CreationCardScreen(
 
 @Composable
 private fun TopBar(onClick: () -> Unit) {
-    ActionHandlerButton(
-        iconPainter = painterResource(R.drawable.back_icon),
-        contentDescription = stringResource(R.string.back_screen_icon_button),
-        onClick = onClick,
-        iconTint = MaterialTheme.colorScheme.onPrimary,
-        iconModifier = Modifier
-            .background(
-                color = MaterialTheme.colorScheme.outlineVariant,
-                shape = MaterialTheme.shapes.extraLarge
-            )
-            .padding(all = dimenDpResource(R.dimen.padding_small))
-            .size(size = dimenDpResource(R.dimen.padding_medium))
-            .clip(shape = MaterialTheme.shapes.extraLarge)
-    )
-    Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_large)))
+    Box(
+        modifier = Modifier
+            .statusBarsPadding()
+            .padding(horizontal = dimenDpResource(R.dimen.padding_medium))
+            .padding(top = dimenDpResource(R.dimen.padding_large))
+    ) {
+        ActionHandlerButton(
+            iconPainter = painterResource(R.drawable.back_icon),
+            contentDescription = stringResource(R.string.back_screen_icon_button),
+            onClick = onClick,
+            iconTint = MaterialTheme.colorScheme.onPrimary,
+            iconModifier = Modifier
+                .background(
+                    color = MaterialTheme.colorScheme.outlineVariant,
+                    shape = MaterialTheme.shapes.extraLarge
+                )
+                .padding(all = dimenDpResource(R.dimen.padding_small))
+                .size(size = dimenDpResource(R.dimen.padding_medium))
+                .clip(shape = MaterialTheme.shapes.extraLarge)
+        )
+        Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_large)))
+    }
 }
 
 @Composable
 private fun Content(
     navController: NavController,
-    validation: Boolean?,
+    padding: PaddingValues,
     folder: UiState<List<Folder>>,
     deck: UiState<List<Deck>>,
-    creationCardViewModel: CreationCardViewModel,
-    padding: PaddingValues,
     typeDropdownList: List<Pair<String, Int>>,
+    validation: Boolean?,
     dropdownState: DropdownState,
     cardState: CardState,
+    creationCardViewModel: CreationCardViewModel
 ) {
     Column(
         modifier = Modifier
@@ -153,36 +148,43 @@ private fun Content(
             .navigationBarsPadding()
     ) {
         DropdownSelectors(
-            dropdownState,
-            validation == true || validation == null,
-            folder,
-            creationCardViewModel,
-            deck,
-            typeDropdownList
+            folder = folder,
+            deck = deck,
+            typeDropdownList = typeDropdownList,
+            validation = validation == true || validation == null,
+            dropdownState = dropdownState,
+            creationCardViewModel = creationCardViewModel,
         )
         Spacer(modifier = Modifier.height(height = dimenDpResource(R.dimen.spacer_medium)))
-        InputFields(cardState, creationCardViewModel, validation == true || validation == null)
+        InputFields(
+            validation = validation == true || validation == null,
+            cardState = cardState,
+            creationCardViewModel = creationCardViewModel
+        )
         Spacer(modifier = Modifier.height(height = dimenDpResource(R.dimen.spacer_large)))
-        SaveButton(creationCardViewModel, cardState, dropdownState, navController)
+        SaveButton(
+            navController = navController,
+            cardState = cardState,
+            dropdownState = dropdownState,
+            creationCardViewModel = creationCardViewModel
+        )
     }
 }
 
 @Composable
 private fun DropdownSelectors(
-    dropdownState: DropdownState,
-    validation: Boolean,
     folder: UiState<List<Folder>>,
-    creationCardViewModel: CreationCardViewModel,
     deck: UiState<List<Deck>>,
-    typeDropdownList: List<Pair<String, Int>>
+    typeDropdownList: List<Pair<String, Int>>,
+    validation: Boolean,
+    dropdownState: DropdownState,
+    creationCardViewModel: CreationCardViewModel
 ) {
     FolderDropdownSelector(
         selectedFolder = dropdownState.selectedFolder,
         validation = validation,
         folder = folder,
-        onClick = {
-            creationCardViewModel.getAllFolders()
-        },
+        onClick = { },
         onItemClick = {
             if (dropdownState.selectedFolder != it) {
                 creationCardViewModel.updateDropdownState { copy(selectedFolder = it) }
@@ -289,10 +291,18 @@ private fun TypeDropdownSelector(
 }
 
 @Composable
+private fun dropdownMenuTypeList(): List<Pair<String, Int>> {
+    return listOf(
+        Pair(stringResource(R.string.text_folder_dropdown_selector_simple), 0),
+        Pair(stringResource(R.string.text_folder_dropdown_selector_simple_with_answer_input), 1)
+    )
+}
+
+@Composable
 private fun InputFields(
+    validation: Boolean,
     cardState: CardState,
-    creationCardViewModel: CreationCardViewModel,
-    validation: Boolean
+    creationCardViewModel: CreationCardViewModel
 ) {
     TitleInputField(
         placeholder = stringResource(R.string.enter_name_for_card),
@@ -377,10 +387,10 @@ private fun InputFields(
 
 @Composable
 private fun SaveButton(
-    creationCardViewModel: CreationCardViewModel,
+    navController: NavController,
     cardState: CardState,
     dropdownState: DropdownState,
-    navController: NavController
+    creationCardViewModel: CreationCardViewModel
 ) {
     Box(
         modifier = Modifier
@@ -401,16 +411,14 @@ private fun SaveButton(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null
                 ) {
-                    if (creationCardViewModel.validateInput(cardState, dropdownState)) {
+                    if (creationCardViewModel.validateInput()) {
                         creationCardViewModel.createCard(
-                            Card(
-                                cardName = cardState.title,
-                                cardQuestion = cardState.question,
-                                cardAnswer = cardState.answer,
-                                cardType = dropdownState.selectedType.first,
-                                cardTag = cardState.tag,
-                                deckId = dropdownState.selectedDeck.second!!
-                            )
+                            cardName = cardState.title,
+                            cardQuestion = cardState.question,
+                            cardAnswer = cardState.answer,
+                            cardType = dropdownState.selectedType.first,
+                            cardTag = cardState.tag,
+                            deckId = dropdownState.selectedDeck.second!!
                         )
                         navController.popBackStack()
                     }

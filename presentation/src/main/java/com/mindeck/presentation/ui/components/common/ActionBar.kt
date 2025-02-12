@@ -14,6 +14,7 @@ import com.mindeck.presentation.ui.components.buttons.ActionHandlerButton
 fun ActionBar(
     onBackClick: () -> Unit,
     onMenuClick: () -> Unit,
+    menuIcon: Int = R.drawable.menu_icon,
     containerModifier: Modifier,
     iconModifier: Modifier
 ) {
@@ -29,7 +30,7 @@ fun ActionBar(
             iconModifier = iconModifier,
         )
         ActionHandlerButton(
-            iconPainter = painterResource(R.drawable.menu_icon),
+            iconPainter = painterResource(menuIcon),
             contentDescription = stringResource(R.string.back_screen_icon_button),
             iconTint = MaterialTheme.colorScheme.onPrimary,
             onClick = onMenuClick,
