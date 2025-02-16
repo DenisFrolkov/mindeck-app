@@ -8,4 +8,9 @@ data class Card(
     val cardType: String,
     val cardTag: String,
     val deckId: Int,
+    val firstReviewDate: Long?,
+    val lastReviewDate: Long?,
+    val nextReviewDate: Long?,
+    val repetitionCount: Int = 0,
+    val lastReviewType: ReviewType?
 )
