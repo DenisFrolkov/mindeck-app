@@ -81,16 +81,16 @@ class CreationCardViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             _createCardState.value = try {
-                createCardUseCase(
-                    card = Card(
-                        cardName = cardName,
-                        cardQuestion = cardQuestion,
-                        cardAnswer = cardAnswer,
-                        cardType = cardType,
-                        cardTag = cardTag,
-                        deckId = deckId
-                    )
-                )
+//                createCardUseCase(
+//                    card = Card(
+//                        cardName = cardName,
+//                        cardQuestion = cardQuestion,
+//                        cardAnswer = cardAnswer,
+//                        cardType = cardType,
+//                        cardTag = cardTag,
+//                        deckId = deckId
+//                    )
+//                )
                 UiState.Success(Unit)
             } catch (e: Exception) {
                 UiState.Error(e)

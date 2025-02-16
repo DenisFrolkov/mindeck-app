@@ -30,7 +30,10 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mindeck.domain.models.Card
 import com.mindeck.presentation.R
+import com.mindeck.presentation.state.UiState
+import com.mindeck.presentation.state.UiState.Loading.mapSuccess
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
 import com.mindeck.presentation.ui.components.utils.dimenFloatResource
 import com.mindeck.presentation.ui.theme.outline_variant_blue
@@ -39,6 +42,7 @@ import com.mindeck.presentation.ui.theme.secondary_light_blue
 
 @Composable
 fun DailyProgressTracker(
+    cardsRepetition: UiState<List<Card>>,
     dptIcon: Painter,
     dailyProgressTrackerState: DailyProgressTrackerState
 ) {
@@ -67,11 +71,15 @@ fun DailyProgressTracker(
                 )
                 .weight(dimenFloatResource(R.dimen.float_one_significance))
         ) {
-            DPTText(
-                plurals = R.plurals.deck_amount,
-                count = dailyProgressTrackerState.totalCards,
-                textStyle = MaterialTheme.typography.labelMedium
-            )
+            when (cardsRepetition) {
+                is UiState.Success -> {
+                    DPTText(
+                        plurals = R.plurals.deck_amount,
+                        count = cardsRepetition.data.size,
+                        textStyle = MaterialTheme.typography.labelMedium
+                    )
+                }
+            }
 
             Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_medium)))
 

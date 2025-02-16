@@ -26,6 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,19 +35,24 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.mindeck.domain.models.Card
+import com.mindeck.domain.models.ReviewType
 import com.mindeck.presentation.R
 import com.mindeck.presentation.state.UiState
+import com.mindeck.presentation.state.UiState.Loading.getOrNull
 import com.mindeck.presentation.ui.components.common.ActionBar
 import com.mindeck.presentation.ui.components.common.QuestionAndAnswerElement
 import com.mindeck.presentation.ui.components.repeat_options.RepeatOptionData
 import com.mindeck.presentation.ui.components.repeat_options.RepeatOptionsButton
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
+import com.mindeck.presentation.ui.components.utils.stringToMillis
 import com.mindeck.presentation.ui.theme.outline_variant_blue
 import com.mindeck.presentation.ui.theme.repeat_button_light_blue
 import com.mindeck.presentation.ui.theme.repeat_button_light_mint
 import com.mindeck.presentation.ui.theme.repeat_button_light_red
 import com.mindeck.presentation.ui.theme.repeat_button_light_yellow
 import com.mindeck.presentation.viewmodel.CardStudyViewModel
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun CardStudyScreen(
@@ -56,15 +62,21 @@ fun CardStudyScreen(
     val cardStudyViewModel: CardStudyViewModel =
         hiltViewModel(navController.currentBackStackEntry!!)
 
+    val card by cardStudyViewModel.cardByCardIdUIState.collectAsState()
+    val updateCardReview by cardStudyViewModel.updateCardReviewState.collectAsState()
+
     LaunchedEffect(cardId) {
         cardStudyViewModel.loadCardById(cardId)
     }
 
-    val card by cardStudyViewModel.cardByCardIdUIState.collectAsState()
+    val currentDateTime = remember {
+        LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+    }
 
     val scrollState = rememberScrollState()
 
-    var repeatOptionsButton = repeatOptionDataList()
+    var repeatOptionsButton =
+        repeatOptionDataList(cardStudyViewModel = cardStudyViewModel, card, currentDateTime)
 
     Surface(
         modifier = Modifier
@@ -105,11 +117,16 @@ private fun Content(
     ) {
         CardInfo(padding = padding, card = card)
     }
-    RepeatButtons(repeatOptionsButton = repeatOptionsButton)
+    RepeatButtons(
+        repeatOptionsButton = repeatOptionsButton,
+    )
 }
 
 @Composable
-private fun RepeatButtons(repeatOptionsButton: List<RepeatOptionData>) {
+
+private fun RepeatButtons(
+    repeatOptionsButton: List<RepeatOptionData>
+) {
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.Bottom,
@@ -130,7 +147,7 @@ private fun RepeatButtons(repeatOptionsButton: List<RepeatOptionData>) {
                 ),
                 subtitleTextStyle = MaterialTheme.typography.labelSmall.copy(
                     textAlign = TextAlign.Center
-                )
+                ),
             )
         }
     }
@@ -225,27 +242,56 @@ private fun CardStudyTopBar(navController: NavController) {
 }
 
 @Composable
-private fun repeatOptionDataList(): List<RepeatOptionData> {
+private fun repeatOptionDataList(
+    cardStudyViewModel: CardStudyViewModel,
+    card: UiState<Card>,
+    currentDateTime: String
+): List<RepeatOptionData> {
+    val cardData = card.getOrNull()
+
     return listOf(
         RepeatOptionData(
             title = stringResource(R.string.repeat_option_title_repeat_text),
             time = stringResource(R.string.repeat_option_time_one_minute_text),
             color = repeat_button_light_blue,
-            action = { }),
+            action = {
+                if (cardData != null) {
+                    cardStudyViewModel.updateReview(
+                        cardId = cardData.cardId,
+                        currentTime = stringToMillis(currentDateTime),
+                        newReviewDate = stringToMillis(
+                            LocalDateTime.now().plusMinutes(1)
+                                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+                        ),
+                        newRepetitionCount = cardData.repetitionCount + 1,
+                        reviewType = ReviewType.NORMAL
+                    )
+                }
+            }
+        ),
         RepeatOptionData(
             title = stringResource(R.string.repeat_option_title_easy_text),
             time = stringResource(R.string.repeat_option_time_five_day_text),
             color = repeat_button_light_mint,
-            action = { }),
+            action = {
+                // Добавить логику для этого варианта, если нужно
+            }
+        ),
         RepeatOptionData(
             title = stringResource(R.string.repeat_option_title_medium_text),
             time = stringResource(R.string.repeat_option_time_two_day_text),
             color = repeat_button_light_yellow,
-            action = { }),
+            action = {
+                // Добавить логику для этого варианта, если нужно
+            }
+        ),
         RepeatOptionData(
             title = stringResource(R.string.repeat_option_title_hard_text),
             time = stringResource(R.string.repeat_option_time_one_day_text),
             color = repeat_button_light_red,
-            action = { })
+            action = {
+                // Добавить логику для этого варианта, если нужно
+            }
+        )
     )
 }

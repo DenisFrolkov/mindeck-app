@@ -21,6 +21,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -33,13 +34,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.Folder
 import com.mindeck.presentation.R
+import com.mindeck.presentation.state.UiState
 import com.mindeck.presentation.ui.components.daily_progress_tracker.DailyProgressTracker
 import com.mindeck.presentation.ui.components.daily_progress_tracker.DailyProgressTrackerState
-import com.mindeck.presentation.ui.components.dialog.data_class.CreateItemDialog
+import com.mindeck.presentation.ui.components.dataclasses.DisplayItemData
+import com.mindeck.presentation.ui.components.dataclasses.DisplayItemStyle
 import com.mindeck.presentation.ui.components.dialog.DialogState
 import com.mindeck.presentation.ui.components.dialog.animateDialogCreateItem
+import com.mindeck.presentation.ui.components.dialog.data_class.CreateItemDialog
 import com.mindeck.presentation.ui.components.fab.FAB
 import com.mindeck.presentation.ui.components.fab.FabMenuData
 import com.mindeck.presentation.ui.components.fab.FabState
@@ -47,11 +52,11 @@ import com.mindeck.presentation.ui.components.fab.FabState.Companion.ITEM_HEIGHT
 import com.mindeck.presentation.ui.components.folder.DisplayItem
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
 import com.mindeck.presentation.ui.components.utils.dimenFloatResource
+import com.mindeck.presentation.ui.components.utils.stringToMillis
 import com.mindeck.presentation.ui.navigation.NavigationRoute
-import com.mindeck.presentation.state.UiState
-import com.mindeck.presentation.ui.components.dataclasses.DisplayItemData
-import com.mindeck.presentation.ui.components.dataclasses.DisplayItemStyle
 import com.mindeck.presentation.viewmodel.MainViewModel
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun MainScreen(
@@ -59,14 +64,24 @@ fun MainScreen(
 ) {
     val mainViewModel: MainViewModel = hiltViewModel(navController.currentBackStackEntry!!)
 
+    val currentDateTime = remember {
+        LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+    }
+
+    LaunchedEffect(Unit) {
+        mainViewModel.loadCardRepetition(stringToMillis(currentDateTime))
+    }
+
     val folders = mainViewModel.foldersState.collectAsState().value
+    val cardsRepetition = mainViewModel.cardsForRepetitionState.collectAsState().value
 
     val dialogState = remember { DialogState() }
 
     val validation = dialogState.dialogStateData.isValid
 
     val dailyProgressTrackerState =
-        remember { DailyProgressTrackerState(totalCards = 500, answeredCards = 30) }
+        remember { DailyProgressTrackerState() }
+
     val dialogVisibleAnimation = animateDialogCreateItem(
         targetAlpha = dialogState.animateExpandedAlpha,
         animationDuration = dialogState.animationDuration * 3
@@ -98,6 +113,7 @@ fun MainScreen(
                     paddingValues,
                     dailyProgressTrackerState,
                     folders,
+                    cardsRepetition,
                     MAX_DISPLAY_ITEMS,
                     navController
                 )
@@ -118,6 +134,7 @@ private fun Content(
     paddingValues: PaddingValues,
     dailyProgressTrackerState: DailyProgressTrackerState,
     folders: UiState<List<Folder>>,
+    cardsRepetition: UiState<List<Card>>,
     MAX_DISPLAY_ITEMS: Int,
     navController: NavController
 ) {
@@ -128,6 +145,7 @@ private fun Content(
             .padding(horizontal = dimenDpResource(R.dimen.padding_medium))
     ) {
         DailyProgressTracker(
+            cardsRepetition,
             dptIcon = painterResource(R.drawable.dpt_icon),
             dailyProgressTrackerState = dailyProgressTrackerState
         )
