@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.Deck
 import com.mindeck.domain.models.Folder
+import com.mindeck.domain.models.ReviewType
 import com.mindeck.domain.usecases.cardUseCase.CreateCardUseCase
 import com.mindeck.domain.usecases.deckUseCases.GetAllDecksByFolderIdUseCase
 import com.mindeck.domain.usecases.folderUseCases.GetAllFoldersUseCase
@@ -81,16 +82,16 @@ class CreationCardViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             _createCardState.value = try {
-//                createCardUseCase(
-//                    card = Card(
-//                        cardName = cardName,
-//                        cardQuestion = cardQuestion,
-//                        cardAnswer = cardAnswer,
-//                        cardType = cardType,
-//                        cardTag = cardTag,
-//                        deckId = deckId
-//                    )
-//                )
+                createCardUseCase(
+                    card = Card(
+                        cardName = cardName,
+                        cardQuestion = cardQuestion,
+                        cardAnswer = cardAnswer,
+                        cardType = cardType,
+                        cardTag = cardTag,
+                        deckId = deckId
+                    )
+                )
                 UiState.Success(Unit)
             } catch (e: Exception) {
                 UiState.Error(e)

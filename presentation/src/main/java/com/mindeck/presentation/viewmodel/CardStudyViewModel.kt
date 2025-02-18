@@ -3,7 +3,6 @@ package com.mindeck.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mindeck.domain.models.Card
-import com.mindeck.domain.models.ReviewType
 import com.mindeck.domain.usecases.cardUseCase.GetCardByIdUseCase
 import com.mindeck.domain.usecases.cardUseCase.UpdateCardReviewUseCase
 import com.mindeck.presentation.state.UiState
@@ -36,20 +35,12 @@ class CardStudyViewModel @Inject constructor(
     val updateCardReviewState: StateFlow<UiState<Unit>> = _updateCardReviewState
 
     fun updateReview(
-        cardId: Int,
-        currentTime: Long,
-        newReviewDate: Long,
-        newRepetitionCount: Int,
-        reviewType: ReviewType
+        card: Card
     ) {
         viewModelScope.launch {
             _updateCardReviewState.value = try {
                 updateCardReviewUseCase(
-                    cardId,
-                    currentTime,
-                    newReviewDate,
-                    newRepetitionCount,
-                    reviewType
+                    card
                 )
                 UiState.Success(Unit)
             } catch (e: Exception) {

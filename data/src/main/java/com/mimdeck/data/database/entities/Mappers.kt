@@ -66,7 +66,17 @@ object Mappers {
             this.lastReviewDate,
             this.nextReviewDate,
             this.repetitionCount,
-            this.lastReviewType?.let { ReviewType.fromString(it) }
+            this.lastReviewType?.toData()
         )
+    }
+
+    fun String.toData(): ReviewType {
+        return when (this) {
+            "Normal" -> ReviewType.REPEAT
+            "Easy" -> ReviewType.EASY
+            "Medium" -> ReviewType.MEDIUM
+            "Hard" -> ReviewType.HARD
+            else -> ReviewType.REPEAT
+        }
     }
 }
