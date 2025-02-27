@@ -21,6 +21,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -33,13 +34,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.Folder
 import com.mindeck.presentation.R
+import com.mindeck.presentation.state.UiState
 import com.mindeck.presentation.ui.components.daily_progress_tracker.DailyProgressTracker
 import com.mindeck.presentation.ui.components.daily_progress_tracker.DailyProgressTrackerState
-import com.mindeck.presentation.ui.components.dialog.data_class.CreateItemDialog
+import com.mindeck.presentation.ui.components.dataclasses.DisplayItemData
+import com.mindeck.presentation.ui.components.dataclasses.DisplayItemStyle
 import com.mindeck.presentation.ui.components.dialog.DialogState
 import com.mindeck.presentation.ui.components.dialog.animateDialogCreateItem
+import com.mindeck.presentation.ui.components.dialog.data_class.CreateItemDialog
 import com.mindeck.presentation.ui.components.fab.FAB
 import com.mindeck.presentation.ui.components.fab.FabMenuData
 import com.mindeck.presentation.ui.components.fab.FabState
@@ -47,11 +52,11 @@ import com.mindeck.presentation.ui.components.fab.FabState.Companion.ITEM_HEIGHT
 import com.mindeck.presentation.ui.components.folder.DisplayItem
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
 import com.mindeck.presentation.ui.components.utils.dimenFloatResource
+import com.mindeck.presentation.ui.components.utils.stringToMillis
 import com.mindeck.presentation.ui.navigation.NavigationRoute
-import com.mindeck.presentation.state.UiState
-import com.mindeck.presentation.ui.components.dataclasses.DisplayItemData
-import com.mindeck.presentation.ui.components.dataclasses.DisplayItemStyle
 import com.mindeck.presentation.viewmodel.MainViewModel
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun MainScreen(
@@ -59,14 +64,24 @@ fun MainScreen(
 ) {
     val mainViewModel: MainViewModel = hiltViewModel(navController.currentBackStackEntry!!)
 
+    val currentDateTime = remember {
+        LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+    }
+
+    LaunchedEffect(Unit) {
+        mainViewModel.loadCardRepetition(stringToMillis(currentDateTime))
+    }
+
     val folders = mainViewModel.foldersState.collectAsState().value
+    val cardsRepetition = mainViewModel.cardsForRepetitionState.collectAsState().value
 
     val dialogState = remember { DialogState() }
 
     val validation = dialogState.dialogStateData.isValid
 
     val dailyProgressTrackerState =
-        remember { DailyProgressTrackerState(totalCards = 500, answeredCards = 30) }
+        remember { DailyProgressTrackerState() }
+
     val dialogVisibleAnimation = animateDialogCreateItem(
         targetAlpha = dialogState.animateExpandedAlpha,
         animationDuration = dialogState.animationDuration * 3
@@ -98,6 +113,7 @@ fun MainScreen(
                     paddingValues,
                     dailyProgressTrackerState,
                     folders,
+                    cardsRepetition,
                     MAX_DISPLAY_ITEMS,
                     navController
                 )
@@ -118,6 +134,7 @@ private fun Content(
     paddingValues: PaddingValues,
     dailyProgressTrackerState: DailyProgressTrackerState,
     folders: UiState<List<Folder>>,
+    cardsRepetition: UiState<List<Card>>,
     MAX_DISPLAY_ITEMS: Int,
     navController: NavController
 ) {
@@ -128,10 +145,13 @@ private fun Content(
             .padding(horizontal = dimenDpResource(R.dimen.padding_medium))
     ) {
         DailyProgressTracker(
+            cardsRepetition,
             dptIcon = painterResource(R.drawable.dpt_icon),
             dailyProgressTrackerState = dailyProgressTrackerState
         )
         Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_large)))
+        RepeatCardItem(navController = navController, cardsRepetition = cardsRepetition)
+        Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_small)))
         when (folders) {
             is UiState.Success -> {
                 folders.data.take(MAX_DISPLAY_ITEMS).forEach { folder ->
@@ -170,36 +190,47 @@ private fun Content(
 }
 
 @Composable
-private fun ButtonAllFolders(navController: NavController) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentSize(Alignment.Center)
-    ) {
-
-        Box(modifier = Modifier
-            .background(
-                color = MaterialTheme.colorScheme.outlineVariant,
-                shape = MaterialTheme.shapes.medium
-            )
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null
-            ) {
-                navController.navigate(NavigationRoute.FoldersScreen.route)
-            }) {
-            Text(
-                text = stringResource(R.string.title_text_all_folders),
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    color = MaterialTheme.colorScheme.onPrimary
-                ),
-                modifier = Modifier.padding(
-                    vertical = dimenDpResource(R.dimen.padding_medium),
-                    horizontal = dimenDpResource(R.dimen.padding_extra_large)
+private fun RepeatCardItem(
+    navController: NavController,
+    cardsRepetition: UiState<List<Card>>
+) {
+    when (cardsRepetition) {
+        is UiState.Success -> {
+            if (cardsRepetition.data.isNotEmpty()) {
+                DisplayItem(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .border(
+                            dimenDpResource(R.dimen.border_width_dot_two_five),
+                            MaterialTheme.colorScheme.outline,
+                            MaterialTheme.shapes.small
+                        )
+                        .clip(shape = MaterialTheme.shapes.small)
+                        .height(dimenDpResource(R.dimen.display_card_item_size))
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null
+                        ) {
+                            navController.navigate(NavigationRoute.RepeatCardsScreen.route)
+                        },
+                    showCount = true,
+                    displayItemData = DisplayItemData(
+                        itemIcon = R.drawable.folder_icon,
+                        numberOfCards = cardsRepetition.data.size,
+                        itemName = stringResource(R.string.text_repeat_cards)
+                    ),
+                    displayItemStyle = DisplayItemStyle(
+                        backgroundColor = MaterialTheme.colorScheme.tertiary.copy(
+                            dimenFloatResource(R.dimen.float_zero_dot_five_significance)
+                        ),
+                        iconColor = MaterialTheme.colorScheme.onTertiary,
+                        textStyle = MaterialTheme.typography.bodyMedium,
+                    )
                 )
-            )
+            }
         }
     }
+
 }
 
 @Composable
@@ -241,6 +272,39 @@ private fun FolderItem(
             textStyle = MaterialTheme.typography.bodyMedium,
         )
     )
+}
+
+@Composable
+private fun ButtonAllFolders(navController: NavController) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentSize(Alignment.Center)
+    ) {
+
+        Box(modifier = Modifier
+            .background(
+                color = MaterialTheme.colorScheme.outlineVariant,
+                shape = MaterialTheme.shapes.medium
+            )
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) {
+                navController.navigate(NavigationRoute.FoldersScreen.route)
+            }) {
+            Text(
+                text = stringResource(R.string.title_text_all_folders),
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    color = MaterialTheme.colorScheme.onPrimary
+                ),
+                modifier = Modifier.padding(
+                    vertical = dimenDpResource(R.dimen.padding_medium),
+                    horizontal = dimenDpResource(R.dimen.padding_extra_large)
+                )
+            )
+        }
+    }
 }
 
 @Composable

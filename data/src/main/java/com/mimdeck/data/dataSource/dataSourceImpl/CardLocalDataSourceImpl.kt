@@ -1,11 +1,13 @@
 package com.mimdeck.data.dataSource.dataSourceImpl
 
 import android.database.SQLException
+import android.util.Log
 import com.mimdeck.data.dataSource.CardDataSource
 import com.mimdeck.data.database.dao.CardDao
 import com.mimdeck.data.database.entities.CardEntity
 import com.mimdeck.data.database.entities.FolderEntity
 import com.mimdeck.data.exception.DatabaseException
+import com.mindeck.domain.models.ReviewType
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
@@ -114,11 +116,11 @@ class CardLocalDataSourceImpl @Inject constructor(private val cardDao: CardDao) 
         }
     }
 
-    override suspend fun moveCardsBetweenDeck(cardIds: List<Int>, deckId: Int, targetDeckId: Int) {
+    override suspend fun moveCardsBetweenDeck(cardIds: List<Int>, sourceDeckId: Int, targetDeckId: Int) {
         try {
             cardDao.moveCardsBetweenDeck(
                 cardIds = cardIds,
-                sourceDeckId = deckId,
+                sourceDeckId = sourceDeckId,
                 targetDeckId = targetDeckId
             )
         } catch (e: SQLException) {
@@ -128,6 +130,49 @@ class CardLocalDataSourceImpl @Inject constructor(private val cardDao: CardDao) 
             )
         } catch (e: Exception) {
             throw DatabaseException("Error moving cards between decks: ${e.localizedMessage}", e)
+        }
+    }
+
+    override fun getCardsRepetition(currentTime: Long): Flow<List<CardEntity>> {
+        try {
+            val card = cardDao.getCardsRepetition(currentTime = currentTime)
+            Log.d("CardLocalDataSourceImpl", "Cards for repetition: $card")
+            return card
+
+        } catch (e: SQLException) {
+            throw DatabaseException("Failed to get repetition cards: ${e.localizedMessage}", e)
+        } catch (e: Exception) {
+            throw DatabaseException("Error getting repetition cards: ${e.localizedMessage}", e)
+        }
+    }
+
+    override suspend fun updateReview(
+        cardId: Int,
+        firstReviewDate: Long,
+        lastReviewDate: Long,
+        newReviewDate: Long,
+        newRepetitionCount: Int,
+        lastReviewType: ReviewType
+    ) {
+        try {
+            cardDao.updateReview(
+                cardId,
+                lastReviewDate,
+                firstReviewDate,
+                newReviewDate,
+                newRepetitionCount,
+                lastReviewType
+            )
+        } catch (e: SQLException) {
+            throw DatabaseException(
+                "Failed to update data for repeating the card: ${e.localizedMessage}",
+                e
+            )
+        } catch (e: Exception) {
+            throw DatabaseException(
+                "Error updating review data for the card: ${e.localizedMessage}",
+                e
+            )
         }
     }
 }

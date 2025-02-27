@@ -9,7 +9,10 @@ import androidx.room.Index
 
 @Entity(
     tableName = "deck",
-    indices = [Index(value = ["deck_name"], unique = true), Index(value = ["deck_id"])],
+    indices = [Index(
+        value = ["deck_name"],
+        unique = true
+    ), Index(value = ["deck_id"]), Index(value = ["folder_id"])],
     foreignKeys = [ForeignKey(
         entity = FolderEntity::class,
         parentColumns = ["folder_id"],

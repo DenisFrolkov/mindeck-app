@@ -78,8 +78,8 @@
     <dimen name="text_input_border_thickness">25dp</dimen>
 
     //Dimens for RepeatOptionsButton
-    <dimen name="repeat_options_button_weight">76dp</dimen>
-    <dimen name="repeat_options_button_vertical_padding">2dp</dimen>
+    <dimen name="repeat_options_button_weight">78dp</dimen>
+    <dimen name="repeat_options_button_vertical_padding">6dp</dimen>
     <dimen name="repeat_options_button_spacer_height">2dp</dimen>
 
     //CircularProgressIndicator Width

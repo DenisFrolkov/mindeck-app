@@ -9,8 +9,10 @@ import com.mindeck.domain.usecases.cardUseCase.DeleteCardUseCase
 import com.mindeck.domain.usecases.cardUseCase.DeleteCardsFromDeckUseCase
 import com.mindeck.domain.usecases.cardUseCase.GetAllCardsByDeckIdUseCase
 import com.mindeck.domain.usecases.cardUseCase.GetCardByIdUseCase
+import com.mindeck.domain.usecases.cardUseCase.GetCardsRepetitionUseCase
 import com.mindeck.domain.usecases.cardUseCase.GetFolderByCardIdUseCase
 import com.mindeck.domain.usecases.cardUseCase.MoveCardsBetweenDeckUseCase
+import com.mindeck.domain.usecases.cardUseCase.UpdateCardReviewUseCase
 import com.mindeck.domain.usecases.cardUseCase.UpdateCardUseCase
 import com.mindeck.domain.usecases.deckUseCases.AddDecksToFolderUseCase
 import com.mindeck.domain.usecases.deckUseCases.CreateDeckUseCase
@@ -145,5 +147,15 @@ class DomainModule() {
     @Provides
     fun providesMoveCardsBetweenDeckUseCase(repository: CardRepository): MoveCardsBetweenDeckUseCase {
         return MoveCardsBetweenDeckUseCase(repository)
+    }
+
+    @Provides
+    fun providesGetCardsRepetitionUseCase(repository: CardRepository): GetCardsRepetitionUseCase {
+        return GetCardsRepetitionUseCase(repository)
+    }
+
+    @Provides
+    fun providesUpdateCardReviewUseCase(repository: CardRepository): UpdateCardReviewUseCase {
+        return UpdateCardReviewUseCase(repository)
     }
 }

@@ -1,12 +1,8 @@
 package com.mindeck.presentation.viewmodel
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mindeck.domain.models.Card
-import com.mindeck.domain.models.Deck
 import com.mindeck.domain.models.Folder
 import com.mindeck.domain.usecases.cardUseCase.DeleteCardUseCase
 import com.mindeck.domain.usecases.cardUseCase.GetCardByIdUseCase
@@ -59,9 +55,8 @@ class CardViewModel @Inject constructor(
     fun deleteDeck(card: Card) {
         viewModelScope.launch {
             _deleteCardState.value = try {
-//                deleteCardUseCase(card = card)
-//                UiState.Success(Unit)
-                UiState.Error(Throwable())
+                deleteCardUseCase(card = card)
+                UiState.Success(Unit)
             } catch (e: Exception) {
                 UiState.Error(e)
             }

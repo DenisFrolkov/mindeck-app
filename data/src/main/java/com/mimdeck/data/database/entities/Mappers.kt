@@ -3,6 +3,7 @@ package com.mimdeck.data.database.entities
 import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.Deck
 import com.mindeck.domain.models.Folder
+import com.mindeck.domain.models.ReviewType
 
 object Mappers {
     fun Folder.toData(): FolderEntity {
@@ -43,7 +44,12 @@ object Mappers {
             this.cardAnswer,
             this.cardType,
             this.cardTag,
-            this.deckId
+            this.deckId,
+            this.firstReviewDate,
+            this.lastReviewDate,
+            this.nextReviewDate,
+            this.repetitionCount,
+            this.lastReviewType?.name
         )
     }
 
@@ -55,7 +61,22 @@ object Mappers {
             this.cardAnswer,
             this.cardType,
             this.cardTag,
-            this.deckId
+            this.deckId,
+            this.firstReviewDate,
+            this.lastReviewDate,
+            this.nextReviewDate,
+            this.repetitionCount,
+            this.lastReviewType?.toData()
         )
+    }
+
+    fun String.toData(): ReviewType {
+        return when (this) {
+            "Normal" -> ReviewType.REPEAT
+            "Easy" -> ReviewType.EASY
+            "Medium" -> ReviewType.MEDIUM
+            "Hard" -> ReviewType.HARD
+            else -> ReviewType.REPEAT
+        }
     }
 }

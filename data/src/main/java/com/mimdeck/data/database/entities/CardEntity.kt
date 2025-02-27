@@ -8,7 +8,11 @@ import androidx.room.ForeignKey.Companion.CASCADE
 import androidx.room.Index
 
 @Entity(
-    tableName = "card", indices = [Index(value = ["card_name", "card_question"], unique = true)],
+    tableName = "card",
+    indices = [Index(
+        value = ["card_name", "card_question"],
+        unique = true
+    ), Index(value = ["deck_id"])],
     foreignKeys = [ForeignKey(
         entity = DeckEntity::class,
         parentColumns = ["deck_id"],
@@ -26,4 +30,9 @@ data class CardEntity(
     @ColumnInfo(name = "card_type") val cardType: String,
     @ColumnInfo(name = "card_tag") val cardTag: String,
     @ColumnInfo(name = "deck_id") val deckId: Int,
+    @ColumnInfo(name = "first_review_date") val firstReviewDate: Long?,
+    @ColumnInfo(name = "last_review_date") val lastReviewDate: Long?,
+    @ColumnInfo(name = "next_review_date") val nextReviewDate: Long?,
+    @ColumnInfo(name = "repetition_count", defaultValue = "0") val repetitionCount: Int = 0,
+    @ColumnInfo(name = "last_review_type") val lastReviewType: String? = null
 )

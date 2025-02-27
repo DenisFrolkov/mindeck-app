@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.Deck
 import com.mindeck.domain.models.Folder
+import com.mindeck.domain.models.ReviewType
 import com.mindeck.domain.usecases.cardUseCase.CreateCardUseCase
 import com.mindeck.domain.usecases.deckUseCases.GetAllDecksByFolderIdUseCase
 import com.mindeck.domain.usecases.folderUseCases.GetAllFoldersUseCase
