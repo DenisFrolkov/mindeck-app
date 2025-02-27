@@ -4,6 +4,8 @@
     <string name="text_folder_dropdown_selector_simple">Простая</string>
     <string name="text_folder_dropdown_selector_simple_with_answer_input">Простая(с вводом ответа)</string>
 
+    <string name="text_repeat_cards">Пора повторить некоторые карточки!</string>
+
     <string name="text_deck_dropdown_selector">Колода:</string>
     <string name="text_priority_dropdown_selector">Приоритет:</string>
     <string name="text_type_dropdown_selector">Тип:</string>
@@ -39,7 +41,7 @@
     <string name="text_no_folder">Нет папки</string>
 
     <string name="text_error_loading">Ошибка загрузки</string>
-    <string name="text_loading">Загрузка...</string>
+    <string name="text_loading">Загрузка…</string>
 
     <string name="dialog_select_folder">Выберите папку</string>
     <string name="dialog_select_deck">Выберите колоду</string>
@@ -73,7 +75,7 @@
     <string name="toast_message_impossible_delete_deck">Невозможно выполнить удаление колоды.</string>
 
     //Repeat Option Text
-    <string name="repeat_option_title_repeat_text">Повторить</string>
+    <string name="repeat_option_title_repeat_text">Снова</string>
     <string name="repeat_option_title_easy_text">Легко</string>
     <string name="repeat_option_title_medium_text">Средне</string>
     <string name="repeat_option_title_hard_text">Тяжело</string>

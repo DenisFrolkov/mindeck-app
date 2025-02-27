@@ -16,4 +16,5 @@ sealed class NavigationRoute(val route: String) {
     object CardStudyScreen : NavigationRoute("card_study_screen/{cardId}") {
         fun createRoute(cardId: Int): String = "card_study_screen/$cardId"
     }
+    object RepeatCardsScreen : NavigationRoute("card_study_screen")
 }

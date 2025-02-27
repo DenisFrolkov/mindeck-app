@@ -148,20 +148,31 @@ class CardLocalDataSourceImpl @Inject constructor(private val cardDao: CardDao) 
 
     override suspend fun updateReview(
         cardId: Int,
-        currentTime: Long,
+        firstReviewDate: Long,
+        lastReviewDate: Long,
         newReviewDate: Long,
         newRepetitionCount: Int,
-        reviewType: ReviewType
+        lastReviewType: ReviewType
     ) {
         try {
-            cardDao.updateReview(cardId, currentTime, newReviewDate, newRepetitionCount, reviewType)
+            cardDao.updateReview(
+                cardId,
+                lastReviewDate,
+                firstReviewDate,
+                newReviewDate,
+                newRepetitionCount,
+                lastReviewType
+            )
         } catch (e: SQLException) {
             throw DatabaseException(
                 "Failed to update data for repeating the card: ${e.localizedMessage}",
                 e
             )
         } catch (e: Exception) {
-            throw DatabaseException("Error updating review data for the card: ${e.localizedMessage}", e)
+            throw DatabaseException(
+                "Error updating review data for the card: ${e.localizedMessage}",
+                e
+            )
         }
     }
 }

@@ -23,8 +23,8 @@ val outline_variant_blue = Color(0xFF3D8FF7)
 
 val scrim_black = Color(0xFF000000)
 
-val tertiary_lime_green = Color(0xFF76DB64)
-val on_tertiary_lime_green = Color(0xFFDFFFD8)
+val tertiary_lime_green = Color(0xFFB3FCA5)
+val on_tertiary_lime_green = Color(0xFF2EAA50)
 
 val repeat_button_light_mint = Color(0xFFDFFFD8)
 val repeat_button_light_yellow = Color(0xFFFFF8C6)

@@ -1,51 +1,57 @@
 package com.mindeck.domain.usecases.cardUseCase
 
-import com.mindeck.domain.models.Card
-import com.mindeck.domain.models.ReviewType.*
+import com.mindeck.domain.models.ReviewType
+import com.mindeck.domain.models.ReviewType.EASY
+import com.mindeck.domain.models.ReviewType.HARD
+import com.mindeck.domain.models.ReviewType.MEDIUM
+import com.mindeck.domain.models.ReviewType.REPEAT
 import com.mindeck.domain.repository.CardRepository
-import java.time.Instant
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.concurrent.TimeUnit
 
 class UpdateCardReviewUseCase(private val cardRepository: CardRepository) {
-    suspend operator fun invoke(card: Card) {
+    suspend operator fun invoke(
+        cardId: Int,
+        firstReviewDate: Long?,
+        newRepetitionCount: Int,
+        lastReviewType: ReviewType
+    ) {
         val zoneId = ZoneId.systemDefault()
-        val localDateTime = ZonedDateTime.ofInstant(Instant.now(), zoneId)
-        val currentTimeMillis = localDateTime.toInstant().toEpochMilli()
+        val currentTimeMillis = ZonedDateTime.now(zoneId).toInstant().toEpochMilli()
 
-        val firstReviewDate = card.firstReviewDate ?: currentTimeMillis
+        val firstReviewDateUpdate = firstReviewDate ?: currentTimeMillis
 
-        val nextReviewDate = when (card.repetitionCount) {
-            0 -> currentTimeMillis + TimeUnit.MINUTES.toMillis(1)
-            1 -> {
-                when (card.lastReviewType!!) {
-                    REPEAT -> currentTimeMillis + TimeUnit.MINUTES.toMillis(10)
-                    EASY -> currentTimeMillis + TimeUnit.DAYS.toMillis(5)
-                    MEDIUM -> currentTimeMillis + TimeUnit.DAYS.toMillis(3)
-                    HARD -> currentTimeMillis + TimeUnit.DAYS.toMillis(1)
+        val nextReviewDate = when {
+            newRepetitionCount <= 1 -> {
+                currentTimeMillis + when (lastReviewType) {
+                    REPEAT -> TimeUnit.MINUTES.toMillis(10)
+                    EASY -> TimeUnit.DAYS.toMillis(5)
+                    MEDIUM -> TimeUnit.DAYS.toMillis(3)
+                    HARD -> TimeUnit.DAYS.toMillis(1)
+                    else -> TimeUnit.DAYS.toMillis(1)
                 }
             }
             else -> {
-                val interval = currentTimeMillis - card.firstReviewDate!!
-                val multiplier = when (card.lastReviewType!!) {
+                val interval = currentTimeMillis - firstReviewDateUpdate
+                val multiplier = when (lastReviewType) {
                     EASY -> 2.5
-                    MEDIUM -> 1.8
-                    HARD -> 1.3
-                    REPEAT -> 0.5
+                    MEDIUM -> 2.0
+                    HARD -> 1.5
+                    REPEAT -> 1.1
+                    else -> 1.0
                 }
-                card.firstReviewDate + (interval * multiplier).toLong()
+                currentTimeMillis + (interval * multiplier).toLong()
             }
         }
 
-        cardRepository.updateCard(
-            card.copy(
-                firstReviewDate = firstReviewDate,
-                lastReviewDate = currentTimeMillis,
-                nextReviewDate = nextReviewDate,
-                repetitionCount = card.repetitionCount + 1,
-                lastReviewType = card.lastReviewType
-            )
+        cardRepository.updateReview(
+            cardId,
+            firstReviewDateUpdate,
+            currentTimeMillis,
+            nextReviewDate,
+            newRepetitionCount + 1,
+            lastReviewType
         )
     }
 }

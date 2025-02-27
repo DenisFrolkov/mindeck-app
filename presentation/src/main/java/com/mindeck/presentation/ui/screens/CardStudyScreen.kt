@@ -26,11 +26,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.mindeck.domain.models.Card
@@ -43,32 +47,39 @@ import com.mindeck.presentation.ui.components.common.QuestionAndAnswerElement
 import com.mindeck.presentation.ui.components.repeat_options.RepeatOptionData
 import com.mindeck.presentation.ui.components.repeat_options.RepeatOptionsButton
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
+import com.mindeck.presentation.ui.components.utils.stringToMillis
+import com.mindeck.presentation.ui.navigation.NavigationRoute
 import com.mindeck.presentation.ui.theme.outline_variant_blue
 import com.mindeck.presentation.ui.theme.repeat_button_light_blue
 import com.mindeck.presentation.ui.theme.repeat_button_light_mint
 import com.mindeck.presentation.ui.theme.repeat_button_light_red
 import com.mindeck.presentation.ui.theme.repeat_button_light_yellow
 import com.mindeck.presentation.viewmodel.CardStudyViewModel
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun CardStudyScreen(
     navController: NavController,
-    cardId: Int
+    cardId: Int? = null
 ) {
     val cardStudyViewModel: CardStudyViewModel =
         hiltViewModel(navController.currentBackStackEntry!!)
 
-    val card by cardStudyViewModel.cardByCardIdUIState.collectAsState()
-    val updateCardReview by cardStudyViewModel.updateCardReviewState.collectAsState()
-
     LaunchedEffect(cardId) {
-        cardStudyViewModel.loadCardById(cardId)
+        if (cardId != null) {
+            cardStudyViewModel.loadCardById(cardId)
+        } else {
+            val currentTime = System.currentTimeMillis()
+            cardStudyViewModel.loadCardRepetition(currentTime)
+        }
     }
 
-    val scrollState = rememberScrollState()
+    val card = cardStudyViewModel.cardByCardIdUIState.collectAsState().value
+    val allCardsForReview = cardStudyViewModel.cardsForRepetitionState.collectAsState().value
+    var currentIndex by remember { mutableStateOf(0) }
 
-    var repeatOptionsButton =
-        repeatOptionDataList(cardStudyViewModel = cardStudyViewModel, card)
+    val scrollState = rememberScrollState()
 
     Surface(
         modifier = Modifier
@@ -76,18 +87,63 @@ fun CardStudyScreen(
             .background(MaterialTheme.colorScheme.background)
     ) {
         Scaffold(
-            topBar = {
-                CardStudyTopBar(
-                    navController = navController
-                )
-            },
+            topBar = { CardStudyTopBar(navController = navController) },
             content = { padding ->
-                Content(
-                    padding = padding,
-                    card = card,
-                    scrollState = scrollState,
-                    repeatOptionsButton = repeatOptionsButton
-                )
+                if (cardId == null) {
+                    when (allCardsForReview) {
+                        is UiState.Success -> {
+                            val cards = allCardsForReview.data
+                            val currentCard = cards.getOrNull(currentIndex)
+
+                            if (cards.isEmpty() || currentCard == null) {
+                                LaunchedEffect(Unit) {
+                                    navController.navigate(NavigationRoute.MainScreen.route) {
+                                        popUpTo(NavigationRoute.MainScreen.route) {
+                                            inclusive = true
+                                        }
+                                    }
+                                }
+                            } else {
+                                Content(
+                                    padding = padding,
+                                    card = currentCard,
+                                    scrollState = scrollState,
+                                    repeatOptionsButton = repeatOptionDataList(
+                                        cardStudyViewModel = cardStudyViewModel,
+                                        card = currentCard
+                                    ) {
+                                        if (currentIndex < cards.size - 1) {
+                                            currentIndex++
+                                        } else {
+//                                            navController.navigate(NavigationRoute.MainScreen.route) {
+//                                                popUpTo(NavigationRoute.MainScreen.route) { inclusive = true }
+//                                            }
+                                            navController.popBackStack()
+                                        }
+                                    }
+                                )
+                            }
+                        }
+                    }
+                } else {
+                    when (card) {
+                        is UiState.Success -> {
+                            Content(
+                                padding = padding,
+                                card = card.data,
+                                scrollState = scrollState,
+                                repeatOptionsButton = repeatOptionDataList(
+                                    cardStudyViewModel = cardStudyViewModel,
+                                    card = card.data,
+                                    clickButton = {
+//                                        navController.navigate(NavigationRoute.CardScreen.createRoute(card.data.cardId))
+                                        navController.popBackStack()
+                                    }
+                                )
+                            )
+                        }
+                    }
+                }
             }
         )
     }
@@ -96,7 +152,7 @@ fun CardStudyScreen(
 @Composable
 private fun Content(
     padding: PaddingValues,
-    card: UiState<Card>,
+    card: Card,
     scrollState: ScrollState,
     repeatOptionsButton: List<RepeatOptionData>
 ) {
@@ -108,6 +164,34 @@ private fun Content(
             .verticalScroll(state = scrollState)
     ) {
         CardInfo(padding = padding, card = card)
+//        when (card) {
+//            is UiState.Success -> {
+//                card.data.let { card.data.forEach { CardInfo(padding = padding, card = it) } }
+//            }
+//
+//            is UiState.Loading -> {
+//                Box(
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .padding(top = dimenDpResource(R.dimen.padding_large))
+//                        .wrapContentSize(Alignment.Center)
+//                ) {
+//                    CircularProgressIndicator(
+//                        color = MaterialTheme.colorScheme.primary,
+//                        strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_one)
+//                    )
+//                }
+//            }
+//
+//            is UiState.Error -> {
+//                Text(
+//                    stringResource(R.string.error_get_card_by_card_id),
+//                    modifier = Modifier.fillMaxWidth(),
+//                    textAlign = TextAlign.Center,
+//                    style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.error)
+//                )
+//            }
+//        }
     }
     RepeatButtons(
         repeatOptionsButton = repeatOptionsButton,
@@ -120,7 +204,7 @@ private fun RepeatButtons(
     repeatOptionsButton: List<RepeatOptionData>
 ) {
     Row(
-        horizontalArrangement = Arrangement.SpaceBetween,
+        horizontalArrangement = Arrangement.SpaceAround,
         verticalAlignment = Alignment.Bottom,
         modifier = Modifier
             .fillMaxSize()
@@ -133,13 +217,9 @@ private fun RepeatButtons(
                 buttonColor = it.color,
                 textDifficultyOfRepetition = it.title,
                 onClick = it.action,
-                titleTextStyle = MaterialTheme.typography.labelMedium.copy(
+                titleTextStyle = MaterialTheme.typography.bodyMedium.copy(
                     textAlign = TextAlign.Center
                 ),
-//                repeatTimeText = it.time,
-//                subtitleTextStyle = MaterialTheme.typography.labelSmall.copy(
-//                    textAlign = TextAlign.Center
-//                ),
             )
         }
     }
@@ -148,7 +228,7 @@ private fun RepeatButtons(
 @Composable
 private fun CardInfo(
     padding: PaddingValues,
-    card: UiState<Card>
+    card: Card
 ) {
     Column(
         modifier = Modifier.padding(padding)
@@ -158,51 +238,24 @@ private fun CardInfo(
             modifier = Modifier
                 .fillMaxSize()
         ) {
-            when (card) {
-                is UiState.Success -> {
-                    QuestionAndAnswerElement(
-                        question = card.data.cardQuestion,
-                        answer = card.data.cardAnswer,
-                        questionStyle = MaterialTheme.typography.bodyMedium.copy(
-                            textAlign = TextAlign.Center
-                        ),
-                        answerStyle = MaterialTheme.typography.bodyMedium.copy(
-                            textAlign = TextAlign.Center
-                        ),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(MaterialTheme.colorScheme.onPrimary)
-                            .border(
-                                dimenDpResource(R.dimen.border_width_dot_five),
-                                MaterialTheme.colorScheme.outline,
-                                MaterialTheme.shapes.extraSmall
-                            )
+            QuestionAndAnswerElement(
+                question = card.cardQuestion,
+                answer = card.cardAnswer,
+                questionStyle = MaterialTheme.typography.bodyMedium.copy(
+                    textAlign = TextAlign.Center
+                ),
+                answerStyle = MaterialTheme.typography.bodyMedium.copy(
+                    textAlign = TextAlign.Center
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.onPrimary)
+                    .border(
+                        dimenDpResource(R.dimen.border_width_dot_five),
+                        MaterialTheme.colorScheme.outline,
+                        MaterialTheme.shapes.extraSmall
                     )
-                }
-
-                is UiState.Loading -> {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = dimenDpResource(R.dimen.padding_large))
-                            .wrapContentSize(Alignment.Center)
-                    ) {
-                        CircularProgressIndicator(
-                            color = MaterialTheme.colorScheme.primary,
-                            strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_one)
-                        )
-                    }
-                }
-
-                is UiState.Error -> {
-                    Text(
-                        stringResource(R.string.error_get_card_by_card_id),
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.error)
-                    )
-                }
-            }
+            )
         }
     }
 }
@@ -211,7 +264,6 @@ private fun CardInfo(
 private fun CardStudyTopBar(navController: NavController) {
     Box(
         modifier = Modifier
-            .padding(horizontal = dimenDpResource(R.dimen.padding_medium))
             .padding(top = dimenDpResource(R.dimen.padding_medium))
             .statusBarsPadding()
     ) {
@@ -236,71 +288,76 @@ private fun CardStudyTopBar(navController: NavController) {
 @Composable
 private fun repeatOptionDataList(
     cardStudyViewModel: CardStudyViewModel,
-    card: UiState<Card>,
+    card: Card,
+    clickButton: () -> Unit
 ): List<RepeatOptionData> {
-    val cardData = card.getOrNull()
-
-    return if (cardData != null && cardData.repetitionCount != 0) {
-        listOf(RepeatOptionData(
-            title = stringResource(R.string.repeat_option_title_repeat_text),
-//            time = stringResource(R.string.repeat_option_time_one_minute_text),
-            color = repeat_button_light_blue,
-            action = {
-                if (cardData != null) {
+    return if (card.repetitionCount != 0) {
+        listOf(
+            RepeatOptionData(
+                title = stringResource(R.string.repeat_option_title_repeat_text),
+                color = repeat_button_light_blue,
+                action = {
                     cardStudyViewModel.updateReview(
-                        cardData.copy(lastReviewType = ReviewType.REPEAT)
+                        card.cardId,
+                        card.firstReviewDate,
+                        card.repetitionCount,
+                        ReviewType.REPEAT
                     )
+                    clickButton()
                 }
-            }
-        ),
+            ),
             RepeatOptionData(
                 title = stringResource(R.string.repeat_option_title_easy_text),
-//            time = stringResource(R.string.repeat_option_time_five_day_text),
                 color = repeat_button_light_mint,
                 action = {
-                    if (cardData != null) {
-                        cardStudyViewModel.updateReview(
-                            cardData.copy(lastReviewType = ReviewType.EASY)
-                        )
-                    }
+                    cardStudyViewModel.updateReview(
+                        card.cardId,
+                        card.firstReviewDate,
+                        card.repetitionCount,
+                        ReviewType.EASY
+                    )
+                    clickButton()
                 }
             ),
             RepeatOptionData(
                 title = stringResource(R.string.repeat_option_title_medium_text),
-//            time = stringResource(R.string.repeat_option_time_two_day_text),
                 color = repeat_button_light_yellow,
                 action = {
-                    if (cardData != null) {
-                        cardStudyViewModel.updateReview(
-                            cardData.copy(lastReviewType = ReviewType.MEDIUM)
-                        )
-                    }
+                    cardStudyViewModel.updateReview(
+                        card.cardId,
+                        card.firstReviewDate,
+                        card.repetitionCount,
+                        ReviewType.MEDIUM
+                    )
+                    clickButton()
                 }
             ),
             RepeatOptionData(
                 title = stringResource(R.string.repeat_option_title_hard_text),
-//            time = stringResource(R.string.repeat_option_time_one_day_text),
                 color = repeat_button_light_red,
                 action = {
-                    if (cardData != null) {
-                        cardStudyViewModel.updateReview(
-                            cardData.copy(lastReviewType = ReviewType.HARD)
-                        )
-                    }
+                    cardStudyViewModel.updateReview(
+                        card.cardId,
+                        card.firstReviewDate,
+                        card.repetitionCount,
+                        ReviewType.HARD
+                    )
+                    clickButton()
                 }
             ))
     } else {
         listOf(
             RepeatOptionData(
                 title = stringResource(R.string.repeat_option_title_repeat_text),
-//            time = stringResource(R.string.repeat_option_time_one_minute_text),
                 color = repeat_button_light_blue,
                 action = {
-                    if (cardData != null) {
-                        cardStudyViewModel.updateReview(
-                            cardData.copy(lastReviewType = ReviewType.REPEAT)
-                        )
-                    }
+                    cardStudyViewModel.updateReview(
+                        card.cardId,
+                        card.firstReviewDate,
+                        card.repetitionCount,
+                        ReviewType.REPEAT
+                    )
+                    clickButton()
                 }
             )
         )

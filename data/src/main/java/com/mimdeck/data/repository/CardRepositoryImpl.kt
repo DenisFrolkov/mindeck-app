@@ -109,13 +109,14 @@ class CardRepositoryImpl @Inject constructor(private val cardDataSource: CardDat
 
     override suspend fun updateReview(
         cardId: Int,
-        currentTime: Long,
+        firstReviewDate: Long,
+        lastReviewDate: Long,
         newReviewDate: Long,
         newRepetitionCount: Int,
-        reviewType: ReviewType
+        lastReviewType: ReviewType
     ) {
         try {
-            cardDataSource.updateReview(cardId, currentTime, newReviewDate, newRepetitionCount, reviewType)
+            cardDataSource.updateReview(cardId, firstReviewDate, lastReviewDate, newReviewDate, newRepetitionCount, lastReviewType)
         } catch (e: DatabaseException) {
             throw DomainException("Failed get cards for repetition", e)
         }

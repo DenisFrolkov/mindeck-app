@@ -103,9 +103,12 @@ fun AppNavigation() {
             val cardId = backStackEntry.arguments?.getInt("cardId")
             if (cardId != null) {
                 CardStudyScreen(navController = navController, cardId = cardId)
-            } else {
-                navController.popBackStack()
             }
+        }
+        composable(
+            NavigationRoute.RepeatCardsScreen.route,
+        ) {
+            CardStudyScreen(navController = navController)
         }
     }
 }
