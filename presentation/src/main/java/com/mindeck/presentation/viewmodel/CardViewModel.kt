@@ -59,9 +59,8 @@ class CardViewModel @Inject constructor(
     fun deleteDeck(card: Card) {
         viewModelScope.launch {
             _deleteCardState.value = try {
-//                deleteCardUseCase(card = card)
-//                UiState.Success(Unit)
-                UiState.Error(Throwable())
+                deleteCardUseCase(card = card)
+                UiState.Success(Unit)
             } catch (e: Exception) {
                 UiState.Error(e)
             }

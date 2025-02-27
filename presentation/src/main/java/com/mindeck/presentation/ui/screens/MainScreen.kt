@@ -38,6 +38,7 @@ import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.Folder
 import com.mindeck.presentation.R
 import com.mindeck.presentation.state.UiState
+import com.mindeck.presentation.state.UiState.Loading.getOrNull
 import com.mindeck.presentation.ui.components.daily_progress_tracker.DailyProgressTracker
 import com.mindeck.presentation.ui.components.daily_progress_tracker.DailyProgressTrackerState
 import com.mindeck.presentation.ui.components.dataclasses.DisplayItemData
@@ -150,6 +151,8 @@ private fun Content(
             dailyProgressTrackerState = dailyProgressTrackerState
         )
         Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_large)))
+        RepeatCardItem(navController = navController, cardsRepetition = cardsRepetition)
+        Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_small)))
         when (folders) {
             is UiState.Success -> {
                 folders.data.take(MAX_DISPLAY_ITEMS).forEach { folder ->
@@ -188,36 +191,47 @@ private fun Content(
 }
 
 @Composable
-private fun ButtonAllFolders(navController: NavController) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentSize(Alignment.Center)
-    ) {
-
-        Box(modifier = Modifier
-            .background(
-                color = MaterialTheme.colorScheme.outlineVariant,
-                shape = MaterialTheme.shapes.medium
-            )
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null
-            ) {
-                navController.navigate(NavigationRoute.FoldersScreen.route)
-            }) {
-            Text(
-                text = stringResource(R.string.title_text_all_folders),
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    color = MaterialTheme.colorScheme.onPrimary
-                ),
-                modifier = Modifier.padding(
-                    vertical = dimenDpResource(R.dimen.padding_medium),
-                    horizontal = dimenDpResource(R.dimen.padding_extra_large)
+private fun RepeatCardItem(
+    navController: NavController,
+    cardsRepetition: UiState<List<Card>>
+) {
+    when (cardsRepetition) {
+        is UiState.Success -> {
+            if (cardsRepetition.data.isNotEmpty()) {
+                DisplayItem(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .border(
+                            dimenDpResource(R.dimen.border_width_dot_two_five),
+                            MaterialTheme.colorScheme.outline,
+                            MaterialTheme.shapes.small
+                        )
+                        .clip(shape = MaterialTheme.shapes.small)
+                        .height(dimenDpResource(R.dimen.display_card_item_size))
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null
+                        ) {
+                            navController.navigate(NavigationRoute.RepeatCardsScreen.route)
+                        },
+                    showCount = true,
+                    displayItemData = DisplayItemData(
+                        itemIcon = R.drawable.folder_icon,
+                        numberOfCards = cardsRepetition.data.size,
+                        itemName = stringResource(R.string.text_repeat_cards)
+                    ),
+                    displayItemStyle = DisplayItemStyle(
+                        backgroundColor = MaterialTheme.colorScheme.tertiary.copy(
+                            dimenFloatResource(R.dimen.float_zero_dot_five_significance)
+                        ),
+                        iconColor = MaterialTheme.colorScheme.onTertiary,
+                        textStyle = MaterialTheme.typography.bodyMedium,
+                    )
                 )
-            )
+            }
         }
     }
+
 }
 
 @Composable
@@ -259,6 +273,39 @@ private fun FolderItem(
             textStyle = MaterialTheme.typography.bodyMedium,
         )
     )
+}
+
+@Composable
+private fun ButtonAllFolders(navController: NavController) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentSize(Alignment.Center)
+    ) {
+
+        Box(modifier = Modifier
+            .background(
+                color = MaterialTheme.colorScheme.outlineVariant,
+                shape = MaterialTheme.shapes.medium
+            )
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) {
+                navController.navigate(NavigationRoute.FoldersScreen.route)
+            }) {
+            Text(
+                text = stringResource(R.string.title_text_all_folders),
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    color = MaterialTheme.colorScheme.onPrimary
+                ),
+                modifier = Modifier.padding(
+                    vertical = dimenDpResource(R.dimen.padding_medium),
+                    horizontal = dimenDpResource(R.dimen.padding_extra_large)
+                )
+            )
+        }
+    }
 }
 
 @Composable

@@ -32,9 +32,7 @@ import com.mindeck.presentation.ui.theme.outline_medium_gray
 fun RepeatOptionsButton(
     buttonColor: Color,
     textDifficultyOfRepetition: String,
-//    repeatTimeText: String,
     titleTextStyle: TextStyle,
-//    subtitleTextStyle: TextStyle,
     onClick: () -> Unit
 ) {
     Column(
@@ -43,7 +41,8 @@ fun RepeatOptionsButton(
             .border(
                 width = dimenDpResource(R.dimen.border_width_dot_two_five),
                 color = MaterialTheme.colorScheme.outline,
-                shape = MaterialTheme.shapes.extraSmall)
+                shape = MaterialTheme.shapes.extraSmall
+            )
             .width(dimenDpResource(R.dimen.repeat_options_button_weight))
             .padding(vertical = dimenDpResource(R.dimen.repeat_options_button_vertical_padding))
             .wrapContentSize(Alignment.Center)
@@ -57,13 +56,7 @@ fun RepeatOptionsButton(
         Text(
             text = textDifficultyOfRepetition,
             style = titleTextStyle,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth().padding(horizontal = dimenDpResource(R.dimen.padding_extra_small))
         )
-//        Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.repeat_options_button_spacer_height)))
-//        Text(
-//            text = repeatTimeText,
-//            style = subtitleTextStyle,
-//            modifier = Modifier.fillMaxWidth()
-//        )
     }
 }

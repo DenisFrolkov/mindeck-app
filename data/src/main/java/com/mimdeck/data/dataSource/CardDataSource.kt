@@ -31,9 +31,10 @@ interface CardDataSource {
 
     suspend fun updateReview(
         cardId: Int,
-        currentTime: Long,
+        firstReviewDate: Long,
+        lastReviewDate: Long,
         newReviewDate: Long,
         newRepetitionCount: Int,
-        reviewType: ReviewType
+        lastReviewType: ReviewType
     )
 }

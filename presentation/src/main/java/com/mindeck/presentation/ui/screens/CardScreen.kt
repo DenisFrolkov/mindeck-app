@@ -146,7 +146,7 @@ private fun dropdownMenuDataList(
                     action = {
                         dropdownMenuState.reset()
                         cardViewModel.deleteDeck(card = card.data)
-
+                        navController.popBackStack()
                     }
                 )
             )
