@@ -26,6 +26,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,6 +37,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.mindeck.domain.models.Card
+import com.mindeck.domain.models.ReviewType
 import com.mindeck.presentation.R
 import com.mindeck.presentation.state.UiState
 import com.mindeck.presentation.ui.components.common.ActionBar
@@ -51,48 +55,146 @@ import com.mindeck.presentation.viewmodel.CardStudyViewModel
 @Composable
 fun CardStudyScreen(
     navController: NavController,
-    cardId: Int
+    cardId: Int? = null
 ) {
     val cardStudyViewModel: CardStudyViewModel =
         hiltViewModel(navController.currentBackStackEntry!!)
 
-    LaunchedEffect(cardId) {
-        cardStudyViewModel.loadCardById(cardId)
+    LaunchedEffect(Unit) {
+        if (cardId != null) {
+            cardStudyViewModel.loadCardById(cardId)
+        } else {
+            val currentTime = System.currentTimeMillis()
+            cardStudyViewModel.loadCardRepetition(currentTime)
+        }
     }
 
-    val card by cardStudyViewModel.cardByCardIdUIState.collectAsState()
+    val card = cardStudyViewModel.cardByCardIdUIState.collectAsState().value
+    val allCardsForReview = cardStudyViewModel.cardsForRepetitionState.collectAsState().value
+    var currentIndex by remember { mutableIntStateOf(0) }
 
     val scrollState = rememberScrollState()
 
-    var repeatOptionsButton = repeatOptionDataList()
+    if (cardId == null) {
+        when (allCardsForReview) {
+            is UiState.Success -> {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background)
+                ) {
+                    Scaffold(
+                        topBar = { CardStudyTopBar(navController = navController) },
+                        content = { padding ->
+                            val cardCount = remember { allCardsForReview.data }
+                            val currentCard = cardCount[currentIndex]
+                            Content(
+                                padding = padding,
+                                card = currentCard,
+                                scrollState = scrollState,
+                                repeatOptionsButton = repeatOptionDataList(
+                                    cardStudyViewModel = cardStudyViewModel,
+                                    card = currentCard
+                                ) {
+                                    when {
+                                        currentIndex < cardCount.size - 1 -> {
+                                            currentIndex += 1
+                                        }
 
-    Surface(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-    ) {
-        Scaffold(
-            topBar = {
-                CardStudyTopBar(
-                    navController = navController
-                )
-            },
-            content = { padding ->
-                Content(
-                    padding = padding,
-                    card = card,
-                    scrollState = scrollState,
-                    repeatOptionsButton = repeatOptionsButton
+                                        currentIndex == cardCount.size - 1 -> {
+                                            navController.popBackStack()
+                                        }
+                                    }
+                                }
+                            )
+                        }
+                    )
+                }
+            }
+
+            is UiState.Loading -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = dimenDpResource(R.dimen.padding_large))
+                        .wrapContentSize(Alignment.Center)
+                ) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(dimenDpResource(R.dimen.circular_progress_indicator_size)),
+                        color = MaterialTheme.colorScheme.primary,
+                        strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_two)
+                    )
+                }
+            }
+
+            is UiState.Error -> {
+                Text(
+                    stringResource(R.string.error_get_card_by_card_id),
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.error)
                 )
             }
-        )
+        }
+    } else {
+        when (card) {
+            is UiState.Success -> {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background)
+                ) {
+                    Scaffold(
+                        topBar = { CardStudyTopBar(navController = navController) },
+                        content = { padding ->
+                            Content(
+                                padding = padding,
+                                card = card.data,
+                                scrollState = scrollState,
+                                repeatOptionsButton = repeatOptionDataList(
+                                    cardStudyViewModel = cardStudyViewModel,
+                                    card = card.data,
+                                    clickButton = {
+                                        navController.popBackStack()
+                                    }
+                                )
+                            )
+                        }
+                    )
+                }
+            }
+
+            is UiState.Loading -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = dimenDpResource(R.dimen.padding_large))
+                        .wrapContentSize(Alignment.Center)
+                ) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(dimenDpResource(R.dimen.circular_progress_indicator_size)),
+                        color = MaterialTheme.colorScheme.primary,
+                        strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_two)
+                    )
+                }
+            }
+
+            is UiState.Error -> {
+                Text(
+                    stringResource(R.string.error_get_card_by_card_id),
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.error)
+                )
+            }
+        }
     }
 }
 
 @Composable
 private fun Content(
     padding: PaddingValues,
-    card: UiState<Card>,
+    card: Card,
     scrollState: ScrollState,
     repeatOptionsButton: List<RepeatOptionData>
 ) {
@@ -105,13 +207,18 @@ private fun Content(
     ) {
         CardInfo(padding = padding, card = card)
     }
-    RepeatButtons(repeatOptionsButton = repeatOptionsButton)
+    RepeatButtons(
+        repeatOptionsButton = repeatOptionsButton,
+    )
 }
 
 @Composable
-private fun RepeatButtons(repeatOptionsButton: List<RepeatOptionData>) {
+
+private fun RepeatButtons(
+    repeatOptionsButton: List<RepeatOptionData>
+) {
     Row(
-        horizontalArrangement = Arrangement.SpaceBetween,
+        horizontalArrangement = Arrangement.SpaceAround,
         verticalAlignment = Alignment.Bottom,
         modifier = Modifier
             .fillMaxSize()
@@ -123,14 +230,10 @@ private fun RepeatButtons(repeatOptionsButton: List<RepeatOptionData>) {
             RepeatOptionsButton(
                 buttonColor = it.color,
                 textDifficultyOfRepetition = it.title,
-                repeatTimeText = it.time,
                 onClick = it.action,
-                titleTextStyle = MaterialTheme.typography.labelMedium.copy(
+                titleTextStyle = MaterialTheme.typography.bodyMedium.copy(
                     textAlign = TextAlign.Center
                 ),
-                subtitleTextStyle = MaterialTheme.typography.labelSmall.copy(
-                    textAlign = TextAlign.Center
-                )
             )
         }
     }
@@ -139,7 +242,7 @@ private fun RepeatButtons(repeatOptionsButton: List<RepeatOptionData>) {
 @Composable
 private fun CardInfo(
     padding: PaddingValues,
-    card: UiState<Card>
+    card: Card
 ) {
     Column(
         modifier = Modifier.padding(padding)
@@ -149,51 +252,24 @@ private fun CardInfo(
             modifier = Modifier
                 .fillMaxSize()
         ) {
-            when (card) {
-                is UiState.Success -> {
-                    QuestionAndAnswerElement(
-                        question = card.data.cardQuestion,
-                        answer = card.data.cardAnswer,
-                        questionStyle = MaterialTheme.typography.bodyMedium.copy(
-                            textAlign = TextAlign.Center
-                        ),
-                        answerStyle = MaterialTheme.typography.bodyMedium.copy(
-                            textAlign = TextAlign.Center
-                        ),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(MaterialTheme.colorScheme.onPrimary)
-                            .border(
-                                dimenDpResource(R.dimen.border_width_dot_five),
-                                MaterialTheme.colorScheme.outline,
-                                MaterialTheme.shapes.extraSmall
-                            )
+            QuestionAndAnswerElement(
+                question = card.cardQuestion,
+                answer = card.cardAnswer,
+                questionStyle = MaterialTheme.typography.bodyMedium.copy(
+                    textAlign = TextAlign.Center
+                ),
+                answerStyle = MaterialTheme.typography.bodyMedium.copy(
+                    textAlign = TextAlign.Center
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.onPrimary)
+                    .border(
+                        dimenDpResource(R.dimen.border_width_dot_five),
+                        MaterialTheme.colorScheme.outline,
+                        MaterialTheme.shapes.extraSmall
                     )
-                }
-
-                is UiState.Loading -> {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = dimenDpResource(R.dimen.padding_large))
-                            .wrapContentSize(Alignment.Center)
-                    ) {
-                        CircularProgressIndicator(
-                            color = MaterialTheme.colorScheme.primary,
-                            strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_one)
-                        )
-                    }
-                }
-
-                is UiState.Error -> {
-                    Text(
-                        stringResource(R.string.error_get_card_by_card_id),
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.error)
-                    )
-                }
-            }
+            )
         }
     }
 }
@@ -202,7 +278,6 @@ private fun CardInfo(
 private fun CardStudyTopBar(navController: NavController) {
     Box(
         modifier = Modifier
-            .padding(horizontal = dimenDpResource(R.dimen.padding_medium))
             .padding(top = dimenDpResource(R.dimen.padding_medium))
             .statusBarsPadding()
     ) {
@@ -225,27 +300,80 @@ private fun CardStudyTopBar(navController: NavController) {
 }
 
 @Composable
-private fun repeatOptionDataList(): List<RepeatOptionData> {
-    return listOf(
-        RepeatOptionData(
-            title = stringResource(R.string.repeat_option_title_repeat_text),
-            time = stringResource(R.string.repeat_option_time_one_minute_text),
-            color = repeat_button_light_blue,
-            action = { }),
-        RepeatOptionData(
-            title = stringResource(R.string.repeat_option_title_easy_text),
-            time = stringResource(R.string.repeat_option_time_five_day_text),
-            color = repeat_button_light_mint,
-            action = { }),
-        RepeatOptionData(
-            title = stringResource(R.string.repeat_option_title_medium_text),
-            time = stringResource(R.string.repeat_option_time_two_day_text),
-            color = repeat_button_light_yellow,
-            action = { }),
-        RepeatOptionData(
-            title = stringResource(R.string.repeat_option_title_hard_text),
-            time = stringResource(R.string.repeat_option_time_one_day_text),
-            color = repeat_button_light_red,
-            action = { })
-    )
+private fun repeatOptionDataList(
+    cardStudyViewModel: CardStudyViewModel,
+    card: Card,
+    clickButton: () -> Unit
+): List<RepeatOptionData> {
+    return if (card.repetitionCount != 0) {
+        listOf(
+            RepeatOptionData(
+                title = stringResource(R.string.repeat_option_title_repeat_text),
+                color = repeat_button_light_blue,
+                action = {
+                    cardStudyViewModel.updateReview(
+                        card.cardId,
+                        card.firstReviewDate,
+                        card.repetitionCount,
+                        ReviewType.REPEAT
+                    )
+                    clickButton()
+                }
+            ),
+            RepeatOptionData(
+                title = stringResource(R.string.repeat_option_title_easy_text),
+                color = repeat_button_light_mint,
+                action = {
+                    cardStudyViewModel.updateReview(
+                        card.cardId,
+                        card.firstReviewDate,
+                        card.repetitionCount,
+                        ReviewType.EASY
+                    )
+                    clickButton()
+                }
+            ),
+            RepeatOptionData(
+                title = stringResource(R.string.repeat_option_title_medium_text),
+                color = repeat_button_light_yellow,
+                action = {
+                    cardStudyViewModel.updateReview(
+                        card.cardId,
+                        card.firstReviewDate,
+                        card.repetitionCount,
+                        ReviewType.MEDIUM
+                    )
+                    clickButton()
+                }
+            ),
+            RepeatOptionData(
+                title = stringResource(R.string.repeat_option_title_hard_text),
+                color = repeat_button_light_red,
+                action = {
+                    cardStudyViewModel.updateReview(
+                        card.cardId,
+                        card.firstReviewDate,
+                        card.repetitionCount,
+                        ReviewType.HARD
+                    )
+                    clickButton()
+                }
+            ))
+    } else {
+        listOf(
+            RepeatOptionData(
+                title = stringResource(R.string.repeat_option_title_repeat_text),
+                color = repeat_button_light_blue,
+                action = {
+                    cardStudyViewModel.updateReview(
+                        card.cardId,
+                        card.firstReviewDate,
+                        card.repetitionCount,
+                        ReviewType.REPEAT
+                    )
+                    clickButton()
+                }
+            )
+        )
+    }
 }

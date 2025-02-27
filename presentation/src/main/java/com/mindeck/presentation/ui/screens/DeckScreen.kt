@@ -122,7 +122,7 @@ fun DeckScreen(
         }
     }
 
-    var listDropdownMenu =
+    val listDropdownMenu =
         dropdownMenuDataList(
             navController = navController,
             deck = deck,
@@ -728,7 +728,7 @@ private fun DeckDeleteDialog(
         is UiState.Success -> {
             DeleteItemDialog(
                 onClickDeleteAll = {
-                    deck.data.deckId
+                    deckViewModel.deleteDeck(deck.data)
                     navController.popBackStack()
                 },
                 onClickDeletePartially = {

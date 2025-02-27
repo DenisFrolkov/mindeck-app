@@ -8,6 +8,7 @@ import androidx.room.Transaction
 import androidx.room.Update
 import com.mimdeck.data.database.entities.CardEntity
 import com.mimdeck.data.database.entities.FolderEntity
+import com.mindeck.domain.models.ReviewType
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -47,4 +48,25 @@ interface CardDao {
         addCardsToDeck(cardIds, targetDeckId)
         deleteCardsFromDeck(cardIds, sourceDeckId)
     }
+
+    @Query("SELECT * FROM card WHERE next_review_date IS NULL OR next_review_date <= :currentTime")
+    fun getCardsRepetition(currentTime: Long): Flow<List<CardEntity>>
+
+    @Query("""
+        UPDATE card
+        SET first_review_date = :firstReviewDate,
+            last_review_date = :lastReviewDate,
+            next_review_date = :newReviewDate,
+            repetition_count = :newRepetitionCount,
+            last_review_type = :lastReviewType
+        WHERE card_id = :cardId
+    """)
+    suspend fun updateReview(
+        cardId: Int,
+        firstReviewDate: Long,
+        lastReviewDate: Long,
+        newReviewDate: Long,
+        newRepetitionCount: Int,
+        lastReviewType: ReviewType
+    )
 }

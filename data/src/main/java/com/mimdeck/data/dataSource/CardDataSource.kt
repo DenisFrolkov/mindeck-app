@@ -2,6 +2,7 @@ package com.mimdeck.data.dataSource
 
 import com.mimdeck.data.database.entities.CardEntity
 import com.mimdeck.data.database.entities.FolderEntity
+import com.mindeck.domain.models.ReviewType
 import kotlinx.coroutines.flow.Flow
 
 interface CardDataSource {
@@ -25,4 +26,15 @@ interface CardDataSource {
         addCardsToDeck(cardIds, targetDeckId)
         deleteCardsFromDeck(cardIds, sourceDeckId)
     }
+
+    fun getCardsRepetition(currentTime: Long): Flow<List<CardEntity>>
+
+    suspend fun updateReview(
+        cardId: Int,
+        firstReviewDate: Long,
+        lastReviewDate: Long,
+        newReviewDate: Long,
+        newRepetitionCount: Int,
+        lastReviewType: ReviewType
+    )
 }

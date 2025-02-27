@@ -6,8 +6,8 @@ import com.mimdeck.data.database.entities.Mappers.toDomain
 import com.mimdeck.data.exception.DatabaseException
 import com.mindeck.domain.exception.DomainException
 import com.mindeck.domain.models.Card
-import com.mindeck.domain.models.Deck
 import com.mindeck.domain.models.Folder
+import com.mindeck.domain.models.ReviewType
 import com.mindeck.domain.repository.CardRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -44,7 +44,7 @@ class CardRepositoryImpl @Inject constructor(private val cardDataSource: CardDat
             cardDataSource.getAllCardsByDeckId(deckId = deckId)
                 .map { cardsEntityList -> cardsEntityList.map { it.toDomain() } }
         } catch (e: DatabaseException) {
-            flow { emit(emptyList<Deck>()) }
+            flow { emit(emptyList<Card>()) }
             throw DomainException("Failed get all cards by deck id", e)
         }
     }
@@ -94,6 +94,31 @@ class CardRepositoryImpl @Inject constructor(private val cardDataSource: CardDat
             )
         } catch (e: DatabaseException) {
             throw DomainException("Failed to move cards between deck: ${e.localizedMessage}", e)
+        }
+    }
+
+    override fun getCardsRepetition(currentTime: Long): Flow<List<Card>> {
+        return try {
+            cardDataSource.getCardsRepetition(currentTime = currentTime)
+                .map { cardsEntityList -> cardsEntityList.map { it.toDomain() } }
+        } catch (e: DatabaseException) {
+            flow { emit(emptyList<Card>()) }
+            throw DomainException("Failed get cards for repetition", e)
+        }
+    }
+
+    override suspend fun updateReview(
+        cardId: Int,
+        firstReviewDate: Long,
+        lastReviewDate: Long,
+        newReviewDate: Long,
+        newRepetitionCount: Int,
+        lastReviewType: ReviewType
+    ) {
+        try {
+            cardDataSource.updateReview(cardId, firstReviewDate, lastReviewDate, newReviewDate, newRepetitionCount, lastReviewType)
+        } catch (e: DatabaseException) {
+            throw DomainException("Failed get cards for repetition", e)
         }
     }
 }

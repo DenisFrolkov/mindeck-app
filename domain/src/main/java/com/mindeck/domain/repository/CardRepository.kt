@@ -2,6 +2,7 @@ package com.mindeck.domain.repository
 
 import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.Folder
+import com.mindeck.domain.models.ReviewType
 import kotlinx.coroutines.flow.Flow
 
 interface CardRepository {
@@ -25,4 +26,15 @@ interface CardRepository {
         addCardsToDeck(cardIds, targetDeckId)
         deleteCardsFromDeck(cardIds, sourceDeckId)
     }
+
+    fun getCardsRepetition(currentTime: Long): Flow<List<Card>>
+
+    suspend fun updateReview(
+        cardId: Int,
+        firstReviewDate: Long,
+        lastReviewDate: Long,
+        newReviewDate: Long,
+        newRepetitionCount: Int,
+        lastReviewType: ReviewType
+    )
 }
