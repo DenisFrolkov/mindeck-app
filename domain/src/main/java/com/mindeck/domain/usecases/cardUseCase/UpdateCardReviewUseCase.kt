@@ -29,7 +29,6 @@ class UpdateCardReviewUseCase(private val cardRepository: CardRepository) {
                     EASY -> TimeUnit.DAYS.toMillis(5)
                     MEDIUM -> TimeUnit.DAYS.toMillis(3)
                     HARD -> TimeUnit.DAYS.toMillis(1)
-                    else -> TimeUnit.DAYS.toMillis(1)
                 }
             }
             else -> {
@@ -39,7 +38,6 @@ class UpdateCardReviewUseCase(private val cardRepository: CardRepository) {
                     MEDIUM -> 2.0
                     HARD -> 1.5
                     REPEAT -> 1.1
-                    else -> 1.0
                 }
                 currentTimeMillis + (interval * multiplier).toLong()
             }

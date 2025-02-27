@@ -122,7 +122,7 @@ fun DeckScreen(
         }
     }
 
-    var listDropdownMenu =
+    val listDropdownMenu =
         dropdownMenuDataList(
             navController = navController,
             deck = deck,

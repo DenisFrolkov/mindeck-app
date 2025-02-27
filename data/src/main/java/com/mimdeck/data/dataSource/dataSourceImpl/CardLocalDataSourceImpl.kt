@@ -116,11 +116,11 @@ class CardLocalDataSourceImpl @Inject constructor(private val cardDao: CardDao) 
         }
     }
 
-    override suspend fun moveCardsBetweenDeck(cardIds: List<Int>, deckId: Int, targetDeckId: Int) {
+    override suspend fun moveCardsBetweenDeck(cardIds: List<Int>, sourceDeckId: Int, targetDeckId: Int) {
         try {
             cardDao.moveCardsBetweenDeck(
                 cardIds = cardIds,
-                sourceDeckId = deckId,
+                sourceDeckId = sourceDeckId,
                 targetDeckId = targetDeckId
             )
         } catch (e: SQLException) {

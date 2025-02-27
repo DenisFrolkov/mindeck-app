@@ -71,14 +71,14 @@ fun CardScreen(
     val card = cardViewModel.cardByCardIdUIState.collectAsState().value
     val folder = cardViewModel.folderUIState.collectAsState().value
 
-    var dropdownMenuState = remember { DropdownMenuState() }
+    val dropdownMenuState = remember { DropdownMenuState() }
 
     val dropdownVisibleAnimation = animateDropdownMenuHeightIn(
         targetAlpha = dropdownMenuState.dropdownAlpha,
         animationDuration = dropdownMenuState.animationDuration
     )
 
-    var listDropdownMenu = dropdownMenuDataList(
+    val listDropdownMenu = dropdownMenuDataList(
         navController = navController,
         card = card,
         dropdownMenuState = dropdownMenuState,
