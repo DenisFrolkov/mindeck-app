@@ -26,7 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -34,29 +34,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.ReviewType
 import com.mindeck.presentation.R
 import com.mindeck.presentation.state.UiState
-import com.mindeck.presentation.state.UiState.Loading.getOrNull
 import com.mindeck.presentation.ui.components.common.ActionBar
 import com.mindeck.presentation.ui.components.common.QuestionAndAnswerElement
 import com.mindeck.presentation.ui.components.repeat_options.RepeatOptionData
 import com.mindeck.presentation.ui.components.repeat_options.RepeatOptionsButton
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
-import com.mindeck.presentation.ui.components.utils.stringToMillis
-import com.mindeck.presentation.ui.navigation.NavigationRoute
 import com.mindeck.presentation.ui.theme.outline_variant_blue
 import com.mindeck.presentation.ui.theme.repeat_button_light_blue
 import com.mindeck.presentation.ui.theme.repeat_button_light_mint
 import com.mindeck.presentation.ui.theme.repeat_button_light_red
 import com.mindeck.presentation.ui.theme.repeat_button_light_yellow
 import com.mindeck.presentation.viewmodel.CardStudyViewModel
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
 @Composable
 fun CardStudyScreen(
@@ -66,7 +60,7 @@ fun CardStudyScreen(
     val cardStudyViewModel: CardStudyViewModel =
         hiltViewModel(navController.currentBackStackEntry!!)
 
-    LaunchedEffect(cardId) {
+    LaunchedEffect(Unit) {
         if (cardId != null) {
             cardStudyViewModel.loadCardById(cardId)
         } else {
@@ -77,57 +71,82 @@ fun CardStudyScreen(
 
     val card = cardStudyViewModel.cardByCardIdUIState.collectAsState().value
     val allCardsForReview = cardStudyViewModel.cardsForRepetitionState.collectAsState().value
-    var currentIndex by remember { mutableStateOf(0) }
+    var currentIndex by remember { mutableIntStateOf(0) }
 
     val scrollState = rememberScrollState()
 
-    Surface(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-    ) {
-        Scaffold(
-            topBar = { CardStudyTopBar(navController = navController) },
-            content = { padding ->
-                if (cardId == null) {
-                    when (allCardsForReview) {
-                        is UiState.Success -> {
-                            val cards = allCardsForReview.data
-                            val currentCard = cards.getOrNull(currentIndex)
-
-                            if (cards.isEmpty() || currentCard == null) {
-                                LaunchedEffect(Unit) {
-                                    navController.navigate(NavigationRoute.MainScreen.route) {
-                                        popUpTo(NavigationRoute.MainScreen.route) {
-                                            inclusive = true
+    if (cardId == null) {
+        when (allCardsForReview) {
+            is UiState.Success -> {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background)
+                ) {
+                    Scaffold(
+                        topBar = { CardStudyTopBar(navController = navController) },
+                        content = { padding ->
+                            val cardCount = remember { allCardsForReview.data }
+                            val currentCard = cardCount[currentIndex]
+                            Content(
+                                padding = padding,
+                                card = currentCard,
+                                scrollState = scrollState,
+                                repeatOptionsButton = repeatOptionDataList(
+                                    cardStudyViewModel = cardStudyViewModel,
+                                    card = currentCard
+                                ) {
+                                    when {
+                                        currentIndex < cardCount.size - 1 -> {
+                                            currentIndex += 1
                                         }
-                                    }
-                                }
-                            } else {
-                                Content(
-                                    padding = padding,
-                                    card = currentCard,
-                                    scrollState = scrollState,
-                                    repeatOptionsButton = repeatOptionDataList(
-                                        cardStudyViewModel = cardStudyViewModel,
-                                        card = currentCard
-                                    ) {
-                                        if (currentIndex < cards.size - 1) {
-                                            currentIndex++
-                                        } else {
-//                                            navController.navigate(NavigationRoute.MainScreen.route) {
-//                                                popUpTo(NavigationRoute.MainScreen.route) { inclusive = true }
-//                                            }
+
+                                        currentIndex == cardCount.size - 1 -> {
                                             navController.popBackStack()
                                         }
                                     }
-                                )
-                            }
+                                }
+                            )
                         }
-                    }
-                } else {
-                    when (card) {
-                        is UiState.Success -> {
+                    )
+                }
+            }
+
+            is UiState.Loading -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = dimenDpResource(R.dimen.padding_large))
+                        .wrapContentSize(Alignment.Center)
+                ) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(dimenDpResource(R.dimen.circular_progress_indicator_size)),
+                        color = MaterialTheme.colorScheme.primary,
+                        strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_two)
+                    )
+                }
+            }
+
+            is UiState.Error -> {
+                Text(
+                    stringResource(R.string.error_get_card_by_card_id),
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.error)
+                )
+            }
+        }
+    } else {
+        when (card) {
+            is UiState.Success -> {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background)
+                ) {
+                    Scaffold(
+                        topBar = { CardStudyTopBar(navController = navController) },
+                        content = { padding ->
                             Content(
                                 padding = padding,
                                 card = card.data,
@@ -136,16 +155,39 @@ fun CardStudyScreen(
                                     cardStudyViewModel = cardStudyViewModel,
                                     card = card.data,
                                     clickButton = {
-//                                        navController.navigate(NavigationRoute.CardScreen.createRoute(card.data.cardId))
                                         navController.popBackStack()
                                     }
                                 )
                             )
                         }
-                    }
+                    )
                 }
             }
-        )
+
+            is UiState.Loading -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = dimenDpResource(R.dimen.padding_large))
+                        .wrapContentSize(Alignment.Center)
+                ) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(dimenDpResource(R.dimen.circular_progress_indicator_size)),
+                        color = MaterialTheme.colorScheme.primary,
+                        strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_two)
+                    )
+                }
+            }
+
+            is UiState.Error -> {
+                Text(
+                    stringResource(R.string.error_get_card_by_card_id),
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.error)
+                )
+            }
+        }
     }
 }
 
@@ -164,34 +206,6 @@ private fun Content(
             .verticalScroll(state = scrollState)
     ) {
         CardInfo(padding = padding, card = card)
-//        when (card) {
-//            is UiState.Success -> {
-//                card.data.let { card.data.forEach { CardInfo(padding = padding, card = it) } }
-//            }
-//
-//            is UiState.Loading -> {
-//                Box(
-//                    modifier = Modifier
-//                        .fillMaxWidth()
-//                        .padding(top = dimenDpResource(R.dimen.padding_large))
-//                        .wrapContentSize(Alignment.Center)
-//                ) {
-//                    CircularProgressIndicator(
-//                        color = MaterialTheme.colorScheme.primary,
-//                        strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_one)
-//                    )
-//                }
-//            }
-//
-//            is UiState.Error -> {
-//                Text(
-//                    stringResource(R.string.error_get_card_by_card_id),
-//                    modifier = Modifier.fillMaxWidth(),
-//                    textAlign = TextAlign.Center,
-//                    style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.error)
-//                )
-//            }
-//        }
     }
     RepeatButtons(
         repeatOptionsButton = repeatOptionsButton,
