@@ -17,8 +17,8 @@ import com.mimdeck.data.NotificationWorker
 import com.mindeck.presentation.ui.navigation.AppNavigation
 import com.mindeck.presentation.ui.theme.MindeckTheme
 import dagger.hilt.android.AndroidEntryPoint
+import java.util.concurrent.TimeUnit
 import android.Manifest
-import com.mimdeck.data.AppLifecycleObserver
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -31,10 +31,19 @@ class MainActivity : ComponentActivity() {
                 if (!isNotificationPermissionGranted()) {
                     requestNotificationPermission()
                 }
-                lifecycle.addObserver(AppLifecycleObserver(applicationContext))
                 AppNavigation()
             }
         }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        scheduleWork(applicationContext)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        cancelPeriodicWork(applicationContext)
     }
 
     private fun isNotificationPermissionGranted(): Boolean {
@@ -54,7 +63,32 @@ class MainActivity : ComponentActivity() {
             )
         }
     }
+
 }
 
+private fun cancelPeriodicWork(context: Context) {
+    WorkManager.getInstance(context).cancelUniqueWork("card_notification_work")
+}
+
+
+private fun scheduleWork(context: Context) {
+    val periodicWorkRequest = PeriodicWorkRequestBuilder<NotificationWorker>(
+        2, TimeUnit.MINUTES
+    )
+        .setInitialDelay(2, TimeUnit.MINUTES)
+        .setConstraints(
+            Constraints.Builder()
+                .setRequiresBatteryNotLow(true)
+                .setRequiresStorageNotLow(true)
+                .build()
+        )
+        .build()
+
+    WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+        "CheckCardsWork",
+        ExistingPeriodicWorkPolicy.REPLACE,
+        periodicWorkRequest
+    )
+}
 
 
