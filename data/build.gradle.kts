@@ -54,7 +54,10 @@ dependencies {
     //Coroutines
     implementation(libs.kotlinx.coroutines.core)
 
+    implementation("androidx.work:work-runtime-ktx:2.8.1")
+
     //Hilt
+    implementation("androidx.hilt:hilt-work:1.0.0")
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
 

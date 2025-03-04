@@ -1,9 +1,11 @@
 package com.mindeck.app.di
 
 import android.content.Context
+import androidx.hilt.work.HiltWorkerFactory
 import androidx.room.Room
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import androidx.work.WorkerFactory
 import com.mimdeck.data.dataSource.CardDataSource
 import com.mimdeck.data.dataSource.DeckDataSource
 import com.mimdeck.data.dataSource.FolderDataSource
@@ -30,6 +32,15 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 class DataModule {
+
+    @Provides
+    @Singleton
+    fun provideWorkerFactory(
+        @ApplicationContext appContext: Context,
+        workerInjectorFactory: HiltWorkerFactory
+    ): WorkerFactory {
+        return workerInjectorFactory
+    }
 
     //Database
     @Provides
