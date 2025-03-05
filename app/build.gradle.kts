@@ -54,7 +54,12 @@ dependencies {
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
 
+    implementation("androidx.work:work-runtime-ktx:2.8.1")
+
+    implementation("androidx.lifecycle:lifecycle-process:2.8.7")
+
     //Hilt
+    implementation("androidx.hilt:hilt-work:1.0.0")
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
 
