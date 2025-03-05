@@ -2,8 +2,6 @@ package com.mindeck.app.di
 
 import android.content.Context
 import androidx.room.Room
-import androidx.room.migration.Migration
-import androidx.sqlite.db.SupportSQLiteDatabase
 import com.mimdeck.data.dataSource.CardDataSource
 import com.mimdeck.data.dataSource.DeckDataSource
 import com.mimdeck.data.dataSource.FolderDataSource
@@ -17,9 +15,11 @@ import com.mimdeck.data.database.dao.FolderDao
 import com.mimdeck.data.repository.CardRepositoryImpl
 import com.mimdeck.data.repository.DeckRepositoryImpl
 import com.mimdeck.data.repository.FolderRepositoryImpl
+import com.mimdeck.data.repository.NotificationRepositoryImpl
 import com.mindeck.domain.repository.CardRepository
 import com.mindeck.domain.repository.DeckRepository
 import com.mindeck.domain.repository.FolderRepository
+import com.mindeck.domain.repository.NotificationRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -90,6 +90,11 @@ class DataModule {
 
     @Provides
     fun provideCardRepository(impl: CardRepositoryImpl): CardRepository {
+        return impl
+    }
+
+    @Provides
+    fun provideNotificationRepository(impl: NotificationRepositoryImpl): NotificationRepository {
         return impl
     }
 }

@@ -3,6 +3,7 @@ package com.mindeck.app.di
 import com.mindeck.domain.repository.CardRepository
 import com.mindeck.domain.repository.DeckRepository
 import com.mindeck.domain.repository.FolderRepository
+import com.mindeck.domain.repository.NotificationRepository
 import com.mindeck.domain.usecases.cardUseCase.AddCardsToDeckUseCase
 import com.mindeck.domain.usecases.cardUseCase.CreateCardUseCase
 import com.mindeck.domain.usecases.cardUseCase.DeleteCardUseCase
@@ -27,6 +28,8 @@ import com.mindeck.domain.usecases.folderUseCases.DeleteFolderUseCase
 import com.mindeck.domain.usecases.folderUseCases.GetAllFoldersUseCase
 import com.mindeck.domain.usecases.folderUseCases.GetFolderByIdUseCase
 import com.mindeck.domain.usecases.folderUseCases.RenameFolderUseCase
+import com.mindeck.domain.usecases.notificationUseCase.StartNotificationUseCase
+import com.mindeck.domain.usecases.notificationUseCase.StopNotificationUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -157,5 +160,16 @@ class DomainModule() {
     @Provides
     fun providesUpdateCardReviewUseCase(repository: CardRepository): UpdateCardReviewUseCase {
         return UpdateCardReviewUseCase(repository)
+    }
+
+    //NotificationUseCase
+    @Provides
+    fun providesStartNotificationUseCase(repository: NotificationRepository): StartNotificationUseCase {
+        return StartNotificationUseCase(repository)
+    }
+
+    @Provides
+    fun providesStopNotificationUseCase(repository: NotificationRepository): StopNotificationUseCase {
+        return StopNotificationUseCase(repository)
     }
 }
