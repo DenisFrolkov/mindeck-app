@@ -34,12 +34,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.Deck
 import com.mindeck.domain.models.Folder
 import com.mindeck.presentation.R
 import com.mindeck.presentation.state.CardState
 import com.mindeck.presentation.state.DropdownState
+import com.mindeck.presentation.state.UiState
+import com.mindeck.presentation.state.UiState.Loading.mapToUiState
 import com.mindeck.presentation.ui.components.buttons.ActionHandlerButton
 import com.mindeck.presentation.ui.components.buttons.SaveDataButton
 import com.mindeck.presentation.ui.components.dropdown.dropdown_selector.DropdownSelector
@@ -50,10 +51,7 @@ import com.mindeck.presentation.ui.components.utils.dimenDpResource
 import com.mindeck.presentation.ui.components.utils.textInputModifier
 import com.mindeck.presentation.ui.theme.text_gray
 import com.mindeck.presentation.ui.theme.text_white
-import com.mindeck.presentation.state.UiState
-import com.mindeck.presentation.state.UiState.Loading.mapToUiState
 import com.mindeck.presentation.viewmodel.CreationCardViewModel
-import com.mindeck.presentation.viewmodel.FoldersViewModel
 
 @Composable
 fun CreationCardScreen(
@@ -307,6 +305,7 @@ private fun InputFields(
     TitleInputField(
         placeholder = stringResource(R.string.enter_name_for_card),
         value = cardState.title,
+        singleLine = true,
         onValueChange = { creationCardViewModel.updateCardState { copy(title = it) } },
         readOnly = false,
         textStyle = MaterialTheme.typography.bodyMedium,
