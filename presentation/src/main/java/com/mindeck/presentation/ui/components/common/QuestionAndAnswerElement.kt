@@ -30,7 +30,7 @@ fun QuestionAndAnswerElement(
             style = questionStyle,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(dimenDpResource(R.dimen.padding_extra_small))
+                .padding(dimenDpResource(R.dimen.padding_small))
                 .wrapContentSize(Alignment.CenterStart)
         )
         HorizontalDivider(
@@ -43,7 +43,7 @@ fun QuestionAndAnswerElement(
             style = answerStyle,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(dimenDpResource(R.dimen.padding_extra_small))
+                .padding(dimenDpResource(R.dimen.padding_small))
                 .wrapContentSize(Alignment.CenterStart)
         )
     }
