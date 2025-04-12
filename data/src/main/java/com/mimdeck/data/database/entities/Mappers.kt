@@ -2,29 +2,14 @@ package com.mimdeck.data.database.entities
 
 import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.Deck
-import com.mindeck.domain.models.Folder
 import com.mindeck.domain.models.ReviewType
 
 object Mappers {
-    fun Folder.toData(): FolderEntity {
-        return FolderEntity(
-            this.folderId,
-            this.folderName
-        )
-    }
-
-    fun FolderEntity.toDomain(): Folder {
-        return Folder(
-            this.folderId,
-            this.folderName ?: "Folder ${this.folderId}"
-        )
-    }
 
     fun Deck.toData(): DeckEntity {
         return DeckEntity(
             this.deckId,
             this.deckName,
-            this.folderId
         )
     }
 
@@ -32,7 +17,6 @@ object Mappers {
         return Deck(
             this.deckId,
             this.deckName ?: "Deck ${this.deckId}",
-            this.folderId
         )
     }
 

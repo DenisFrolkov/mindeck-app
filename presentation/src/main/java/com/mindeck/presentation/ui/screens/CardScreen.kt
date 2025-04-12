@@ -38,11 +38,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.mindeck.domain.models.Card
-import com.mindeck.domain.models.Folder
 import com.mindeck.presentation.R
 import com.mindeck.presentation.state.UiState
-import com.mindeck.presentation.state.UiState.Loading.getOrNull
-import com.mindeck.presentation.state.UiState.Loading.mapSuccess
 import com.mindeck.presentation.ui.components.common.ActionBar
 import com.mindeck.presentation.ui.components.common.QuestionAndAnswerElement
 import com.mindeck.presentation.ui.components.dataclasses.CardAttributes
@@ -63,13 +60,11 @@ fun CardScreen(
 
     LaunchedEffect(cardId) {
         cardViewModel.loadCardById(cardId = cardId)
-        cardViewModel.getFolderByCardId(cardId = cardId)
     }
 
     val scrollState = rememberScrollState()
 
     val card = cardViewModel.cardByCardIdUIState.collectAsState().value
-    val folder = cardViewModel.folderUIState.collectAsState().value
 
     val dropdownMenuState = remember { DropdownMenuState() }
 
@@ -85,7 +80,7 @@ fun CardScreen(
         cardViewModel = cardViewModel
     )
 
-    val cardAttributes = cardAttributesList(card = card, folder = folder)
+    val cardAttributes = cardAttributesList(card = card)
 
     Surface(
         modifier = Modifier
@@ -208,15 +203,9 @@ private fun CardTopBar(
 
 fun cardAttributesList(
     card: UiState<Card>,
-    folder: UiState<Folder?>
 ): List<CardAttributes> {
     return when (card) {
         is UiState.Success -> listOf(
-            CardAttributes(
-                title = stringResource(R.string.text_folder_dropdown_selector),
-                value = folder.mapSuccess { it?.folderName }.getOrNull()
-                    ?: stringResource(R.string.text_no_folder)
-            ),
             CardAttributes(
                 title = stringResource(R.string.text_deck_dropdown_selector),
                 value = card.data.deckId.toString()

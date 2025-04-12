@@ -41,35 +41,30 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.mindeck.domain.models.Folder
+import com.mindeck.domain.models.Deck
 import com.mindeck.presentation.R
-import com.mindeck.presentation.ui.components.dialog.data_class.CreateItemDialog
-import com.mindeck.presentation.ui.components.common.ActionBar
-import com.mindeck.presentation.ui.components.dialog.DialogState
-import com.mindeck.presentation.ui.components.dialog.animateDialogCreateItem
-import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenu
-import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenuData
-import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenuState
-import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.animateDropdownMenuHeightIn
-import com.mindeck.presentation.ui.components.folder.DisplayItem
-import com.mindeck.presentation.ui.components.utils.dimenDpResource
-import com.mindeck.presentation.ui.navigation.NavigationRoute
 import com.mindeck.presentation.state.UiState
+import com.mindeck.presentation.ui.components.common.ActionBar
 import com.mindeck.presentation.ui.components.dataclasses.DisplayItemData
 import com.mindeck.presentation.ui.components.dataclasses.DisplayItemStyle
+import com.mindeck.presentation.ui.components.dialog.DialogState
+import com.mindeck.presentation.ui.components.dialog.animateDialogCreateItem
 import com.mindeck.presentation.ui.components.dialog.animateToastItem
+import com.mindeck.presentation.ui.components.dialog.data_class.CreateItemDialog
 import com.mindeck.presentation.ui.components.dialog.data_class.DialogType
+import com.mindeck.presentation.ui.components.folder.DisplayItem
+import com.mindeck.presentation.ui.components.utils.dimenDpResource
 import com.mindeck.presentation.ui.components.utils.dimenFloatResource
-import com.mindeck.presentation.viewmodel.FoldersViewModel
+import com.mindeck.presentation.viewmodel.DecksViewModel
 import kotlinx.coroutines.delay
 
 @Composable
-fun FoldersScreen(
+fun DecksScreen(
     navController: NavController,
 ) {
-    val foldersViewModel: FoldersViewModel = hiltViewModel(navController.currentBackStackEntry!!)
+    val decksViewModel: DecksViewModel = hiltViewModel(navController.currentBackStackEntry!!)
 
-    val folders = foldersViewModel.foldersState.collectAsState().value
+    val decks = decksViewModel.decksState.collectAsState().value
 
     var dialogState = remember { DialogState() }
 
@@ -101,10 +96,10 @@ fun FoldersScreen(
     ) {
         Scaffold(
             topBar = {
-                FoldersEditTopBar(navController, dialogState)
+                DecksEditTopBar(navController, dialogState)
             },
             content = { padding ->
-                Content(padding, folders, navController)
+                Content(padding, decks, navController)
             }
         )
         if (dialogState.isDialogVisible && dialogState.currentDialogType == DialogType.Create) {
@@ -112,7 +107,7 @@ fun FoldersScreen(
                 dialogVisibleAnimation = dialogVisibleAnimation,
                 validation = validation,
                 dialogState = dialogState,
-                foldersViewModel = foldersViewModel
+                decksViewModel = decksViewModel
             )
         }
         AnimatedVisibility(
@@ -148,7 +143,7 @@ fun FoldersScreen(
 }
 
 @Composable
-private fun FoldersEditTopBar(
+private fun DecksEditTopBar(
     navController: NavController,
     dialogState: DialogState
 ) {
@@ -179,7 +174,7 @@ private fun FoldersEditTopBar(
 @Composable
 private fun Content(
     padding: PaddingValues,
-    folders: UiState<List<Folder>>,
+    decks: UiState<List<Deck>>,
     navController: NavController
 ) {
     Column(
@@ -187,16 +182,16 @@ private fun Content(
             .padding(padding)
             .padding(horizontal = dimenDpResource(R.dimen.padding_medium))
     ) {
-        FoldersInfo(folders, navController)
+        DecksInfo(decks, navController)
     }
 }
 
 @Composable
-private fun FoldersInfo(
-    folders: UiState<List<Folder>>,
+private fun DecksInfo(
+    decks: UiState<List<Deck>>,
     navController: NavController
 ) {
-    when (folders) {
+    when (decks) {
         is UiState.Success -> {
             Box(
                 modifier = Modifier
@@ -206,8 +201,8 @@ private fun FoldersInfo(
                 Text(
                     text = pluralStringResource(
                         R.plurals.folder_amount,
-                        folders.data.size,
-                        folders.data.size
+                        decks.data.size,
+                        decks.data.size
                     ),
                     style = MaterialTheme.typography.titleMedium,
                 )
@@ -215,8 +210,8 @@ private fun FoldersInfo(
             Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_large)))
             LazyColumn {
                 items(
-                    items = folders.data,
-                    key = { it.folderId }) { folder ->
+                    items = decks.data,
+                    key = { it.deckId }) { folder ->
                     DisplayItem(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -231,17 +226,17 @@ private fun FoldersInfo(
                                 interactionSource = remember { MutableInteractionSource() },
                                 indication = null
                             ) {
-                                navController.navigate(
-                                    NavigationRoute.FolderScreen.createRoute(
-                                        folder.folderId
-                                    )
-                                )
+//                                navController.navigate(
+//                                    NavigationRoute.FolderScreen.createRoute(
+//                                        folder.folderId
+//                                    )
+//                                )
                             },
                         showCount = false,
                         displayItemData = DisplayItemData(
                             itemIcon = R.drawable.folder_icon,
-                            numberOfCards = folder.folderId,
-                            itemName = folder.folderName,
+                            numberOfCards = folder.deckId,
+                            itemName = folder.deckName,
                         ),
                         displayItemStyle = DisplayItemStyle(
                             backgroundColor = MaterialTheme.colorScheme.secondary.copy(
@@ -286,7 +281,7 @@ private fun FoldersDialog(
     dialogVisibleAnimation: Float,
     validation: Boolean?,
     dialogState: DialogState,
-    foldersViewModel: FoldersViewModel
+    decksViewModel: DecksViewModel
 ) {
     Box(modifier = Modifier.alpha(dialogVisibleAnimation)) {
         Box(
@@ -315,7 +310,7 @@ private fun FoldersDialog(
             },
             onSaveClick = {
                 if (dialogState.validateFolderName(dialogState.dialogStateData.text)) {
-                    foldersViewModel.createFolder(folderName = dialogState.dialogStateData.text)
+//                    decksViewModel.createFolder(folderName = dialogState.dialogStateData.text)
                     dialogState.closeDialog()
                 }
             },

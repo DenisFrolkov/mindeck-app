@@ -48,9 +48,9 @@ class DeckLocalDataSourceImpl @Inject constructor(private val deckDao: DeckDao) 
         }
     }
 
-    override fun getAllDecksByFolderId(folderId: Int): Flow<List<DeckEntity>> {
+    override fun getAllDecks(): Flow<List<DeckEntity>> {
         return try {
-            deckDao.getAllDecksByFolderId(folderId = folderId)
+            deckDao.getAllDecks()
         } catch (e: SQLException) {
             throw DatabaseException(
                 "Failed to get all decks by folder id due to a constraint violation: ${e.localizedMessage}",
@@ -58,32 +58,6 @@ class DeckLocalDataSourceImpl @Inject constructor(private val deckDao: DeckDao) 
             )
         } catch (e: Exception) {
             throw DatabaseException("Error receiving decks by folder id: ${e.localizedMessage}", e)
-        }
-    }
-
-    override suspend fun deleteDecksFromFolder(deckIds: List<Int>, folderId: Int) {
-        try {
-            deckDao.deleteDecksFromFolder(deckIds = deckIds, folderId = folderId)
-        } catch (e: SQLException) {
-            throw DatabaseException(
-                "Failed to delete decks from folder due to a constraint violation: ${e.localizedMessage}",
-                e
-            )
-        } catch (e: Exception) {
-            throw DatabaseException("Error deleting decks from folder: ${e.localizedMessage}", e)
-        }
-    }
-
-    override suspend fun addDecksToFolder(deckIds: List<Int>, folderId: Int) {
-        try {
-            deckDao.addDecksToFolder(deckIds = deckIds, folderId = folderId)
-        } catch (e: SQLException) {
-            throw DatabaseException(
-                "Failed to add decks to folder due to a constraint violation: ${e.localizedMessage}",
-                e
-            )
-        } catch (e: Exception) {
-            throw DatabaseException("Error addition decks in folder: ${e.localizedMessage}", e)
         }
     }
 
@@ -97,27 +71,6 @@ class DeckLocalDataSourceImpl @Inject constructor(private val deckDao: DeckDao) 
             )
         } catch (e: Exception) {
             throw DatabaseException("Error getting a deck: ${e.localizedMessage}", e)
-        }
-    }
-
-    override suspend fun moveDecksBetweenFolders(
-        deckIds: List<Int>,
-        sourceFolderId: Int,
-        targetFolderId: Int
-    ) {
-        try {
-            deckDao.moveDecksBetweenFolders(
-                deckIds = deckIds,
-                sourceFolderId = sourceFolderId,
-                targetFolderId = targetFolderId
-            )
-        } catch (e: SQLException) {
-            throw DatabaseException(
-                "Failed to move decks between folders due to a constraint violation: ${e.localizedMessage}",
-                e
-            )
-        } catch (e: Exception) {
-            throw DatabaseException("Error moving decks between folders: ${e.localizedMessage}", e)
         }
     }
 }

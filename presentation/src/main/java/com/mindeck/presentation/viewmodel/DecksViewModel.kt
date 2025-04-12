@@ -2,10 +2,10 @@ package com.mindeck.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mindeck.domain.models.Folder
-import com.mindeck.domain.usecases.folderUseCases.CreateFolderUseCase
+import com.mindeck.domain.models.Deck
+import com.mindeck.domain.usecases.deckUseCases.CreateDeckUseCase
+import com.mindeck.domain.usecases.deckUseCases.GetAllDecksUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import com.mindeck.domain.usecases.folderUseCases.GetAllFoldersUseCase
 import com.mindeck.presentation.state.UiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -17,23 +17,23 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class FoldersViewModel @Inject constructor(
-    getAllFoldersUseCase: GetAllFoldersUseCase,
-    private val createFolderUseCase: CreateFolderUseCase
+class DecksViewModel @Inject constructor(
+    getAllDecksUseCase: GetAllDecksUseCase,
+    private val createDeckUseCase: CreateDeckUseCase
 ) : ViewModel() {
 
-    val foldersState: StateFlow<UiState<List<Folder>>> = getAllFoldersUseCase()
-        .map<List<Folder>, UiState<List<Folder>>> { UiState.Success(it) }
+    val decksState: StateFlow<UiState<List<Deck>>> = getAllDecksUseCase()
+        .map<List<Deck>, UiState<List<Deck>>> { UiState.Success(it) }
         .catch { emit(UiState.Error(it)) }
         .stateIn(viewModelScope, SharingStarted.Lazily, UiState.Loading)
 
-    private val _createFolderState = MutableStateFlow<UiState<Unit>>(UiState.Loading)
-    val createFolderState: StateFlow<UiState<Unit>> = _createFolderState
+    private val _createDeckState = MutableStateFlow<UiState<Unit>>(UiState.Loading)
+    val createDeckState: StateFlow<UiState<Unit>> = _createDeckState
 
-    fun createFolder(folderName: String) {
+    fun createDeck(deckName: String) {
         viewModelScope.launch {
-            _createFolderState.value = try {
-                createFolderUseCase(Folder(folderName = folderName))
+            _createDeckState.value = try {
+                createDeckUseCase(Deck(deckName = deckName))
                 UiState.Success(Unit)
             } catch (e: Exception) {
                 UiState.Error(e)

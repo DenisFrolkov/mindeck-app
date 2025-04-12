@@ -1,7 +1,6 @@
 package com.mimdeck.data.dataSource
 
 import com.mimdeck.data.database.entities.CardEntity
-import com.mimdeck.data.database.entities.FolderEntity
 import com.mindeck.domain.models.ReviewType
 import kotlinx.coroutines.flow.Flow
 
@@ -16,7 +15,6 @@ interface CardDataSource {
 
     suspend fun getCardById(cardId: Int): CardEntity
 
-    suspend fun getFolderByCardId(cardId: Int): FolderEntity?
 
     suspend fun deleteCardsFromDeck(cardsIds: List<Int>, deckId: Int)
 
