@@ -35,7 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.mindeck.domain.models.Card
-import com.mindeck.domain.models.Folder
+import com.mindeck.domain.models.Deck
 import com.mindeck.presentation.R
 import com.mindeck.presentation.state.UiState
 import com.mindeck.presentation.ui.components.daily_progress_tracker.DailyProgressTracker
@@ -72,7 +72,7 @@ fun MainScreen(
         mainViewModel.loadCardRepetition(stringToMillis(currentDateTime))
     }
 
-    val folders = mainViewModel.foldersState.collectAsState().value
+    val decks = mainViewModel.foldersState.collectAsState().value
     val cardsRepetition = mainViewModel.cardsForRepetitionState.collectAsState().value
 
     val dialogState = remember { DialogState() }
@@ -112,7 +112,7 @@ fun MainScreen(
                 Content(
                     paddingValues,
                     dailyProgressTrackerState,
-                    folders,
+                    decks,
                     cardsRepetition,
                     MAX_DISPLAY_ITEMS,
                     navController
@@ -133,7 +133,7 @@ fun MainScreen(
 private fun Content(
     paddingValues: PaddingValues,
     dailyProgressTrackerState: DailyProgressTrackerState,
-    folders: UiState<List<Folder>>,
+    decks: UiState<List<Deck>>,
     cardsRepetition: UiState<List<Card>>,
     MAX_DISPLAY_ITEMS: Int,
     navController: NavController
@@ -152,13 +152,13 @@ private fun Content(
         Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_large)))
         RepeatCardItem(navController = navController, cardsRepetition = cardsRepetition)
         Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_small)))
-        when (folders) {
+        when (decks) {
             is UiState.Success -> {
-                folders.data.take(MAX_DISPLAY_ITEMS).forEach { folder ->
-                    FolderItem(navController, folder)
+                decks.data.take(MAX_DISPLAY_ITEMS).forEach { folder ->
+                    DeckItem(navController, folder)
                     Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_small)))
                 }
-                if (folders.data.size > MAX_DISPLAY_ITEMS) {
+                if (decks.data.size > MAX_DISPLAY_ITEMS) {
                     Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_small)))
                     ButtonAllFolders(navController)
                 }
@@ -234,9 +234,9 @@ private fun RepeatCardItem(
 }
 
 @Composable
-private fun FolderItem(
+private fun DeckItem(
     navController: NavController,
-    folder: Folder
+    deck: Deck
 ) {
     DisplayItem(
         modifier = Modifier
@@ -253,16 +253,16 @@ private fun FolderItem(
                 indication = null
             ) {
                 navController.navigate(
-                    NavigationRoute.FolderScreen.createRoute(
-                        folder.folderId
+                    NavigationRoute.DeckScreen.createRoute(
+                        deck.deckId
                     )
                 )
             },
         showCount = false,
         displayItemData = DisplayItemData(
             itemIcon = R.drawable.folder_icon,
-            numberOfCards = folder.folderId,
-            itemName = folder.folderName
+            numberOfCards = deck.deckId,
+            itemName = deck.deckName
         ),
         displayItemStyle = DisplayItemStyle(
             backgroundColor = MaterialTheme.colorScheme.secondary.copy(
@@ -291,7 +291,7 @@ private fun ButtonAllFolders(navController: NavController) {
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
             ) {
-                navController.navigate(NavigationRoute.FoldersScreen.route)
+                navController.navigate(NavigationRoute.DecksScreen.route)
             }) {
             Text(
                 text = stringResource(R.string.title_text_all_folders),
@@ -388,7 +388,7 @@ private fun OpeningCreateItemDialog(
                 },
                 onSaveClick = {
                     if (dialogState.validateFolderName(dialogState.dialogStateData.text)) {
-                        mainViewModel.createFolder(dialogState.dialogStateData.text)
+                        mainViewModel.createDeck(dialogState.dialogStateData.text)
                         dialogState.closeDialog()
                     }
                 },

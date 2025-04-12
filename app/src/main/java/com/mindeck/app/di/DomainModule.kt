@@ -2,7 +2,6 @@ package com.mindeck.app.di
 
 import com.mindeck.domain.repository.CardRepository
 import com.mindeck.domain.repository.DeckRepository
-import com.mindeck.domain.repository.FolderRepository
 import com.mindeck.domain.repository.NotificationRepository
 import com.mindeck.domain.usecases.cardUseCase.AddCardsToDeckUseCase
 import com.mindeck.domain.usecases.cardUseCase.CreateCardUseCase
@@ -11,23 +10,14 @@ import com.mindeck.domain.usecases.cardUseCase.DeleteCardsFromDeckUseCase
 import com.mindeck.domain.usecases.cardUseCase.GetAllCardsByDeckIdUseCase
 import com.mindeck.domain.usecases.cardUseCase.GetCardByIdUseCase
 import com.mindeck.domain.usecases.cardUseCase.GetCardsRepetitionUseCase
-import com.mindeck.domain.usecases.cardUseCase.GetFolderByCardIdUseCase
 import com.mindeck.domain.usecases.cardUseCase.MoveCardsBetweenDeckUseCase
 import com.mindeck.domain.usecases.cardUseCase.UpdateCardReviewUseCase
 import com.mindeck.domain.usecases.cardUseCase.UpdateCardUseCase
-import com.mindeck.domain.usecases.deckUseCases.AddDecksToFolderUseCase
 import com.mindeck.domain.usecases.deckUseCases.CreateDeckUseCase
 import com.mindeck.domain.usecases.deckUseCases.DeleteDeckUseCase
-import com.mindeck.domain.usecases.deckUseCases.DeleteDecksFromFolderUseCase
-import com.mindeck.domain.usecases.deckUseCases.GetAllDecksByFolderIdUseCase
+import com.mindeck.domain.usecases.deckUseCases.GetAllDecksUseCase
 import com.mindeck.domain.usecases.deckUseCases.GetDeckByIdUseCase
-import com.mindeck.domain.usecases.deckUseCases.MoveDecksBetweenFoldersUseCase
 import com.mindeck.domain.usecases.deckUseCases.RenameDeckUseCase
-import com.mindeck.domain.usecases.folderUseCases.CreateFolderUseCase
-import com.mindeck.domain.usecases.folderUseCases.DeleteFolderUseCase
-import com.mindeck.domain.usecases.folderUseCases.GetAllFoldersUseCase
-import com.mindeck.domain.usecases.folderUseCases.GetFolderByIdUseCase
-import com.mindeck.domain.usecases.folderUseCases.RenameFolderUseCase
 import com.mindeck.domain.usecases.notificationUseCase.StartNotificationUseCase
 import com.mindeck.domain.usecases.notificationUseCase.StopNotificationUseCase
 import dagger.Module
@@ -39,33 +29,12 @@ import dagger.hilt.components.SingletonComponent
 @InstallIn(SingletonComponent::class)
 class DomainModule() {
 
-    //FolderUseCase
-    @Provides
-    fun providesCreateFolderUseCase(repository: FolderRepository): CreateFolderUseCase {
-        return CreateFolderUseCase(repository)
-    }
-
-    @Provides
-    fun providesRenameFolderUseCase(repository: FolderRepository): RenameFolderUseCase {
-        return RenameFolderUseCase(repository)
-    }
-
-    @Provides
-    fun providesDeleteFolderUseCase(repository: FolderRepository): DeleteFolderUseCase {
-        return DeleteFolderUseCase(repository)
-    }
-
-    @Provides
-    fun providesGetFolderByIdUseCase(repository: FolderRepository): GetFolderByIdUseCase {
-        return GetFolderByIdUseCase(repository)
-    }
-
-    @Provides
-    fun providesGetAllFoldersUseCase(repository: FolderRepository): GetAllFoldersUseCase {
-        return GetAllFoldersUseCase(repository)
-    }
-
     //DeckUseCase
+    @Provides
+    fun providesGetAllDecksUseCase(repository: DeckRepository): GetAllDecksUseCase {
+        return GetAllDecksUseCase(repository)
+    }
+
     @Provides
     fun providesCreateDeckUseCase(repository: DeckRepository): CreateDeckUseCase {
         return CreateDeckUseCase(repository)
@@ -84,26 +53,6 @@ class DomainModule() {
     @Provides
     fun providesGetDeckByIdUseCase(repository: DeckRepository): GetDeckByIdUseCase {
         return GetDeckByIdUseCase(repository)
-    }
-
-    @Provides
-    fun providesGetAllDecksByFolderIdUseCase(repository: DeckRepository): GetAllDecksByFolderIdUseCase {
-        return GetAllDecksByFolderIdUseCase(repository)
-    }
-
-    @Provides
-    fun providesAddDecksToFolderUseCase(repository: DeckRepository): AddDecksToFolderUseCase {
-        return AddDecksToFolderUseCase(repository)
-    }
-
-    @Provides
-    fun providesDeleteDecksFromFolderUseCase(repository: DeckRepository): DeleteDecksFromFolderUseCase {
-        return DeleteDecksFromFolderUseCase(repository)
-    }
-
-    @Provides
-    fun providesMoveDecksBetweenFoldersUseCase(repository: DeckRepository): MoveDecksBetweenFoldersUseCase {
-        return MoveDecksBetweenFoldersUseCase(repository)
     }
 
     //CardUseCase
@@ -130,11 +79,6 @@ class DomainModule() {
     @Provides
     fun providesGetCardByIdUseCase(repository: CardRepository): GetCardByIdUseCase {
         return GetCardByIdUseCase(repository)
-    }
-
-    @Provides
-    fun providesGetFolderByCardIdUseCase(repository: CardRepository): GetFolderByCardIdUseCase {
-        return GetFolderByCardIdUseCase(repository)
     }
 
     @Provides

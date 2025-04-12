@@ -37,29 +37,13 @@ class DeckRepositoryImpl @Inject constructor(private val deckDataSource: DeckDat
         }
     }
 
-    override fun getAllDecksByFolderId(folderId: Int): Flow<List<Deck>> {
+    override fun getAllDecks(): Flow<List<Deck>> {
         return try {
-            deckDataSource.getAllDecksByFolderId(folderId = folderId)
+            deckDataSource.getAllDecks()
                 .map { decksEntityList -> decksEntityList.map { it.toDomain() } }
         } catch (e: DatabaseException) {
             flow { emit(emptyList<Deck>()) }
             throw DomainException("Failed get all decks by folder id", e)
-        }
-    }
-
-    override suspend fun deleteDecksFromFolder(deckIds: List<Int>, folderId: Int) {
-        try {
-            deckDataSource.deleteDecksFromFolder(deckIds = deckIds, folderId = folderId)
-        } catch (e: DatabaseException) {
-            throw DomainException("Failed to delete deck from folder: ${e.localizedMessage}", e)
-        }
-    }
-
-    override suspend fun addDecksToFolder(deckIds: List<Int>, folderId: Int) {
-        try {
-            deckDataSource.addDecksToFolder(deckIds = deckIds, folderId = folderId)
-        } catch (e: DatabaseException) {
-            throw DomainException("Failed to add deck in folder: ${e.localizedMessage}", e)
         }
     }
 
@@ -68,22 +52,6 @@ class DeckRepositoryImpl @Inject constructor(private val deckDataSource: DeckDat
             deckDataSource.getDeckById(deckId = deckId).toDomain()
         } catch (e: DatabaseException) {
             throw DomainException("Failed get deck", e)
-        }
-    }
-
-    override suspend fun moveDecksBetweenFolders(
-        deckIds: List<Int>,
-        sourceFolderId: Int,
-        targetFolderId: Int
-    ) {
-        try {
-            deckDataSource.moveDecksBetweenFolders(
-                deckIds = deckIds,
-                sourceFolderId = sourceFolderId,
-                targetFolderId = targetFolderId
-            )
-        } catch (e: DatabaseException) {
-            throw DomainException("Failed to move decks between folders: ${e.localizedMessage}", e)
         }
     }
 }

@@ -13,8 +13,7 @@ import com.mindeck.presentation.ui.screens.CardScreen
 import com.mindeck.presentation.ui.screens.CardStudyScreen
 import com.mindeck.presentation.ui.screens.CreationCardScreen
 import com.mindeck.presentation.ui.screens.DeckScreen
-import com.mindeck.presentation.ui.screens.FolderScreen
-import com.mindeck.presentation.ui.screens.FoldersScreen
+import com.mindeck.presentation.ui.screens.DecksScreen
 import com.mindeck.presentation.ui.screens.MainScreen
 
 @Composable
@@ -40,27 +39,11 @@ fun AppNavigation() {
                 navController = navController
             )
         }
-        composable(NavigationRoute.FoldersScreen.route,
+        composable(NavigationRoute.DecksScreen.route,
             enterTransition = { fadeIn(animationSpec = tween(150)) },
             exitTransition = { fadeOut(animationSpec = tween(150)) }
         ) {
-            FoldersScreen(navController = navController)
-        }
-        composable(
-            NavigationRoute.FolderScreen.route,
-            enterTransition = { fadeIn(animationSpec = tween(100)) },
-            exitTransition = { fadeOut(animationSpec = tween(100)) },
-            arguments = listOf(navArgument("folderId") { type = NavType.IntType })
-        ) { backStackEntry ->
-            val folderId = backStackEntry.arguments?.getInt("folderId")
-            if (folderId != null) {
-                FolderScreen(
-                    navController = navController,
-                    folderId = folderId
-                )
-            } else {
-                navController.popBackStack()
-            }
+            DecksScreen(navController = navController)
         }
         composable(
             NavigationRoute.DeckScreen.route,

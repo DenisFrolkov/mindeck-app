@@ -6,30 +6,22 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.Deck
-import com.mindeck.domain.models.Folder
-import com.mindeck.domain.models.ReviewType
 import com.mindeck.domain.usecases.cardUseCase.CreateCardUseCase
-import com.mindeck.domain.usecases.deckUseCases.GetAllDecksByFolderIdUseCase
-import com.mindeck.domain.usecases.folderUseCases.GetAllFoldersUseCase
 import com.mindeck.presentation.state.CardState
 import com.mindeck.presentation.state.DropdownState
 import com.mindeck.presentation.state.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class CreationCardViewModel @Inject constructor(
     private val createCardUseCase: CreateCardUseCase,
-    getAllFoldersUseCase: GetAllFoldersUseCase,
-    private val getAllDecksByFolderIdUseCase: GetAllDecksByFolderIdUseCase
+//    getAllFoldersUseCase: GetAllFoldersUseCase,
+//    private val getAllDecksByFolderIdUseCase: GetAllDecksByFolderIdUseCase
 ) : ViewModel() {
     private var _cardState = mutableStateOf(
         CardState("", "", "", "", -1)
@@ -45,10 +37,10 @@ class CreationCardViewModel @Inject constructor(
     )
     val dropdownState: State<DropdownState> = _dropdownState
 
-    val foldersState: StateFlow<UiState<List<Folder>>> = getAllFoldersUseCase()
-        .map<List<Folder>, UiState<List<Folder>>> { UiState.Success(it) }
-        .catch { emit(UiState.Error(it)) }
-        .stateIn(viewModelScope, SharingStarted.Lazily, UiState.Loading)
+//    val foldersState: StateFlow<UiState<List<Folder>>> = getAllFoldersUseCase()
+//        .map<List<Folder>, UiState<List<Folder>>> { UiState.Success(it) }
+//        .catch { emit(UiState.Error(it)) }
+//        .stateIn(viewModelScope, SharingStarted.Lazily, UiState.Loading)
 
     private val _validation = MutableStateFlow<Boolean?>(null)
     val validation: StateFlow<Boolean?> = _validation.asStateFlow()
@@ -58,14 +50,14 @@ class CreationCardViewModel @Inject constructor(
 
     fun getAllDecksByFolderId(folderId: Int) {
         viewModelScope.launch {
-            getAllDecksByFolderIdUseCase(folderId = folderId)
-                .map<List<Deck>, UiState<List<Deck>>> {
-                    UiState.Success(it)
-                }
-                .catch { emit(UiState.Error(it)) }
-                .collect { state ->
-                    _listDecksUiState.value = state
-                }
+//            getAllDecksByFolderIdUseCase(folderId = folderId)
+//                .map<List<Deck>, UiState<List<Deck>>> {
+//                    UiState.Success(it)
+//                }
+//                .catch { emit(UiState.Error(it)) }
+//                .collect { state ->
+//                    _listDecksUiState.value = state
+//                }
         }
     }
 

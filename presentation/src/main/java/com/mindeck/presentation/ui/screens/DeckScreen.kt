@@ -86,7 +86,6 @@ fun DeckScreen(
         deckViewModel.loadCardsForDeck(deckId)
     }
 
-
     val deck by deckViewModel.deckUIState.collectAsState()
     val cards by deckViewModel.listCardsUiState.collectAsState()
     val decks by deckViewModel.listDecksUiState.collectAsState()
@@ -648,7 +647,7 @@ private fun DeckMoveDialog(
                 },
                 selectedElement = selectedElement,
                 sourceLocation = deck.data.deckId,
-                fetchList = { deckViewModel.getAllDecksByFolderId(deck.data.folderId) },
+                fetchList = { deckViewModel.getAllDecksByFolderId() },
                 onClickSave = {
                     handleDeckMoveSave(
                         dialogState,

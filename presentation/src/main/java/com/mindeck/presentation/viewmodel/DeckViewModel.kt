@@ -10,9 +10,9 @@ import com.mindeck.domain.usecases.cardUseCase.GetAllCardsByDeckIdUseCase
 import com.mindeck.domain.usecases.cardUseCase.MoveCardsBetweenDeckUseCase
 import com.mindeck.domain.usecases.cardUseCase.UpdateCardUseCase
 import com.mindeck.domain.usecases.deckUseCases.DeleteDeckUseCase
-import com.mindeck.domain.usecases.deckUseCases.GetAllDecksByFolderIdUseCase
 import com.mindeck.domain.usecases.deckUseCases.GetDeckByIdUseCase
 import com.mindeck.domain.usecases.deckUseCases.RenameDeckUseCase
+import com.mindeck.domain.usecases.deckUseCases.GetAllDecksUseCase
 import com.mindeck.presentation.state.UiState
 import com.mindeck.presentation.viewmodel.managers.EditModeManager
 import com.mindeck.presentation.viewmodel.managers.SelectionManager
@@ -28,7 +28,7 @@ import javax.inject.Inject
 class DeckViewModel @Inject constructor(
     private val getAllCardsByDeckIdUseCase: GetAllCardsByDeckIdUseCase,
     private val getDeckByIdUseCase: GetDeckByIdUseCase,
-    private val getAllDecksByFolderIdUseCase: GetAllDecksByFolderIdUseCase,
+    private val getAllDecksUseCase: GetAllDecksUseCase,
     private val renameDeckUseCase: RenameDeckUseCase,
     private val moveCardsBetweenDeckUseCase: MoveCardsBetweenDeckUseCase,
     private val deleteDeckUseCase: DeleteDeckUseCase,
@@ -71,9 +71,9 @@ class DeckViewModel @Inject constructor(
     private val _listDecksUiState = MutableStateFlow<UiState<List<Deck>>>(UiState.Loading)
     val listDecksUiState: StateFlow<UiState<List<Deck>>> = _listDecksUiState
 
-    fun getAllDecksByFolderId(folderId: Int) {
+    fun getAllDecksByFolderId() {
         viewModelScope.launch {
-            getAllDecksByFolderIdUseCase(folderId = folderId)
+            getAllDecksUseCase()
                 .map<List<Deck>, UiState<List<Deck>>> {
                     UiState.Success(it)
                 }
@@ -130,15 +130,15 @@ class DeckViewModel @Inject constructor(
         }
     }
 
-    private val _addDecksToFolder = MutableStateFlow<UiState<Unit>>(UiState.Loading)
-    val addDecksToFolder: StateFlow<UiState<Unit>> = _addDecksToFolder
+    private val _addCardsToDeck = MutableStateFlow<UiState<Unit>>(UiState.Loading)
+    val addCardsToDeck: StateFlow<UiState<Unit>> = _addCardsToDeck
 
     fun addCardsToDeck(
         cardIds: List<Int>,
         targetDeckId: Int
     ) {
         viewModelScope.launch {
-            _addDecksToFolder.value = try {
+            _addCardsToDeck.value = try {
                 addCardsToDeckUseCase(cardIds, targetDeckId)
                 UiState.Success(Unit)
             } catch (e: Exception) {

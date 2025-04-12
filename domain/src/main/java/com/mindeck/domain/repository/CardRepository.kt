@@ -1,7 +1,6 @@
 package com.mindeck.domain.repository
 
 import com.mindeck.domain.models.Card
-import com.mindeck.domain.models.Folder
 import com.mindeck.domain.models.ReviewType
 import kotlinx.coroutines.flow.Flow
 
@@ -16,7 +15,6 @@ interface CardRepository {
 
     suspend fun getCardById(cardId: Int): Card
 
-    suspend fun getFolderByCardId(cardId: Int): Folder?
 
     suspend fun deleteCardsFromDeck(cardsIds: List<Int>, deckId: Int)
 

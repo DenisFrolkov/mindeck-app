@@ -3,10 +3,8 @@ package com.mindeck.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mindeck.domain.models.Card
-import com.mindeck.domain.models.Folder
 import com.mindeck.domain.usecases.cardUseCase.DeleteCardUseCase
 import com.mindeck.domain.usecases.cardUseCase.GetCardByIdUseCase
-import com.mindeck.domain.usecases.cardUseCase.GetFolderByCardIdUseCase
 import com.mindeck.domain.usecases.cardUseCase.UpdateCardUseCase
 import com.mindeck.presentation.state.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,7 +17,6 @@ import javax.inject.Inject
 @HiltViewModel
 class CardViewModel @Inject constructor(
     private val getCardByIdUseCase: GetCardByIdUseCase,
-    private val getFolderByCardIdUseCase: GetFolderByCardIdUseCase,
     private val updateCardUseCase: UpdateCardUseCase,
     private val deleteCardUseCase: DeleteCardUseCase
 ) : ViewModel() {
@@ -30,19 +27,6 @@ class CardViewModel @Inject constructor(
         viewModelScope.launch {
             _cardByCardIdUIState.value = try {
                 UiState.Success(getCardByIdUseCase(cardId = cardId))
-            } catch (e: Exception) {
-                UiState.Error(e)
-            }
-        }
-    }
-
-    private val _folderUIState = MutableStateFlow<UiState<Folder?>>(UiState.Loading)
-    val folderUIState = _folderUIState.asStateFlow()
-
-    fun getFolderByCardId(cardId: Int) {
-        viewModelScope.launch {
-            _folderUIState.value = try {
-                UiState.Success(getFolderByCardIdUseCase(cardId = cardId))
             } catch (e: Exception) {
                 UiState.Error(e)
             }
