@@ -39,7 +39,7 @@ import com.mindeck.presentation.R
 import com.mindeck.presentation.state.CardState
 import com.mindeck.presentation.state.DropdownState
 import com.mindeck.presentation.state.UiState
-import com.mindeck.presentation.state.UiState.Loading.mapToUiState
+import com.mindeck.presentation.state.UiState.Loading.mapData
 import com.mindeck.presentation.ui.components.buttons.ActionHandlerButton
 import com.mindeck.presentation.ui.components.buttons.SaveDataButton
 import com.mindeck.presentation.ui.components.dropdown.dropdown_selector.DropdownSelector
@@ -62,7 +62,6 @@ fun CreationCardScreen(
     val dropdownState by creationCardViewModel.dropdownState
     val cardState by creationCardViewModel.cardState
     val validation by creationCardViewModel.validation.collectAsState()
-//    val folder by creationCardViewModel.foldersState.collectAsState()
     val deck by creationCardViewModel.listDecksUiState.collectAsState()
 
     LaunchedEffect(dropdownState.selectedFolder.second) {
@@ -86,7 +85,6 @@ fun CreationCardScreen(
                 Content(
                     navController = navController,
                     padding = padding,
-//                    folder = folder,
                     deck = deck,
                     typeDropdownList = typeDropdownList,
                     validation = validation,
@@ -129,7 +127,6 @@ private fun TopBar(onClick: () -> Unit) {
 private fun Content(
     navController: NavController,
     padding: PaddingValues,
-//    folder: UiState<List<Folder>>,
     deck: UiState<List<Deck>>,
     typeDropdownList: List<Pair<String, Int>>,
     validation: Boolean?,
@@ -145,7 +142,6 @@ private fun Content(
             .navigationBarsPadding()
     ) {
         DropdownSelectors(
-//            folder = folder,
             deck = deck,
             typeDropdownList = typeDropdownList,
             validation = validation == true || validation == null,
@@ -170,35 +166,12 @@ private fun Content(
 
 @Composable
 private fun DropdownSelectors(
-//    folder: UiState<List<Folder>>,
     deck: UiState<List<Deck>>,
     typeDropdownList: List<Pair<String, Int>>,
     validation: Boolean,
     dropdownState: DropdownState,
     creationCardViewModel: CreationCardViewModel
 ) {
-//    FolderDropdownSelector(
-//        selectedFolder = dropdownState.selectedFolder,
-//        validation = validation,
-//        folder = folder,
-//        onClick = { },
-//        onItemClick = {
-//            if (dropdownState.selectedFolder != it) {
-//                creationCardViewModel.updateDropdownState { copy(selectedFolder = it) }
-//                creationCardViewModel.getAllDecksByFolderId(it.second)
-//                creationCardViewModel.updateDropdownState {
-//                    copy(
-//                        selectedDeck = Pair(
-//                            "Выберите колоду",
-//                            null
-//                        )
-//                    )
-//                }
-//            }
-//        },
-//        textStyle = MaterialTheme.typography.bodyMedium
-//    )
-    Spacer(modifier = Modifier.height(height = dimenDpResource(R.dimen.spacer_medium)))
     DeckDropdownSelector(
         selectedDeck = dropdownState.selectedDeck,
         validation = validation,
@@ -235,9 +208,9 @@ private fun DeckDropdownSelector(
         label = stringResource(R.string.text_deck_dropdown_selector),
         validation = validation,
         selectedItem = selectedDeck,
-        itemsState = if (folderId != null) deck.mapToUiState { decks ->
-            decks.map { Pair(it.deckName, it.deckId) }
-        } else UiState.Success(emptyList()),
+        itemsState = deck.mapData { decks ->
+            decks.map { deck -> deck.deckName to deck.deckId }
+        },
         onItemClick = onItemClick,
         onClick = onClick,
         isEnabled = folderId != null,

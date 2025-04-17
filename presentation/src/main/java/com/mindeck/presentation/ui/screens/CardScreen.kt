@@ -113,9 +113,9 @@ private fun dropdownMenuDataList(
     dropdownMenuState: DropdownMenuState,
     cardViewModel: CardViewModel
 ): List<DropdownMenuData> {
-    when (card) {
+    return when (card) {
         is UiState.Success -> {
-            return listOf(
+            listOf(
                 DropdownMenuData(
                     title = stringResource(R.string.dropdown_menu_data_study_card),
                     titleStyle = MaterialTheme.typography.bodyMedium,
@@ -148,7 +148,7 @@ private fun dropdownMenuDataList(
         }
 
         is UiState.Loading -> {
-            return listOf(
+            listOf(
                 DropdownMenuData(
                     title = stringResource(R.string.text_loading),
                     titleStyle = MaterialTheme.typography.bodyMedium,
@@ -158,7 +158,7 @@ private fun dropdownMenuDataList(
         }
 
         else -> {
-            return listOf(
+            listOf(
                 DropdownMenuData(
                     title = stringResource(R.string.text_error_loading),
                     titleStyle = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.error),

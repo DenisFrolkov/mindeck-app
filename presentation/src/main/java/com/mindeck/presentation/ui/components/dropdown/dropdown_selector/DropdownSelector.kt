@@ -31,6 +31,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import com.mindeck.presentation.R
+import com.mindeck.presentation.state.RenderUiState
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
 import com.mindeck.presentation.ui.theme.outline_medium_gray
 import com.mindeck.presentation.ui.theme.text_black
@@ -100,9 +101,9 @@ fun DropdownSelector(
 
             if (dropdownSelectorState.isExpanded) {
                 if (isEnabled) {
-                    when (itemsState) {
-                        is UiState.Success -> {
-                            if (itemsState.data.isNotEmpty()) {
+                    itemsState.RenderUiState(
+                        onSuccess = { data ->
+                            if (data.isNotEmpty()) {
                                 Column(
                                     modifier = Modifier
                                         .border(
@@ -115,7 +116,7 @@ fun DropdownSelector(
                                         )
                                 ) {
                                     SelectorDropdownMenu(
-                                        selectorItemList = itemsState.data,
+                                        selectorItemList = data,
                                         onItemClick = onItemClick,
                                         dropdownSelectorState = dropdownSelectorState,
                                         textStyle = textStyle
@@ -127,15 +128,20 @@ fun DropdownSelector(
                                     textStyle = textStyle
                                 )
                             }
-                        }
-
-                        is UiState.Loading -> {
+                        },
+                        onLoading = {
                             EmptyDropdownMessage(
                                 message = "Загрузка...",
                                 textStyle = textStyle
                             )
+                        },
+                        onError = {
+                            EmptyDropdownMessage(
+                                message = "Ошибка",
+                                textStyle = textStyle
+                            )
                         }
-                    }
+                    )
                 } else {
                     EmptyDropdownMessage(
                         message = "Выберите папку",

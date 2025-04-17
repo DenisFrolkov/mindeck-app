@@ -62,8 +62,8 @@ import com.mindeck.presentation.ui.components.utils.dimenDpResource
 import com.mindeck.presentation.ui.components.utils.dimenFloatResource
 import com.mindeck.presentation.ui.navigation.NavigationRoute
 import com.mindeck.presentation.state.UiState
-import com.mindeck.presentation.state.UiState.Loading.mapSuccess
-import com.mindeck.presentation.state.UiState.Loading.mapToUiState
+import com.mindeck.presentation.state.UiState.Loading.mapData
+import com.mindeck.presentation.state.onSuccess
 import com.mindeck.presentation.ui.components.common.ButtonMoveMode
 import com.mindeck.presentation.ui.components.dataclasses.DisplayItemData
 import com.mindeck.presentation.ui.components.dataclasses.DisplayItemStyle
@@ -125,7 +125,7 @@ fun DeckScreen(
         dropdownMenuDataList(
             navController = navController,
             deck = deck,
-            cards = cards,
+            cardsState = cards,
             deckViewModel = deckViewModel,
             dialogState = dialogState,
             dropdownMenuState = dropdownMenuState
@@ -330,7 +330,7 @@ private fun Content(
 private fun dropdownMenuDataList(
     navController: NavController,
     deck: UiState<Deck>,
-    cards: UiState<List<Card>>,
+    cardsState: UiState<List<Card>>,
     deckViewModel: DeckViewModel,
     dialogState: DialogState,
     dropdownMenuState: DropdownMenuState
@@ -349,10 +349,9 @@ private fun dropdownMenuDataList(
             titleStyle = MaterialTheme.typography.bodyMedium,
             action = {
                 dropdownMenuState.reset()
-                when (cards) {
-                    is UiState.Success -> {
-                        deckViewModel.toggleEditMode()
-                    }
+                cardsState.onSuccess {
+                    deckViewModel.toggleEditMode()
+
                 }
             }
         ),
@@ -369,14 +368,12 @@ private fun dropdownMenuDataList(
             titleStyle = MaterialTheme.typography.bodyMedium,
             action = {
                 dropdownMenuState.reset()
-                when (cards) {
-                    is UiState.Success -> {
-                        if (cards.data.isNotEmpty()) {
-                            dialogState.openDeleteDialog()
-                        } else {
-                            deck.mapSuccess { deckViewModel.deleteDeck(it) }
-                            navController.popBackStack()
-                        }
+                cardsState.onSuccess { cards ->
+                    if (cards.isNotEmpty()) {
+                        dialogState.openDeleteDialog()
+                    } else {
+                        deck.onSuccess { deckViewModel.deleteDeck(it) }
+                        navController.popBackStack()
                     }
                 }
             }
@@ -642,7 +639,7 @@ private fun DeckMoveDialog(
             SelectItemDialog(
                 titleDialog = stringResource(R.string.dialog_select_deck),
                 dialogState = dialogState,
-                selectItems = decks.mapToUiState { deckPairs ->
+                selectItems = decks.mapData { deckPairs ->
                     deckPairs.map { Pair(it.deckName, it.deckId) }
                 },
                 selectedElement = selectedElement,
@@ -708,7 +705,7 @@ private fun handleDeckMoveSave(
             cardIds = deckViewModel.selectedCardIdSet.value.sorted()
                 .toList()
         )
-        deck.mapSuccess { deckViewModel.deleteDeck(it) }
+        deck.onSuccess { deckViewModel.deleteDeck(it) }
         deckViewModel.clearCardSelection()
         dialogState.closeDialog()
         dialogState.stopSelectingDecksForMoveAndDelete()
@@ -770,12 +767,13 @@ private fun DeckDropdownMenu(
     dropdownVisibleAnimation: Float,
     dropdownMenuState: DropdownMenuState
 ) {
-    Box(modifier = Modifier
-        .fillMaxSize()
-        .clickable(
-            interactionSource = remember { MutableInteractionSource() },
-            indication = null
-        ) { dropdownMenuState.toggle() })
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) { dropdownMenuState.toggle() })
 
     DropdownMenu(
         listDropdownMenuItem = listDropdownMenu,

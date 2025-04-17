@@ -26,7 +26,7 @@ class MainViewModel @Inject constructor(
     private val getCardsRepetitionUseCase: GetCardsRepetitionUseCase
 ) : ViewModel() {
 
-    val foldersState: StateFlow<UiState<List<Deck>>> = getAllFoldersUseCase()
+    val decksState: StateFlow<UiState<List<Deck>>> = getAllFoldersUseCase()
         .map<List<Deck>, UiState<List<Deck>>> { UiState.Success(it) }
         .catch { emit(UiState.Error(it)) }
         .stateIn(viewModelScope, SharingStarted.Lazily, UiState.Loading)

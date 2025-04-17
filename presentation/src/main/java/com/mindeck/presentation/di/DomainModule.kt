@@ -1,4 +1,4 @@
-package com.mindeck.app.di
+package com.mindeck.presentation.di
 
 import com.mindeck.domain.repository.CardRepository
 import com.mindeck.domain.repository.DeckRepository
