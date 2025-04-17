@@ -37,7 +37,9 @@ import androidx.navigation.NavController
 import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.Deck
 import com.mindeck.presentation.R
+import com.mindeck.presentation.state.RenderUiState
 import com.mindeck.presentation.state.UiState
+import com.mindeck.presentation.state.onSuccess
 import com.mindeck.presentation.ui.components.daily_progress_tracker.DailyProgressTracker
 import com.mindeck.presentation.ui.components.daily_progress_tracker.DailyProgressTrackerState
 import com.mindeck.presentation.ui.components.dataclasses.DisplayItemData
@@ -72,7 +74,7 @@ fun MainScreen(
         mainViewModel.loadCardRepetition(stringToMillis(currentDateTime))
     }
 
-    val decks = mainViewModel.foldersState.collectAsState().value
+    val decks = mainViewModel.decksState.collectAsState().value
     val cardsRepetition = mainViewModel.cardsForRepetitionState.collectAsState().value
 
     val dialogState = remember { DialogState() }
@@ -90,6 +92,35 @@ fun MainScreen(
     val fabMenuItems = fabMenuDataList(dialogState, navController)
     val fabState = remember { FabState(expandedHeight = ITEM_HEIGHT.dp * fabMenuItems.size) }
 
+    MainContent(
+        fabMenuItems,
+        fabState,
+        dailyProgressTrackerState,
+        decks,
+        cardsRepetition,
+        MAX_DISPLAY_ITEMS,
+        navController,
+        dialogState,
+        dialogVisibleAnimation,
+        validation,
+        mainViewModel
+    )
+}
+
+@Composable
+private fun MainContent(
+    fabMenuItems: List<FabMenuData>,
+    fabState: FabState,
+    dailyProgressTrackerState: DailyProgressTrackerState,
+    decks: UiState<List<Deck>>,
+    cardsRepetition: UiState<List<Card>>,
+    MAX_DISPLAY_ITEMS: Int,
+    navController: NavController,
+    dialogState: DialogState,
+    dialogVisibleAnimation: Float,
+    validation: Boolean?,
+    mainViewModel: MainViewModel
+) {
     Surface(
         modifier = Modifier
             .fillMaxSize()
@@ -133,7 +164,7 @@ fun MainScreen(
 private fun Content(
     paddingValues: PaddingValues,
     dailyProgressTrackerState: DailyProgressTrackerState,
-    decks: UiState<List<Deck>>,
+    decksState: UiState<List<Deck>>,
     cardsRepetition: UiState<List<Card>>,
     MAX_DISPLAY_ITEMS: Int,
     navController: NavController
@@ -150,21 +181,20 @@ private fun Content(
             dailyProgressTrackerState = dailyProgressTrackerState
         )
         Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_large)))
-        RepeatCardItem(navController = navController, cardsRepetition = cardsRepetition)
+        RepeatCardItem(navController = navController, cardsRepetitionState = cardsRepetition)
         Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_small)))
-        when (decks) {
-            is UiState.Success -> {
-                decks.data.take(MAX_DISPLAY_ITEMS).forEach { folder ->
+        decksState.RenderUiState(
+            onSuccess = { decks ->
+                decks.take(MAX_DISPLAY_ITEMS).forEach { folder ->
                     DeckItem(navController, folder)
                     Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_small)))
                 }
-                if (decks.data.size > MAX_DISPLAY_ITEMS) {
+                if (decks.size > MAX_DISPLAY_ITEMS) {
                     Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_small)))
                     ButtonAllFolders(navController)
                 }
-            }
-
-            is UiState.Loading -> {
+            },
+            onLoading = {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -175,9 +205,8 @@ private fun Content(
                         strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_one)
                     )
                 }
-            }
-
-            is UiState.Error -> {
+            },
+            onError = {
                 Text(
                     stringResource(R.string.error_get_all_folders),
                     modifier = Modifier.fillMaxWidth(),
@@ -185,52 +214,50 @@ private fun Content(
                     style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.error)
                 )
             }
-        }
+        )
     }
 }
 
 @Composable
 private fun RepeatCardItem(
     navController: NavController,
-    cardsRepetition: UiState<List<Card>>
+    cardsRepetitionState: UiState<List<Card>>
 ) {
-    when (cardsRepetition) {
-        is UiState.Success -> {
-            if (cardsRepetition.data.isNotEmpty()) {
-                DisplayItem(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .border(
-                            dimenDpResource(R.dimen.border_width_dot_two_five),
-                            MaterialTheme.colorScheme.outline,
-                            MaterialTheme.shapes.small
-                        )
-                        .clip(shape = MaterialTheme.shapes.small)
-                        .height(dimenDpResource(R.dimen.display_card_item_size))
-                        .clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null
-                        ) {
-                            navController.navigate(NavigationRoute.RepeatCardsScreen.route)
-                        },
-                    showCount = true,
-                    displayItemData = DisplayItemData(
-                        itemIcon = R.drawable.folder_icon,
-                        numberOfCards = cardsRepetition.data.size,
-                        itemName = stringResource(R.string.text_repeat_cards)
-                    ),
-                    displayItemStyle = DisplayItemStyle(
-                        backgroundColor = MaterialTheme.colorScheme.tertiary.copy(
-                            dimenFloatResource(R.dimen.float_zero_dot_five_significance)
-                        ),
-                        iconColor = MaterialTheme.colorScheme.onTertiary,
-                        textStyle = MaterialTheme.typography.bodyMedium,
+    cardsRepetitionState.onSuccess { cardsRepetition ->
+        if (cardsRepetition.isNotEmpty()) {
+            DisplayItem(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .border(
+                        dimenDpResource(R.dimen.border_width_dot_two_five),
+                        MaterialTheme.colorScheme.outline,
+                        MaterialTheme.shapes.small
                     )
+                    .clip(shape = MaterialTheme.shapes.small)
+                    .height(dimenDpResource(R.dimen.display_card_item_size))
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) {
+                        navController.navigate(NavigationRoute.RepeatCardsScreen.route)
+                    },
+                showCount = true,
+                displayItemData = DisplayItemData(
+                    itemIcon = R.drawable.folder_icon,
+                    numberOfCards = cardsRepetition.size,
+                    itemName = stringResource(R.string.text_repeat_cards)
+                ),
+                displayItemStyle = DisplayItemStyle(
+                    backgroundColor = MaterialTheme.colorScheme.tertiary.copy(
+                        dimenFloatResource(R.dimen.float_zero_dot_five_significance)
+                    ),
+                    iconColor = MaterialTheme.colorScheme.onTertiary,
+                    textStyle = MaterialTheme.typography.bodyMedium,
                 )
-            }
+            )
         }
-    }
 
+    }
 }
 
 @Composable
@@ -282,17 +309,18 @@ private fun ButtonAllFolders(navController: NavController) {
             .wrapContentSize(Alignment.Center)
     ) {
 
-        Box(modifier = Modifier
-            .background(
-                color = MaterialTheme.colorScheme.outlineVariant,
-                shape = MaterialTheme.shapes.medium
-            )
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null
-            ) {
-                navController.navigate(NavigationRoute.DecksScreen.route)
-            }) {
+        Box(
+            modifier = Modifier
+                .background(
+                    color = MaterialTheme.colorScheme.outlineVariant,
+                    shape = MaterialTheme.shapes.medium
+                )
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) {
+                    navController.navigate(NavigationRoute.DecksScreen.route)
+                }) {
             Text(
                 text = stringResource(R.string.title_text_all_folders),
                 style = MaterialTheme.typography.bodyMedium.copy(
@@ -310,14 +338,15 @@ private fun ButtonAllFolders(navController: NavController) {
 @Composable
 private fun BackgroundFAB(fabState: FabState) {
     if (fabState.isExpanded) {
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null
-            ) {
-                fabState.reset()
-            }
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) {
+                    fabState.reset()
+                }
         )
     }
 }
@@ -408,3 +437,58 @@ private fun OpeningCreateItemDialog(
         }
     }
 }
+
+//@Preview(
+//    showBackground = true,
+//    backgroundColor = 0xFFE6E6FF
+//)
+//@Composable
+//private fun ScreenPreview() {
+//    val vm = MainViewModel()
+//    vm.tasksForHm.value = mockData()
+//    NasotkuAppTheme {
+//        HomeWorkInfoContent(vm)
+//    }
+//}
+
+//@Preview(
+//    showBackground = true,
+//    backgroundColor = 0xFF330066
+//)
+//@Composable
+//private fun ScreenPreviewDarkMode() {
+//    val vm = TeacherHomeTasksViewModel(Application(), isPreviewMode = true)
+//    vm.tasksForHm.value = mockData()
+//    NasotkuAppTheme(darkTheme = true) {
+//        HomeWorkInfoContent(vm)
+//    }
+//}
+//
+//@Preview(
+//    device = "spec:parent=pixel_5,orientation=landscape",
+//    showBackground = true,
+//    backgroundColor = 0xFFE6E6FF
+//)
+//@Composable
+//private fun ScreenPreviewLandscape() {
+//    val vm = TeacherHomeTasksViewModel(Application(), isPreviewMode = true)
+//    vm.tasksForHm.value = mockData()
+//    NasotkuAppTheme {
+//        HomeWorkInfoContent(vm)
+//    }
+//}
+//
+//@Preview(
+//    showBackground = true,
+//    backgroundColor = 0xFF330066,
+//    device = "spec:parent=pixel_5,orientation=landscape"
+//)
+//@Composable
+//private fun ScreenPreviewLandscapeDarkMode() {
+//    val vm = TeacherHomeTasksViewModel(Application(), isPreviewMode = true)
+//    vm.tasksForHm.value = mockData()
+//    NasotkuAppTheme(darkTheme = true) {
+//        HomeWorkInfoContent(vm)
+//    }
+//}
+

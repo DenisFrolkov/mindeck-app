@@ -7,7 +7,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -21,7 +20,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,9 +30,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import com.mindeck.presentation.R
 import com.mindeck.presentation.state.UiState
+import com.mindeck.presentation.state.onSuccess
 import com.mindeck.presentation.ui.components.buttons.ActionHandlerButton
 import com.mindeck.presentation.ui.components.buttons.SaveDataButton
-import com.mindeck.presentation.ui.components.dialog.data_class.DialogType
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
 import com.mindeck.presentation.ui.components.utils.dimenFloatResource
 import com.mindeck.presentation.ui.theme.text_white
@@ -117,35 +115,33 @@ fun SelectItemDialog(
 
 @Composable
 private fun ItemList(
-    selectItems: UiState<List<Pair<String, Int>>>,
+    selectItemsState: UiState<List<Pair<String, Int>>>,
     sourceLocation: Int,
     selectedElement: Int?,
     dialogState: DialogState
 ) {
-    when (selectItems) {
-        is UiState.Success -> {
-            if (selectItems.data.isNotEmpty()) {
-                LazyColumn(modifier = Modifier.heightIn(max = dimenDpResource(R.dimen.dialog_list_move_item_max_height))) {
-                    items(selectItems.data) { item ->
-                        if (item.second != sourceLocation) {
-                            SelectItem(
-                                itemSelected = selectedElement == item.second,
-                                item = item,
-                                onItemSelected = { dialogState.updateSelectItem(item.second) }
-                            )
-                            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacer_small)))
-                        }
+    selectItemsState.onSuccess { selectItems ->
+        if (selectItems.isNotEmpty()) {
+            LazyColumn(modifier = Modifier.heightIn(max = dimenDpResource(R.dimen.dialog_list_move_item_max_height))) {
+                items(selectItems) { item ->
+                    if (item.second != sourceLocation) {
+                        SelectItem(
+                            itemSelected = selectedElement == item.second,
+                            item = item,
+                            onItemSelected = { dialogState.updateSelectItem(item.second) }
+                        )
+                        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacer_small)))
                     }
                 }
-            } else {
-                Text(
-                    stringResource(R.string.warning_no_elements),
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier
-                        .padding(start = dimenDpResource(R.dimen.padding_extra_small))
-                        .padding(vertical = dimenDpResource(R.dimen.padding_extra_small))
-                )
             }
+        } else {
+            Text(
+                stringResource(R.string.warning_no_elements),
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier
+                    .padding(start = dimenDpResource(R.dimen.padding_extra_small))
+                    .padding(vertical = dimenDpResource(R.dimen.padding_extra_small))
+            )
         }
     }
 }
