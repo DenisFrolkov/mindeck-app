@@ -48,7 +48,6 @@ fun CreateItemDialog(
         contentAlignment = Alignment.Center,
         modifier = Modifier
             .fillMaxHeight(dimenFloatResource(R.dimen.alpha_menu_dialog_height))
-            .padding(horizontal = dimenDpResource(R.dimen.card_input_field_background_horizontal_padding))
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,

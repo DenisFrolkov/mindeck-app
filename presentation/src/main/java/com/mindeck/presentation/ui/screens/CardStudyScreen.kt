@@ -39,7 +39,7 @@ import androidx.navigation.NavController
 import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.ReviewType
 import com.mindeck.presentation.R
-import com.mindeck.presentation.state.UiState
+import com.mindeck.presentation.state.RenderUiState
 import com.mindeck.presentation.ui.components.common.ActionBar
 import com.mindeck.presentation.ui.components.common.QuestionAndAnswerElement
 import com.mindeck.presentation.ui.components.repeat_options.RepeatOptionData
@@ -69,15 +69,15 @@ fun CardStudyScreen(
         }
     }
 
-    val card = cardStudyViewModel.cardByCardIdUIState.collectAsState().value
-    val allCardsForReview = cardStudyViewModel.cardsForRepetitionState.collectAsState().value
+    val cardByCardIdState = cardStudyViewModel.cardByCardIdUIState.collectAsState().value
+    val cardsForRepetitionState = cardStudyViewModel.cardsForRepetitionState.collectAsState().value
     var currentIndex by remember { mutableIntStateOf(0) }
 
     val scrollState = rememberScrollState()
 
     if (cardId == null) {
-        when (allCardsForReview) {
-            is UiState.Success -> {
+        cardsForRepetitionState.RenderUiState(
+            onSuccess = { allCardsForReview ->
                 Surface(
                     modifier = Modifier
                         .fillMaxSize()
@@ -86,7 +86,7 @@ fun CardStudyScreen(
                     Scaffold(
                         topBar = { CardStudyTopBar(navController = navController) },
                         content = { padding ->
-                            val cardCount = remember { allCardsForReview.data }
+                            val cardCount = remember { allCardsForReview }
                             val currentCard = cardCount[currentIndex]
                             Content(
                                 padding = padding,
@@ -110,9 +110,8 @@ fun CardStudyScreen(
                         }
                     )
                 }
-            }
-
-            is UiState.Loading -> {
+            },
+            onLoading = {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -125,9 +124,8 @@ fun CardStudyScreen(
                         strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_two)
                     )
                 }
-            }
-
-            is UiState.Error -> {
+            },
+            onError = {
                 Text(
                     stringResource(R.string.error_get_card_by_card_id),
                     modifier = Modifier.fillMaxWidth(),
@@ -135,10 +133,11 @@ fun CardStudyScreen(
                     style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.error)
                 )
             }
-        }
+        )
+
     } else {
-        when (card) {
-            is UiState.Success -> {
+        cardByCardIdState.RenderUiState(
+            onSuccess = { cardByCardId ->
                 Surface(
                     modifier = Modifier
                         .fillMaxSize()
@@ -149,11 +148,11 @@ fun CardStudyScreen(
                         content = { padding ->
                             Content(
                                 padding = padding,
-                                card = card.data,
+                                card = cardByCardId,
                                 scrollState = scrollState,
                                 repeatOptionsButton = repeatOptionDataList(
                                     cardStudyViewModel = cardStudyViewModel,
-                                    card = card.data,
+                                    card = cardByCardId,
                                     clickButton = {
                                         navController.popBackStack()
                                     }
@@ -162,9 +161,8 @@ fun CardStudyScreen(
                         }
                     )
                 }
-            }
-
-            is UiState.Loading -> {
+            },
+            onLoading = {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -177,9 +175,8 @@ fun CardStudyScreen(
                         strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_two)
                     )
                 }
-            }
-
-            is UiState.Error -> {
+            },
+            onError = {
                 Text(
                     stringResource(R.string.error_get_card_by_card_id),
                     modifier = Modifier.fillMaxWidth(),
@@ -187,7 +184,7 @@ fun CardStudyScreen(
                     style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.error)
                 )
             }
-        }
+        )
     }
 }
 

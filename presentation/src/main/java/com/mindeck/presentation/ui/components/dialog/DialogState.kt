@@ -85,12 +85,8 @@ class DialogState(
         dialogStateData = dialogStateData.copy(text = text)
     }
 
-    fun startSelectingDecksForMoveAndDelete() {
+    fun toggleSelectingDecksForMoveAndDelete() {
         isSelectingDecksForMoveAndDelete = true
-    }
-
-    fun stopSelectingDecksForMoveAndDelete() {
-        isSelectingDecksForMoveAndDelete = false
     }
 
     fun showErrorToast(message: String) {

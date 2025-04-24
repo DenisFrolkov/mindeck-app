@@ -39,6 +39,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.mindeck.domain.models.Card
 import com.mindeck.presentation.R
+import com.mindeck.presentation.state.RenderUiState
 import com.mindeck.presentation.state.UiState
 import com.mindeck.presentation.ui.components.common.ActionBar
 import com.mindeck.presentation.ui.components.common.QuestionAndAnswerElement
@@ -267,9 +268,11 @@ private fun Content(
             .statusBarsPadding()
             .verticalScroll(state = scrollState)
     ) {
-        CardAttributesList(cardAttributes = cardAttributes)
+        for (attribute in cardAttributes) {
+            CardAttributesList(attribute = attribute)
+        }
         Spacer(modifier = Modifier.height(height = dimenDpResource(R.dimen.spacer_large)))
-        CardInfo(card = card)
+        CardInfo(cardState = card)
     }
     if (dropdownMenuState.isExpanded) {
         CardDropdownMenu(
@@ -282,8 +285,7 @@ private fun Content(
 }
 
 @Composable
-private fun CardAttributesList(cardAttributes: List<CardAttributes>) {
-    for (attribute in cardAttributes) {
+private fun CardAttributesList(attribute: CardAttributes) {
         Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_medium)))
         Row() {
             Text(
@@ -336,138 +338,136 @@ private fun CardAttributesList(cardAttributes: List<CardAttributes>) {
             }
         }
     }
-}
 
-@Composable
+    @Composable
 
-private fun CardInfo(
-    card: UiState<Card>
-) {
-    when (card) {
-        is UiState.Success -> {
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(
-                    text = card.data.cardName,
-                    style = MaterialTheme.typography.bodyLarge
-                )
-            }
-            Spacer(modifier = Modifier.height(height = dimenDpResource(R.dimen.spacer_medium)))
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-            ) {
-                QuestionAndAnswerElement(
-                    question = card.data.cardQuestion,
-                    answer = card.data.cardAnswer,
-                    questionStyle = MaterialTheme.typography.bodyMedium.copy(
-                        textAlign = TextAlign.Start
-                    ),
-                    answerStyle = MaterialTheme.typography.bodyMedium.copy(
-                        textAlign = TextAlign.Start
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.onPrimary)
-                        .border(
-                            dimenDpResource(R.dimen.border_width_dot_five),
-                            MaterialTheme.colorScheme.outline,
-                            MaterialTheme.shapes.extraSmall
-                        )
-                )
-            }
-
-            if (card.data.cardTag.isEmpty()) {
-                Spacer(modifier = Modifier.height(height = dimenDpResource(R.dimen.spacer_medium)))
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
+    private fun CardInfo(
+        cardState: UiState<Card>
+    ) {
+        cardState.RenderUiState(
+            onSuccess = { card ->
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
-                        text = stringResource(R.string.text_tag_input_field),
-                        style = MaterialTheme.typography.bodyMedium
+                        text = card.cardName,
+                        style = MaterialTheme.typography.bodyLarge
                     )
-                    Spacer(modifier = Modifier.width(dimenDpResource(R.dimen.spacer_large)))
-                    Column(
+                }
+                Spacer(modifier = Modifier.height(height = dimenDpResource(R.dimen.spacer_medium)))
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                ) {
+                    QuestionAndAnswerElement(
+                        question = card.cardQuestion,
+                        answer = card.cardAnswer,
+                        questionStyle = MaterialTheme.typography.bodyMedium.copy(
+                            textAlign = TextAlign.Start
+                        ),
+                        answerStyle = MaterialTheme.typography.bodyMedium.copy(
+                            textAlign = TextAlign.Start
+                        ),
                         modifier = Modifier
                             .fillMaxWidth()
+                            .background(MaterialTheme.colorScheme.onPrimary)
+                            .border(
+                                dimenDpResource(R.dimen.border_width_dot_five),
+                                MaterialTheme.colorScheme.outline,
+                                MaterialTheme.shapes.extraSmall
+                            )
+                    )
+                }
+
+                if (card.cardTag.isEmpty()) {
+                    Spacer(modifier = Modifier.height(height = dimenDpResource(R.dimen.spacer_medium)))
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Box(
+                        Text(
+                            text = stringResource(R.string.text_tag_input_field),
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        Spacer(modifier = Modifier.width(dimenDpResource(R.dimen.spacer_large)))
+                        Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .background(
-                                    color = MaterialTheme.colorScheme.onPrimary,
-                                    shape = MaterialTheme.shapes.extraSmall
-                                )
-                                .height(height = dimenDpResource(R.dimen.dropdown_menu_item_height))
-                                .border(
-                                    dimenDpResource(R.dimen.border_width_dot_two_five),
-                                    MaterialTheme.colorScheme.outline,
-                                    shape = MaterialTheme.shapes.extraSmall
-                                )
-                                .padding(dimenDpResource(R.dimen.padding_extra_small))
-                                .wrapContentSize(Alignment.CenterStart)
-
                         ) {
-                            Text(
-                                text = card.data.cardTag,
-                                style = MaterialTheme.typography.bodyMedium
-                            )
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(
+                                        color = MaterialTheme.colorScheme.onPrimary,
+                                        shape = MaterialTheme.shapes.extraSmall
+                                    )
+                                    .height(height = dimenDpResource(R.dimen.dropdown_menu_item_height))
+                                    .border(
+                                        dimenDpResource(R.dimen.border_width_dot_two_five),
+                                        MaterialTheme.colorScheme.outline,
+                                        shape = MaterialTheme.shapes.extraSmall
+                                    )
+                                    .padding(dimenDpResource(R.dimen.padding_extra_small))
+                                    .wrapContentSize(Alignment.CenterStart)
+
+                            ) {
+                                Text(
+                                    text = card.cardTag,
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }
                         }
                     }
                 }
-            }
-        }
-
-        is UiState.Loading -> {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = dimenDpResource(R.dimen.padding_large))
-                    .wrapContentSize(Alignment.Center)
-            ) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(dimenDpResource(R.dimen.circular_progress_indicator_size)),
-                    color = MaterialTheme.colorScheme.primary,
-                    strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_two)
+            },
+            onLoading = {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = dimenDpResource(R.dimen.padding_large))
+                        .wrapContentSize(Alignment.Center)
+                ) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(dimenDpResource(R.dimen.circular_progress_indicator_size)),
+                        color = MaterialTheme.colorScheme.primary,
+                        strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_two)
+                    )
+                }
+            },
+            onError = {
+                Text(
+                    stringResource(R.string.error_get_info_about_folder),
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.error)
                 )
             }
-        }
-
-        is UiState.Error -> {
-            Text(
-                stringResource(R.string.error_get_info_about_folder),
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.error)
-            )
-        }
+        )
     }
-}
 
-@Composable
-private fun CardDropdownMenu(
-    padding: PaddingValues,
-    listDropdownMenu: List<DropdownMenuData>,
-    dropdownVisibleAnimation: Float,
-    dropdownMenuState: DropdownMenuState
-) {
-    Box(modifier = Modifier
-        .fillMaxSize()
-        .clickable(
-            interactionSource = remember { MutableInteractionSource() },
-            indication = null
-        ) { dropdownMenuState.toggle() })
+    @Composable
+    private fun CardDropdownMenu(
+        padding: PaddingValues,
+        listDropdownMenu: List<DropdownMenuData>,
+        dropdownVisibleAnimation: Float,
+        dropdownMenuState: DropdownMenuState
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) { dropdownMenuState.toggle() })
 
-    DropdownMenu(
-        listDropdownMenuItem = listDropdownMenu,
-        dropdownModifier = Modifier
-            .padding(padding)
-            .padding(horizontal = dimenDpResource(R.dimen.padding_medium))
-            .alpha(dropdownVisibleAnimation)
-            .fillMaxWidth()
-            .padding(top = dimenDpResource(R.dimen.spacer_extra_small))
-            .wrapContentSize(Alignment.TopEnd)
-    )
-}
+        DropdownMenu(
+            listDropdownMenuItem = listDropdownMenu,
+            dropdownModifier = Modifier
+                .padding(padding)
+                .padding(horizontal = dimenDpResource(R.dimen.padding_medium))
+                .alpha(dropdownVisibleAnimation)
+                .fillMaxWidth()
+                .padding(top = dimenDpResource(R.dimen.spacer_extra_small))
+                .wrapContentSize(Alignment.TopEnd)
+        )
+    }
