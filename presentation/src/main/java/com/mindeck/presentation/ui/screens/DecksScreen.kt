@@ -43,6 +43,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.mindeck.domain.models.Deck
 import com.mindeck.presentation.R
+import com.mindeck.presentation.state.RenderUiState
 import com.mindeck.presentation.state.UiState
 import com.mindeck.presentation.ui.components.common.ActionBar
 import com.mindeck.presentation.ui.components.dataclasses.DisplayItemData
@@ -55,6 +56,7 @@ import com.mindeck.presentation.ui.components.dialog.data_class.DialogType
 import com.mindeck.presentation.ui.components.folder.DisplayItem
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
 import com.mindeck.presentation.ui.components.utils.dimenFloatResource
+import com.mindeck.presentation.ui.navigation.NavigationRoute
 import com.mindeck.presentation.viewmodel.DecksViewModel
 import kotlinx.coroutines.delay
 
@@ -66,7 +68,7 @@ fun DecksScreen(
 
     val decks = decksViewModel.decksState.collectAsState().value
 
-    var dialogState = remember { DialogState() }
+    val dialogState = remember { DialogState() }
 
     val validation = dialogState.dialogStateData.isValid
     val toastMessage = dialogState.toastTextEvent
@@ -188,11 +190,11 @@ private fun Content(
 
 @Composable
 private fun DecksInfo(
-    decks: UiState<List<Deck>>,
+    decksState: UiState<List<Deck>>,
     navController: NavController
 ) {
-    when (decks) {
-        is UiState.Success -> {
+    decksState.RenderUiState(
+        onSuccess = { decks ->
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -201,8 +203,8 @@ private fun DecksInfo(
                 Text(
                     text = pluralStringResource(
                         R.plurals.folder_amount,
-                        decks.data.size,
-                        decks.data.size
+                        decks.size,
+                        decks.size
                     ),
                     style = MaterialTheme.typography.titleMedium,
                 )
@@ -210,8 +212,8 @@ private fun DecksInfo(
             Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_large)))
             LazyColumn {
                 items(
-                    items = decks.data,
-                    key = { it.deckId }) { folder ->
+                    items = decks,
+                    key = { it.deckId }) { deck ->
                     DisplayItem(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -226,17 +228,17 @@ private fun DecksInfo(
                                 interactionSource = remember { MutableInteractionSource() },
                                 indication = null
                             ) {
-//                                navController.navigate(
-//                                    NavigationRoute.FolderScreen.createRoute(
-//                                        folder.folderId
-//                                    )
-//                                )
+                                navController.navigate(
+                                    NavigationRoute.DeckScreen.createRoute(
+                                        deck.deckId
+                                    )
+                                )
                             },
                         showCount = false,
                         displayItemData = DisplayItemData(
                             itemIcon = R.drawable.folder_icon,
-                            numberOfCards = folder.deckId,
-                            itemName = folder.deckName,
+                            numberOfCards = deck.deckId,
+                            itemName = deck.deckName,
                         ),
                         displayItemStyle = DisplayItemStyle(
                             backgroundColor = MaterialTheme.colorScheme.secondary.copy(
@@ -249,9 +251,8 @@ private fun DecksInfo(
                     Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_small)))
                 }
             }
-        }
-
-        is UiState.Loading -> {
+        },
+        onLoading = {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -263,9 +264,8 @@ private fun DecksInfo(
                     strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_one)
                 )
             }
-        }
-
-        is UiState.Error -> {
+        },
+        onError = {
             Text(
                 stringResource(R.string.error_get_all_folders),
                 modifier = Modifier.fillMaxWidth(),
@@ -273,7 +273,7 @@ private fun DecksInfo(
                 style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.error)
             )
         }
-    }
+    )
 }
 
 @Composable
@@ -310,7 +310,7 @@ private fun FoldersDialog(
             },
             onSaveClick = {
                 if (dialogState.validateFolderName(dialogState.dialogStateData.text)) {
-//                    decksViewModel.createFolder(folderName = dialogState.dialogStateData.text)
+                    decksViewModel.createDeck(deckName = dialogState.dialogStateData.text)
                     dialogState.closeDialog()
                 }
             },

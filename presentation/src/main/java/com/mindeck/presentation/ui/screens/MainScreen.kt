@@ -26,16 +26,19 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.Deck
+import com.mindeck.domain.models.ReviewType
 import com.mindeck.presentation.R
 import com.mindeck.presentation.state.RenderUiState
 import com.mindeck.presentation.state.UiState
@@ -45,7 +48,6 @@ import com.mindeck.presentation.ui.components.daily_progress_tracker.DailyProgre
 import com.mindeck.presentation.ui.components.dataclasses.DisplayItemData
 import com.mindeck.presentation.ui.components.dataclasses.DisplayItemStyle
 import com.mindeck.presentation.ui.components.dialog.DialogState
-import com.mindeck.presentation.ui.components.dialog.animateDialogCreateItem
 import com.mindeck.presentation.ui.components.dialog.data_class.CreateItemDialog
 import com.mindeck.presentation.ui.components.fab.FAB
 import com.mindeck.presentation.ui.components.fab.FabMenuData
@@ -54,11 +56,9 @@ import com.mindeck.presentation.ui.components.fab.FabState.Companion.ITEM_HEIGHT
 import com.mindeck.presentation.ui.components.folder.DisplayItem
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
 import com.mindeck.presentation.ui.components.utils.dimenFloatResource
-import com.mindeck.presentation.ui.components.utils.stringToMillis
 import com.mindeck.presentation.ui.navigation.NavigationRoute
+import com.mindeck.presentation.ui.theme.MindeckTheme
 import com.mindeck.presentation.viewmodel.MainViewModel
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
 @Composable
 fun MainScreen(
@@ -66,61 +66,43 @@ fun MainScreen(
 ) {
     val mainViewModel: MainViewModel = hiltViewModel(navController.currentBackStackEntry!!)
 
-    val currentDateTime = remember {
-        LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-    }
-
     LaunchedEffect(Unit) {
-        mainViewModel.loadCardRepetition(stringToMillis(currentDateTime))
+        mainViewModel.initRepetition()
     }
 
-    val decks = mainViewModel.decksState.collectAsState().value
-    val cardsRepetition = mainViewModel.cardsForRepetitionState.collectAsState().value
+    val decksState = mainViewModel.decksState.collectAsState().value
+    val cardsForRepetitionState = mainViewModel.cardsForRepetitionState.collectAsState().value
 
-    val dialogState = remember { DialogState() }
+    MainContent(
+        navController,
+        decksState,
+        cardsForRepetitionState
+    ) { dialogState ->
+        if (dialogState.validateFolderName(dialogState.dialogStateData.text)) {
+            mainViewModel.createDeck(dialogState.dialogStateData.text)
+            dialogState.closeDialog()
+        }
+    }
+}
+
+@Composable
+private fun MainContent(
+    navController: NavController,
+    decksState: UiState<List<Deck>>,
+    cardsForRepetitionState: UiState<List<Card>>,
+    initialDialog: Boolean = false,
+    onSaveClick: (DialogState) -> Unit = { }
+) {
+    val dialogState = remember { DialogState(initialDialog) }
 
     val validation = dialogState.dialogStateData.isValid
 
     val dailyProgressTrackerState =
         remember { DailyProgressTrackerState() }
 
-    val dialogVisibleAnimation = animateDialogCreateItem(
-        targetAlpha = dialogState.animateExpandedAlpha,
-        animationDuration = dialogState.animationDuration * 3
-    )
-    val MAX_DISPLAY_ITEMS = 5
     val fabMenuItems = fabMenuDataList(dialogState, navController)
     val fabState = remember { FabState(expandedHeight = ITEM_HEIGHT.dp * fabMenuItems.size) }
 
-    MainContent(
-        fabMenuItems,
-        fabState,
-        dailyProgressTrackerState,
-        decks,
-        cardsRepetition,
-        MAX_DISPLAY_ITEMS,
-        navController,
-        dialogState,
-        dialogVisibleAnimation,
-        validation,
-        mainViewModel
-    )
-}
-
-@Composable
-private fun MainContent(
-    fabMenuItems: List<FabMenuData>,
-    fabState: FabState,
-    dailyProgressTrackerState: DailyProgressTrackerState,
-    decks: UiState<List<Deck>>,
-    cardsRepetition: UiState<List<Card>>,
-    MAX_DISPLAY_ITEMS: Int,
-    navController: NavController,
-    dialogState: DialogState,
-    dialogVisibleAnimation: Float,
-    validation: Boolean?,
-    mainViewModel: MainViewModel
-) {
     Surface(
         modifier = Modifier
             .fillMaxSize()
@@ -143,17 +125,15 @@ private fun MainContent(
                 Content(
                     paddingValues,
                     dailyProgressTrackerState,
-                    decks,
-                    cardsRepetition,
-                    MAX_DISPLAY_ITEMS,
+                    decksState,
+                    cardsForRepetitionState,
                     navController
                 )
-                BackgroundFAB(fabState)
                 OpeningCreateItemDialog(
                     dialogState,
-                    dialogVisibleAnimation,
+                    fabState,
                     validation,
-                    mainViewModel
+                    onSaveClick
                 )
             }
         )
@@ -166,7 +146,6 @@ private fun Content(
     dailyProgressTrackerState: DailyProgressTrackerState,
     decksState: UiState<List<Deck>>,
     cardsRepetition: UiState<List<Card>>,
-    MAX_DISPLAY_ITEMS: Int,
     navController: NavController
 ) {
     Column(
@@ -185,11 +164,11 @@ private fun Content(
         Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_small)))
         decksState.RenderUiState(
             onSuccess = { decks ->
-                decks.take(MAX_DISPLAY_ITEMS).forEach { folder ->
+                decks.take(5).forEach { folder ->
                     DeckItem(navController, folder)
                     Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_small)))
                 }
-                if (decks.size > MAX_DISPLAY_ITEMS) {
+                if (decks.size > 5) {
                     Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_small)))
                     ButtonAllFolders(navController)
                 }
@@ -336,22 +315,6 @@ private fun ButtonAllFolders(navController: NavController) {
 }
 
 @Composable
-private fun BackgroundFAB(fabState: FabState) {
-    if (fabState.isExpanded) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null
-                ) {
-                    fabState.reset()
-                }
-        )
-    }
-}
-
-@Composable
 private fun fabMenuDataList(
     dialogState: DialogState,
     navController: NavController
@@ -383,25 +346,26 @@ private fun fabMenuDataList(
 @Composable
 private fun OpeningCreateItemDialog(
     dialogState: DialogState,
-    dialogVisibleAnimation: Float,
+    fabState: FabState,
     validation: Boolean?,
-    mainViewModel: MainViewModel
+    onSaveClick: (DialogState) -> Unit
 ) {
+    if (fabState.isExpanded) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) {
+                    fabState.reset()
+                }
+        )
+    }
     if (dialogState.isDialogVisible) {
-        Box(modifier = Modifier.alpha(dialogVisibleAnimation)) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        MaterialTheme.colorScheme.outline.copy(
-                            dimenFloatResource(R.dimen.float_zero_dot_five_significance)
-                        )
-                    )
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null
-                    ) {}
-            )
+        Dialog(
+            onDismissRequest = { dialogState.closeDialog() }
+        ) {
             CreateItemDialog(
                 titleDialog = stringResource(R.string.create_item_dialog_text_creating_folder),
                 placeholder = stringResource(R.string.create_item_dialog_text_input_title_folder),
@@ -415,12 +379,7 @@ private fun OpeningCreateItemDialog(
                 onBackClick = {
                     dialogState.closeDialog()
                 },
-                onSaveClick = {
-                    if (dialogState.validateFolderName(dialogState.dialogStateData.text)) {
-                        mainViewModel.createDeck(dialogState.dialogStateData.text)
-                        dialogState.closeDialog()
-                    }
-                },
+                onSaveClick = { onSaveClick(dialogState) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(MaterialTheme.shapes.small)
@@ -438,57 +397,168 @@ private fun OpeningCreateItemDialog(
     }
 }
 
-//@Preview(
-//    showBackground = true,
-//    backgroundColor = 0xFFE6E6FF
-//)
-//@Composable
-//private fun ScreenPreview() {
-//    val vm = MainViewModel()
-//    vm.tasksForHm.value = mockData()
-//    NasotkuAppTheme {
-//        HomeWorkInfoContent(vm)
-//    }
-//}
+@Preview(
+    showBackground = true,
+    backgroundColor = 0xFFE6E6FF
+)
+@Composable
+private fun ScreenPreview() {
+    val navController = rememberNavController()
+    val decksState: UiState<List<Deck>> = decksDataMock()
+    val cardsForRepetitionState: UiState<List<Card>> = cardsForRepetitionDataMock()
 
-//@Preview(
-//    showBackground = true,
-//    backgroundColor = 0xFF330066
-//)
-//@Composable
-//private fun ScreenPreviewDarkMode() {
-//    val vm = TeacherHomeTasksViewModel(Application(), isPreviewMode = true)
-//    vm.tasksForHm.value = mockData()
-//    NasotkuAppTheme(darkTheme = true) {
-//        HomeWorkInfoContent(vm)
-//    }
-//}
-//
-//@Preview(
-//    device = "spec:parent=pixel_5,orientation=landscape",
-//    showBackground = true,
-//    backgroundColor = 0xFFE6E6FF
-//)
-//@Composable
-//private fun ScreenPreviewLandscape() {
-//    val vm = TeacherHomeTasksViewModel(Application(), isPreviewMode = true)
-//    vm.tasksForHm.value = mockData()
-//    NasotkuAppTheme {
-//        HomeWorkInfoContent(vm)
-//    }
-//}
-//
-//@Preview(
-//    showBackground = true,
-//    backgroundColor = 0xFF330066,
-//    device = "spec:parent=pixel_5,orientation=landscape"
-//)
-//@Composable
-//private fun ScreenPreviewLandscapeDarkMode() {
-//    val vm = TeacherHomeTasksViewModel(Application(), isPreviewMode = true)
-//    vm.tasksForHm.value = mockData()
-//    NasotkuAppTheme(darkTheme = true) {
-//        HomeWorkInfoContent(vm)
-//    }
-//}
+    MindeckTheme {
+        MainContent(
+            navController,
+            decksState,
+            cardsForRepetitionState
+        )
+    }
+}
 
+@Preview(
+    device = "spec:parent=pixel_5,orientation=landscape",
+    showBackground = true,
+    backgroundColor = 0xFFE6E6FF
+)
+@Composable
+private fun ScreenPreviewLandscape() {
+    val navController = rememberNavController()
+    val decksState: UiState<List<Deck>> = decksDataMock()
+    val cardsForRepetitionState: UiState<List<Card>> = cardsForRepetitionDataMock()
+
+    MindeckTheme {
+        MainContent(
+            navController,
+            decksState,
+            cardsForRepetitionState,
+        )
+    }
+}
+
+@Preview(
+    showBackground = true,
+    backgroundColor = 0xFFE6E6FF
+)
+@Composable
+private fun ScreenPreviewOpenFAB() {
+    val navController = rememberNavController()
+    val decksState: UiState<List<Deck>> = decksDataMock()
+    val cardsForRepetitionState: UiState<List<Card>> = cardsForRepetitionDataMock()
+    val fabModalWindow = true
+
+    MindeckTheme {
+        MainContent(
+            navController,
+            decksState,
+            cardsForRepetitionState,
+            fabModalWindow
+        )
+    }
+}
+
+@Preview(
+    device = "spec:parent=pixel_5,orientation=landscape",
+    showBackground = true,
+    backgroundColor = 0xFFE6E6FF
+)
+@Composable
+private fun ScreenPreviewOpenFABLandscape() {
+    val navController = rememberNavController()
+    val decksState: UiState<List<Deck>> = decksDataMock()
+    val cardsForRepetitionState: UiState<List<Card>> = cardsForRepetitionDataMock()
+    val fabModalWindow = true
+
+    MindeckTheme {
+        MainContent(
+            navController,
+            decksState,
+            cardsForRepetitionState,
+            fabModalWindow
+        )
+    }
+}
+
+@Composable
+fun decksDataMock(): UiState<List<Deck>> = UiState.Success(
+    listOf<Deck>(
+        Deck(
+            deckId = 1,
+            deckName = "Kotlin Basics"
+        ),
+        Deck(
+            deckId = 2,
+            deckName = "Jetpack Compose"
+        ),
+        Deck(
+            deckId = 3,
+            deckName = "Architecture Patterns"
+        ),
+        Deck(
+            deckId = 4,
+            deckName = "Coroutines & Flow"
+        )
+    )
+)
+
+@Composable
+fun cardsForRepetitionDataMock(): UiState<List<Card>> = UiState.Success(
+    listOf<Card>(
+        Card(
+            cardId = 1,
+            cardName = "Basics of Kotlin",
+            cardQuestion = "What is a data class in Kotlin?",
+            cardAnswer = "A class used to hold data; automatically provides equals(), hashCode(), toString(), etc.",
+            cardType = "text",
+            cardTag = "kotlin",
+            deckId = 1,
+            firstReviewDate = System.currentTimeMillis() - 5 * 24 * 60 * 60 * 1000,
+            lastReviewDate = System.currentTimeMillis() - 1 * 24 * 60 * 60 * 1000,
+            nextReviewDate = System.currentTimeMillis() + 2 * 24 * 60 * 60 * 1000,
+            repetitionCount = 3,
+            lastReviewType = ReviewType.MEDIUM
+        ),
+        Card(
+            cardId = 2,
+            cardName = "Jetpack Compose",
+            cardQuestion = "What is @Composable?",
+            cardAnswer = "A function annotation that marks a function as composable.",
+            cardType = "text",
+            cardTag = "compose",
+            deckId = 1,
+            firstReviewDate = System.currentTimeMillis() - 10 * 24 * 60 * 60 * 1000,
+            lastReviewDate = System.currentTimeMillis() - 3 * 24 * 60 * 60 * 1000,
+            nextReviewDate = System.currentTimeMillis() + 1 * 24 * 60 * 60 * 1000,
+            repetitionCount = 5,
+            lastReviewType = ReviewType.HARD
+        ),
+        Card(
+            cardId = 3,
+            cardName = "Design Patterns",
+            cardQuestion = "Explain the Singleton pattern.",
+            cardAnswer = "A design pattern that ensures a class has only one instance.",
+            cardType = "text",
+            cardTag = "architecture",
+            deckId = 2,
+            firstReviewDate = System.currentTimeMillis() - 20 * 24 * 60 * 60 * 1000,
+            lastReviewDate = System.currentTimeMillis() - 2 * 24 * 60 * 60 * 1000,
+            nextReviewDate = System.currentTimeMillis() + 3 * 24 * 60 * 60 * 1000,
+            repetitionCount = 7,
+            lastReviewType = ReviewType.EASY
+        ),
+        Card(
+            cardId = 4,
+            cardName = "Coroutines",
+            cardQuestion = "What does `launch {}` do in Kotlin?",
+            cardAnswer = "Starts a new coroutine without blocking the current thread.",
+            cardType = "text",
+            cardTag = "async",
+            deckId = 2,
+            firstReviewDate = System.currentTimeMillis() - 7 * 24 * 60 * 60 * 1000,
+            lastReviewDate = System.currentTimeMillis() - 1 * 24 * 60 * 60 * 1000,
+            nextReviewDate = System.currentTimeMillis() + 5 * 24 * 60 * 60 * 1000,
+            repetitionCount = 4,
+            lastReviewType = ReviewType.MEDIUM
+        )
+    )
+)

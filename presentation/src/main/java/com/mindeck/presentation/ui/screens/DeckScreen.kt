@@ -48,6 +48,7 @@ import androidx.navigation.NavController
 import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.Deck
 import com.mindeck.presentation.R
+import com.mindeck.presentation.state.RenderUiState
 import com.mindeck.presentation.ui.components.common.ActionBar
 import com.mindeck.presentation.ui.components.common.DisplayItemCount
 import com.mindeck.presentation.ui.components.dialog.data_class.CreateItemDialog
@@ -309,7 +310,7 @@ private fun Content(
         DeckInfo(deck)
         Spacer(Modifier.height(dimenDpResource(R.dimen.spacer_medium)))
         CardInfo(
-            cards = cards,
+            cardsState = cards,
             navController = navController,
             deckViewModel = deckViewModel,
             isEditModeEnabled = isEditModeEnabled,
@@ -383,20 +384,19 @@ private fun dropdownMenuDataList(
 
 @Composable
 private fun DeckInfo(
-    deck: UiState<Deck>,
+    deckState: UiState<Deck>,
 ) {
-    when (deck) {
-        is UiState.Success -> {
+    deckState.RenderUiState(
+        onSuccess = { deck ->
             Text(
-                text = deck.data.deckName,
+                text = deck.deckName,
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentSize(Alignment.Center)
             )
-        }
-
-        is UiState.Loading -> {
+        },
+        onLoading = {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -409,9 +409,8 @@ private fun DeckInfo(
                     strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_two)
                 )
             }
-        }
-
-        is UiState.Error -> {
+        },
+        onError = {
             Text(
                 stringResource(R.string.error_get_info_about_deck),
                 modifier = Modifier.fillMaxWidth(),
@@ -419,26 +418,26 @@ private fun DeckInfo(
                 style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.error)
             )
         }
-    }
+    )
 }
 
 @Composable
 private fun CardInfo(
-    cards: UiState<List<Card>>,
+    cardsState: UiState<List<Card>>,
     deckViewModel: DeckViewModel,
     navController: NavController,
     selectedCards: Set<Int>,
     isEditModeEnabled: Boolean
 ) {
-    when (cards) {
-        is UiState.Success -> {
+    cardsState.RenderUiState(
+        onSuccess = { cards ->
             DisplayItemCount(
                 plurals = R.plurals.card_amount,
-                count = cards.data.size,
+                count = cards.size,
                 textStyle = MaterialTheme.typography.bodyMedium
             )
             LazyColumn {
-                items(items = cards.data, key = { it.cardId }) { card ->
+                items(items = cards, key = { it.cardId }) { card ->
                     DisplayItem(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -478,9 +477,10 @@ private fun CardInfo(
                     Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_small)))
                 }
             }
-        }
 
-        is UiState.Loading -> {
+
+        },
+        onLoading = {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -492,9 +492,8 @@ private fun CardInfo(
                     strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_one)
                 )
             }
-        }
-
-        is UiState.Error -> {
+        },
+        onError = {
             Text(
                 stringResource(R.string.error_get_cards_by_deck_id),
                 modifier = Modifier.fillMaxWidth(),
@@ -502,7 +501,7 @@ private fun CardInfo(
                 style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.error)
             )
         }
-    }
+    )
 }
 
 @Composable
@@ -554,13 +553,13 @@ private fun DeckDialog(
 
 @Composable
 private fun DeckRenameDialog(
-    deck: UiState<Deck>,
+    deckState: UiState<Deck>,
     dialogState: DialogState,
     validation: Boolean?,
     deckViewModel: DeckViewModel
 ) {
-    when (deck) {
-        is UiState.Success -> {
+    deckState.RenderUiState(
+        onSuccess = { deck ->
             CreateItemDialog(
                 titleDialog = stringResource(R.string.rename_title_item_dialog),
                 placeholder = stringResource(R.string.rename_item_dialog_text_input_title_deck),
@@ -577,11 +576,11 @@ private fun DeckRenameDialog(
                 onSaveClick = {
                     if (dialogState.validateFolderName(dialogState.dialogStateData.text)) {
                         deckViewModel.renameDeck(
-                            deckId = deck.data.deckId,
+                            deckId = deck.deckId,
                             newDeckName = dialogState.dialogStateData.text
                         )
                         dialogState.closeDialog()
-                        deckViewModel.getDeckById(deck.data.deckId)
+                        deckViewModel.getDeckById(deck.deckId)
                     }
                 },
                 modifier = Modifier
@@ -596,9 +595,8 @@ private fun DeckRenameDialog(
                     .padding(dimenDpResource(R.dimen.padding_small))
                     .size(dimenDpResource(R.dimen.padding_medium)),
             )
-        }
-
-        is UiState.Loading -> {
+        },
+        onLoading = {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -614,15 +612,14 @@ private fun DeckRenameDialog(
                     strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_one)
                 )
             }
-        }
-
-        is UiState.Error -> {
+        },
+        onError = {
             dialogState.closeDialog()
             dialogState.showErrorToast(
                 stringResource(R.string.toast_message_impossible_perform_action)
             )
         }
-    }
+    )
 }
 
 @Composable
@@ -630,12 +627,12 @@ private fun DeckMoveDialog(
     dialogState: DialogState,
     decks: UiState<List<Deck>>,
     selectedElement: Int?,
-    deck: UiState<Deck>,
+    deckState: UiState<Deck>,
     deckViewModel: DeckViewModel,
     navController: NavController
 ) {
-    when (deck) {
-        is UiState.Success -> {
+    deckState.RenderUiState(
+        onSuccess = { deck ->
             SelectItemDialog(
                 titleDialog = stringResource(R.string.dialog_select_deck),
                 dialogState = dialogState,
@@ -643,7 +640,7 @@ private fun DeckMoveDialog(
                     deckPairs.map { Pair(it.deckName, it.deckId) }
                 },
                 selectedElement = selectedElement,
-                sourceLocation = deck.data.deckId,
+                sourceLocation = deck.deckId,
                 fetchList = { deckViewModel.getAllDecksByFolderId() },
                 onClickSave = {
                     handleDeckMoveSave(
@@ -655,9 +652,8 @@ private fun DeckMoveDialog(
                     )
                 },
             )
-        }
-
-        is UiState.Loading -> {
+        },
+        onLoading = {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -673,25 +669,24 @@ private fun DeckMoveDialog(
                     strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_one)
                 )
             }
-        }
-
-        is UiState.Error -> {
+        },
+        onError = {
             dialogState.closeDialog()
             dialogState.showErrorToast(stringResource(R.string.toast_message_impossible_move_cards))
         }
-    }
+    )
 }
 
 private fun handleDeckMoveSave(
     dialogState: DialogState,
     deckViewModel: DeckViewModel,
-    deck: UiState.Success<Deck>,
+    deck: Deck,
     selectedElement: Int?,
     navController: NavController
 ) {
     if (dialogState.currentDialogType == DialogType.Move) {
         deckViewModel.moveCardsBetweenDecks(
-            sourceDeckId = deck.data.deckId,
+            sourceDeckId = deck.deckId,
             targetDeckId = selectedElement!!,
             deckIds = deckViewModel.selectedCardIdSet.value.sorted()
                 .toList()
@@ -705,37 +700,36 @@ private fun handleDeckMoveSave(
             cardIds = deckViewModel.selectedCardIdSet.value.sorted()
                 .toList()
         )
-        deck.onSuccess { deckViewModel.deleteDeck(it) }
+        deckViewModel.deleteDeck(deck)
         deckViewModel.clearCardSelection()
         dialogState.closeDialog()
-        dialogState.stopSelectingDecksForMoveAndDelete()
+        dialogState.toggleSelectingDecksForMoveAndDelete()
         navController.popBackStack()
     }
 }
 
 @Composable
 private fun DeckDeleteDialog(
-    deck: UiState<Deck>,
+    deckState: UiState<Deck>,
     deckViewModel: DeckViewModel,
     navController: NavController,
     dialogState: DialogState
 ) {
-    when (deck) {
-        is UiState.Success -> {
+    deckState.RenderUiState(
+        onSuccess = { deck ->
             DeleteItemDialog(
                 onClickDeleteAll = {
-                    deckViewModel.deleteDeck(deck.data)
+                    deckViewModel.deleteDeck(deck)
                     navController.popBackStack()
                 },
                 onClickDeletePartially = {
                     deckViewModel.toggleEditMode()
                     dialogState.closeDialog()
-                    dialogState.startSelectingDecksForMoveAndDelete()
+                    dialogState.toggleSelectingDecksForMoveAndDelete()
                 }
             )
-        }
-
-        is UiState.Loading -> {
+        },
+        onLoading = {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -751,13 +745,12 @@ private fun DeckDeleteDialog(
                     strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_one)
                 )
             }
-        }
-
-        is UiState.Error -> {
+        },
+        onError = {
             dialogState.closeDialog()
             dialogState.showErrorToast(stringResource(R.string.toast_message_impossible_delete_deck))
         }
-    }
+    )
 }
 
 @Composable
