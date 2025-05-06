@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -384,8 +383,7 @@ private fun CreateDeckDialog(
                         color = MaterialTheme.colorScheme.outlineVariant,
                         shape = MaterialTheme.shapes.extraLarge
                     )
-                    .padding(dimenDpResource(R.dimen.padding_small))
-                    .size(dimenDpResource(R.dimen.padding_medium)),
+                    .padding(dimenDpResource(R.dimen.padding_small)),
             )
         }
     }

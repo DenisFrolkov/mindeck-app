@@ -41,6 +41,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -49,7 +50,6 @@ import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.Deck
 import com.mindeck.presentation.R
 import com.mindeck.presentation.state.RenderUiState
-import com.mindeck.presentation.ui.components.common.ActionBar
 import com.mindeck.presentation.ui.components.common.DisplayItemCount
 import com.mindeck.presentation.ui.components.dialog.data_class.CreateItemDialog
 import com.mindeck.presentation.ui.components.dialog.DialogState
@@ -65,6 +65,7 @@ import com.mindeck.presentation.ui.navigation.NavigationRoute
 import com.mindeck.presentation.state.UiState
 import com.mindeck.presentation.state.UiState.Loading.mapData
 import com.mindeck.presentation.state.onSuccess
+import com.mindeck.presentation.ui.components.buttons.ActionHandlerButton
 import com.mindeck.presentation.ui.components.common.ButtonMoveMode
 import com.mindeck.presentation.ui.components.dataclasses.DisplayItemData
 import com.mindeck.presentation.ui.components.dataclasses.DisplayItemStyle
@@ -271,20 +272,24 @@ private fun DeckTopBar(
             .padding(top = dimenDpResource(R.dimen.padding_medium))
             .statusBarsPadding()
     ) {
-        ActionBar(
-            onBackClick = { navController.popBackStack() },
-            onMenuClick = { dropdownMenuState.toggle() },
-            containerModifier = Modifier
+        Row(
+            modifier = Modifier
                 .fillMaxWidth(),
-            iconModifier = Modifier
-                .clip(shape = MaterialTheme.shapes.extraLarge)
-                .background(
-                    color = MaterialTheme.colorScheme.outlineVariant,
-                    shape = MaterialTheme.shapes.extraLarge
-                )
-                .padding(all = dimenDpResource(R.dimen.padding_small))
-                .size(dimenDpResource(R.dimen.action_handler_size)),
-        )
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            ActionHandlerButton(
+                iconPainter = painterResource(R.drawable.back_icon),
+                contentDescription = stringResource(R.string.back_screen_icon_button),
+                iconTint = MaterialTheme.colorScheme.onPrimary,
+                onClick = { navController.popBackStack() },
+            )
+            ActionHandlerButton(
+                iconPainter = painterResource(R.drawable.menu_icon),
+                contentDescription = stringResource(R.string.back_screen_icon_button),
+                iconTint = MaterialTheme.colorScheme.onPrimary,
+                onClick = { dropdownMenuState.toggle() },
+            )
+        }
     }
 }
 
@@ -592,8 +597,7 @@ private fun DeckRenameDialog(
                         color = MaterialTheme.colorScheme.outlineVariant,
                         shape = MaterialTheme.shapes.extraLarge
                     )
-                    .padding(dimenDpResource(R.dimen.padding_small))
-                    .size(dimenDpResource(R.dimen.padding_medium)),
+                    .padding(dimenDpResource(R.dimen.padding_small)),
             )
         },
         onLoading = {

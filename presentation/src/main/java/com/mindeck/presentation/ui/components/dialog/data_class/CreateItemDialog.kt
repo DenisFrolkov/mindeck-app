@@ -65,7 +65,6 @@ fun CreateItemDialog(
                     contentDescription = stringResource(R.string.back_screen_icon_button),
                     iconTint = MaterialTheme.colorScheme.onPrimary,
                     onClick = onBackClick,
-                    iconModifier = iconModifier,
                 )
                 Text(
                     text = titleDialog,

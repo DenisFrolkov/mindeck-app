@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -32,7 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -41,7 +42,7 @@ import com.mindeck.domain.models.Card
 import com.mindeck.presentation.R
 import com.mindeck.presentation.state.RenderUiState
 import com.mindeck.presentation.state.UiState
-import com.mindeck.presentation.ui.components.common.ActionBar
+import com.mindeck.presentation.ui.components.buttons.ActionHandlerButton
 import com.mindeck.presentation.ui.components.common.QuestionAndAnswerElement
 import com.mindeck.presentation.ui.components.dataclasses.CardAttributes
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenu
@@ -183,20 +184,24 @@ private fun CardTopBar(
             .padding(top = dimenDpResource(R.dimen.padding_medium))
             .statusBarsPadding()
     ) {
-        ActionBar(
-            onBackClick = { navController.popBackStack() },
-            onMenuClick = { dropdownMenuState.toggle() },
-            containerModifier = Modifier
+        Row(
+            modifier = Modifier
                 .fillMaxWidth(),
-            iconModifier = Modifier
-                .clip(shape = MaterialTheme.shapes.extraLarge)
-                .background(
-                    color = MaterialTheme.colorScheme.outlineVariant,
-                    shape = MaterialTheme.shapes.extraLarge
-                )
-                .padding(dimenDpResource(R.dimen.padding_small))
-                .size(dimenDpResource(R.dimen.action_handler_size)),
-        )
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            ActionHandlerButton(
+                iconPainter = painterResource(R.drawable.back_icon),
+                contentDescription = stringResource(R.string.back_screen_icon_button),
+                iconTint = MaterialTheme.colorScheme.onPrimary,
+                onClick = { navController.popBackStack() },
+            )
+            ActionHandlerButton(
+                iconPainter = painterResource(R.drawable.menu_icon),
+                contentDescription = stringResource(R.string.back_screen_icon_button),
+                iconTint = MaterialTheme.colorScheme.onPrimary,
+                onClick = { dropdownMenuState.toggle() },
+            )
+        }
     }
 }
 
