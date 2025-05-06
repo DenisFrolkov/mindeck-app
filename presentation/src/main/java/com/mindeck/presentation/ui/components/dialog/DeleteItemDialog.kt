@@ -45,7 +45,7 @@ fun DeleteItemDialog(
                 .padding(dimenDpResource(R.dimen.card_input_field_item_padding))
         ) {
             Text(
-                text = stringResource(R.string.folder_management_options_message),
+                text = "stringResource(R.string.folder_management_options_message)",
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Start,
                 modifier = Modifier.fillMaxWidth()

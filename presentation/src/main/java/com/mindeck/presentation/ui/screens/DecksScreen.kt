@@ -39,8 +39,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.mindeck.domain.models.Deck
 import com.mindeck.presentation.R
 import com.mindeck.presentation.state.RenderUiState
@@ -57,18 +59,37 @@ import com.mindeck.presentation.ui.components.folder.DisplayItem
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
 import com.mindeck.presentation.ui.components.utils.dimenFloatResource
 import com.mindeck.presentation.ui.navigation.NavigationRoute
+import com.mindeck.presentation.ui.theme.MindeckTheme
 import com.mindeck.presentation.viewmodel.DecksViewModel
 import kotlinx.coroutines.delay
 
 @Composable
 fun DecksScreen(
-    navController: NavController,
+    navController: NavController
 ) {
     val decksViewModel: DecksViewModel = hiltViewModel(navController.currentBackStackEntry!!)
 
     val decks = decksViewModel.decksState.collectAsState().value
 
-    val dialogState = remember { DialogState() }
+    DecksContent(
+        navController,
+        decks
+    ) { dialogState ->
+        if (dialogState.validateFolderName(dialogState.dialogStateData.text)) {
+            decksViewModel.createDeck(deckName = dialogState.dialogStateData.text)
+            dialogState.closeDialog()
+        }
+    }
+}
+
+@Composable
+private fun DecksContent(
+    navController: NavController,
+    decks: UiState<List<Deck>>,
+    dropdownMenu: Boolean = false,
+    onSaveClick: (DialogState) -> Unit
+) {
+    val dialogState = remember { DialogState(dropdownMenu) }
 
     val validation = dialogState.dialogStateData.isValid
     val toastMessage = dialogState.toastTextEvent
@@ -101,7 +122,7 @@ fun DecksScreen(
                 DecksEditTopBar(navController, dialogState)
             },
             content = { padding ->
-                Content(padding, decks, navController)
+                PageContent(padding, decks, navController)
             }
         )
         if (dialogState.isDialogVisible && dialogState.currentDialogType == DialogType.Create) {
@@ -109,8 +130,9 @@ fun DecksScreen(
                 dialogVisibleAnimation = dialogVisibleAnimation,
                 validation = validation,
                 dialogState = dialogState,
-                decksViewModel = decksViewModel
-            )
+            ) {
+                onSaveClick(dialogState)
+            }
         }
         AnimatedVisibility(
             visible = toastValue && toastMessage.isNotBlank(),
@@ -168,13 +190,13 @@ private fun DecksEditTopBar(
                     shape = MaterialTheme.shapes.extraLarge
                 )
                 .padding(all = dimenDpResource(R.dimen.padding_small))
-                .size(size = dimenDpResource(R.dimen.padding_medium)),
+                .size(size = dimenDpResource(R.dimen.action_handler_size)),
         )
     }
 }
 
 @Composable
-private fun Content(
+private fun PageContent(
     padding: PaddingValues,
     decks: UiState<List<Deck>>,
     navController: NavController
@@ -267,7 +289,7 @@ private fun DecksInfo(
         },
         onError = {
             Text(
-                stringResource(R.string.error_get_all_folders),
+                stringResource(R.string.error_get_all_decks),
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.error)
@@ -281,7 +303,7 @@ private fun FoldersDialog(
     dialogVisibleAnimation: Float,
     validation: Boolean?,
     dialogState: DialogState,
-    decksViewModel: DecksViewModel
+    onSaveClick: () -> Unit
 ) {
     Box(modifier = Modifier.alpha(dialogVisibleAnimation)) {
         Box(
@@ -296,9 +318,9 @@ private fun FoldersDialog(
                 }
         )
         CreateItemDialog(
-            titleDialog = stringResource(R.string.create_item_dialog_text_creating_folder),
-            placeholder = stringResource(R.string.create_item_dialog_text_input_name_folder),
-            buttonText = stringResource(R.string.create_item_dialog_text_create_folder),
+            titleDialog = stringResource(R.string.create_item_dialog_text_creating_deck),
+            placeholder = stringResource(R.string.create_item_dialog_text_input_name_deck),
+            buttonText = stringResource(R.string.create_item_dialog_text_create_deck),
             inputValue = dialogState.dialogStateData.text,
             isInputValid = validation == true || validation == null,
             onInputChange = { newValue ->
@@ -309,10 +331,7 @@ private fun FoldersDialog(
                 dialogState.closeDialog()
             },
             onSaveClick = {
-                if (dialogState.validateFolderName(dialogState.dialogStateData.text)) {
-                    decksViewModel.createDeck(deckName = dialogState.dialogStateData.text)
-                    dialogState.closeDialog()
-                }
+                onSaveClick()
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -328,3 +347,105 @@ private fun FoldersDialog(
         )
     }
 }
+
+@Preview(
+    showBackground = true,
+    backgroundColor = 0xFFE6E6FF
+)
+@Composable
+private fun ScreenPreview() {
+    val navController = rememberNavController()
+    val decksState: UiState<List<Deck>> = decksDataMock()
+    val dropdownMenu = true
+
+    MindeckTheme {
+        DecksContent(
+            navController,
+            decksState,
+            dropdownMenu
+        ) {  }
+    }
+}
+
+//@Preview(
+//    device = "spec:parent=pixel_5,orientation=landscape",
+//    showBackground = true,
+//    backgroundColor = 0xFFE6E6FF
+//)
+//@Composable
+//private fun ScreenPreviewLandscape() {
+//    val navController = rememberNavController()
+//    val decksState: UiState<List<Deck>> = decksDataMock()
+//    val cardsForRepetitionState: UiState<List<Card>> = cardsForRepetitionDataMock()
+//
+//    MindeckTheme {
+//        MainContent(
+//            navController,
+//            decksState,
+//            cardsForRepetitionState,
+//        )
+//    }
+//}
+//
+//@Preview(
+//    showBackground = true,
+//    backgroundColor = 0xFFE6E6FF
+//)
+//@Composable
+//private fun ScreenPreviewOpenFAB() {
+//    val navController = rememberNavController()
+//    val decksState: UiState<List<Deck>> = decksDataMock()
+//    val cardsForRepetitionState: UiState<List<Card>> = cardsForRepetitionDataMock()
+//    val fabModalWindow = true
+//
+//    MindeckTheme {
+//        MainContent(
+//            navController,
+//            decksState,
+//            cardsForRepetitionState,
+//            fabModalWindow
+//        )
+//    }
+//}
+//
+//@Preview(
+//    device = "spec:parent=pixel_5,orientation=landscape",
+//    showBackground = true,
+//    backgroundColor = 0xFFE6E6FF
+//)
+//@Composable
+//private fun ScreenPreviewOpenFABLandscape() {
+//    val navController = rememberNavController()
+//    val decksState: UiState<List<Deck>> = decksDataMock()
+//    val cardsForRepetitionState: UiState<List<Card>> = cardsForRepetitionDataMock()
+//
+//    MindeckTheme {
+//        DecksContent(
+//            navController,
+//            decksState,
+//            cardsForRepetitionState
+//        )
+//    }
+//}
+
+@Composable
+private fun decksDataMock(): UiState<List<Deck>> = UiState.Success(
+    listOf<Deck>(
+        Deck(
+            deckId = 1,
+            deckName = "Kotlin Basics"
+        ),
+        Deck(
+            deckId = 2,
+            deckName = "Jetpack Compose"
+        ),
+        Deck(
+            deckId = 3,
+            deckName = "Architecture Patterns"
+        ),
+        Deck(
+            deckId = 4,
+            deckName = "Coroutines & Flow"
+        )
+    )
+)

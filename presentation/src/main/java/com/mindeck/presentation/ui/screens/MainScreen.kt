@@ -13,12 +13,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -100,48 +98,43 @@ private fun MainContent(
     val dailyProgressTrackerState =
         remember { DailyProgressTrackerState() }
 
-    val fabMenuItems = fabMenuDataList(dialogState, navController)
+    val fabMenuItems = getFabMenuItems(dialogState, navController)
     val fabState = remember { FabState(expandedHeight = ITEM_HEIGHT.dp * fabMenuItems.size) }
 
-    Surface(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-    ) {
-        Scaffold(
-            floatingActionButton = {
-                FAB(
-                    fabIcon = painterResource(R.drawable.fab_menu_icon),
-                    fabMenuItems = fabMenuItems,
-                    fabColor = MaterialTheme.colorScheme.outlineVariant,
-                    fabIconColor = MaterialTheme.colorScheme.onPrimary,
-                    fabState = fabState,
-                    textStyle = MaterialTheme.typography.bodyMedium.copy(
-                        color = MaterialTheme.colorScheme.onPrimary
-                    )
+    Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
+        floatingActionButton = {
+            FAB(
+                fabIcon = painterResource(R.drawable.fab_menu_icon),
+                fabMenuItems = fabMenuItems,
+                fabColor = MaterialTheme.colorScheme.outlineVariant,
+                fabIconColor = MaterialTheme.colorScheme.onPrimary,
+                fabState = fabState,
+                textStyle = MaterialTheme.typography.bodyMedium.copy(
+                    color = MaterialTheme.colorScheme.onPrimary
                 )
-            },
-            content = { paddingValues ->
-                Content(
-                    paddingValues,
-                    dailyProgressTrackerState,
-                    decksState,
-                    cardsForRepetitionState,
-                    navController
-                )
-                OpeningCreateItemDialog(
-                    dialogState,
-                    fabState,
-                    validation,
-                    onSaveClick
-                )
-            }
-        )
-    }
+            )
+        },
+        content = { paddingValues ->
+            PageContent(
+                paddingValues,
+                dailyProgressTrackerState,
+                decksState,
+                cardsForRepetitionState,
+                navController
+            )
+            CreateDeckDialog(
+                dialogState,
+                fabState,
+                validation,
+                onSaveClick
+            )
+        }
+    )
 }
 
 @Composable
-private fun Content(
+private fun PageContent(
     paddingValues: PaddingValues,
     dailyProgressTrackerState: DailyProgressTrackerState,
     decksState: UiState<List<Deck>>,
@@ -150,51 +143,58 @@ private fun Content(
 ) {
     Column(
         modifier = Modifier
-            .statusBarsPadding()
             .padding(paddingValues)
-            .padding(horizontal = dimenDpResource(R.dimen.padding_medium))
+            .padding(dimenDpResource(R.dimen.padding_medium))
     ) {
         DailyProgressTracker(
-            cardsRepetition,
+            cardsRepetitionState = cardsRepetition,
             dptIcon = painterResource(R.drawable.dpt_icon),
             dailyProgressTrackerState = dailyProgressTrackerState
         )
         Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_large)))
         RepeatCardItem(navController = navController, cardsRepetitionState = cardsRepetition)
         Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_small)))
-        decksState.RenderUiState(
-            onSuccess = { decks ->
-                decks.take(5).forEach { folder ->
-                    DeckItem(navController, folder)
-                    Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_small)))
-                }
-                if (decks.size > 5) {
-                    Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_small)))
-                    ButtonAllFolders(navController)
-                }
-            },
-            onLoading = {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentSize(Alignment.Center)
-                ) {
-                    CircularProgressIndicator(
-                        color = MaterialTheme.colorScheme.primary,
-                        strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_one)
-                    )
-                }
-            },
-            onError = {
-                Text(
-                    stringResource(R.string.error_get_all_folders),
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.error)
+        DecksSection(navController = navController, decksState = decksState)
+    }
+}
+
+@Composable
+private fun DecksSection(
+    navController: NavController,
+    decksState: UiState<List<Deck>>
+) {
+    decksState.RenderUiState(
+        onSuccess = { decks ->
+            decks.take(5).forEach { folder ->
+                DeckItem(navController, folder)
+                Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_small)))
+            }
+            if (decks.size > 5) {
+                Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_small)))
+                ButtonAllFolders(navController)
+            }
+        },
+        onLoading = {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentSize(Alignment.Center)
+            ) {
+                CircularProgressIndicator(
+                    color = MaterialTheme.colorScheme.primary,
+                    strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_one)
                 )
             }
-        )
-    }
+        },
+        onError = {
+            Text(
+                stringResource(R.string.error_get_all_decks),
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.error)
+            )
+        }
+    )
 }
 
 @Composable
@@ -301,7 +301,7 @@ private fun ButtonAllFolders(navController: NavController) {
                     navController.navigate(NavigationRoute.DecksScreen.route)
                 }) {
             Text(
-                text = stringResource(R.string.title_text_all_folders),
+                text = stringResource(R.string.title_text_all_decks),
                 style = MaterialTheme.typography.bodyMedium.copy(
                     color = MaterialTheme.colorScheme.onPrimary
                 ),
@@ -315,27 +315,21 @@ private fun ButtonAllFolders(navController: NavController) {
 }
 
 @Composable
-private fun fabMenuDataList(
+private fun getFabMenuItems(
     dialogState: DialogState,
     navController: NavController
 ): List<FabMenuData> {
     return listOf(
         FabMenuData(
             idItem = 0,
-            text = stringResource(R.string.fab_menu_data_setting_list),
-            icon = R.drawable.fab_open_menu_setting_icon,
-            navigation = { }
-        ),
-        FabMenuData(
-            idItem = 1,
-            text = stringResource(R.string.fab_menu_data_create_folder_list),
+            text = stringResource(R.string.fab_menu_data_create_deck),
             icon = R.drawable.fab_open_menu_create_folder_icon,
             navigation = {
                 dialogState.openCreateDialog()
             }
         ),
         FabMenuData(
-            idItem = 2,
+            idItem = 1,
             text = stringResource(R.string.fab_menu_data_create_card_list),
             icon = R.drawable.fab_open_menu_create_card_icon,
             navigation = { navController.navigate(NavigationRoute.CreationCardScreen.route) }
@@ -344,7 +338,7 @@ private fun fabMenuDataList(
 }
 
 @Composable
-private fun OpeningCreateItemDialog(
+private fun CreateDeckDialog(
     dialogState: DialogState,
     fabState: FabState,
     validation: Boolean?,
@@ -367,9 +361,9 @@ private fun OpeningCreateItemDialog(
             onDismissRequest = { dialogState.closeDialog() }
         ) {
             CreateItemDialog(
-                titleDialog = stringResource(R.string.create_item_dialog_text_creating_folder),
-                placeholder = stringResource(R.string.create_item_dialog_text_input_title_folder),
-                buttonText = stringResource(R.string.create_item_dialog_text_create_folder),
+                titleDialog = stringResource(R.string.create_item_dialog_text_creating_deck),
+                placeholder = stringResource(R.string.create_item_dialog_text_input_name_deck),
+                buttonText = stringResource(R.string.create_item_dialog_text_create_deck),
                 isInputValid = validation == true || validation == null,
                 inputValue = dialogState.dialogStateData.text,
                 onInputChange = { newValue ->
@@ -480,7 +474,7 @@ private fun ScreenPreviewOpenFABLandscape() {
 }
 
 @Composable
-fun decksDataMock(): UiState<List<Deck>> = UiState.Success(
+private fun decksDataMock(): UiState<List<Deck>> = UiState.Success(
     listOf<Deck>(
         Deck(
             deckId = 1,
@@ -502,7 +496,7 @@ fun decksDataMock(): UiState<List<Deck>> = UiState.Success(
 )
 
 @Composable
-fun cardsForRepetitionDataMock(): UiState<List<Card>> = UiState.Success(
+private fun cardsForRepetitionDataMock(): UiState<List<Card>> = UiState.Success(
     listOf<Card>(
         Card(
             cardId = 1,

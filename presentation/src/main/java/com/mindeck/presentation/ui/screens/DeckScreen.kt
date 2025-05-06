@@ -164,7 +164,7 @@ fun DeckScreen(
                 }
             },
             content = { padding ->
-                Content(
+                PageContent(
                     navController = navController,
                     padding = padding,
                     isEditModeEnabled = isEditModeEnabled,
@@ -283,13 +283,13 @@ private fun DeckTopBar(
                     shape = MaterialTheme.shapes.extraLarge
                 )
                 .padding(all = dimenDpResource(R.dimen.padding_small))
-                .size(dimenDpResource(R.dimen.padding_medium)),
+                .size(dimenDpResource(R.dimen.action_handler_size)),
         )
     }
 }
 
 @Composable
-private fun Content(
+private fun PageContent(
     navController: NavController,
     padding: PaddingValues,
     deck: UiState<Deck>,

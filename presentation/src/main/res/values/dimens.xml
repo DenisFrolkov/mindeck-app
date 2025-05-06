@@ -13,6 +13,7 @@
     <dimen name="spacer_extra_large">50dp</dimen>
 
     <dimen name="icon_size">20dp</dimen>
+    <dimen name="action_handler_size">24dp</dimen>
 
     //Border
     <dimen name="border_width_dot_two_five">0.25dp</dimen>
