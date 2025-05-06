@@ -88,7 +88,7 @@ fun CardStudyScreen(
                         content = { padding ->
                             val cardCount = remember { allCardsForReview }
                             val currentCard = cardCount[currentIndex]
-                            Content(
+                            PageContent(
                                 padding = padding,
                                 card = currentCard,
                                 scrollState = scrollState,
@@ -146,7 +146,7 @@ fun CardStudyScreen(
                     Scaffold(
                         topBar = { CardStudyTopBar(navController = navController) },
                         content = { padding ->
-                            Content(
+                            PageContent(
                                 padding = padding,
                                 card = cardByCardId,
                                 scrollState = scrollState,
@@ -189,7 +189,7 @@ fun CardStudyScreen(
 }
 
 @Composable
-private fun Content(
+private fun PageContent(
     padding: PaddingValues,
     card: Card,
     scrollState: ScrollState,
@@ -291,7 +291,7 @@ private fun CardStudyTopBar(navController: NavController) {
                     shape = MaterialTheme.shapes.extraLarge
                 )
                 .padding(all = dimenDpResource(R.dimen.padding_small))
-                .size(size = dimenDpResource(R.dimen.padding_medium)),
+                .size(size = dimenDpResource(R.dimen.action_handler_size)),
         )
     }
 }

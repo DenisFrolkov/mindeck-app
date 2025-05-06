@@ -82,7 +82,7 @@ fun CreationCardScreen(
                 TopBar(onClick = { navController.popBackStack() })
             },
             content = { padding ->
-                Content(
+                PageContent(
                     navController = navController,
                     padding = padding,
                     deck = deck,
@@ -116,7 +116,7 @@ private fun TopBar(onClick: () -> Unit) {
                     shape = MaterialTheme.shapes.extraLarge
                 )
                 .padding(all = dimenDpResource(R.dimen.padding_small))
-                .size(size = dimenDpResource(R.dimen.padding_medium))
+                .size(size = dimenDpResource(R.dimen.action_handler_size))
                 .clip(shape = MaterialTheme.shapes.extraLarge)
         )
         Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_large)))
@@ -124,7 +124,7 @@ private fun TopBar(onClick: () -> Unit) {
 }
 
 @Composable
-private fun Content(
+private fun PageContent(
     navController: NavController,
     padding: PaddingValues,
     deck: UiState<List<Deck>>,

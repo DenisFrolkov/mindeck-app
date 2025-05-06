@@ -93,7 +93,7 @@ fun CardScreen(
                 CardTopBar(navController = navController, dropdownMenuState = dropdownMenuState)
             },
             content = { padding ->
-                Content(
+                PageContent(
                     padding = padding,
                     scrollState = scrollState,
                     dropdownVisibleAnimation = dropdownVisibleAnimation,
@@ -195,7 +195,7 @@ private fun CardTopBar(
                     shape = MaterialTheme.shapes.extraLarge
                 )
                 .padding(dimenDpResource(R.dimen.padding_small))
-                .size(dimenDpResource(R.dimen.padding_medium)),
+                .size(dimenDpResource(R.dimen.action_handler_size)),
         )
     }
 }
@@ -251,7 +251,7 @@ fun cardAttributesList(
 
 @Composable
 
-private fun Content(
+private fun PageContent(
     padding: PaddingValues,
     scrollState: ScrollState,
     dropdownVisibleAnimation: Float,
@@ -436,7 +436,7 @@ private fun CardAttributesList(attribute: CardAttributes) {
             },
             onError = {
                 Text(
-                    stringResource(R.string.error_get_info_about_folder),
+                    stringResource(R.string.error_get_info_about_deck),
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.error)
