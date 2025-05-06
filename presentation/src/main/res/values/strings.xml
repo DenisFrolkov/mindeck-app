@@ -15,38 +15,30 @@
     <string name="text_tag_input_field">Тег:</string>
     <string name="text_save_card_button">Сохранить карточку</string>
     <string name="text_is_necessary_to_repeat">Необходимо повторить</string>
-    <string name="title_text_folders">Папки</string>
-    <string name="title_text_all_folders">Все папки</string>
     <string name="fab_menu_data_setting_list">Настройки</string>
-    <string name="fab_menu_data_create_folder_list">Создать папку</string>
     <string name="fab_menu_data_create_card_list">Создать карточку</string>
-    <string name="create_item_dialog_text_creating_folder">Создание папки</string>
-    <string name="create_item_dialog_text_input_name_folder">Введите название папки</string>
-    <string name="create_item_dialog_text_create_folder">Создать папку</string>
     <string name="create_item_dialog_text_creating_deck">Создание колоды</string>
-    <string name="create_item_dialog_text_input_title_folder">Введите название папки</string>
+    <string name="create_item_dialog_text_input_name_deck">Введите название колоды</string>
     <string name="create_item_dialog_text_create_deck">Создать колоду</string>
     <string name="rename_title_item_dialog">Изменить название</string>
-    <string name="rename_item_dialog_text_input_title_folder">Введите название папки</string>
     <string name="rename_item_dialog_text_input_title_deck">Введите название колоды</string>
     <string name="save_text">Сохранить</string>
 
-    <string name="error_get_all_folders">Не получилось загрузить папки!</string>
+    <string name="fab_menu_data_create_deck">Создать колоду</string>
+
+    <string name="error_get_all_decks">Папки не были загружены</string>
+    <string name="title_text_all_decks">Все колоды</string>
+
     <string name="error_get_decks_by_folder_id">Не получилось загрузить колоды!</string>
     <string name="error_get_cards_by_deck_id">Не получилось загрузить карточки!</string>
     <string name="error_get_card_by_card_id">Не получилось загрузить карточку!</string>
-    <string name="error_get_info_about_folder">Не получилось загрузить информацию о папке!</string>
     <string name="error_get_info_about_deck">Не получилось загрузить информацию о колоде!</string>
-
-    <string name="text_no_folder">Нет папки</string>
 
     <string name="text_error_loading">Ошибка загрузки</string>
     <string name="text_loading">Загрузка…</string>
 
-    <string name="dialog_select_folder">Выберите папку</string>
     <string name="dialog_select_deck">Выберите колоду</string>
     <string name="warning_no_elements">Нет элементов для выбора</string>
-    <string name="folder_management_options_message">Вы хотите удалить папку вместе со всеми колодами или переместить колоды в другую папку?</string>
     <string name="deck_management_options_message">Вы хотите удалить колоду вместе со всеми карточками или переместить карточки в другую колоду</string>
     <string name="delete_all_button_text">Удалить</string>
     <string name="delete_partially_button_text">Переместить</string>

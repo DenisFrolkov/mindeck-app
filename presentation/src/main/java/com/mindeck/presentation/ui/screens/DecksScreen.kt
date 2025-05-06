@@ -8,16 +8,17 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
@@ -36,6 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -47,7 +49,7 @@ import com.mindeck.domain.models.Deck
 import com.mindeck.presentation.R
 import com.mindeck.presentation.state.RenderUiState
 import com.mindeck.presentation.state.UiState
-import com.mindeck.presentation.ui.components.common.ActionBar
+import com.mindeck.presentation.ui.components.buttons.ActionHandlerButton
 import com.mindeck.presentation.ui.components.dataclasses.DisplayItemData
 import com.mindeck.presentation.ui.components.dataclasses.DisplayItemStyle
 import com.mindeck.presentation.ui.components.dialog.DialogState
@@ -171,26 +173,25 @@ private fun DecksEditTopBar(
     navController: NavController,
     dialogState: DialogState
 ) {
-    Box(
+    Row(
         modifier = Modifier
+            .fillMaxWidth()
             .padding(horizontal = dimenDpResource(R.dimen.padding_medium))
             .padding(top = dimenDpResource(R.dimen.padding_medium))
-            .statusBarsPadding()
+            .statusBarsPadding(),
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        ActionBar(
-            onBackClick = { navController.popBackStack() },
-            onMenuClick = { dialogState.openCreateDialog() },
-            menuIcon = R.drawable.create_folder,
-            containerModifier = Modifier
-                .fillMaxWidth(),
-            iconModifier = Modifier
-                .clip(shape = MaterialTheme.shapes.extraLarge)
-                .background(
-                    color = MaterialTheme.colorScheme.outlineVariant,
-                    shape = MaterialTheme.shapes.extraLarge
-                )
-                .padding(all = dimenDpResource(R.dimen.padding_small))
-                .size(size = dimenDpResource(R.dimen.action_handler_size)),
+        ActionHandlerButton(
+            iconPainter = painterResource(R.drawable.back_icon),
+            contentDescription = stringResource(R.string.back_screen_icon_button),
+            iconTint = MaterialTheme.colorScheme.onPrimary,
+            onClick = { navController.popBackStack() },
+        )
+        ActionHandlerButton(
+            iconPainter = painterResource(R.drawable.menu_icon),
+            contentDescription = stringResource(R.string.back_screen_icon_button),
+            iconTint = MaterialTheme.colorScheme.onPrimary,
+            onClick = { dialogState.openCreateDialog() },
         )
     }
 }
@@ -342,8 +343,7 @@ private fun FoldersDialog(
                     color = MaterialTheme.colorScheme.outlineVariant,
                     shape = MaterialTheme.shapes.extraLarge
                 )
-                .padding(dimenDpResource(R.dimen.padding_small))
-                .size(dimenDpResource(R.dimen.padding_medium)),
+                .padding(dimenDpResource(R.dimen.padding_small)),
         )
     }
 }
@@ -363,7 +363,7 @@ private fun ScreenPreview() {
             navController,
             decksState,
             dropdownMenu
-        ) {  }
+        ) { }
     }
 }
 

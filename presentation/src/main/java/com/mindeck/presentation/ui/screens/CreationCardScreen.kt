@@ -28,7 +28,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -110,14 +109,6 @@ private fun TopBar(onClick: () -> Unit) {
             contentDescription = stringResource(R.string.back_screen_icon_button),
             onClick = onClick,
             iconTint = MaterialTheme.colorScheme.onPrimary,
-            iconModifier = Modifier
-                .background(
-                    color = MaterialTheme.colorScheme.outlineVariant,
-                    shape = MaterialTheme.shapes.extraLarge
-                )
-                .padding(all = dimenDpResource(R.dimen.padding_small))
-                .size(size = dimenDpResource(R.dimen.action_handler_size))
-                .clip(shape = MaterialTheme.shapes.extraLarge)
         )
         Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_large)))
     }
