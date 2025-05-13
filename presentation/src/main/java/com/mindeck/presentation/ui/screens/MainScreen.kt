@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -20,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,8 +44,7 @@ import com.mindeck.presentation.ui.components.daily_progress_tracker.DailyProgre
 import com.mindeck.presentation.ui.components.daily_progress_tracker.DailyProgressTrackerState
 import com.mindeck.presentation.ui.components.dataclasses.DisplayItemData
 import com.mindeck.presentation.ui.components.dataclasses.DisplayItemStyle
-import com.mindeck.presentation.ui.components.dialog.DialogState
-import com.mindeck.presentation.ui.components.dialog.data_class.CreateItemDialog
+import com.mindeck.presentation.ui.components.dialog.CustomModalWindow
 import com.mindeck.presentation.ui.components.fab.FAB
 import com.mindeck.presentation.ui.components.fab.FabMenuData
 import com.mindeck.presentation.ui.components.fab.FabState
@@ -69,17 +68,28 @@ fun MainScreen(
 
     val decksState = mainViewModel.decksState.collectAsState().value
     val cardsForRepetitionState = mainViewModel.cardsForRepetitionState.collectAsState().value
+    val createDeckState = mainViewModel.createDeckState.collectAsState().value
+    val modalWindowValue by mainViewModel.modalWindowValue.collectAsState()
+
+    LaunchedEffect(createDeckState) {
+        if (createDeckState is UiState.Success) {
+            mainViewModel.toggleModalWindow(false)
+        }
+    }
 
     MainContent(
         navController,
         decksState,
-        cardsForRepetitionState
-    ) { dialogState ->
-        if (dialogState.validateFolderName(dialogState.dialogStateData.text)) {
-            mainViewModel.createDeck(dialogState.dialogStateData.text)
-            dialogState.closeDialog()
+        cardsForRepetitionState,
+        createDeckState,
+        modalWindowValue,
+        onSaveDeck = { deckName ->
+            mainViewModel.createDeck(deckName)
+        },
+        toggleModalWindow = {
+            mainViewModel.toggleModalWindow(it)
         }
-    }
+    )
 }
 
 @Composable
@@ -87,17 +97,15 @@ private fun MainContent(
     navController: NavController,
     decksState: UiState<List<Deck>>,
     cardsForRepetitionState: UiState<List<Card>>,
+    createDeckState: UiState<Unit>,
     initialDialog: Boolean = false,
-    onSaveClick: (DialogState) -> Unit = { }
+    onSaveDeck: (String) -> Unit,
+    toggleModalWindow: (Boolean) -> Unit,
 ) {
-    val dialogState = remember { DialogState(initialDialog) }
-
-    val validation = dialogState.dialogStateData.isValid
-
     val dailyProgressTrackerState =
         remember { DailyProgressTrackerState() }
 
-    val fabMenuItems = getFabMenuItems(dialogState, navController)
+    val fabMenuItems = getFabMenuItems({ toggleModalWindow(true) }, navController)
     val fabState = remember { FabState(expandedHeight = ITEM_HEIGHT.dp * fabMenuItems.size) }
 
     Scaffold(
@@ -122,12 +130,27 @@ private fun MainContent(
                 cardsForRepetitionState,
                 navController
             )
-            CreateDeckDialog(
-                dialogState,
-                fabState,
-                validation,
-                onSaveClick
-            )
+
+            if (initialDialog) {
+                Dialog(
+                    onDismissRequest = {
+                        toggleModalWindow(false)
+                    }
+                ) {
+                    CustomModalWindow(
+                        stringResource(R.string.create_item_dialog_text_creating_deck),
+                        stringResource(R.string.create_item_dialog_text_create_deck),
+                        stringResource(R.string.create_item_dialog_text_input_name_deck),
+                        createDeckState,
+                        exitButton = {
+                            toggleModalWindow(false)
+                        },
+                        saveButton = {
+                            onSaveDeck(it)
+                        }
+                    )
+                }
+            }
         }
     )
 }
@@ -315,7 +338,7 @@ private fun ButtonAllFolders(navController: NavController) {
 
 @Composable
 private fun getFabMenuItems(
-    dialogState: DialogState,
+    openModalWindow: () -> Unit,
     navController: NavController
 ): List<FabMenuData> {
     return listOf(
@@ -324,7 +347,7 @@ private fun getFabMenuItems(
             text = stringResource(R.string.fab_menu_data_create_deck),
             icon = R.drawable.fab_open_menu_create_folder_icon,
             navigation = {
-                dialogState.openCreateDialog()
+                openModalWindow()
             }
         ),
         FabMenuData(
@@ -334,59 +357,6 @@ private fun getFabMenuItems(
             navigation = { navController.navigate(NavigationRoute.CreationCardScreen.route) }
         )
     )
-}
-
-@Composable
-private fun CreateDeckDialog(
-    dialogState: DialogState,
-    fabState: FabState,
-    validation: Boolean?,
-    onSaveClick: (DialogState) -> Unit
-) {
-    if (fabState.isExpanded) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null
-                ) {
-                    fabState.reset()
-                }
-        )
-    }
-    if (dialogState.isDialogVisible) {
-        Dialog(
-            onDismissRequest = { dialogState.closeDialog() }
-        ) {
-            CreateItemDialog(
-                titleDialog = stringResource(R.string.create_item_dialog_text_creating_deck),
-                placeholder = stringResource(R.string.create_item_dialog_text_input_name_deck),
-                buttonText = stringResource(R.string.create_item_dialog_text_create_deck),
-                isInputValid = validation == true || validation == null,
-                inputValue = dialogState.dialogStateData.text,
-                onInputChange = { newValue ->
-                    dialogState.validateFolderName(newValue)
-                    dialogState.updateDialogText(newValue)
-                },
-                onBackClick = {
-                    dialogState.closeDialog()
-                },
-                onSaveClick = { onSaveClick(dialogState) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(MaterialTheme.shapes.small)
-                    .wrapContentSize(Alignment.CenterStart),
-                iconModifier = Modifier
-                    .clip(shape = MaterialTheme.shapes.extraLarge)
-                    .background(
-                        color = MaterialTheme.colorScheme.outlineVariant,
-                        shape = MaterialTheme.shapes.extraLarge
-                    )
-                    .padding(dimenDpResource(R.dimen.padding_small)),
-            )
-        }
-    }
 }
 
 @Preview(
@@ -403,7 +373,11 @@ private fun ScreenPreview() {
         MainContent(
             navController,
             decksState,
-            cardsForRepetitionState
+            cardsForRepetitionState,
+            UiState.Loading,
+            false,
+            { },
+            { _ ->}
         )
     }
 }
@@ -424,6 +398,10 @@ private fun ScreenPreviewLandscape() {
             navController,
             decksState,
             cardsForRepetitionState,
+            UiState.Loading,
+            false,
+            { },
+            { _ ->}
         )
     }
 }
@@ -444,7 +422,10 @@ private fun ScreenPreviewOpenFAB() {
             navController,
             decksState,
             cardsForRepetitionState,
-            fabModalWindow
+            UiState.Loading,
+            fabModalWindow,
+            { },
+            { _ ->}
         )
     }
 }
@@ -466,7 +447,10 @@ private fun ScreenPreviewOpenFABLandscape() {
             navController,
             decksState,
             cardsForRepetitionState,
-            fabModalWindow
+            UiState.Loading,
+            fabModalWindow,
+            { },
+            { _ ->}
         )
     }
 }

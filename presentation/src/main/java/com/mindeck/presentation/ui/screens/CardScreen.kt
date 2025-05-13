@@ -224,7 +224,7 @@ fun cardAttributesList(
 
         is UiState.Error -> listOf(
             CardAttributes(
-                title = stringResource(R.string.text_folder_dropdown_selector),
+                title = "stringResource(R.string.text_folder_dropdown_selector)",
                 value = stringResource(R.string.text_error_loading)
             ),
             CardAttributes(
@@ -239,7 +239,7 @@ fun cardAttributesList(
 
         else -> listOf(
             CardAttributes(
-                title = stringResource(R.string.text_folder_dropdown_selector),
+                title = "stringResource(R.string.text_folder_dropdown_selector)",
                 load = true
             ),
             CardAttributes(
