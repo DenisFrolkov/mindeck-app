@@ -13,8 +13,10 @@
     <dimen name="spacer_extra_large">50dp</dimen>
 
     <dimen name="icon_size">14dp</dimen>
-    <dimen name="action_handler_icon_padding">14dp</dimen>
-    <dimen name="action_handler_size">20dp</dimen>
+    <dimen name="action_handler_icon_padding">12dp</dimen>
+    <dimen name="action_handler_size">18dp</dimen>
+
+    <dimen name="circular_progress_indicator_top_padding">4dp</dimen>
 
     //Border
     <dimen name="border_width_dot_two_five">0.25dp</dimen>

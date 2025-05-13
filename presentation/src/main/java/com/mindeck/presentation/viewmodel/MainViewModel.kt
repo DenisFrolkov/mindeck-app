@@ -36,16 +36,23 @@ open class MainViewModel @Inject constructor(
         .catch { emit(UiState.Error(it)) }
         .stateIn(viewModelScope, SharingStarted.Lazily, UiState.Loading)
 
-    private val _createDeckState = MutableStateFlow<UiState<Unit>>(UiState.Loading)
+    private val _createDeckState = MutableStateFlow<UiState<Unit>>(UiState.Success(Unit))
     val createDeckState: StateFlow<UiState<Unit>> = _createDeckState
 
     fun createDeck(deckName: String) {
         viewModelScope.launch {
+            if (deckName.isBlank()) {
+                _createDeckState.value = UiState.Error(Throwable("Поле ввода пустое."))
+                return@launch
+            }
+
+            _createDeckState.value = UiState.Loading
+
             _createDeckState.value = try {
                 createDeckUseCase(Deck(deckName = deckName))
                 UiState.Success(Unit)
             } catch (e: Exception) {
-                UiState.Error(e)
+                UiState.Error(Throwable("Папка с таким названием уже существует."))
             }
         }
     }
@@ -69,5 +76,11 @@ open class MainViewModel @Inject constructor(
     fun initRepetition() {
         val millis = stringToMillis(currentDateTime)
         loadCardRepetition(millis)
+    }
+
+    var modalWindowValue = MutableStateFlow<Boolean>(false)
+
+    fun toggleModalWindow(switch: Boolean) {
+        modalWindowValue.value = switch
     }
 }
