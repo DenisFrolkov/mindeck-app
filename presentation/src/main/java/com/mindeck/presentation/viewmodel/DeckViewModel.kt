@@ -10,9 +10,9 @@ import com.mindeck.domain.usecases.cardUseCase.GetAllCardsByDeckIdUseCase
 import com.mindeck.domain.usecases.cardUseCase.MoveCardsBetweenDeckUseCase
 import com.mindeck.domain.usecases.cardUseCase.UpdateCardUseCase
 import com.mindeck.domain.usecases.deckUseCases.DeleteDeckUseCase
+import com.mindeck.domain.usecases.deckUseCases.GetAllDecksUseCase
 import com.mindeck.domain.usecases.deckUseCases.GetDeckByIdUseCase
 import com.mindeck.domain.usecases.deckUseCases.RenameDeckUseCase
-import com.mindeck.domain.usecases.deckUseCases.GetAllDecksUseCase
 import com.mindeck.presentation.state.UiState
 import com.mindeck.presentation.viewmodel.managers.EditModeManager
 import com.mindeck.presentation.viewmodel.managers.SelectionManager
@@ -84,16 +84,38 @@ class DeckViewModel @Inject constructor(
         }
     }
 
-    private val _renameDeckState = MutableStateFlow<UiState<Unit>>(UiState.Loading)
+    private val _renameDeckState = MutableStateFlow<UiState<Unit>>(UiState.Success(Unit))
     val renameDeckState: StateFlow<UiState<Unit>> = _renameDeckState
 
     fun renameDeck(deckId: Int, newDeckName: String) {
         viewModelScope.launch {
+            if (newDeckName.isBlank()) {
+                _renameDeckState.value = UiState.Error(Throwable("Поле ввода пустое."))
+                return@launch
+            }
+
+            val currentDeckState = _deckUiState.value
+            if (currentDeckState is UiState.Success) {
+                val currentName = currentDeckState.data.deckName
+                if (newDeckName == currentName) {
+                    _renameDeckState.value =
+                        UiState.Error(Throwable("Название совпадает с текущим."))
+                    return@launch
+                }
+            }
+
+            _renameDeckState.value = UiState.Loading
+
             _renameDeckState.value = try {
                 renameDeckUseCase(deckId = deckId, newName = newDeckName)
+                toggleRenameModalWindow(false)
                 UiState.Success(Unit)
             } catch (e: Exception) {
-                UiState.Error(e)
+                UiState.Error(Throwable("Колода с таким названием уже существует."))
+            }
+
+            if (_renameDeckState.value is UiState.Success) {
+                getDeckById(deckId)
             }
         }
     }
@@ -145,6 +167,16 @@ class DeckViewModel @Inject constructor(
                 UiState.Error(e)
             }
         }
+    }
+
+    var renameModalWindowValue = MutableStateFlow<Boolean>(false)
+
+    fun toggleRenameModalWindow(switch: Boolean) {
+        if (!switch) {
+            _renameDeckState.value = UiState.Success(Unit)
+        }
+
+        renameModalWindowValue.value = switch
     }
 
     val isEditModeEnabled: StateFlow<Boolean> = editModeManager.isEditModeEnabled

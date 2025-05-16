@@ -1,10 +1,5 @@
 package com.mindeck.presentation.ui.screens
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -14,34 +9,31 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
@@ -52,18 +44,13 @@ import com.mindeck.presentation.state.UiState
 import com.mindeck.presentation.ui.components.buttons.ActionHandlerButton
 import com.mindeck.presentation.ui.components.dataclasses.DisplayItemData
 import com.mindeck.presentation.ui.components.dataclasses.DisplayItemStyle
-import com.mindeck.presentation.ui.components.dialog.DialogState
-import com.mindeck.presentation.ui.components.dialog.animateDialogCreateItem
-import com.mindeck.presentation.ui.components.dialog.animateToastItem
-import com.mindeck.presentation.ui.components.dialog.data_class.CreateItemDialog
-import com.mindeck.presentation.ui.components.dialog.data_class.DialogType
+import com.mindeck.presentation.ui.components.dialog.CustomModalWindow
 import com.mindeck.presentation.ui.components.folder.DisplayItem
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
 import com.mindeck.presentation.ui.components.utils.dimenFloatResource
 import com.mindeck.presentation.ui.navigation.NavigationRoute
 import com.mindeck.presentation.ui.theme.MindeckTheme
 import com.mindeck.presentation.viewmodel.DecksViewModel
-import kotlinx.coroutines.delay
 
 @Composable
 fun DecksScreen(
@@ -72,107 +59,76 @@ fun DecksScreen(
     val decksViewModel: DecksViewModel = hiltViewModel(navController.currentBackStackEntry!!)
 
     val decks = decksViewModel.decksState.collectAsState().value
+    val createDeckState by decksViewModel.createDeckState.collectAsState()
+    val modalWindowValue by decksViewModel.modalWindowValue.collectAsState()
+
+    LaunchedEffect(createDeckState) {
+        if (createDeckState is UiState.Success) {
+            decksViewModel.toggleModalWindow(false)
+        }
+    }
 
     DecksContent(
         navController,
-        decks
-    ) { dialogState ->
-        if (dialogState.validateFolderName(dialogState.dialogStateData.text)) {
-            decksViewModel.createDeck(deckName = dialogState.dialogStateData.text)
-            dialogState.closeDialog()
+        decks,
+        createDeckState,
+        modalWindowValue,
+        onSaveDeck = { deckName ->
+            decksViewModel.createDeck(deckName)
+        },
+        toggleModalWindow = {
+            decksViewModel.toggleModalWindow(it)
         }
-    }
+    )
 }
 
 @Composable
 private fun DecksContent(
     navController: NavController,
     decks: UiState<List<Deck>>,
-    dropdownMenu: Boolean = false,
-    onSaveClick: (DialogState) -> Unit
+    createDeckState: UiState<Unit>,
+    initialDialog: Boolean = false,
+    onSaveDeck: (String) -> Unit,
+    toggleModalWindow: (Boolean) -> Unit,
 ) {
-    val dialogState = remember { DialogState(dropdownMenu) }
+    Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
+        topBar = {
+            DecksEditTopBar(navController) { toggleModalWindow(true) }
+        },
+        content = { padding ->
+            PageContent(padding, decks, navController)
 
-    val validation = dialogState.dialogStateData.isValid
-    val toastMessage = dialogState.toastTextEvent
-    val toastValue = dialogState.toastBooleanEvent
+            if (initialDialog) {
+                Dialog(
+                    onDismissRequest = {
+                        toggleModalWindow(false)
+                    }
+                ) {
+                    CustomModalWindow(
+                        stringResource(R.string.create_item_dialog_text_creating_deck),
+                        stringResource(R.string.create_item_dialog_text_create_deck),
+                        stringResource(R.string.create_item_dialog_text_input_name_deck),
+                        createDeckState,
+                        exitButton = {
+                            toggleModalWindow(false)
+                        },
+                        saveButton = {
+                            onSaveDeck(it)
+                        }
+                    )
+                }
+            }
 
-    val dialogVisibleAnimation = animateDialogCreateItem(
-        targetAlpha = dialogState.animateExpandedAlpha,
-        animationDuration = dialogState.animationDuration * 3
+        }
     )
-
-    val toastAlphaAnimation = animateToastItem(
-        targetAlpha = dialogState.toastAlpha,
-        animationDuration = dialogState.animationDuration * 5
-    )
-
-    if (toastMessage.isNotBlank()) {
-        LaunchedEffect(toastValue) {
-            delay(2000)
-            dialogState.clearToast()
-        }
-    }
-
-    Surface(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-    ) {
-        Scaffold(
-            topBar = {
-                DecksEditTopBar(navController, dialogState)
-            },
-            content = { padding ->
-                PageContent(padding, decks, navController)
-            }
-        )
-        if (dialogState.isDialogVisible && dialogState.currentDialogType == DialogType.Create) {
-            FoldersDialog(
-                dialogVisibleAnimation = dialogVisibleAnimation,
-                validation = validation,
-                dialogState = dialogState,
-            ) {
-                onSaveClick(dialogState)
-            }
-        }
-        AnimatedVisibility(
-            visible = toastValue && toastMessage.isNotBlank(),
-            enter = fadeIn(animationSpec = tween(500)),
-            exit = fadeOut(animationSpec = tween(500))
-        ) {
-            Box(
-                contentAlignment = Alignment.BottomCenter,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .navigationBarsPadding()
-                    .padding(bottom = dimenDpResource(R.dimen.toast_padding_bottom))
-            ) {
-                Text(
-                    text = toastMessage,
-                    style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.error),
-                    modifier = Modifier
-                        .alpha(toastAlphaAnimation)
-                        .clip(RoundedCornerShape(dimenDpResource(R.dimen.toast_corner_shape)))
-                        .background(
-                            MaterialTheme.colorScheme.onError.copy(
-                                alpha = dimenFloatResource(
-                                    R.dimen.float_zero_dot_five_significance
-                                )
-                            )
-                        )
-                        .padding(dimenDpResource(R.dimen.padding_small))
-                )
-            }
-        }
-    }
 }
 
 @Composable
 private fun DecksEditTopBar(
     navController: NavController,
-    dialogState: DialogState
-) {
+    openModalWindow: () -> Unit,
+    ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -191,7 +147,7 @@ private fun DecksEditTopBar(
             iconPainter = painterResource(R.drawable.menu_icon),
             contentDescription = stringResource(R.string.back_screen_icon_button),
             iconTint = MaterialTheme.colorScheme.onPrimary,
-            onClick = { dialogState.openCreateDialog() },
+            onClick = { openModalWindow() },
         )
     }
 }
@@ -299,55 +255,6 @@ private fun DecksInfo(
     )
 }
 
-@Composable
-private fun FoldersDialog(
-    dialogVisibleAnimation: Float,
-    validation: Boolean?,
-    dialogState: DialogState,
-    onSaveClick: () -> Unit
-) {
-    Box(modifier = Modifier.alpha(dialogVisibleAnimation)) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.scrim.copy(dialogState.scrimDialogAlpha))
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null
-                ) {
-
-                }
-        )
-        CreateItemDialog(
-            titleDialog = stringResource(R.string.create_item_dialog_text_creating_deck),
-            placeholder = stringResource(R.string.create_item_dialog_text_input_name_deck),
-            buttonText = stringResource(R.string.create_item_dialog_text_create_deck),
-            inputValue = dialogState.dialogStateData.text,
-            isInputValid = validation == true || validation == null,
-            onInputChange = { newValue ->
-                dialogState.validateFolderName(newValue)
-                dialogState.updateDialogText(newValue)
-            },
-            onBackClick = {
-                dialogState.closeDialog()
-            },
-            onSaveClick = {
-                onSaveClick()
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentSize(Alignment.CenterStart),
-            iconModifier = Modifier
-                .clip(MaterialTheme.shapes.extraLarge)
-                .background(
-                    color = MaterialTheme.colorScheme.outlineVariant,
-                    shape = MaterialTheme.shapes.extraLarge
-                )
-                .padding(dimenDpResource(R.dimen.padding_small)),
-        )
-    }
-}
-
 @Preview(
     showBackground = true,
     backgroundColor = 0xFFE6E6FF
@@ -356,14 +263,16 @@ private fun FoldersDialog(
 private fun ScreenPreview() {
     val navController = rememberNavController()
     val decksState: UiState<List<Deck>> = decksDataMock()
-    val dropdownMenu = true
 
     MindeckTheme {
         DecksContent(
             navController,
             decksState,
-            dropdownMenu
-        ) { }
+            UiState.Loading,
+            false,
+            { },
+            { _, -> }
+        )
     }
 }
 

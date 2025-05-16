@@ -71,12 +71,6 @@ fun MainScreen(
     val createDeckState = mainViewModel.createDeckState.collectAsState().value
     val modalWindowValue by mainViewModel.modalWindowValue.collectAsState()
 
-    LaunchedEffect(createDeckState) {
-        if (createDeckState is UiState.Success) {
-            mainViewModel.toggleModalWindow(false)
-        }
-    }
-
     MainContent(
         navController,
         decksState,
@@ -309,7 +303,6 @@ private fun ButtonAllFolders(navController: NavController) {
             .fillMaxWidth()
             .wrapContentSize(Alignment.Center)
     ) {
-
         Box(
             modifier = Modifier
                 .background(
