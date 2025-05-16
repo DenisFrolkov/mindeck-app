@@ -41,18 +41,19 @@ open class MainViewModel @Inject constructor(
 
     fun createDeck(deckName: String) {
         viewModelScope.launch {
+            _createDeckState.value = UiState.Loading
+
             if (deckName.isBlank()) {
                 _createDeckState.value = UiState.Error(Throwable("Поле ввода пустое."))
                 return@launch
             }
 
-            _createDeckState.value = UiState.Loading
-
             _createDeckState.value = try {
                 createDeckUseCase(Deck(deckName = deckName))
+                toggleModalWindow(false)
                 UiState.Success(Unit)
             } catch (e: Exception) {
-                UiState.Error(Throwable("Папка с таким названием уже существует."))
+                UiState.Error(Throwable("Колода с таким названием уже существует."))
             }
         }
     }
@@ -81,6 +82,10 @@ open class MainViewModel @Inject constructor(
     var modalWindowValue = MutableStateFlow<Boolean>(false)
 
     fun toggleModalWindow(switch: Boolean) {
+        if (!switch) {
+            _createDeckState.value = UiState.Success(Unit)
+        }
+
         modalWindowValue.value = switch
     }
 }
