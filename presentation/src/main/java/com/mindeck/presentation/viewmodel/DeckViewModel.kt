@@ -9,6 +9,7 @@ import com.mindeck.domain.usecases.cardUseCase.DeleteCardsFromDeckUseCase
 import com.mindeck.domain.usecases.cardUseCase.GetAllCardsByDeckIdUseCase
 import com.mindeck.domain.usecases.cardUseCase.MoveCardsBetweenDeckUseCase
 import com.mindeck.domain.usecases.cardUseCase.UpdateCardUseCase
+import com.mindeck.domain.usecases.deckUseCases.CreateDeckUseCase
 import com.mindeck.domain.usecases.deckUseCases.DeleteDeckUseCase
 import com.mindeck.domain.usecases.deckUseCases.GetAllDecksUseCase
 import com.mindeck.domain.usecases.deckUseCases.GetDeckByIdUseCase
@@ -27,6 +28,7 @@ import javax.inject.Inject
 @HiltViewModel
 class DeckViewModel @Inject constructor(
     private val getAllCardsByDeckIdUseCase: GetAllCardsByDeckIdUseCase,
+    private val createDeckUseCase: CreateDeckUseCase,
     private val getDeckByIdUseCase: GetDeckByIdUseCase,
     private val getAllDecksUseCase: GetAllDecksUseCase,
     private val renameDeckUseCase: RenameDeckUseCase,
@@ -38,6 +40,27 @@ class DeckViewModel @Inject constructor(
     private val deleteCardsFromDeckUseCase: DeleteCardsFromDeckUseCase,
     private val updateCardUseCase: UpdateCardUseCase
 ) : ViewModel() {
+
+    private val _createDeckState = MutableStateFlow<UiState<Unit>>(UiState.Success(Unit))
+    val createDeckState: StateFlow<UiState<Unit>> = _createDeckState
+
+    fun createDeck(deckName: String) {
+        viewModelScope.launch {
+            _createDeckState.value = UiState.Loading
+
+            if (deckName.isBlank()) {
+                _createDeckState.value = UiState.Error(Throwable("Поле ввода пустое."))
+                return@launch
+            }
+
+            _createDeckState.value = try {
+                createDeckUseCase(Deck(deckName = deckName))
+                UiState.Success(Unit)
+            } catch (e: Exception) {
+                UiState.Error(Throwable("Колода с таким названием уже существует."))
+            }
+        }
+    }
 
     private val _listCardsUiState = MutableStateFlow<UiState<List<Card>>>(UiState.Loading)
     val listCardsUiState: StateFlow<UiState<List<Card>>> = _listCardsUiState
@@ -177,6 +200,16 @@ class DeckViewModel @Inject constructor(
         }
 
         renameModalWindowValue.value = switch
+    }
+
+    var editCardsInDeckModalWindowValue = MutableStateFlow<Boolean>(false)
+
+    fun toggleEditCardsInDeckModalWindow(switch: Boolean) {
+        if (!switch) {
+            _moveCardsBetweenDecksState.value = UiState.Success(Unit)
+        }
+
+        editCardsInDeckModalWindowValue.value = switch
     }
 
     val isEditModeEnabled: StateFlow<Boolean> = editModeManager.isEditModeEnabled

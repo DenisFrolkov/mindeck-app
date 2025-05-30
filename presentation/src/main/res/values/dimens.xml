@@ -49,7 +49,7 @@
     <dimen name="dropdown_menu_horizontal_text_padding">28dp</dimen>
     <dimen name="dropdown_menu_vertical_text_padding">14dp</dimen>
     <dimen name="dropdown_menu_vertical_top_padding">4dp</dimen>
-    <dimen name="dropdown_min_weight">120dp</dimen>
+    <dimen name="dropdown_min_weight">130dp</dimen>
     <dimen name="dropdown_menu_item_height">36dp</dimen>
 
     //Divider for CardInputField

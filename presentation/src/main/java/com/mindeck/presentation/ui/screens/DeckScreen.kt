@@ -1,13 +1,10 @@
 package com.mindeck.presentation.ui.screens
 
-import android.util.Log
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -20,14 +17,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -35,12 +30,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -52,32 +45,24 @@ import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.Deck
 import com.mindeck.presentation.R
 import com.mindeck.presentation.state.RenderUiState
+import com.mindeck.presentation.state.UiState
+import com.mindeck.presentation.state.onSuccess
+import com.mindeck.presentation.ui.components.buttons.ActionHandlerButton
+import com.mindeck.presentation.ui.components.common.ButtonMoveMode
 import com.mindeck.presentation.ui.components.common.DisplayItemCount
-import com.mindeck.presentation.ui.components.dialog.data_class.CreateItemDialog
-import com.mindeck.presentation.ui.components.dialog.DialogState
-import com.mindeck.presentation.ui.components.dialog.animateDialogCreateItem
+import com.mindeck.presentation.ui.components.dataclasses.DisplayItemData
+import com.mindeck.presentation.ui.components.dataclasses.DisplayItemStyle
+import com.mindeck.presentation.ui.components.dialog.ChooseElement
+import com.mindeck.presentation.ui.components.dialog.CustomModalWindow
+import com.mindeck.presentation.ui.components.dialog.EditElementModalWindow
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenu
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenuData
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenuState
-import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.animateDropdownMenuHeightIn
 import com.mindeck.presentation.ui.components.folder.DisplayItem
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
 import com.mindeck.presentation.ui.components.utils.dimenFloatResource
 import com.mindeck.presentation.ui.navigation.NavigationRoute
-import com.mindeck.presentation.state.UiState
-import com.mindeck.presentation.state.UiState.Loading.mapData
-import com.mindeck.presentation.state.onSuccess
-import com.mindeck.presentation.ui.components.buttons.ActionHandlerButton
-import com.mindeck.presentation.ui.components.common.ButtonMoveMode
-import com.mindeck.presentation.ui.components.dataclasses.DisplayItemData
-import com.mindeck.presentation.ui.components.dataclasses.DisplayItemStyle
-import com.mindeck.presentation.ui.components.dialog.CustomModalWindow
-import com.mindeck.presentation.ui.components.dialog.DeleteItemDialog
-import com.mindeck.presentation.ui.components.dialog.data_class.DialogType
-import com.mindeck.presentation.ui.components.dialog.SelectItemDialog
-import com.mindeck.presentation.ui.components.dialog.animateToastItem
 import com.mindeck.presentation.viewmodel.DeckViewModel
-import kotlinx.coroutines.delay
 
 @Composable
 fun DeckScreen(
@@ -98,69 +83,31 @@ fun DeckScreen(
     val selectedCards by deckViewModel.selectedCardIdSet.collectAsState()
 
     val renameDeckState by deckViewModel.renameDeckState.collectAsState()
-    val state by remember { derivedStateOf { renameDeckState is UiState.Success } }
     val renameModalWindowValue by deckViewModel.renameModalWindowValue.collectAsState()
+    val editCardsInDeckModalWindowValue by deckViewModel.editCardsInDeckModalWindowValue.collectAsState()
 
     val dropdownMenuState = remember { DropdownMenuState() }
-    val dialogState = remember { DialogState() }
-
-//    LaunchedEffect(state) {
-//        Log.d("clickLau", renameDeckState.toString())
-//        if (state) {
-//            deckViewModel.toggleRenameModalWindow(false)
-//        }
-//    }
-
-    val selectedElement by dialogState.isSelectItem.collectAsState()
-    val validation = dialogState.dialogStateData.isValid
-    val toastMessage = dialogState.toastTextEvent
-    val toastValue = dialogState.toastBooleanEvent
-
-    val dropdownVisibleAnimation = animateDropdownMenuHeightIn(
-        targetAlpha = dropdownMenuState.dropdownAlpha,
-        animationDuration = dropdownMenuState.animationDuration
-    )
-    val dialogVisibleAnimation = animateDialogCreateItem(
-        targetAlpha = dialogState.animateExpandedAlpha,
-        animationDuration = dialogState.animationDuration * 3
-    )
-
-    val toastAlphaAnimation = animateToastItem(
-        targetAlpha = dialogState.toastAlpha,
-        animationDuration = dialogState.animationDuration * 5
-    )
-
-    if (toastMessage.isNotBlank()) {
-        LaunchedEffect(toastValue) {
-            delay(2000)
-            dialogState.clearToast()
-        }
-    }
 
     PageContent(
         navController,
         deck,
         cards,
         deckViewModel,
-        dialogState,
         dropdownMenuState,
         isEditModeEnabled,
         selectedCards,
-        dropdownVisibleAnimation,
-        dialogVisibleAnimation,
         decks,
-        selectedElement,
-        validation,
-        toastValue,
-        toastMessage,
-        toastAlphaAnimation,
         renameDeckState,
         renameModalWindowValue,
+        editCardsInDeckModalWindowValue,
         onSaveDeck = { id, deckName ->
             deckViewModel.renameDeck(id, deckName)
         },
-        toggleModalWindow = {
+        toggleRenameModalWindow = {
             deckViewModel.toggleRenameModalWindow(it)
+        },
+        toggleEditCardsInDeckModalWindow = {
+            deckViewModel.toggleEditCardsInDeckModalWindow(it)
         }
     )
 }
@@ -171,22 +118,16 @@ private fun PageContent(
     deck: UiState<Deck>,
     cards: UiState<List<Card>>,
     deckViewModel: DeckViewModel,
-    dialogState: DialogState,
     dropdownMenuState: DropdownMenuState,
     isEditModeEnabled: Boolean,
     selectedCards: Set<Int>,
-    dropdownVisibleAnimation: Float,
-    dialogVisibleAnimation: Float,
     decks: UiState<List<Deck>>,
-    selectedElement: Int?,
-    validation: Boolean?,
-    toastValue: Boolean,
-    toastMessage: String,
-    toastAlphaAnimation: Float,
     renameDeckState: UiState<Unit>,
     renameModalWindowValue: Boolean,
+    editCardsInDeckModalWindowValue: Boolean,
     onSaveDeck: (Int, String) -> Unit,
-    toggleModalWindow: (Boolean) -> Unit,
+    toggleRenameModalWindow: (Boolean) -> Unit,
+    toggleEditCardsInDeckModalWindow: (Boolean) -> Unit
 ) {
     val listDropdownMenu =
         dropdownMenuDataList(
@@ -194,9 +135,7 @@ private fun PageContent(
             deck = deck,
             cardsState = cards,
             deckViewModel = deckViewModel,
-            dialogState = dialogState,
-            dropdownMenuState = dropdownMenuState,
-            { toggleModalWindow(true) }
+            dropdownMenuState = dropdownMenuState
         )
 
     Scaffold(
@@ -215,7 +154,6 @@ private fun PageContent(
                 if (editModeEnabled) {
                     DeckEditTopBar(
                         selectedCards = selectedCards,
-                        dialogState = dialogState,
                         deckViewModel = deckViewModel
                     )
                 } else {
@@ -234,7 +172,6 @@ private fun PageContent(
                 selectedCards = selectedCards,
                 deck = deck,
                 cards = cards,
-                dropdownVisibleAnimation = dropdownVisibleAnimation,
                 listDropdownMenu = listDropdownMenu,
                 dropdownMenuState = dropdownMenuState,
                 deckViewModel = deckViewModel,
@@ -244,7 +181,7 @@ private fun PageContent(
                 deck.onSuccess { deckInfo ->
                     Dialog(
                         onDismissRequest = {
-                            toggleModalWindow(false)
+                            toggleRenameModalWindow(false)
                         }
                     ) {
                         CustomModalWindow(
@@ -253,67 +190,47 @@ private fun PageContent(
                             stringResource(R.string.rename_item_dialog_text_input_title_deck),
                             renameDeckState,
                             exitButton = {
-                                toggleModalWindow(false)
+                                toggleRenameModalWindow(false)
                             },
                             saveButton = {
                                 onSaveDeck(deckInfo.deckId, it)
-                                Log.d("click", it)
                             }
                         )
                     }
                 }
             }
+
+            if (editCardsInDeckModalWindowValue) {
+                cards.onSuccess { cardInfo ->
+                    Dialog(
+                        onDismissRequest = {
+                            toggleEditCardsInDeckModalWindow(false)
+                        }
+                    ) {
+                        deck.onSuccess {
+                            EditElementModalWindow(
+                                stringResource(R.string.rename_title_item_dialog),
+                                stringResource(R.string.save_text),
+                                listOf<ChooseElement>(ChooseElement("123", 0), ChooseElement("123", 1), ChooseElement("123", 2)),
+                                renameDeckState,
+                                exitButton = {
+                                    toggleRenameModalWindow(false)
+                                },
+                                saveButton = {
+
+                                }
+                            )
+                        }
+                    }
+                }
+            }
         }
     )
-
-//    if (dialogState.isDialogVisible) {
-//        DeckDialog(
-//            navController = navController,
-//            deckViewModel = deckViewModel,
-//            dialogVisibleAnimation = dialogVisibleAnimation,
-//            deck = deck,
-//            decks = decks,
-//            selectedElement = selectedElement,
-//            validation = validation,
-//            dialogState = dialogState,
-//        )
-//    }
-
-    AnimatedVisibility(
-        visible = toastValue && toastMessage.isNotBlank(),
-        enter = fadeIn(animationSpec = tween(500)),
-        exit = fadeOut(animationSpec = tween(500))
-    ) {
-        Box(
-            contentAlignment = Alignment.BottomCenter,
-            modifier = Modifier
-                .fillMaxSize()
-                .navigationBarsPadding()
-                .padding(bottom = dimenDpResource(R.dimen.toast_padding_bottom))
-        ) {
-            Text(
-                text = toastMessage,
-                style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.error),
-                modifier = Modifier
-                    .alpha(toastAlphaAnimation)
-                    .clip(RoundedCornerShape(dimenDpResource(R.dimen.toast_corner_shape)))
-                    .background(
-                        MaterialTheme.colorScheme.onError.copy(
-                            alpha = dimenFloatResource(
-                                R.dimen.float_zero_dot_five_significance
-                            )
-                        )
-                    )
-                    .padding(dimenDpResource(R.dimen.padding_small))
-            )
-        }
-    }
 }
 
 @Composable
 private fun DeckEditTopBar(
     selectedCards: Set<Int>,
-    dialogState: DialogState,
     deckViewModel: DeckViewModel
 ) {
     Box(
@@ -334,11 +251,6 @@ private fun DeckEditTopBar(
                 ButtonMoveMode(
                     buttonTitle = stringResource(R.string.text_move_mode_top_bar_edit_button),
                     onClickButton = {
-                        if (!dialogState.isSelectingDecksForMoveAndDelete) {
-                            dialogState.openMoveDialog()
-                        } else {
-                            dialogState.openMoveItemsAndDeleteItemDialog()
-                        }
                     }
                 )
             }
@@ -387,7 +299,6 @@ private fun PageContent(
     selectedCards: Set<Int>,
     cards: UiState<List<Card>>,
     listDropdownMenu: List<DropdownMenuData>,
-    dropdownVisibleAnimation: Float,
     deckViewModel: DeckViewModel,
     dropdownMenuState: DropdownMenuState
 ) {
@@ -411,7 +322,6 @@ private fun PageContent(
         DeckDropdownMenu(
             padding = padding,
             listDropdownMenu = listDropdownMenu,
-            dropdownVisibleAnimation = dropdownVisibleAnimation,
             dropdownMenuState = dropdownMenuState,
         )
     }
@@ -423,9 +333,7 @@ private fun dropdownMenuDataList(
     deck: UiState<Deck>,
     cardsState: UiState<List<Card>>,
     deckViewModel: DeckViewModel,
-    dialogState: DialogState,
     dropdownMenuState: DropdownMenuState,
-    openModalWindow: () -> Unit,
 ): List<DropdownMenuData> {
     return listOf(
         DropdownMenuData(
@@ -433,7 +341,7 @@ private fun dropdownMenuDataList(
             titleStyle = MaterialTheme.typography.bodyMedium,
             action = {
                 dropdownMenuState.reset()
-                openModalWindow()
+                deckViewModel.toggleRenameModalWindow(true)
             }
         ),
         DropdownMenuData(
@@ -443,7 +351,7 @@ private fun dropdownMenuDataList(
                 dropdownMenuState.reset()
                 cardsState.onSuccess {
                     deckViewModel.toggleEditMode()
-
+                    deckViewModel.toggleEditCardsInDeckModalWindow(true)
                 }
             }
         ),
@@ -461,12 +369,7 @@ private fun dropdownMenuDataList(
             action = {
                 dropdownMenuState.reset()
                 cardsState.onSuccess { cards ->
-                    if (cards.isNotEmpty()) {
-                        dialogState.openDeleteDialog()
-                    } else {
-                        deck.onSuccess { deckViewModel.deleteDeck(it) }
-                        navController.popBackStack()
-                    }
+
                 }
             }
         )
@@ -595,259 +498,11 @@ private fun CardInfo(
     )
 }
 
-@Composable
-private fun DeckDialog(
-    navController: NavController,
-    dialogState: DialogState,
-    dialogVisibleAnimation: Float,
-    deck: UiState<Deck>,
-    validation: Boolean?,
-    deckViewModel: DeckViewModel,
-    decks: UiState<List<Deck>>,
-    selectedElement: Int?
-) {
-    Box(
-        modifier = Modifier
-            .alpha(dialogVisibleAnimation)
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.outline.copy(dimenFloatResource(R.dimen.float_zero_dot_five_significance)))
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null
-                ) {}
-        )
-        when {
-            dialogState.currentDialogType == DialogType.Rename -> {
-                DeckRenameDialog(deck, dialogState, validation, deckViewModel)
-            }
-
-            (dialogState.currentDialogType == DialogType.Move || dialogState.currentDialogType == DialogType.MoveItemsAndDeleteItem) -> {
-                DeckMoveDialog(
-                    dialogState,
-                    decks,
-                    selectedElement,
-                    deck,
-                    deckViewModel,
-                    navController
-                )
-            }
-
-            dialogState.currentDialogType == DialogType.Delete -> {
-                DeckDeleteDialog(deck, deckViewModel, navController, dialogState)
-            }
-        }
-    }
-}
-
-@Composable
-private fun DeckRenameDialog(
-    deckState: UiState<Deck>,
-    dialogState: DialogState,
-    validation: Boolean?,
-    deckViewModel: DeckViewModel
-) {
-    deckState.RenderUiState(
-        onSuccess = { deck ->
-            CreateItemDialog(
-                titleDialog = stringResource(R.string.rename_title_item_dialog),
-                placeholder = stringResource(R.string.rename_item_dialog_text_input_title_deck),
-                buttonText = stringResource(R.string.save_text),
-                inputValue = dialogState.dialogStateData.text,
-                isInputValid = validation == true || validation == null,
-                onInputChange = { newValue ->
-                    dialogState.validateFolderName(newValue)
-                    dialogState.updateDialogText(newValue)
-                },
-                onBackClick = {
-                    dialogState.closeDialog()
-                },
-                onSaveClick = {
-                    if (dialogState.validateFolderName(dialogState.dialogStateData.text)) {
-                        deckViewModel.renameDeck(
-                            deckId = deck.deckId,
-                            newDeckName = dialogState.dialogStateData.text
-                        )
-                        dialogState.closeDialog()
-                        deckViewModel.getDeckById(deck.deckId)
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentSize(Alignment.CenterStart),
-                iconModifier = Modifier
-                    .clip(shape = MaterialTheme.shapes.extraLarge)
-                    .background(
-                        color = MaterialTheme.colorScheme.outlineVariant,
-                        shape = MaterialTheme.shapes.extraLarge
-                    )
-                    .padding(dimenDpResource(R.dimen.padding_small)),
-            )
-        },
-        onLoading = {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        MaterialTheme.colorScheme.outline.copy(
-                            dimenFloatResource(R.dimen.float_zero_dot_five_significance)
-                        )
-                    )
-                    .wrapContentSize(Alignment.Center)
-            ) {
-                CircularProgressIndicator(
-                    color = MaterialTheme.colorScheme.primary,
-                    strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_one)
-                )
-            }
-        },
-        onError = {
-            dialogState.closeDialog()
-            dialogState.showErrorToast(
-                stringResource(R.string.toast_message_impossible_perform_action)
-            )
-        }
-    )
-}
-
-@Composable
-private fun DeckMoveDialog(
-    dialogState: DialogState,
-    decks: UiState<List<Deck>>,
-    selectedElement: Int?,
-    deckState: UiState<Deck>,
-    deckViewModel: DeckViewModel,
-    navController: NavController
-) {
-    deckState.RenderUiState(
-        onSuccess = { deck ->
-            SelectItemDialog(
-                titleDialog = stringResource(R.string.dialog_select_deck),
-                dialogState = dialogState,
-                selectItems = decks.mapData { deckPairs ->
-                    deckPairs.map { Pair(it.deckName, it.deckId) }
-                },
-                selectedElement = selectedElement,
-                sourceLocation = deck.deckId,
-                fetchList = { deckViewModel.getAllDecksByFolderId() },
-                onClickSave = {
-                    handleDeckMoveSave(
-                        dialogState,
-                        deckViewModel,
-                        deck,
-                        selectedElement,
-                        navController
-                    )
-                },
-            )
-        },
-        onLoading = {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        MaterialTheme.colorScheme.outline.copy(
-                            dimenFloatResource(R.dimen.float_zero_dot_five_significance)
-                        )
-                    )
-                    .wrapContentSize(Alignment.Center)
-            ) {
-                CircularProgressIndicator(
-                    color = MaterialTheme.colorScheme.primary,
-                    strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_one)
-                )
-            }
-        },
-        onError = {
-            dialogState.closeDialog()
-            dialogState.showErrorToast(stringResource(R.string.toast_message_impossible_move_cards))
-        }
-    )
-}
-
-private fun handleDeckMoveSave(
-    dialogState: DialogState,
-    deckViewModel: DeckViewModel,
-    deck: Deck,
-    selectedElement: Int?,
-    navController: NavController
-) {
-    if (dialogState.currentDialogType == DialogType.Move) {
-        deckViewModel.moveCardsBetweenDecks(
-            sourceDeckId = deck.deckId,
-            targetDeckId = selectedElement!!,
-            deckIds = deckViewModel.selectedCardIdSet.value.sorted()
-                .toList()
-        )
-        dialogState.closeDialog()
-        deckViewModel.toggleEditMode()
-        deckViewModel.clearCardSelection()
-    } else if (dialogState.currentDialogType == DialogType.MoveItemsAndDeleteItem) {
-        deckViewModel.addCardsToDeck(
-            targetDeckId = selectedElement!!,
-            cardIds = deckViewModel.selectedCardIdSet.value.sorted()
-                .toList()
-        )
-        deckViewModel.deleteDeck(deck)
-        deckViewModel.clearCardSelection()
-        dialogState.closeDialog()
-        dialogState.toggleSelectingDecksForMoveAndDelete()
-        navController.popBackStack()
-    }
-}
-
-@Composable
-private fun DeckDeleteDialog(
-    deckState: UiState<Deck>,
-    deckViewModel: DeckViewModel,
-    navController: NavController,
-    dialogState: DialogState
-) {
-    deckState.RenderUiState(
-        onSuccess = { deck ->
-            DeleteItemDialog(
-                onClickDeleteAll = {
-                    deckViewModel.deleteDeck(deck)
-                    navController.popBackStack()
-                },
-                onClickDeletePartially = {
-                    deckViewModel.toggleEditMode()
-                    dialogState.closeDialog()
-                    dialogState.toggleSelectingDecksForMoveAndDelete()
-                }
-            )
-        },
-        onLoading = {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        MaterialTheme.colorScheme.outline.copy(
-                            dimenFloatResource(R.dimen.float_zero_dot_five_significance)
-                        )
-                    )
-                    .wrapContentSize(Alignment.Center)
-            ) {
-                CircularProgressIndicator(
-                    color = MaterialTheme.colorScheme.primary,
-                    strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_one)
-                )
-            }
-        },
-        onError = {
-            dialogState.closeDialog()
-            dialogState.showErrorToast(stringResource(R.string.toast_message_impossible_delete_deck))
-        }
-    )
-}
 
 @Composable
 private fun DeckDropdownMenu(
     padding: PaddingValues,
     listDropdownMenu: List<DropdownMenuData>,
-    dropdownVisibleAnimation: Float,
     dropdownMenuState: DropdownMenuState
 ) {
     Box(
@@ -863,7 +518,6 @@ private fun DeckDropdownMenu(
         dropdownModifier = Modifier
             .padding(horizontal = dimenDpResource(R.dimen.padding_medium))
             .padding(padding)
-            .alpha(dropdownVisibleAnimation)
             .fillMaxWidth()
             .padding(top = dimenDpResource(R.dimen.spacer_extra_small))
             .wrapContentSize(Alignment.TopEnd)
