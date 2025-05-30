@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="text_folder_dropdown_selector">Папка:</string>
     <string name="text_folder_dropdown_selector_simple">Простая</string>
     <string name="text_folder_dropdown_selector_simple_with_answer_input">Простая(с вводом ответа)</string>
 
     <string name="text_repeat_cards">Пора повторить некоторые карточки!</string>
+
+    <string name="enter_text">Введите текст</string>
 
     <string name="text_deck_dropdown_selector">Колода:</string>
     <string name="text_priority_dropdown_selector">Приоритет:</string>

@@ -28,29 +28,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import com.mindeck.presentation.R
-import com.mindeck.presentation.state.RenderUiState
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
 import com.mindeck.presentation.ui.theme.outline_medium_gray
 import com.mindeck.presentation.ui.theme.text_black
-import com.mindeck.presentation.state.UiState
 
 @Composable
 fun DropdownSelector(
     label: String,
-    validation: Boolean,
     selectedItem: Pair<String, Int?>,
-    itemsState: UiState<List<Pair<String, Int>>>,
-    isEnabled: Boolean = true,
+    itemsState: List<Pair<String, Int>>,
     onItemClick: (Pair<String, Int>) -> Unit,
     onClick: () -> Unit,
     textStyle: TextStyle
 ) {
     val dropdownSelectorState = remember { DropdownSelectorState() }
-
-    val isValid = selectedItem.second != null || validation
 
     Row {
         Text(
@@ -67,6 +62,7 @@ fun DropdownSelector(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .background(Color.Red)
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null,
@@ -79,13 +75,13 @@ fun DropdownSelector(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(
-                        color = if (isValid) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onError,
+                        color = MaterialTheme.colorScheme.onPrimary,
                         shape = MaterialTheme.shapes.extraSmall
                     )
                     .height(dimenDpResource(R.dimen.dropdown_menu_item_height))
                     .border(
                         dimenDpResource(R.dimen.border_width_dot_two_five),
-                        color = if (isValid) MaterialTheme.colorScheme.outline else MaterialTheme.colorScheme.error,
+                        color = MaterialTheme.colorScheme.outline,
                         shape = if (dropdownSelectorState.isExpanded) RoundedCornerShape(
                             topStart = dimenDpResource(R.dimen.text_input_topStart_padding),
                             topEnd = dimenDpResource(R.dimen.text_input_topEnd_padding),
@@ -95,56 +91,33 @@ fun DropdownSelector(
             ) {
                 Text(
                     text = selectedItem.first,
-                    style = textStyle.copy(color = if (isValid) text_black else MaterialTheme.colorScheme.error)
+                    style = textStyle.copy(color = text_black)
                 )
             }
 
             if (dropdownSelectorState.isExpanded) {
-                if (isEnabled) {
-                    itemsState.RenderUiState(
-                        onSuccess = { data ->
-                            if (data.isNotEmpty()) {
-                                Column(
-                                    modifier = Modifier
-                                        .border(
-                                            dimenDpResource(R.dimen.border_width_dot_two_five),
-                                            MaterialTheme.colorScheme.outline,
-                                            shape = RoundedCornerShape(
-                                                bottomStart = dimenDpResource(R.dimen.text_input_bottomStart_padding),
-                                                bottomEnd = dimenDpResource(R.dimen.text_input_bottomEnd_padding)
-                                            )
-                                        )
-                                ) {
-                                    SelectorDropdownMenu(
-                                        selectorItemList = data,
-                                        onItemClick = onItemClick,
-                                        dropdownSelectorState = dropdownSelectorState,
-                                        textStyle = textStyle
-                                    )
-                                }
-                            } else {
-                                EmptyDropdownMessage(
-                                    message = "Нет элементов",
-                                    textStyle = textStyle
+                if (itemsState.isNotEmpty()) {
+                    Column(
+                        modifier = Modifier
+                            .border(
+                                dimenDpResource(R.dimen.border_width_dot_two_five),
+                                MaterialTheme.colorScheme.outline,
+                                shape = RoundedCornerShape(
+                                    bottomStart = dimenDpResource(R.dimen.text_input_bottomStart_padding),
+                                    bottomEnd = dimenDpResource(R.dimen.text_input_bottomEnd_padding)
                                 )
-                            }
-                        },
-                        onLoading = {
-                            EmptyDropdownMessage(
-                                message = "Загрузка...",
-                                textStyle = textStyle
                             )
-                        },
-                        onError = {
-                            EmptyDropdownMessage(
-                                message = "Ошибка",
-                                textStyle = textStyle
-                            )
-                        }
-                    )
+                    ) {
+                        SelectorDropdownMenu(
+                            selectorItemList = itemsState,
+                            onItemClick = onItemClick,
+                            dropdownSelectorState = dropdownSelectorState,
+                            textStyle = textStyle
+                        )
+                    }
                 } else {
                     EmptyDropdownMessage(
-                        message = "Выберите папку",
+                        message = "Создать папку",
                         textStyle = textStyle
                     )
                 }
