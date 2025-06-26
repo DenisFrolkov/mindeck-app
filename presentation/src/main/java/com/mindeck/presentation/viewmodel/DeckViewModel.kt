@@ -94,7 +94,7 @@ class DeckViewModel @Inject constructor(
     private val _listDecksUiState = MutableStateFlow<UiState<List<Deck>>>(UiState.Loading)
     val listDecksUiState: StateFlow<UiState<List<Deck>>> = _listDecksUiState
 
-    fun getAllDecksByFolderId() {
+    fun getAllDecks() {
         viewModelScope.launch {
             getAllDecksUseCase()
                 .map<List<Deck>, UiState<List<Deck>>> {
@@ -143,17 +143,18 @@ class DeckViewModel @Inject constructor(
         }
     }
 
-    private val _moveCardsBetweenDecksState = MutableStateFlow<UiState<Unit>>(UiState.Loading)
+    private val _moveCardsBetweenDecksState = MutableStateFlow<UiState<Unit>>(UiState.Success(Unit))
     val moveCardsBetweenDecksState: StateFlow<UiState<Unit>> = _moveCardsBetweenDecksState
 
     fun moveCardsBetweenDecks(
-        deckIds: List<Int>,
+        cardIds: List<Int>,
         sourceDeckId: Int,
         targetDeckId: Int
     ) {
         viewModelScope.launch {
             _moveCardsBetweenDecksState.value = try {
-                moveCardsBetweenDeckUseCase(deckIds, sourceDeckId, targetDeckId)
+                moveCardsBetweenDeckUseCase(cardIds, sourceDeckId, targetDeckId)
+                toggleEditCardsInDeckModalWindow(false)
                 UiState.Success(Unit)
             } catch (e: Exception) {
                 UiState.Error(e)
@@ -207,6 +208,7 @@ class DeckViewModel @Inject constructor(
     fun toggleEditCardsInDeckModalWindow(switch: Boolean) {
         if (!switch) {
             _moveCardsBetweenDecksState.value = UiState.Success(Unit)
+            selectionManager.clearDeckSelection()
         }
 
         editCardsInDeckModalWindowValue.value = switch
@@ -214,10 +216,15 @@ class DeckViewModel @Inject constructor(
 
     val isEditModeEnabled: StateFlow<Boolean> = editModeManager.isEditModeEnabled
 
-    val selectedCardIdSet: StateFlow<Set<Int>> = selectionManager.selectedItemIds
+    val selectedCardIdSet: StateFlow<Set<Int>> = selectionManager.selectedCardIds
+    val selectedDeckId: StateFlow<Int?> = selectionManager.selectedDeckId
 
     fun toggleCardSelection(cardId: Int) {
-        selectionManager.toggleSelection(cardId)
+        selectionManager.toggleCardSelection(cardId)
+    }
+
+    fun toggleDeckSelection(deckId: Int) {
+        selectionManager.toggleDeckSelection(deckId)
     }
 
     fun toggleEditMode() {
@@ -225,7 +232,7 @@ class DeckViewModel @Inject constructor(
     }
 
     fun clearCardSelection() {
-        selectionManager.clearSelected()
+        selectionManager.clearCardSelection()
         toggleEditMode()
     }
 }

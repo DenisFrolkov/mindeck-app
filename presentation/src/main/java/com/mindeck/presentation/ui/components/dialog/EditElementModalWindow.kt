@@ -1,6 +1,7 @@
 package com.mindeck.presentation.ui.components.dialog
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -11,6 +12,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -29,7 +32,12 @@ import com.mindeck.presentation.state.UiState
 import com.mindeck.presentation.state.onError
 import com.mindeck.presentation.ui.components.buttons.ActionHandlerButton
 import com.mindeck.presentation.ui.components.buttons.SaveDataButton
+import com.mindeck.presentation.ui.components.dataclasses.DisplayItemData
+import com.mindeck.presentation.ui.components.dataclasses.DisplayItemStyle
+import com.mindeck.presentation.ui.components.folder.DisplayItem
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
+import com.mindeck.presentation.ui.components.utils.dimenFloatResource
+import com.mindeck.presentation.ui.navigation.NavigationRoute
 import com.mindeck.presentation.ui.theme.text_white
 
 @Composable
@@ -38,10 +46,13 @@ fun EditElementModalWindow(
     buttonText: String,
     listItem: List<ChooseElement>,
     isInputValid: UiState<Unit?>,
+    isEditModeEnabled: Boolean,
+    selectedItems: Int?,
     exitButton: () -> Unit,
-    saveButton: (Int) -> Unit
+    saveButton: (Int) -> Unit,
+    onClickItem: (id: Int) -> Unit = {},
+    onEditItem: (id: Int) -> Unit
 ) {
-    val isError by remember(isInputValid) { derivedStateOf { isInputValid is UiState.Error } }
     val isLoading by remember(isInputValid) { derivedStateOf { isInputValid is UiState.Loading } }
 
     Box(
@@ -73,9 +84,50 @@ fun EditElementModalWindow(
             }
             Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_large)))
 
-            Box(modifier = Modifier.fillMaxWidth()) {
-                listItem.forEach {
-                    Text("$it")
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = dimenDpResource(R.dimen.padding_small))
+                    .height(dimenDpResource(R.dimen.display_card_item_min_size) * if (listItem.size < 3) listItem.size.toFloat() else 2.8f)
+                    .border(
+                        width = dimenDpResource(R.dimen.border_width_dot_five),
+                        color = MaterialTheme.colorScheme.onSecondary
+                    )
+            ) {
+                items(listItem) { item ->
+                    DisplayItem(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .border(
+                                dimenDpResource(R.dimen.border_width_dot_two_five),
+                                MaterialTheme.colorScheme.outline,
+                                MaterialTheme.shapes.extraSmall
+                            )
+                            .clip(shape = MaterialTheme.shapes.extraSmall)
+                            .height(dimenDpResource(R.dimen.display_card_item_min_size))
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null
+                            ) {
+                                onClickItem(item.id)
+                            },
+                        showCount = false,
+                        showEditMode = isEditModeEnabled,
+                        isSelected = selectedItems == item.id,
+                        onCheckedChange = { onEditItem(item.id) },
+                        displayItemData = DisplayItemData(
+                            itemIcon = R.drawable.card_icon,
+                            itemName = item.title,
+                        ),
+                        displayItemStyle = DisplayItemStyle(
+                            backgroundColor = MaterialTheme.colorScheme.secondary.copy(
+                                dimenFloatResource(R.dimen.float_zero_dot_five_significance)
+                            ),
+                            iconColor = MaterialTheme.colorScheme.outlineVariant,
+                            textStyle = MaterialTheme.typography.bodyMedium,
+                        )
+                    )
+
                 }
             }
 
@@ -83,7 +135,9 @@ fun EditElementModalWindow(
                 message.message?.let {
                     Text(
                         it,
-                        modifier = Modifier.fillMaxWidth().padding(dimenDpResource(R.dimen.spacer_extra_small)),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(dimenDpResource(R.dimen.spacer_extra_small)),
                         textAlign = TextAlign.Start,
                         style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.error)
                     )

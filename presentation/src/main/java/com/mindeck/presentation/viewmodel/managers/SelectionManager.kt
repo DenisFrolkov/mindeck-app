@@ -6,22 +6,32 @@ import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
 class SelectionManager @Inject constructor() {
-    private val _selectedItemIds = MutableStateFlow<Set<Int>>(emptySet())
-    val selectedItemIds: StateFlow<Set<Int>> = _selectedItemIds
 
-    fun toggleSelection(deckId: Int) {
-        _selectedItemIds.update { selectedDeckIds ->
-            selectedDeckIds.toMutableSet().apply {
-                if (contains(deckId)) {
-                    remove(deckId)
-                } else {
-                    add(deckId)
-                }
+    private val _selectedCardIds = MutableStateFlow<Set<Int>>(emptySet())
+    val selectedCardIds: StateFlow<Set<Int>> = _selectedCardIds
+
+    private val _selectedDeckId = MutableStateFlow<Int?>(null)
+    val selectedDeckId: StateFlow<Int?> = _selectedDeckId
+
+    fun toggleCardSelection(cardId: Int) {
+        _selectedCardIds.update { selected ->
+            selected.toMutableSet().apply {
+                if (contains(cardId)) remove(cardId) else add(cardId)
             }
         }
     }
 
-    fun clearSelected() {
-        _selectedItemIds.value = emptySet()
+    fun toggleDeckSelection(deckId: Int) {
+        _selectedDeckId.update { selected ->
+            deckId
+        }
+    }
+
+    fun clearCardSelection() {
+        _selectedCardIds.value = emptySet()
+    }
+
+    fun clearDeckSelection() {
+        _selectedDeckId.value = null
     }
 }
