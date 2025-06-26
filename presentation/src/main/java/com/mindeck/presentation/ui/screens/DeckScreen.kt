@@ -46,6 +46,7 @@ import com.mindeck.domain.models.Deck
 import com.mindeck.presentation.R
 import com.mindeck.presentation.state.RenderUiState
 import com.mindeck.presentation.state.UiState
+import com.mindeck.presentation.state.getOrNull
 import com.mindeck.presentation.state.onSuccess
 import com.mindeck.presentation.ui.components.buttons.ActionHandlerButton
 import com.mindeck.presentation.ui.components.common.ButtonMoveMode
@@ -80,11 +81,15 @@ fun DeckScreen(
     val cards by deckViewModel.listCardsUiState.collectAsState()
     val decks by deckViewModel.listDecksUiState.collectAsState()
     val isEditModeEnabled by deckViewModel.isEditModeEnabled.collectAsState()
-    val selectedCards by deckViewModel.selectedCardIdSet.collectAsState()
+    val selectedCardIdSet by deckViewModel.selectedCardIdSet.collectAsState()
+    val selectedDeckId by deckViewModel.selectedDeckId.collectAsState()
 
     val renameDeckState by deckViewModel.renameDeckState.collectAsState()
     val renameModalWindowValue by deckViewModel.renameModalWindowValue.collectAsState()
+
     val editCardsInDeckModalWindowValue by deckViewModel.editCardsInDeckModalWindowValue.collectAsState()
+    val moveCardsBetweenDecksState by deckViewModel.moveCardsBetweenDecksState.collectAsState()
+
 
     val dropdownMenuState = remember { DropdownMenuState() }
 
@@ -95,11 +100,13 @@ fun DeckScreen(
         deckViewModel,
         dropdownMenuState,
         isEditModeEnabled,
-        selectedCards,
+        selectedCardIdSet,
+        selectedDeckId,
         decks,
         renameDeckState,
         renameModalWindowValue,
         editCardsInDeckModalWindowValue,
+        moveCardsBetweenDecksState,
         onSaveDeck = { id, deckName ->
             deckViewModel.renameDeck(id, deckName)
         },
@@ -120,11 +127,13 @@ private fun PageContent(
     deckViewModel: DeckViewModel,
     dropdownMenuState: DropdownMenuState,
     isEditModeEnabled: Boolean,
-    selectedCards: Set<Int>,
+    selectedCardIdsSet: Set<Int>,
+    selectedDeckId: Int?,
     decks: UiState<List<Deck>>,
     renameDeckState: UiState<Unit>,
     renameModalWindowValue: Boolean,
     editCardsInDeckModalWindowValue: Boolean,
+    moveCardsBetweenDecksState: UiState<Unit>,
     onSaveDeck: (Int, String) -> Unit,
     toggleRenameModalWindow: (Boolean) -> Unit,
     toggleEditCardsInDeckModalWindow: (Boolean) -> Unit
@@ -137,6 +146,8 @@ private fun PageContent(
             deckViewModel = deckViewModel,
             dropdownMenuState = dropdownMenuState
         )
+
+    val sourceDeckId = deck.getOrNull()
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -153,7 +164,7 @@ private fun PageContent(
             ) { editModeEnabled ->
                 if (editModeEnabled) {
                     DeckEditTopBar(
-                        selectedCards = selectedCards,
+                        selectedCards = selectedCardIdsSet,
                         deckViewModel = deckViewModel
                     )
                 } else {
@@ -169,7 +180,7 @@ private fun PageContent(
                 navController = navController,
                 padding = padding,
                 isEditModeEnabled = isEditModeEnabled,
-                selectedCards = selectedCards,
+                selectedCards = selectedCardIdsSet,
                 deck = deck,
                 cards = cards,
                 listDropdownMenu = listDropdownMenu,
@@ -201,26 +212,37 @@ private fun PageContent(
             }
 
             if (editCardsInDeckModalWindowValue) {
-                cards.onSuccess { cardInfo ->
-                    Dialog(
-                        onDismissRequest = {
-                            toggleEditCardsInDeckModalWindow(false)
-                        }
-                    ) {
-                        deck.onSuccess {
-                            EditElementModalWindow(
-                                stringResource(R.string.rename_title_item_dialog),
-                                stringResource(R.string.save_text),
-                                listOf<ChooseElement>(ChooseElement("123", 0), ChooseElement("123", 1), ChooseElement("123", 2)),
-                                renameDeckState,
-                                exitButton = {
-                                    toggleRenameModalWindow(false)
-                                },
-                                saveButton = {
-
-                                }
-                            )
-                        }
+                Dialog(
+                    onDismissRequest = {
+                        toggleEditCardsInDeckModalWindow(false)
+                    }
+                ) {
+                    decks.onSuccess { deck ->
+                        EditElementModalWindow(
+                            stringResource(R.string.rename_title_item_dialog),
+                            stringResource(R.string.save_text),
+                            deck.filter { it.deckId != sourceDeckId?.deckId }
+                                .map { ChooseElement(it.deckName, it.deckId) },
+                            moveCardsBetweenDecksState,
+                            isEditModeEnabled,
+                            selectedDeckId,
+                            exitButton = {
+                                toggleEditCardsInDeckModalWindow(false)
+                            },
+                            saveButton = {
+                                if (selectedDeckId != null)
+                                    sourceDeckId?.deckId?.let { it ->
+                                        deckViewModel.moveCardsBetweenDecks(
+                                            selectedCardIdsSet.toList(),
+                                            it,
+                                            selectedDeckId
+                                        )
+                                    }
+                            },
+                            onEditItem = {
+                                deckViewModel.toggleDeckSelection(it)
+                            }
+                        )
                     }
                 }
             }
@@ -251,6 +273,8 @@ private fun DeckEditTopBar(
                 ButtonMoveMode(
                     buttonTitle = stringResource(R.string.text_move_mode_top_bar_edit_button),
                     onClickButton = {
+                        deckViewModel.toggleEditCardsInDeckModalWindow(true)
+                        deckViewModel.getAllDecks()
                     }
                 )
             }
@@ -350,8 +374,8 @@ private fun dropdownMenuDataList(
             action = {
                 dropdownMenuState.reset()
                 cardsState.onSuccess {
-                    deckViewModel.toggleEditMode()
-                    deckViewModel.toggleEditCardsInDeckModalWindow(true)
+                    if (it.isNotEmpty())
+                        deckViewModel.toggleEditMode()
                 }
             }
         ),
@@ -361,16 +385,6 @@ private fun dropdownMenuDataList(
             action = {
                 dropdownMenuState.reset()
                 navController.navigate(NavigationRoute.CreationCardScreen.route)
-            }
-        ),
-        DropdownMenuData(
-            title = stringResource(R.string.dropdown_menu_data_remote_list),
-            titleStyle = MaterialTheme.typography.bodyMedium,
-            action = {
-                dropdownMenuState.reset()
-                cardsState.onSuccess { cards ->
-
-                }
             }
         )
     )

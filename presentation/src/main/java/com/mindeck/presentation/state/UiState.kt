@@ -31,6 +31,10 @@ inline fun <T> UiState<T>.onLoading(action: () -> Unit): UiState<T> {
     return this
 }
 
+fun <T> UiState<T>.getOrNull(): T? {
+    return if (this is UiState.Success) this.data else null
+}
+
 @Composable
 inline fun <T> UiState<T>.RenderUiState(
     onSuccess: @Composable (T) -> Unit,
