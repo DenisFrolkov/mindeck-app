@@ -78,7 +78,7 @@ class CardLocalDataSourceImpl @Inject constructor(private val cardDao: CardDao) 
 
     override suspend fun deleteCardsFromDeck(cardsIds: List<Int>, deckId: Int) {
         try {
-            cardDao.deleteCardsFromDeck(cardsIds = cardsIds, deckId = deckId)
+            cardDao.deleteCardsFromDeck(cardIds = cardsIds, deckId = deckId)
         } catch (e: SQLException) {
             throw DatabaseException(
                 "Failed to delete cards from deck due to a constraint violation: ${e.localizedMessage}",
