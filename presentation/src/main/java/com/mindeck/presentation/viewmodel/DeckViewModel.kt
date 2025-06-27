@@ -28,39 +28,15 @@ import javax.inject.Inject
 @HiltViewModel
 class DeckViewModel @Inject constructor(
     private val getAllCardsByDeckIdUseCase: GetAllCardsByDeckIdUseCase,
-    private val createDeckUseCase: CreateDeckUseCase,
     private val getDeckByIdUseCase: GetDeckByIdUseCase,
     private val getAllDecksUseCase: GetAllDecksUseCase,
     private val renameDeckUseCase: RenameDeckUseCase,
     private val moveCardsBetweenDeckUseCase: MoveCardsBetweenDeckUseCase,
     private val deleteDeckUseCase: DeleteDeckUseCase,
-    private val addCardsToDeckUseCase: AddCardsToDeckUseCase,
     private val editModeManager: EditModeManager,
     private val selectionManager: SelectionManager,
     private val deleteCardsFromDeckUseCase: DeleteCardsFromDeckUseCase,
-    private val updateCardUseCase: UpdateCardUseCase
 ) : ViewModel() {
-
-    private val _createDeckState = MutableStateFlow<UiState<Unit>>(UiState.Success(Unit))
-    val createDeckState: StateFlow<UiState<Unit>> = _createDeckState
-
-    fun createDeck(deckName: String) {
-        viewModelScope.launch {
-            _createDeckState.value = UiState.Loading
-
-            if (deckName.isBlank()) {
-                _createDeckState.value = UiState.Error(Throwable("Поле ввода пустое."))
-                return@launch
-            }
-
-            _createDeckState.value = try {
-                createDeckUseCase(Deck(deckName = deckName))
-                UiState.Success(Unit)
-            } catch (e: Exception) {
-                UiState.Error(Throwable("Колода с таким названием уже существует."))
-            }
-        }
-    }
 
     private val _listCardsUiState = MutableStateFlow<UiState<List<Card>>>(UiState.Loading)
     val listCardsUiState: StateFlow<UiState<List<Card>>> = _listCardsUiState
@@ -186,23 +162,6 @@ class DeckViewModel @Inject constructor(
         viewModelScope.launch {
             _deleteDeckState.value = try {
                 deleteDeckUseCase(deck = deck)
-                UiState.Success(Unit)
-            } catch (e: Exception) {
-                UiState.Error(e)
-            }
-        }
-    }
-
-    private val _addCardsToDeck = MutableStateFlow<UiState<Unit>>(UiState.Loading)
-    val addCardsToDeck: StateFlow<UiState<Unit>> = _addCardsToDeck
-
-    fun addCardsToDeck(
-        cardIds: List<Int>,
-        targetDeckId: Int
-    ) {
-        viewModelScope.launch {
-            _addCardsToDeck.value = try {
-                addCardsToDeckUseCase(cardIds, targetDeckId)
                 UiState.Success(Unit)
             } catch (e: Exception) {
                 UiState.Error(e)

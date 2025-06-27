@@ -1,5 +1,8 @@
 package com.mindeck.presentation.ui.screens
 
+import android.content.Context
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -35,6 +38,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -71,6 +75,8 @@ fun DeckScreen(
     navController: NavController,
     deckId: Int
 ) {
+    val context = LocalContext.current
+
     val deckViewModel: DeckViewModel = hiltViewModel(navController.currentBackStackEntry!!)
 
     LaunchedEffect(deckId) {
@@ -96,6 +102,7 @@ fun DeckScreen(
     val dropdownMenuState = remember { DropdownMenuState() }
 
     PageContent(
+        context,
         navController,
         deck,
         cards,
@@ -131,6 +138,7 @@ fun DeckScreen(
 
 @Composable
 private fun PageContent(
+    context: Context,
     navController: NavController,
     deck: UiState<Deck>,
     cards: UiState<List<Card>>,
@@ -154,11 +162,12 @@ private fun PageContent(
 ) {
     val listDropdownMenu =
         dropdownMenuDataList(
-            navController = navController,
-            deck = deck,
-            cardsState = cards,
-            deckViewModel = deckViewModel,
-            dropdownMenuState = dropdownMenuState
+            context,
+            navController,
+            deck,
+            cards,
+            deckViewModel,
+            dropdownMenuState
         )
 
     val sourceDeckId = deck.getOrNull()
@@ -188,9 +197,15 @@ private fun PageContent(
                         {
                             when {
                                 deleteCardsModalWindowValue -> {
-                                    sourceDeckId?.deckId?.let { deckViewModel.deleteCardsBetweenDeck(selectedCardIdsSet.toList(), sourceDeckId = it) }
+                                    sourceDeckId?.deckId?.let {
+                                        deckViewModel.deleteCardsBetweenDeck(
+                                            selectedCardIdsSet.toList(),
+                                            sourceDeckId = it
+                                        )
+                                    }
                                     toggleDeleteCardsModalWindow(false)
                                 }
+
                                 else -> {
                                     deckViewModel.toggleEditCardsInDeckModalWindow(true)
                                     deckViewModel.getAllDecks()
@@ -329,7 +344,9 @@ private fun DeckEditTopBar(
             )
             if (selectedCards.isNotEmpty()) {
                 ButtonMoveMode(
-                    buttonTitle = if (deleteCardsModalWindowValue) stringResource(R.string.dropdown_menu_data_remove_cards) else stringResource(R.string.text_move_mode_top_bar_edit_button),
+                    buttonTitle = if (deleteCardsModalWindowValue) stringResource(R.string.dropdown_menu_data_remove_cards) else stringResource(
+                        R.string.text_move_mode_top_bar_edit_button
+                    ),
                     onClickButton = onActionButton
                 )
             }
@@ -408,12 +425,15 @@ private fun PageContent(
 
 @Composable
 private fun dropdownMenuDataList(
+    context: Context,
     navController: NavController,
-    deck: UiState<Deck>,
+    deck: UiState<Deck>?,
     cardsState: UiState<List<Card>>,
     deckViewModel: DeckViewModel,
     dropdownMenuState: DropdownMenuState,
 ): List<DropdownMenuData> {
+    val sourceDeck = deck?.getOrNull()
+
     return listOf(
         DropdownMenuData(
             title = stringResource(R.string.dropdown_menu_data_rename_list),
@@ -424,6 +444,20 @@ private fun dropdownMenuDataList(
             }
         ),
         DropdownMenuData(
+            title = stringResource(R.string.dropdown_menu_data_create_card),
+            titleStyle = MaterialTheme.typography.bodyMedium,
+            action = {
+                dropdownMenuState.reset()
+                sourceDeck?.let {
+                    navController.navigate(
+                        NavigationRoute.CreationCardScreen.createRoute(
+                            it.deckId
+                        )
+                    )
+                }
+            }
+        ),
+        DropdownMenuData(
             title = stringResource(R.string.dropdown_menu_data_edit_cards_list),
             titleStyle = MaterialTheme.typography.bodyMedium,
             action = {
@@ -431,15 +465,24 @@ private fun dropdownMenuDataList(
                 cardsState.onSuccess {
                     if (it.isNotEmpty())
                         deckViewModel.toggleEditMode()
+                    else
+                        Toast.makeText(context, "Колода пуста!", Toast.LENGTH_LONG).show()
                 }
             }
         ),
         DropdownMenuData(
-            title = stringResource(R.string.dropdown_menu_data_create_card),
+            title = stringResource(R.string.dropdown_menu_data_remove_cards),
             titleStyle = MaterialTheme.typography.bodyMedium,
             action = {
                 dropdownMenuState.reset()
-                navController.navigate(NavigationRoute.CreationCardScreen.route)
+                cardsState.onSuccess {
+                    if (it.isNotEmpty()) {
+                        dropdownMenuState.reset()
+                        deckViewModel.toggleEditMode()
+                        deckViewModel.toggleDeleteCardsModalWindow(true)
+                    } else
+                        Toast.makeText(context, "Колода пуста!", Toast.LENGTH_LONG).show()
+                }
             }
         ),
         DropdownMenuData(
@@ -448,15 +491,6 @@ private fun dropdownMenuDataList(
             action = {
                 dropdownMenuState.reset()
                 deckViewModel.toggleDeleteDeckModalWindow(true)
-            }
-        ),
-        DropdownMenuData(
-            title = stringResource(R.string.dropdown_menu_data_remove_cards),
-            titleStyle = MaterialTheme.typography.bodyMedium,
-            action = {
-                dropdownMenuState.reset()
-                deckViewModel.toggleEditMode()
-                deckViewModel.toggleDeleteCardsModalWindow(true)
             }
         )
     )

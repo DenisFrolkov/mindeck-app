@@ -54,6 +54,7 @@ import com.mindeck.presentation.viewmodel.CreationCardViewModel
 @Composable
 fun CreationCardScreen(
     navController: NavController,
+    deckId: Int?
 ) {
     val creationCardViewModel: CreationCardViewModel =
         hiltViewModel(navController.currentBackStackEntry!!)
@@ -68,6 +69,8 @@ fun CreationCardScreen(
 
     LaunchedEffect(Unit) {
         creationCardViewModel.getAllDecks()
+        if (deckId != null)
+            creationCardViewModel.getDeckById(deckId)
     }
 
     Surface(
