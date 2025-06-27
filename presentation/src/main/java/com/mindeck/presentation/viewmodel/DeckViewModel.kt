@@ -214,6 +214,18 @@ class DeckViewModel @Inject constructor(
         editCardsInDeckModalWindowValue.value = switch
     }
 
+    var deleteDeckModalWindowValue = MutableStateFlow<Boolean>(false)
+
+    fun toggleDeleteDeckModalWindow(switch: Boolean) {
+        deleteDeckModalWindowValue.value = switch
+    }
+
+    var deleteCardsModalWindowValue = MutableStateFlow<Boolean>(false)
+
+    fun toggleDeleteCardsModalWindow(switch: Boolean) {
+        deleteCardsModalWindowValue.value = switch
+    }
+
     val isEditModeEnabled: StateFlow<Boolean> = editModeManager.isEditModeEnabled
 
     val selectedCardIdSet: StateFlow<Set<Int>> = selectionManager.selectedCardIds

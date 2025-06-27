@@ -169,7 +169,7 @@ private fun PageContent(
         )
         Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_large)))
         RepeatCardItem(navController = navController, cardsRepetitionState = cardsRepetition)
-        Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_small)))
+        Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_large)))
         DecksSection(navController = navController, decksState = decksState)
     }
 }

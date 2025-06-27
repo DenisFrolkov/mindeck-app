@@ -138,7 +138,7 @@ private fun dropdownMenuDataList(
                     }
                 ),
                 DropdownMenuData(
-                    title = stringResource(R.string.dropdown_menu_data_remove_card),
+                    title = stringResource(R.string.dropdown_menu_data_remove_deck),
                     titleStyle = MaterialTheme.typography.bodyMedium,
                     action = {
                         dropdownMenuState.reset()
