@@ -347,7 +347,7 @@ private fun getFabMenuItems(
             idItem = 1,
             text = stringResource(R.string.fab_menu_data_create_card_list),
             icon = R.drawable.fab_open_menu_create_card_icon,
-            navigation = { navController.navigate(NavigationRoute.CreationCardScreen.route) }
+            navigation = { navController.navigate(NavigationRoute.CreationCardScreen.createRoute()) }
         )
     )
 }

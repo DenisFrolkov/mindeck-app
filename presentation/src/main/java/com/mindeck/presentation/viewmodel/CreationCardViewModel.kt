@@ -8,6 +8,7 @@ import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.Deck
 import com.mindeck.domain.usecases.cardUseCase.CreateCardUseCase
 import com.mindeck.domain.usecases.deckUseCases.GetAllDecksUseCase
+import com.mindeck.domain.usecases.deckUseCases.GetDeckByIdUseCase
 import com.mindeck.presentation.state.CardState
 import com.mindeck.presentation.state.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -22,7 +23,8 @@ import javax.inject.Inject
 @HiltViewModel
 class CreationCardViewModel @Inject constructor(
     private val createCardUseCase: CreateCardUseCase,
-    private val getAllDecksUseCase: GetAllDecksUseCase
+    private val getAllDecksUseCase: GetAllDecksUseCase,
+    private val getDeckByIdUseCase: GetDeckByIdUseCase
 ) : ViewModel() {
     private var _cardState = mutableStateOf(
         CardState("", "", "", "", -1)
@@ -75,6 +77,21 @@ class CreationCardViewModel @Inject constructor(
                     )
                 )
                 UiState.Success(Unit)
+            } catch (e: Exception) {
+                UiState.Error(e)
+            }
+        }
+    }
+
+    private val _deckUiState = MutableStateFlow<UiState<Deck>>(UiState.Loading)
+    val deckUIState: StateFlow<UiState<Deck>> = _deckUiState
+
+    fun getDeckById(deckId: Int) {
+        viewModelScope.launch {
+            _deckUiState.value = try {
+                val deck = getDeckByIdUseCase(deckId = deckId)
+                selectedDeckForCreatingCard.value = Pair(deck.deckName, deck.deckId)
+                UiState.Success(deck)
             } catch (e: Exception) {
                 UiState.Error(e)
             }

@@ -1,5 +1,6 @@
 package com.mindeck.presentation.ui.navigation
 
+import android.util.Log
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -33,10 +34,20 @@ fun AppNavigation() {
         }
         composable(NavigationRoute.CreationCardScreen.route,
             enterTransition = { fadeIn(animationSpec = tween(150)) },
-            exitTransition = { fadeOut(animationSpec = tween(150)) }
-        ) {
+            exitTransition = { fadeOut(animationSpec = tween(150)) },
+            arguments = listOf(
+                navArgument("deckId") {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                }
+            )
+        ) { backStackEntry ->
+            val deckIdString = backStackEntry.arguments?.getString("deckId")
+            val deckId = deckIdString?.toIntOrNull()
             CreationCardScreen(
-                navController = navController
+                navController = navController,
+                deckId = deckId
             )
         }
         composable(NavigationRoute.DecksScreen.route,
