@@ -162,6 +162,23 @@ class DeckViewModel @Inject constructor(
         }
     }
 
+    private val _deleteCardsBetweenDecksState = MutableStateFlow<UiState<Unit>>(UiState.Success(Unit))
+    val deleteCardsBetweenDecksState: StateFlow<UiState<Unit>> = _deleteCardsBetweenDecksState
+
+    fun deleteCardsBetweenDeck(
+        cardIds: List<Int>,
+        sourceDeckId: Int,
+    ) {
+        viewModelScope.launch {
+            _deleteCardsBetweenDecksState.value = try {
+                deleteCardsFromDeckUseCase(cardIds, sourceDeckId)
+                UiState.Success(Unit)
+            } catch (e: Exception) {
+                UiState.Error(e)
+            }
+        }
+    }
+
     private val _deleteDeckState = MutableStateFlow<UiState<Unit>>(UiState.Loading)
     val deleteDeckState: StateFlow<UiState<Unit>> = _deleteDeckState
 
@@ -208,7 +225,7 @@ class DeckViewModel @Inject constructor(
     fun toggleEditCardsInDeckModalWindow(switch: Boolean) {
         if (!switch) {
             _moveCardsBetweenDecksState.value = UiState.Success(Unit)
-            selectionManager.clearDeckSelection()
+            clearCardSelection()
         }
 
         editCardsInDeckModalWindowValue.value = switch
@@ -223,6 +240,9 @@ class DeckViewModel @Inject constructor(
     var deleteCardsModalWindowValue = MutableStateFlow<Boolean>(false)
 
     fun toggleDeleteCardsModalWindow(switch: Boolean) {
+        if (!switch)
+            toggleEditMode()
+
         deleteCardsModalWindowValue.value = switch
     }
 

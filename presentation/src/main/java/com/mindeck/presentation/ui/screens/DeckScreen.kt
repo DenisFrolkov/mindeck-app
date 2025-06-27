@@ -179,7 +179,24 @@ private fun PageContent(
                 if (editModeEnabled) {
                     DeckEditTopBar(
                         selectedCards = selectedCardIdsSet,
-                        deckViewModel = deckViewModel
+                        deleteCardsModalWindowValue,
+                        {
+                            if (deleteCardsModalWindowValue)
+                                toggleDeleteCardsModalWindow(false)
+                            deckViewModel.clearCardSelection()
+                        },
+                        {
+                            when {
+                                deleteCardsModalWindowValue -> {
+                                    sourceDeckId?.deckId?.let { deckViewModel.deleteCardsBetweenDeck(selectedCardIdsSet.toList(), sourceDeckId = it) }
+                                    toggleDeleteCardsModalWindow(false)
+                                }
+                                else -> {
+                                    deckViewModel.toggleEditCardsInDeckModalWindow(true)
+                                    deckViewModel.getAllDecks()
+                                }
+                            }
+                        }
                     )
                 } else {
                     DeckTopBar(
@@ -290,7 +307,9 @@ private fun PageContent(
 @Composable
 private fun DeckEditTopBar(
     selectedCards: Set<Int>,
-    deckViewModel: DeckViewModel
+    deleteCardsModalWindowValue: Boolean,
+    onExitButton: () -> Unit,
+    onActionButton: () -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -304,15 +323,14 @@ private fun DeckEditTopBar(
         ) {
             ButtonMoveMode(
                 buttonTitle = stringResource(R.string.text_move_mode_top_bar_back_button),
-                onClickButton = { deckViewModel.clearCardSelection() }
+                onClickButton = {
+                    onExitButton()
+                }
             )
             if (selectedCards.isNotEmpty()) {
                 ButtonMoveMode(
-                    buttonTitle = stringResource(R.string.text_move_mode_top_bar_edit_button),
-                    onClickButton = {
-                        deckViewModel.toggleEditCardsInDeckModalWindow(true)
-                        deckViewModel.getAllDecks()
-                    }
+                    buttonTitle = if (deleteCardsModalWindowValue) stringResource(R.string.dropdown_menu_data_remove_cards) else stringResource(R.string.text_move_mode_top_bar_edit_button),
+                    onClickButton = onActionButton
                 )
             }
         }
@@ -437,6 +455,8 @@ private fun dropdownMenuDataList(
             titleStyle = MaterialTheme.typography.bodyMedium,
             action = {
                 dropdownMenuState.reset()
+                deckViewModel.toggleEditMode()
+                deckViewModel.toggleDeleteCardsModalWindow(true)
             }
         )
     )
