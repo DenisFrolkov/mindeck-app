@@ -238,7 +238,7 @@ private fun RepeatCardItem(
                     },
                 showCount = true,
                 displayItemData = DisplayItemData(
-                    itemIcon = R.drawable.folder_icon,
+                    itemIcon = R.drawable.deck_icon,
                     numberOfCards = cardsRepetition.size,
                     itemName = stringResource(R.string.text_repeat_cards)
                 ),
@@ -282,7 +282,7 @@ private fun DeckItem(
             },
         showCount = false,
         displayItemData = DisplayItemData(
-            itemIcon = R.drawable.folder_icon,
+            itemIcon = R.drawable.deck_icon,
             numberOfCards = deck.deckId,
             itemName = deck.deckName
         ),
@@ -338,7 +338,7 @@ private fun getFabMenuItems(
         FabMenuData(
             idItem = 0,
             text = stringResource(R.string.fab_menu_data_create_deck),
-            icon = R.drawable.fab_open_menu_create_folder_icon,
+            icon = R.drawable.fab_open_menu_create_card_icon,
             navigation = {
                 openModalWindow()
             }

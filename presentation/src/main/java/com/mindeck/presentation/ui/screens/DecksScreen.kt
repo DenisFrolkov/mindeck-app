@@ -1,5 +1,7 @@
 package com.mindeck.presentation.ui.screens
 
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -9,6 +11,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -37,19 +40,26 @@ import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.Deck
 import com.mindeck.presentation.R
 import com.mindeck.presentation.state.RenderUiState
 import com.mindeck.presentation.state.UiState
+import com.mindeck.presentation.state.getOrNull
+import com.mindeck.presentation.state.onSuccess
 import com.mindeck.presentation.ui.components.buttons.ActionHandlerButton
 import com.mindeck.presentation.ui.components.dataclasses.DisplayItemData
 import com.mindeck.presentation.ui.components.dataclasses.DisplayItemStyle
 import com.mindeck.presentation.ui.components.dialog.CustomModalWindow
+import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenu
+import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenuData
+import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenuState
 import com.mindeck.presentation.ui.components.folder.DisplayItem
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
 import com.mindeck.presentation.ui.components.utils.dimenFloatResource
 import com.mindeck.presentation.ui.navigation.NavigationRoute
 import com.mindeck.presentation.ui.theme.MindeckTheme
+import com.mindeck.presentation.viewmodel.DeckViewModel
 import com.mindeck.presentation.viewmodel.DecksViewModel
 
 @Composable
@@ -68,15 +78,18 @@ fun DecksScreen(
         }
     }
 
+    val dropdownMenuState = remember { DropdownMenuState() }
+
     DecksContent(
         navController,
         decks,
         createDeckState,
+        dropdownMenuState,
         modalWindowValue,
         onSaveDeck = { deckName ->
             decksViewModel.createDeck(deckName)
         },
-        toggleModalWindow = {
+        toggleCreateDeckModalWindow = {
             decksViewModel.toggleModalWindow(it)
         }
     )
@@ -87,22 +100,29 @@ private fun DecksContent(
     navController: NavController,
     decks: UiState<List<Deck>>,
     createDeckState: UiState<Unit>,
+    dropdownMenuState: DropdownMenuState,
     initialDialog: Boolean = false,
     onSaveDeck: (String) -> Unit,
-    toggleModalWindow: (Boolean) -> Unit,
+    toggleCreateDeckModalWindow: (Boolean) -> Unit,
 ) {
+    val listDropdownMenu =
+        dropdownMenuDataList {
+            dropdownMenuState.toggle()
+            toggleCreateDeckModalWindow(true)
+        }
+
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            DecksEditTopBar(navController) { toggleModalWindow(true) }
+            DecksEditTopBar(navController, dropdownMenuState)
         },
         content = { padding ->
-            PageContent(padding, decks, navController)
+            PageContent(padding, decks, navController, listDropdownMenu, dropdownMenuState)
 
             if (initialDialog) {
                 Dialog(
                     onDismissRequest = {
-                        toggleModalWindow(false)
+                        toggleCreateDeckModalWindow(false)
                     }
                 ) {
                     CustomModalWindow(
@@ -111,7 +131,7 @@ private fun DecksContent(
                         stringResource(R.string.create_item_dialog_text_input_name_deck),
                         createDeckState,
                         exitButton = {
-                            toggleModalWindow(false)
+                            toggleCreateDeckModalWindow(false)
                         },
                         saveButton = {
                             onSaveDeck(it)
@@ -119,16 +139,30 @@ private fun DecksContent(
                     )
                 }
             }
-
         }
+    )
+}
+
+@Composable
+private fun dropdownMenuDataList(
+    onCreateDeck: () -> Unit
+): List<DropdownMenuData> {
+    return listOf(
+        DropdownMenuData(
+            title = stringResource(R.string.dropdown_menu_data_rename_list),
+            titleStyle = MaterialTheme.typography.bodyMedium,
+            action = {
+                onCreateDeck()
+            }
+        )
     )
 }
 
 @Composable
 private fun DecksEditTopBar(
     navController: NavController,
-    openModalWindow: () -> Unit,
-    ) {
+    dropdownMenuState: DropdownMenuState
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -147,7 +181,7 @@ private fun DecksEditTopBar(
             iconPainter = painterResource(R.drawable.menu_icon),
             contentDescription = stringResource(R.string.back_screen_icon_button),
             iconTint = MaterialTheme.colorScheme.onPrimary,
-            onClick = { openModalWindow() },
+            onClick = { dropdownMenuState.toggle() },
         )
     }
 }
@@ -156,7 +190,9 @@ private fun DecksEditTopBar(
 private fun PageContent(
     padding: PaddingValues,
     decks: UiState<List<Deck>>,
-    navController: NavController
+    navController: NavController,
+    listDropdownMenu: List<DropdownMenuData>,
+    dropdownMenuState: DropdownMenuState
 ) {
     Column(
         modifier = Modifier
@@ -164,6 +200,14 @@ private fun PageContent(
             .padding(horizontal = dimenDpResource(R.dimen.padding_medium))
     ) {
         DecksInfo(decks, navController)
+    }
+
+    if (dropdownMenuState.isExpanded) {
+        DeckDropdownMenu(
+            padding = padding,
+            listDropdownMenu = listDropdownMenu,
+            dropdownMenuState = dropdownMenuState,
+        )
     }
 }
 
@@ -215,7 +259,7 @@ private fun DecksInfo(
                             },
                         showCount = false,
                         displayItemData = DisplayItemData(
-                            itemIcon = R.drawable.folder_icon,
+                            itemIcon = R.drawable.deck_icon,
                             numberOfCards = deck.deckId,
                             itemName = deck.deckName,
                         ),
@@ -263,17 +307,44 @@ private fun DecksInfo(
 private fun ScreenPreview() {
     val navController = rememberNavController()
     val decksState: UiState<List<Deck>> = decksDataMock()
+    val dropdownMenuState = remember { DropdownMenuState() }
 
     MindeckTheme {
         DecksContent(
             navController,
             decksState,
             UiState.Loading,
+            dropdownMenuState,
             false,
             { },
-            { _, -> }
+            { _ -> }
         )
     }
+}
+
+@Composable
+private fun DeckDropdownMenu(
+    padding: PaddingValues,
+    listDropdownMenu: List<DropdownMenuData>,
+    dropdownMenuState: DropdownMenuState
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) { dropdownMenuState.toggle() })
+
+    DropdownMenu(
+        listDropdownMenuItem = listDropdownMenu,
+        dropdownModifier = Modifier
+            .padding(horizontal = dimenDpResource(R.dimen.padding_medium))
+            .padding(padding)
+            .fillMaxWidth()
+            .padding(top = dimenDpResource(R.dimen.spacer_extra_small))
+            .wrapContentSize(Alignment.TopEnd)
+    )
 }
 
 //@Preview(
