@@ -69,14 +69,14 @@ fun MainScreen(
     val decksState = mainViewModel.decksState.collectAsState().value
     val cardsForRepetitionState = mainViewModel.cardsForRepetitionState.collectAsState().value
     val createDeckState = mainViewModel.createDeckState.collectAsState().value
-    val modalWindowValue by mainViewModel.modalWindowValue.collectAsState()
+    val createModalWindowValue by mainViewModel.createModalWindowValue.collectAsState()
 
     MainContent(
         navController,
         decksState,
         cardsForRepetitionState,
         createDeckState,
-        modalWindowValue,
+        createModalWindowValue,
         onSaveDeck = { deckName ->
             mainViewModel.createDeck(deckName)
         },
@@ -92,7 +92,7 @@ private fun MainContent(
     decksState: UiState<List<Deck>>,
     cardsForRepetitionState: UiState<List<Card>>,
     createDeckState: UiState<Unit>,
-    initialDialog: Boolean = false,
+    createModalWindowValue: Boolean = false,
     onSaveDeck: (String) -> Unit,
     toggleModalWindow: (Boolean) -> Unit,
 ) {
@@ -125,7 +125,7 @@ private fun MainContent(
                 navController
             )
 
-            if (initialDialog) {
+            if (createModalWindowValue) {
                 Dialog(
                     onDismissRequest = {
                         toggleModalWindow(false)
@@ -321,8 +321,8 @@ private fun ButtonAllFolders(navController: NavController) {
                     color = MaterialTheme.colorScheme.onPrimary
                 ),
                 modifier = Modifier.padding(
-                    vertical = dimenDpResource(R.dimen.padding_medium),
-                    horizontal = dimenDpResource(R.dimen.padding_extra_large)
+                    vertical = dimenDpResource(R.dimen.padding_small),
+                    horizontal = dimenDpResource(R.dimen.padding_large)
                 )
             )
         }

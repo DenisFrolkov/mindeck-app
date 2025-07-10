@@ -31,6 +31,11 @@ open class MainViewModel @Inject constructor(
 
     val currentDateTime: String = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
 
+    fun initRepetition() {
+        val millis = stringToMillis(currentDateTime)
+        loadCardRepetition(millis)
+    }
+
     val decksState: StateFlow<UiState<List<Deck>>> = getAllFoldersUseCase()
         .map<List<Deck>, UiState<List<Deck>>> { UiState.Success(it) }
         .catch { emit(UiState.Error(it)) }
@@ -74,18 +79,13 @@ open class MainViewModel @Inject constructor(
         }
     }
 
-    fun initRepetition() {
-        val millis = stringToMillis(currentDateTime)
-        loadCardRepetition(millis)
-    }
-
-    var modalWindowValue = MutableStateFlow<Boolean>(false)
+    var createModalWindowValue = MutableStateFlow<Boolean>(false)
 
     fun toggleModalWindow(switch: Boolean) {
         if (!switch) {
             _createDeckState.value = UiState.Success(Unit)
         }
 
-        modalWindowValue.value = switch
+        createModalWindowValue.value = switch
     }
 }

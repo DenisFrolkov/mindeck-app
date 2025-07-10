@@ -41,6 +41,7 @@ class DecksViewModel @Inject constructor(
 
             _createDeckState.value = try {
                 createDeckUseCase(Deck(deckName = deckName))
+                modalWindowValue.value = false
                 UiState.Success(Unit)
             } catch (e: Exception) {
                 UiState.Error(Throwable("Колода с таким названием уже существует."))

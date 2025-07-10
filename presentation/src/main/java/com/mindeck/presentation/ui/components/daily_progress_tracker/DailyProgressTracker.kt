@@ -27,6 +27,7 @@ import androidx.compose.ui.text.TextStyle
 import com.mindeck.domain.models.Card
 import com.mindeck.presentation.R
 import com.mindeck.presentation.state.UiState
+import com.mindeck.presentation.state.onLoading
 import com.mindeck.presentation.state.onSuccess
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
 import com.mindeck.presentation.ui.components.utils.dimenFloatResource
@@ -66,6 +67,14 @@ fun DailyProgressTracker(
                 DPTText(
                     plurals = R.plurals.deck_amount,
                     count = cardsRepetition.size,
+                    textStyle = MaterialTheme.typography.labelMedium
+                )
+            }
+
+            cardsRepetitionState.onLoading {
+                DPTText(
+                    plurals = R.plurals.card_amount,
+                    count = 0,
                     textStyle = MaterialTheme.typography.labelMedium
                 )
             }
