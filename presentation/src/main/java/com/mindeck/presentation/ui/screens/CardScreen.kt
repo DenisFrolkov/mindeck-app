@@ -42,6 +42,7 @@ import com.mindeck.domain.models.Card
 import com.mindeck.presentation.R
 import com.mindeck.presentation.state.RenderUiState
 import com.mindeck.presentation.state.UiState
+import com.mindeck.presentation.state.getOrNull
 import com.mindeck.presentation.ui.components.buttons.ActionHandlerButton
 import com.mindeck.presentation.ui.components.common.QuestionAndAnswerElement
 import com.mindeck.presentation.ui.components.dataclasses.CardAttributes
@@ -67,6 +68,8 @@ fun CardScreen(
     val scrollState = rememberScrollState()
 
     val card = cardViewModel.cardByCardIdUIState.collectAsState().value
+    val deck = cardViewModel.deckUIState.collectAsState().value
+    val nameDeck = deck.getOrNull()?.deckName
 
     val dropdownMenuState = remember { DropdownMenuState() }
 
@@ -82,7 +85,7 @@ fun CardScreen(
         cardViewModel = cardViewModel
     )
 
-    val cardAttributes = cardAttributesList(card = card)
+    val cardAttributes = cardAttributesList(card = card, nameDeck)
 
     Surface(
         modifier = Modifier
@@ -206,27 +209,26 @@ private fun CardTopBar(
 }
 
 @Composable
-
 fun cardAttributesList(
     card: UiState<Card>,
+    deckName: String?
 ): List<CardAttributes> {
     return when (card) {
         is UiState.Success -> listOf(
             CardAttributes(
                 title = stringResource(R.string.text_deck_dropdown_selector),
-                value = card.data.deckId.toString()
+                value = deckName
             ),
             CardAttributes(
                 title = stringResource(R.string.text_type_dropdown_selector),
-                value = card.data.cardType
+                value = when (card.data.cardType) {
+                    "0" -> stringResource(R.string.text_folder_dropdown_selector_simple)
+                    else -> stringResource(R.string.text_folder_dropdown_selector_simple_with_answer_input)
+                }
             )
         )
 
         is UiState.Error -> listOf(
-            CardAttributes(
-                title = "stringResource(R.string.text_folder_dropdown_selector)",
-                value = stringResource(R.string.text_error_loading)
-            ),
             CardAttributes(
                 title = stringResource(R.string.text_deck_dropdown_selector),
                 value = stringResource(R.string.text_error_loading)
@@ -238,10 +240,6 @@ fun cardAttributesList(
         )
 
         else -> listOf(
-            CardAttributes(
-                title = "stringResource(R.string.text_folder_dropdown_selector)",
-                load = true
-            ),
             CardAttributes(
                 title = stringResource(R.string.text_deck_dropdown_selector),
                 load = true
@@ -322,7 +320,7 @@ private fun CardAttributesList(attribute: CardAttributes) {
                     .wrapContentSize(Alignment.Center)
 
             ) {
-                if (attribute.load) {
+                if (attribute.load || attribute.value == null) {
                     Box(
                         modifier = Modifier
                             .wrapContentSize(Alignment.Center)
@@ -333,7 +331,7 @@ private fun CardAttributesList(attribute: CardAttributes) {
                             strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_two)
                         )
                     }
-                } else if (attribute.value != null) {
+                } else {
                     Text(
                         text = attribute.value,
                         style = MaterialTheme.typography.bodyMedium

@@ -275,6 +275,7 @@ private fun CardStudyTopBar(navController: NavController) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .padding(horizontal = dimenDpResource(R.dimen.padding_medium))
             .padding(top = dimenDpResource(R.dimen.padding_medium))
             .statusBarsPadding(),
         horizontalArrangement = Arrangement.SpaceBetween

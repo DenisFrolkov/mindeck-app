@@ -1,7 +1,5 @@
 package com.mindeck.presentation.ui.screens
 
-import android.content.Context
-import android.widget.Toast
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -40,13 +38,10 @@ import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.Deck
 import com.mindeck.presentation.R
 import com.mindeck.presentation.state.RenderUiState
 import com.mindeck.presentation.state.UiState
-import com.mindeck.presentation.state.getOrNull
-import com.mindeck.presentation.state.onSuccess
 import com.mindeck.presentation.ui.components.buttons.ActionHandlerButton
 import com.mindeck.presentation.ui.components.dataclasses.DisplayItemData
 import com.mindeck.presentation.ui.components.dataclasses.DisplayItemStyle
@@ -59,7 +54,6 @@ import com.mindeck.presentation.ui.components.utils.dimenDpResource
 import com.mindeck.presentation.ui.components.utils.dimenFloatResource
 import com.mindeck.presentation.ui.navigation.NavigationRoute
 import com.mindeck.presentation.ui.theme.MindeckTheme
-import com.mindeck.presentation.viewmodel.DeckViewModel
 import com.mindeck.presentation.viewmodel.DecksViewModel
 
 @Composable
@@ -149,7 +143,7 @@ private fun dropdownMenuDataList(
 ): List<DropdownMenuData> {
     return listOf(
         DropdownMenuData(
-            title = stringResource(R.string.dropdown_menu_data_rename_list),
+            title = stringResource(R.string.dropdown_menu_data_create_deck_list),
             titleStyle = MaterialTheme.typography.bodyMedium,
             action = {
                 onCreateDeck()
@@ -225,7 +219,7 @@ private fun DecksInfo(
             ) {
                 Text(
                     text = pluralStringResource(
-                        R.plurals.folder_amount,
+                        R.plurals.deck_amount,
                         decks.size,
                         decks.size
                     ),

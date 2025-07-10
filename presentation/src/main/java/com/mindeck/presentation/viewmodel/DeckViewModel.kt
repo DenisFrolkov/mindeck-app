@@ -4,17 +4,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.Deck
-import com.mindeck.domain.usecases.cardUseCase.AddCardsToDeckUseCase
 import com.mindeck.domain.usecases.cardUseCase.DeleteCardsFromDeckUseCase
 import com.mindeck.domain.usecases.cardUseCase.GetAllCardsByDeckIdUseCase
 import com.mindeck.domain.usecases.cardUseCase.MoveCardsBetweenDeckUseCase
-import com.mindeck.domain.usecases.cardUseCase.UpdateCardUseCase
-import com.mindeck.domain.usecases.deckUseCases.CreateDeckUseCase
 import com.mindeck.domain.usecases.deckUseCases.DeleteDeckUseCase
 import com.mindeck.domain.usecases.deckUseCases.GetAllDecksUseCase
 import com.mindeck.domain.usecases.deckUseCases.GetDeckByIdUseCase
 import com.mindeck.domain.usecases.deckUseCases.RenameDeckUseCase
 import com.mindeck.presentation.state.UiState
+import com.mindeck.presentation.state.getOrNull
 import com.mindeck.presentation.viewmodel.managers.EditModeManager
 import com.mindeck.presentation.viewmodel.managers.SelectionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -184,7 +182,8 @@ class DeckViewModel @Inject constructor(
     fun toggleEditCardsInDeckModalWindow(switch: Boolean) {
         if (!switch) {
             _moveCardsBetweenDecksState.value = UiState.Success(Unit)
-            clearCardSelection()
+            toggleEditMode()
+            toggleMovementButton()
         }
 
         editCardsInDeckModalWindowValue.value = switch
@@ -194,6 +193,19 @@ class DeckViewModel @Inject constructor(
 
     fun toggleDeleteDeckModalWindow(switch: Boolean) {
         deleteDeckModalWindowValue.value = switch
+    }
+
+    fun deleteDeckOrIncludeModalWindow(deck: UiState<Deck>?, action: () -> Unit) {
+        val deck = deck?.getOrNull()
+        val cards = _listCardsUiState.value.getOrNull()
+
+        if (cards == null || cards.isEmpty()) {
+            deck?.let { deleteDeck(it) }
+            action()
+        }
+        else {
+            toggleDeleteDeckModalWindow(true)
+        }
     }
 
     var deleteCardsModalWindowValue = MutableStateFlow<Boolean>(false)
@@ -222,8 +234,8 @@ class DeckViewModel @Inject constructor(
         editModeManager.toggleEditMode()
     }
 
-    fun clearCardSelection() {
-        selectionManager.clearCardSelection()
-        toggleEditMode()
+    fun toggleMovementButton() {
+        if (!isEditModeEnabled.value)
+            selectionManager.clearCardSelection()
     }
 }

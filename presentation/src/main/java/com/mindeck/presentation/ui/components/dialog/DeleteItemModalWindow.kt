@@ -54,7 +54,7 @@ fun DeleteItemModalWindow(
                 )
                 Text(
                     text = titleText,
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.titleMedium,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -63,9 +63,11 @@ fun DeleteItemModalWindow(
 
             Text(
                 text = bodyText,
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodyLarge,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = dimenDpResource(R.dimen.padding_medium))
             )
             Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_large)))
             Box(

@@ -1,7 +1,6 @@
 package com.mindeck.presentation.ui.screens
 
 import android.content.Context
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
@@ -172,45 +171,41 @@ private fun PageContent(
 
     val sourceDeckId = deck.getOrNull()
 
+    fun handleEditTopBarAction() {
+        if (deleteCardsModalWindowValue) {
+            sourceDeckId?.deckId?.let { sourceId ->
+                deckViewModel.deleteCardsBetweenDeck(
+                    selectedCardIdsSet.toList(),
+                    sourceDeckId = sourceId
+                )
+            }
+            toggleDeleteCardsModalWindow(false)
+        } else {
+            deckViewModel.toggleEditCardsInDeckModalWindow(true)
+            deckViewModel.getAllDecks()
+        }
+    }
+
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             AnimatedContent(
                 targetState = isEditModeEnabled,
                 transitionSpec = {
-                    fadeIn(animationSpec = tween(100)) togetherWith fadeOut(
-                        animationSpec = tween(
-                            100
-                        )
-                    )
+                    fadeIn(tween(50)) togetherWith fadeOut(tween(50))
                 }
-            ) { editModeEnabled ->
-                if (editModeEnabled) {
+            ) { editMode ->
+                if (editMode) {
                     DeckEditTopBar(
                         selectedCards = selectedCardIdsSet,
-                        deleteCardsModalWindowValue,
-                        {
-                            if (deleteCardsModalWindowValue)
-                                toggleDeleteCardsModalWindow(false)
-                            deckViewModel.clearCardSelection()
+                        deleteCardsModalWindowValue = deleteCardsModalWindowValue,
+                        onExitButton = {
+                            deckViewModel.toggleEditMode()
+                            deckViewModel.toggleMovementButton()
+                            if (deleteCardsModalWindowValue) toggleDeleteCardsModalWindow(false)
                         },
-                        {
-                            when {
-                                deleteCardsModalWindowValue -> {
-                                    sourceDeckId?.deckId?.let {
-                                        deckViewModel.deleteCardsBetweenDeck(
-                                            selectedCardIdsSet.toList(),
-                                            sourceDeckId = it
-                                        )
-                                    }
-                                    toggleDeleteCardsModalWindow(false)
-                                }
-
-                                else -> {
-                                    deckViewModel.toggleEditCardsInDeckModalWindow(true)
-                                    deckViewModel.getAllDecks()
-                                }
-                            }
+                        onActionButton = {
+                            handleEditTopBarAction()
                         }
                     )
                 } else {
@@ -490,7 +485,9 @@ private fun dropdownMenuDataList(
             titleStyle = MaterialTheme.typography.bodyMedium,
             action = {
                 dropdownMenuState.reset()
-                deckViewModel.toggleDeleteDeckModalWindow(true)
+                deckViewModel.deleteDeckOrIncludeModalWindow(deck) {
+                    navController.popBackStack()
+                }
             }
         )
     )
