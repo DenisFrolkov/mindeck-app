@@ -41,11 +41,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.Deck
+import com.mindeck.domain.models.ReviewType
 import com.mindeck.presentation.R
 import com.mindeck.presentation.state.RenderUiState
 import com.mindeck.presentation.state.UiState
@@ -67,6 +70,7 @@ import com.mindeck.presentation.ui.components.folder.DisplayItem
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
 import com.mindeck.presentation.ui.components.utils.dimenFloatResource
 import com.mindeck.presentation.ui.navigation.NavigationRoute
+import com.mindeck.presentation.ui.theme.MindeckTheme
 import com.mindeck.presentation.viewmodel.DeckViewModel
 
 @Composable
@@ -100,65 +104,21 @@ fun DeckScreen(
 
     val dropdownMenuState = remember { DropdownMenuState() }
 
-    PageContent(
-        context,
-        navController,
-        deck,
-        cards,
-        deckViewModel,
-        dropdownMenuState,
-        isEditModeEnabled,
-        selectedCardIdSet,
-        selectedDeckId,
-        decks,
-        renameDeckState,
-        renameModalWindowValue,
-        editCardsInDeckModalWindowValue,
-        moveCardsBetweenDecksState,
-        deleteDeckModalWindowValue,
-        deleteCardsModalWindowValue,
-        onSaveDeck = { id, deckName ->
-            deckViewModel.renameDeck(id, deckName)
-        },
-        toggleRenameModalWindow = {
-            deckViewModel.toggleRenameModalWindow(it)
-        },
-        toggleEditCardsInDeckModalWindow = {
-            deckViewModel.toggleEditCardsInDeckModalWindow(it)
-        },
-        toggleDeleteDeckModalWindow = {
-            deckViewModel.toggleDeleteDeckModalWindow(it)
-        },
-        toggleDeleteCardsModalWindow = {
-            deckViewModel.toggleDeleteCardsModalWindow(it)
-        }
-    )
-}
+    val sourceDeckId = deck.getOrNull()
 
-@Composable
-private fun PageContent(
-    context: Context,
-    navController: NavController,
-    deck: UiState<Deck>,
-    cards: UiState<List<Card>>,
-    deckViewModel: DeckViewModel,
-    dropdownMenuState: DropdownMenuState,
-    isEditModeEnabled: Boolean,
-    selectedCardIdsSet: Set<Int>,
-    selectedDeckId: Int?,
-    decks: UiState<List<Deck>>,
-    renameDeckState: UiState<Unit>,
-    renameModalWindowValue: Boolean,
-    editCardsInDeckModalWindowValue: Boolean,
-    moveCardsBetweenDecksState: UiState<Unit>,
-    deleteDeckModalWindowValue: Boolean,
-    deleteCardsModalWindowValue: Boolean,
-    onSaveDeck: (Int, String) -> Unit,
-    toggleRenameModalWindow: (Boolean) -> Unit,
-    toggleEditCardsInDeckModalWindow: (Boolean) -> Unit,
-    toggleDeleteDeckModalWindow: (Boolean) -> Unit,
-    toggleDeleteCardsModalWindow: (Boolean) -> Unit
-) {
+    fun handleEditTopBarAction() {
+        if (deleteCardsModalWindowValue) {
+            deckViewModel.deleteCardsBetweenDeck(
+                selectedCardIdSet.toList(),
+                sourceDeckId?.deckId
+            )
+            deckViewModel.toggleDeleteCardsModalWindow(false)
+        } else {
+            deckViewModel.toggleEditCardsInDeckModalWindow(true)
+            deckViewModel.getAllDecks()
+        }
+    }
+
     val listDropdownMenu =
         dropdownMenuDataList(
             context,
@@ -169,23 +129,193 @@ private fun PageContent(
             dropdownMenuState
         )
 
-    val sourceDeckId = deck.getOrNull()
-
-    fun handleEditTopBarAction() {
-        if (deleteCardsModalWindowValue) {
-            sourceDeckId?.deckId?.let { sourceId ->
-                deckViewModel.deleteCardsBetweenDeck(
-                    selectedCardIdsSet.toList(),
-                    sourceDeckId = sourceId
-                )
-            }
-            toggleDeleteCardsModalWindow(false)
-        } else {
-            deckViewModel.toggleEditCardsInDeckModalWindow(true)
-            deckViewModel.getAllDecks()
+    DeckContent(
+        navController,
+        deck,
+        cards,
+        dropdownMenuState,
+        isEditModeEnabled,
+        listDropdownMenu,
+        selectedCardIdSet,
+        deleteCardsModalWindowValue,
+        editTopAppBarActionButton = {
+            handleEditTopBarAction()
+        },
+        editTopAppBarExitButton = {
+            deckViewModel.toggleEditMode()
+            deckViewModel.toggleMovementButton()
+            if (deleteCardsModalWindowValue) deckViewModel.toggleDeleteCardsModalWindow(false)
+        },
+        toggleCardSelection = { cardId ->
+            deckViewModel.toggleCardSelection(cardId)
         }
+    )
+
+    if (renameModalWindowValue) {
+        RenameDeckModalWindow(
+            deck,
+            renameDeckState,
+            {
+                deckViewModel.toggleRenameModalWindow(it)
+            },
+            { id, deckName ->
+                deckViewModel.renameDeck(id, deckName)
+            }
+        )
     }
 
+    if (editCardsInDeckModalWindowValue) {
+        EditElementModalWindow(
+            decks,
+            deck,
+            moveCardsBetweenDecksState,
+            isEditModeEnabled,
+            selectedDeckId,
+            {
+                deckViewModel.toggleEditCardsInDeckModalWindow(it)
+            },
+            editElement = {
+                deckViewModel.moveCardsBetweenDecks(
+                    selectedCardIdSet.toList(),
+                    sourceDeckId?.deckId,
+                    selectedDeckId
+                )
+            },
+            chooseElement = {
+                deckViewModel.toggleDeckSelection(it)
+            }
+        )
+    }
+
+    if (deleteDeckModalWindowValue) {
+        DeleteModalWindow(
+            deck,
+            navController,
+            {
+                deckViewModel.toggleDeleteDeckModalWindow(false)
+            },
+            {
+                deckViewModel.toggleDeleteDeckModalWindow(false)
+                navController.navigate(NavigationRoute.MainScreen.route)
+                deckViewModel.deleteDeck(it)
+            }
+        )
+    }
+}
+
+@Composable
+private fun RenameDeckModalWindow(
+    deck: UiState<Deck>,
+    renameDeckState: UiState<Unit>,
+    toggleRenameModalWindow: (Boolean) -> Unit,
+    renameDeck: (Int, String) -> Unit
+) {
+    deck.onSuccess { deckInfo ->
+        Dialog(
+            onDismissRequest = {
+                toggleRenameModalWindow(false)
+            }
+        ) {
+            CustomModalWindow(
+                stringResource(R.string.rename_title_item_dialog),
+                stringResource(R.string.save_text),
+                stringResource(R.string.rename_item_dialog_text_input_title_deck),
+                renameDeckState,
+                exitButton = {
+                    toggleRenameModalWindow(false)
+                },
+                saveButton = {
+                    renameDeck(deckInfo.deckId, it)
+                }
+            )
+        }
+    }
+}
+
+@Composable
+private fun EditElementModalWindow(
+    decks: UiState<List<Deck>>,
+    deck: UiState<Deck>,
+    moveCardsBetweenDecksState: UiState<Unit>,
+    isEditModeEnabled: Boolean,
+    selectedDeckId: Int?,
+    toggleEditCardsInDeckModalWindow: (Boolean) -> Unit,
+    editElement: () -> Unit,
+    chooseElement: (Int) -> Unit
+) {
+    val sourceDeckId = deck.getOrNull()
+
+    decks.onSuccess { deck ->
+        Dialog(
+            onDismissRequest = {
+                toggleEditCardsInDeckModalWindow(false)
+            }
+        ) {
+            EditElementModalWindow(
+                stringResource(R.string.rename_title_item_dialog),
+                stringResource(R.string.save_text),
+                deck.filter { it.deckId != sourceDeckId?.deckId }
+                    .map { ChooseElement(it.deckName, it.deckId) },
+                moveCardsBetweenDecksState,
+                isEditModeEnabled,
+                selectedDeckId,
+                exitButton = {
+                    toggleEditCardsInDeckModalWindow(false)
+                },
+                saveButton = {
+                    editElement()
+                },
+                onEditItem = {
+                    chooseElement(it)
+                }
+            )
+        }
+    }
+}
+
+@Composable
+private fun DeleteModalWindow(
+    deck: UiState<Deck>,
+    navController: NavController,
+    toggleDeleteDeckModalWindow: (Boolean) -> Unit,
+    deleteItem: (Deck) -> Unit
+) {
+    deck.onSuccess { deck ->
+        Dialog(
+            onDismissRequest = {
+                toggleDeleteDeckModalWindow(false)
+            }
+        ) {
+            DeleteItemModalWindow(
+                "Удалить колоду",
+                "Удаляя колоду, вы удаляете и все карточки в ней!",
+                {
+                    toggleDeleteDeckModalWindow(false)
+                    navController.navigate(NavigationRoute.MainScreen.route)
+                    deleteItem(deck)
+                },
+                {
+                    toggleDeleteDeckModalWindow(false)
+                }
+            )
+        }
+    }
+}
+
+@Composable
+private fun DeckContent(
+    navController: NavController,
+    deck: UiState<Deck>,
+    cards: UiState<List<Card>>,
+    dropdownMenuState: DropdownMenuState,
+    isEditModeEnabled: Boolean,
+    listDropdownMenu: List<DropdownMenuData>,
+    selectedCardIdsSet: Set<Int>,
+    deleteCardsModalWindowValue: Boolean,
+    editTopAppBarActionButton: () -> Unit,
+    editTopAppBarExitButton: () -> Unit,
+    toggleCardSelection: (Int) -> Unit
+) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
@@ -198,14 +328,14 @@ private fun PageContent(
                 if (editMode) {
                     DeckEditTopBar(
                         selectedCards = selectedCardIdsSet,
-                        deleteCardsModalWindowValue = deleteCardsModalWindowValue,
+                        buttonTitle = if (deleteCardsModalWindowValue) stringResource(R.string.dropdown_menu_data_remove_cards) else stringResource(
+                            R.string.text_move_mode_top_bar_edit_button
+                        ),
                         onExitButton = {
-                            deckViewModel.toggleEditMode()
-                            deckViewModel.toggleMovementButton()
-                            if (deleteCardsModalWindowValue) toggleDeleteCardsModalWindow(false)
+                            editTopAppBarExitButton()
                         },
                         onActionButton = {
-                            handleEditTopBarAction()
+                            editTopAppBarActionButton()
                         }
                     )
                 } else {
@@ -217,7 +347,7 @@ private fun PageContent(
             }
         },
         content = { padding ->
-            PageContent(
+            Content(
                 navController = navController,
                 padding = padding,
                 isEditModeEnabled = isEditModeEnabled,
@@ -226,90 +356,10 @@ private fun PageContent(
                 cards = cards,
                 listDropdownMenu = listDropdownMenu,
                 dropdownMenuState = dropdownMenuState,
-                deckViewModel = deckViewModel,
+                toggleCardSelection = { cardId ->
+                    toggleCardSelection(cardId)
+                }
             )
-
-            if (renameModalWindowValue) {
-                deck.onSuccess { deckInfo ->
-                    Dialog(
-                        onDismissRequest = {
-                            toggleRenameModalWindow(false)
-                        }
-                    ) {
-                        CustomModalWindow(
-                            stringResource(R.string.rename_title_item_dialog),
-                            stringResource(R.string.save_text),
-                            stringResource(R.string.rename_item_dialog_text_input_title_deck),
-                            renameDeckState,
-                            exitButton = {
-                                toggleRenameModalWindow(false)
-                            },
-                            saveButton = {
-                                onSaveDeck(deckInfo.deckId, it)
-                            }
-                        )
-                    }
-                }
-            }
-
-            if (editCardsInDeckModalWindowValue) {
-                Dialog(
-                    onDismissRequest = {
-                        toggleEditCardsInDeckModalWindow(false)
-                    }
-                ) {
-                    decks.onSuccess { deck ->
-                        EditElementModalWindow(
-                            stringResource(R.string.rename_title_item_dialog),
-                            stringResource(R.string.save_text),
-                            deck.filter { it.deckId != sourceDeckId?.deckId }
-                                .map { ChooseElement(it.deckName, it.deckId) },
-                            moveCardsBetweenDecksState,
-                            isEditModeEnabled,
-                            selectedDeckId,
-                            exitButton = {
-                                toggleEditCardsInDeckModalWindow(false)
-                            },
-                            saveButton = {
-                                if (selectedDeckId != null)
-                                    sourceDeckId?.deckId?.let { it ->
-                                        deckViewModel.moveCardsBetweenDecks(
-                                            selectedCardIdsSet.toList(),
-                                            it,
-                                            selectedDeckId
-                                        )
-                                    }
-                            },
-                            onEditItem = {
-                                deckViewModel.toggleDeckSelection(it)
-                            }
-                        )
-                    }
-                }
-            }
-
-            if (deleteDeckModalWindowValue) {
-                Dialog(
-                    onDismissRequest = {
-                        toggleDeleteDeckModalWindow(false)
-                    }
-                ) {
-                    deck.onSuccess { deck ->
-                        DeleteItemModalWindow(
-                            "Удалить колоду",
-                            "Удаляя колоду, вы удаляете и все карточки в ней!",
-                            {
-                                toggleDeleteDeckModalWindow(false)
-                                navController.navigate(NavigationRoute.MainScreen.route)
-                                deckViewModel.deleteDeck(deck)
-                            },
-                            {
-                                toggleDeleteDeckModalWindow(false)
-                            }
-                        )
-                    }
-                }
-            }
         }
     )
 }
@@ -317,7 +367,7 @@ private fun PageContent(
 @Composable
 private fun DeckEditTopBar(
     selectedCards: Set<Int>,
-    deleteCardsModalWindowValue: Boolean,
+    buttonTitle: String,
     onExitButton: () -> Unit,
     onActionButton: () -> Unit
 ) {
@@ -339,9 +389,7 @@ private fun DeckEditTopBar(
             )
             if (selectedCards.isNotEmpty()) {
                 ButtonMoveMode(
-                    buttonTitle = if (deleteCardsModalWindowValue) stringResource(R.string.dropdown_menu_data_remove_cards) else stringResource(
-                        R.string.text_move_mode_top_bar_edit_button
-                    ),
+                    buttonTitle = buttonTitle,
                     onClickButton = onActionButton
                 )
             }
@@ -382,7 +430,7 @@ private fun DeckTopBar(
 }
 
 @Composable
-private fun PageContent(
+private fun Content(
     navController: NavController,
     padding: PaddingValues,
     deck: UiState<Deck>,
@@ -390,8 +438,8 @@ private fun PageContent(
     selectedCards: Set<Int>,
     cards: UiState<List<Card>>,
     listDropdownMenu: List<DropdownMenuData>,
-    deckViewModel: DeckViewModel,
-    dropdownMenuState: DropdownMenuState
+    dropdownMenuState: DropdownMenuState,
+    toggleCardSelection: (Int) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -404,9 +452,11 @@ private fun PageContent(
         CardInfo(
             cardsState = cards,
             navController = navController,
-            deckViewModel = deckViewModel,
             isEditModeEnabled = isEditModeEnabled,
-            selectedCards = selectedCards
+            selectedCards = selectedCards,
+            toggleCardSelection = { cardId ->
+                toggleCardSelection(cardId)
+            }
         )
     }
     if (dropdownMenuState.isExpanded) {
@@ -535,10 +585,10 @@ private fun DeckInfo(
 @Composable
 private fun CardInfo(
     cardsState: UiState<List<Card>>,
-    deckViewModel: DeckViewModel,
     navController: NavController,
     selectedCards: Set<Int>,
-    isEditModeEnabled: Boolean
+    isEditModeEnabled: Boolean,
+    toggleCardSelection: (Int) -> Unit
 ) {
     cardsState.RenderUiState(
         onSuccess = { cards ->
@@ -572,7 +622,9 @@ private fun CardInfo(
                         showCount = false,
                         showEditMode = isEditModeEnabled,
                         isSelected = selectedCards.contains(card.cardId),
-                        onCheckedChange = { deckViewModel.toggleCardSelection(card.cardId) },
+                        onCheckedChange = {
+                            toggleCardSelection(card.cardId)
+                        },
                         displayItemData = DisplayItemData(
                             itemIcon = R.drawable.card_icon,
                             itemName = card.cardName,
@@ -640,3 +692,273 @@ private fun DeckDropdownMenu(
             .wrapContentSize(Alignment.TopEnd)
     )
 }
+
+@Preview(
+    showBackground = true,
+    backgroundColor = 0xFFE6E6FF
+)
+@Composable
+private fun ScreenPreview() {
+    val navController = rememberNavController()
+    val cardsState: UiState<List<Card>> = cardsDataMock()
+    val deckState: UiState<Deck> = deckDataMock()
+    val isEditModeEnabled = false
+    val dropdownMenuState = DropdownMenuState()
+
+    MindeckTheme {
+        DeckContent(
+            navController = navController,
+            deck = deckState,
+            cards = cardsState,
+            dropdownMenuState = dropdownMenuState,
+            isEditModeEnabled = isEditModeEnabled,
+            listDropdownMenu = emptyList<DropdownMenuData>(),
+            selectedCardIdsSet = emptySet<Int>(),
+            deleteCardsModalWindowValue = false,
+            editTopAppBarActionButton = {},
+            editTopAppBarExitButton = {},
+            toggleCardSelection = {}
+        )
+    }
+}
+
+@Preview(
+    device = "spec:parent=pixel_5,orientation=landscape",
+    showBackground = true,
+    backgroundColor = 0xFFE6E6FF
+)
+@Composable
+private fun ScreenPreviewLandscape() {
+    val navController = rememberNavController()
+    val cardsState: UiState<List<Card>> = cardsDataMock()
+    val deckState: UiState<Deck> = deckDataMock()
+    val isEditModeEnabled = false
+    val dropdownMenuState = DropdownMenuState()
+
+    MindeckTheme {
+        DeckContent(
+            navController = navController,
+            deck = deckState,
+            cards = cardsState,
+            dropdownMenuState = dropdownMenuState,
+            isEditModeEnabled = isEditModeEnabled,
+            listDropdownMenu = emptyList<DropdownMenuData>(),
+            selectedCardIdsSet = emptySet<Int>(),
+            deleteCardsModalWindowValue = false,
+            editTopAppBarActionButton = {},
+            editTopAppBarExitButton = {},
+            toggleCardSelection = {}
+        )
+    }
+}
+
+@Preview(
+    device = "spec:parent=pixel_5",
+    showBackground = true,
+    backgroundColor = 0xFFE6E6FF
+)
+@Composable
+private fun RenameDeckModalWindowScreenPreview() {
+    val deckState: UiState<Deck> = deckDataMock()
+    val isEditModeEnabled = false
+    val navController = rememberNavController()
+    val cardsState: UiState<List<Card>> = cardsDataMock()
+    val dropdownMenuState = DropdownMenuState()
+
+    MindeckTheme {
+        DeckContent(
+            navController = navController,
+            deck = deckState,
+            cards = cardsState,
+            dropdownMenuState = dropdownMenuState,
+            isEditModeEnabled = isEditModeEnabled,
+            listDropdownMenu = emptyList<DropdownMenuData>(),
+            selectedCardIdsSet = emptySet<Int>(),
+            deleteCardsModalWindowValue = false,
+            editTopAppBarActionButton = {},
+            editTopAppBarExitButton = {},
+            toggleCardSelection = {}
+        )
+        RenameDeckModalWindow(
+            deckState,
+            UiState.Success(Unit),
+            { _ -> },
+            { _, _ -> }
+        )
+    }
+}
+
+@Preview(
+    device = "spec:parent=pixel_5",
+    showBackground = true,
+    backgroundColor = 0xFFE6E6FF
+)
+@Composable
+private fun EditElementModalWindowScreenPreview() {
+    val decksState: UiState<List<Deck>> = decksDataMock()
+    val deckState: UiState<Deck> = deckDataMock()
+    val isEditModeEnabled = false
+    val navController = rememberNavController()
+    val cardsState: UiState<List<Card>> = cardsDataMock()
+    val dropdownMenuState = DropdownMenuState()
+
+    MindeckTheme {
+        DeckContent(
+            navController = navController,
+            deck = deckState,
+            cards = cardsState,
+            dropdownMenuState = dropdownMenuState,
+            isEditModeEnabled = isEditModeEnabled,
+            listDropdownMenu = emptyList<DropdownMenuData>(),
+            selectedCardIdsSet = emptySet<Int>(),
+            deleteCardsModalWindowValue = false,
+            editTopAppBarActionButton = {},
+            editTopAppBarExitButton = {},
+            toggleCardSelection = {}
+        )
+        EditElementModalWindow(
+            decksState,
+            deckState,
+            UiState.Success(Unit),
+            true,
+            1,
+            { _ -> },
+            { },
+            { _ -> }
+        )
+    }
+}
+
+@Preview(
+    device = "spec:parent=pixel_5",
+    showBackground = true,
+    backgroundColor = 0xFFE6E6FF
+)
+@Composable
+private fun DeleteModalWindowScreenPreview() {
+    val deckState: UiState<Deck> = deckDataMock()
+    val isEditModeEnabled = false
+    val navController = rememberNavController()
+    val cardsState: UiState<List<Card>> = cardsDataMock()
+    val dropdownMenuState = DropdownMenuState()
+
+    MindeckTheme {
+        DeckContent(
+            navController = navController,
+            deck = deckState,
+            cards = cardsState,
+            dropdownMenuState = dropdownMenuState,
+            isEditModeEnabled = isEditModeEnabled,
+            listDropdownMenu = emptyList<DropdownMenuData>(),
+            selectedCardIdsSet = emptySet<Int>(),
+            deleteCardsModalWindowValue = false,
+            editTopAppBarActionButton = {},
+            editTopAppBarExitButton = {},
+            toggleCardSelection = {}
+        )
+        DeleteModalWindow(
+            deckState,
+            navController,
+            {},
+            {}
+        )
+    }
+}
+
+@Composable
+private fun deckDataMock(): UiState<Deck> = UiState.Success(
+    Deck(
+        deckId = 1,
+        deckName = "Kotlin Basics"
+    )
+)
+
+@Composable
+private fun decksDataMock(): UiState<List<Deck>> = UiState.Success(
+    listOf<Deck>(
+        Deck(
+            deckId = 1,
+            deckName = "Kotlin Basics"
+        ),
+        Deck(
+            deckId = 2,
+            deckName = "Jetpack Compose"
+        ),
+        Deck(
+            deckId = 3,
+            deckName = "Architecture Patterns"
+        ),
+        Deck(
+            deckId = 4,
+            deckName = "Coroutines & Flow"
+        )
+    )
+)
+
+@Composable
+private fun cardsDataMock(): UiState<List<Card>> = UiState.Success(
+    listOf<Card>(
+        Card(
+            cardId = 1,
+            cardName = "Basic Kotlin",
+            cardQuestion = "Что такое data class в Kotlin?",
+            cardAnswer = "Это класс, предназначенный для хранения данных. Он автоматически генерирует equals, hashCode и toString.",
+            cardType = "Теория",
+            cardTag = "Kotlin",
+            deckId = 101,
+            firstReviewDate = 1_725_000_000_000,
+            lastReviewDate = 1_725_086_400_000,
+            nextReviewDate = 1_725_172_800_000,
+            repetitionCount = 2,
+            lastReviewType = ReviewType.EASY
+        ),
+        Card(
+            cardId = 2,
+            cardName = "Android Lifecycle",
+            cardQuestion = "Какой метод вызывается первым в жизненном цикле Activity?",
+            cardAnswer = "onCreate()",
+            cardType = "Вопрос",
+            cardTag = "Android",
+            deckId = 102,
+            repetitionCount = 0,
+            lastReviewType = null
+        ),
+        Card(
+            cardId = 3,
+            cardName = "ViewModel Purpose",
+            cardQuestion = "Зачем использовать ViewModel в Android?",
+            cardAnswer = "Для хранения и управления UI-данными с учетом жизненного цикла.",
+            cardType = "Объяснение",
+            cardTag = "Architecture",
+            deckId = 103,
+            firstReviewDate = 1_724_000_000_000,
+            lastReviewDate = 1_725_000_000_000,
+            nextReviewDate = 1_726_000_000_000,
+            repetitionCount = 5,
+            lastReviewType = ReviewType.HARD
+        ),
+        Card(
+            cardId = 4,
+            cardName = "Coroutine Basics",
+            cardQuestion = "Что делает launch в корутинах?",
+            cardAnswer = "Запускает новую корутину без возвращения результата.",
+            cardType = "Программирование",
+            cardTag = "Coroutines",
+            deckId = 101,
+            firstReviewDate = 1_725_000_000_000,
+            repetitionCount = 1,
+            lastReviewType = ReviewType.MEDIUM
+        ),
+        Card(
+            cardId = 5,
+            cardName = "Room Annotation",
+            cardQuestion = "Какая аннотация используется для DAO интерфейса в Room?",
+            cardAnswer = "@Dao",
+            cardType = "Вспомни",
+            cardTag = "Room",
+            deckId = 102,
+            repetitionCount = 3,
+            lastReviewType = ReviewType.EASY
+        )
+    )
+)

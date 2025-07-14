@@ -122,31 +122,40 @@ class DeckViewModel @Inject constructor(
 
     fun moveCardsBetweenDecks(
         cardIds: List<Int>,
-        sourceDeckId: Int,
-        targetDeckId: Int
+        sourceDeckId: Int?,
+        targetDeckId: Int?
     ) {
         viewModelScope.launch {
             _moveCardsBetweenDecksState.value = try {
-                moveCardsBetweenDeckUseCase(cardIds, sourceDeckId, targetDeckId)
-                toggleEditCardsInDeckModalWindow(false)
-                UiState.Success(Unit)
+                if (sourceDeckId != null && targetDeckId != null) {
+                    moveCardsBetweenDeckUseCase(cardIds, sourceDeckId, targetDeckId)
+                    toggleEditCardsInDeckModalWindow(false)
+                    UiState.Success(Unit)
+                } else {
+                    UiState.Error(Throwable(""))
+                }
             } catch (e: Exception) {
                 UiState.Error(e)
             }
         }
     }
 
-    private val _deleteCardsBetweenDecksState = MutableStateFlow<UiState<Unit>>(UiState.Success(Unit))
+    private val _deleteCardsBetweenDecksState =
+        MutableStateFlow<UiState<Unit>>(UiState.Success(Unit))
     val deleteCardsBetweenDecksState: StateFlow<UiState<Unit>> = _deleteCardsBetweenDecksState
 
     fun deleteCardsBetweenDeck(
         cardIds: List<Int>,
-        sourceDeckId: Int,
+        sourceDeckId: Int?,
     ) {
         viewModelScope.launch {
             _deleteCardsBetweenDecksState.value = try {
-                deleteCardsFromDeckUseCase(cardIds, sourceDeckId)
-                UiState.Success(Unit)
+                if (sourceDeckId != null) {
+                    deleteCardsFromDeckUseCase(cardIds, sourceDeckId)
+                    UiState.Success(Unit)
+                } else {
+                    UiState.Error(Throwable(""))
+                }
             } catch (e: Exception) {
                 UiState.Error(e)
             }
@@ -202,8 +211,7 @@ class DeckViewModel @Inject constructor(
         if (cards == null || cards.isEmpty()) {
             deck?.let { deleteDeck(it) }
             action()
-        }
-        else {
+        } else {
             toggleDeleteDeckModalWindow(true)
         }
     }

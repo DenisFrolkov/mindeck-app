@@ -87,7 +87,7 @@ fun CardStudyScreen(
                         content = { padding ->
                             val cardCount = remember { allCardsForReview }
                             val currentCard = cardCount[currentIndex]
-                            PageContent(
+                            DeckContent(
                                 padding = padding,
                                 card = currentCard,
                                 scrollState = scrollState,
@@ -145,7 +145,7 @@ fun CardStudyScreen(
                     Scaffold(
                         topBar = { CardStudyTopBar(navController = navController) },
                         content = { padding ->
-                            PageContent(
+                            DeckContent(
                                 padding = padding,
                                 card = cardByCardId,
                                 scrollState = scrollState,
@@ -188,7 +188,7 @@ fun CardStudyScreen(
 }
 
 @Composable
-private fun PageContent(
+private fun DeckContent(
     padding: PaddingValues,
     card: Card,
     scrollState: ScrollState,

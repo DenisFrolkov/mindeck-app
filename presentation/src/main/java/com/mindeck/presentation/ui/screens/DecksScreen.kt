@@ -111,7 +111,7 @@ private fun DecksContent(
             DecksEditTopBar(navController, dropdownMenuState)
         },
         content = { padding ->
-            PageContent(padding, decks, navController, listDropdownMenu, dropdownMenuState)
+            DeckContent(padding, decks, navController, listDropdownMenu, dropdownMenuState)
 
             if (initialDialog) {
                 Dialog(
@@ -181,7 +181,7 @@ private fun DecksEditTopBar(
 }
 
 @Composable
-private fun PageContent(
+private fun DeckContent(
     padding: PaddingValues,
     decks: UiState<List<Deck>>,
     navController: NavController,
@@ -293,29 +293,6 @@ private fun DecksInfo(
     )
 }
 
-@Preview(
-    showBackground = true,
-    backgroundColor = 0xFFE6E6FF
-)
-@Composable
-private fun ScreenPreview() {
-    val navController = rememberNavController()
-    val decksState: UiState<List<Deck>> = decksDataMock()
-    val dropdownMenuState = remember { DropdownMenuState() }
-
-    MindeckTheme {
-        DecksContent(
-            navController,
-            decksState,
-            UiState.Loading,
-            dropdownMenuState,
-            false,
-            { },
-            { _ -> }
-        )
-    }
-}
-
 @Composable
 private fun DeckDropdownMenu(
     padding: PaddingValues,
@@ -341,66 +318,102 @@ private fun DeckDropdownMenu(
     )
 }
 
-//@Preview(
-//    device = "spec:parent=pixel_5,orientation=landscape",
-//    showBackground = true,
-//    backgroundColor = 0xFFE6E6FF
-//)
-//@Composable
-//private fun ScreenPreviewLandscape() {
-//    val navController = rememberNavController()
-//    val decksState: UiState<List<Deck>> = decksDataMock()
-//    val cardsForRepetitionState: UiState<List<Card>> = cardsForRepetitionDataMock()
-//
-//    MindeckTheme {
-//        MainContent(
-//            navController,
-//            decksState,
-//            cardsForRepetitionState,
-//        )
-//    }
-//}
-//
-//@Preview(
-//    showBackground = true,
-//    backgroundColor = 0xFFE6E6FF
-//)
-//@Composable
-//private fun ScreenPreviewOpenFAB() {
-//    val navController = rememberNavController()
-//    val decksState: UiState<List<Deck>> = decksDataMock()
-//    val cardsForRepetitionState: UiState<List<Card>> = cardsForRepetitionDataMock()
-//    val fabModalWindow = true
-//
-//    MindeckTheme {
-//        MainContent(
-//            navController,
-//            decksState,
-//            cardsForRepetitionState,
-//            fabModalWindow
-//        )
-//    }
-//}
-//
-//@Preview(
-//    device = "spec:parent=pixel_5,orientation=landscape",
-//    showBackground = true,
-//    backgroundColor = 0xFFE6E6FF
-//)
-//@Composable
-//private fun ScreenPreviewOpenFABLandscape() {
-//    val navController = rememberNavController()
-//    val decksState: UiState<List<Deck>> = decksDataMock()
-//    val cardsForRepetitionState: UiState<List<Card>> = cardsForRepetitionDataMock()
-//
-//    MindeckTheme {
-//        DecksContent(
-//            navController,
-//            decksState,
-//            cardsForRepetitionState
-//        )
-//    }
-//}
+@Preview(
+    showBackground = true,
+    backgroundColor = 0xFFE6E6FF
+)
+@Composable
+private fun ScreenPreview() {
+    val navController = rememberNavController()
+    val decksState: UiState<List<Deck>> = decksDataMock()
+    val dropdownMenuState = remember { DropdownMenuState() }
+
+    MindeckTheme {
+        DecksContent(
+            navController,
+            decksState,
+            UiState.Loading,
+            dropdownMenuState,
+            false,
+            { },
+            { _ -> }
+        )
+    }
+}
+
+@Preview(
+    device = "spec:parent=pixel_5,orientation=landscape",
+    showBackground = true,
+    backgroundColor = 0xFFE6E6FF
+)
+@Composable
+private fun ScreenPreviewLandscape() {
+    val navController = rememberNavController()
+    val decksState: UiState<List<Deck>> = decksDataMock()
+    val createModalWindow = false
+    val dropdownMenuState = DropdownMenuState()
+
+    MindeckTheme {
+        DecksContent(
+            navController,
+            decksState,
+            UiState.Loading,
+            dropdownMenuState,
+            createModalWindow,
+            { },
+            { _ ->}
+        )
+    }
+}
+
+@Preview(
+    showBackground = true,
+    backgroundColor = 0xFFE6E6FF
+)
+@Composable
+private fun RenameDeckModalWindowScreenPreview() {
+    val navController = rememberNavController()
+    val decksState: UiState<List<Deck>> = decksDataMock()
+
+    val createModalWindow = true
+    val dropdownMenuState = DropdownMenuState()
+    MindeckTheme {
+        DecksContent(
+            navController,
+            decksState,
+            UiState.Loading,
+            dropdownMenuState,
+            createModalWindow,
+            { },
+            { _ ->}
+        )
+    }
+}
+
+@Preview(
+    device = "spec:parent=pixel_5,orientation=landscape",
+    showBackground = true,
+    backgroundColor = 0xFFE6E6FF
+)
+@Composable
+private fun EditElementModalWindowScreenPreview() {
+    val navController = rememberNavController()
+    val decksState: UiState<List<Deck>> = decksDataMock()
+    val createModalWindow = true
+    val dropdownMenuState = DropdownMenuState()
+
+    MindeckTheme {
+        DecksContent(
+            navController,
+            decksState,
+            UiState.Loading,
+            dropdownMenuState,
+            createModalWindow,
+            { },
+            { _ ->}
+        )
+    }
+}
 
 @Composable
 private fun decksDataMock(): UiState<List<Deck>> = UiState.Success(

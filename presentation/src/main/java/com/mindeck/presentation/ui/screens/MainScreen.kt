@@ -117,7 +117,7 @@ private fun MainContent(
             )
         },
         content = { paddingValues ->
-            PageContent(
+            MainContent(
                 paddingValues,
                 dailyProgressTrackerState,
                 decksState,
@@ -150,7 +150,7 @@ private fun MainContent(
 }
 
 @Composable
-private fun PageContent(
+private fun MainContent(
     paddingValues: PaddingValues,
     dailyProgressTrackerState: DailyProgressTrackerState,
     decksState: UiState<List<Deck>>,
@@ -404,7 +404,7 @@ private fun ScreenPreviewLandscape() {
     backgroundColor = 0xFFE6E6FF
 )
 @Composable
-private fun ScreenPreviewOpenFAB() {
+private fun RenameDeckModalWindowScreenPreview() {
     val navController = rememberNavController()
     val decksState: UiState<List<Deck>> = decksDataMock()
     val cardsForRepetitionState: UiState<List<Card>> = cardsForRepetitionDataMock()
@@ -429,7 +429,7 @@ private fun ScreenPreviewOpenFAB() {
     backgroundColor = 0xFFE6E6FF
 )
 @Composable
-private fun ScreenPreviewOpenFABLandscape() {
+private fun EditElementModalWindowScreenPreview() {
     val navController = rememberNavController()
     val decksState: UiState<List<Deck>> = decksDataMock()
     val cardsForRepetitionState: UiState<List<Card>> = cardsForRepetitionDataMock()
