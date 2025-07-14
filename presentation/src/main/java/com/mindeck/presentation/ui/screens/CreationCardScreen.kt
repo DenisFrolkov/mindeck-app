@@ -83,7 +83,7 @@ fun CreationCardScreen(
                 TopBar(onClick = { navController.popBackStack() })
             },
             content = { padding ->
-                PageContent(
+                DeckContent(
                     navController = navController,
                     padding = padding,
                     deck = deck,
@@ -124,7 +124,7 @@ private fun TopBar(onClick: () -> Unit) {
 }
 
 @Composable
-private fun PageContent(
+private fun DeckContent(
     navController: NavController,
     padding: PaddingValues,
     deck: UiState<List<Deck>>,

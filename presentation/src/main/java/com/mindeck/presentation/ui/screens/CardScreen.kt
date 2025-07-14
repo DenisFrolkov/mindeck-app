@@ -97,7 +97,7 @@ fun CardScreen(
                 CardTopBar(navController = navController, dropdownMenuState = dropdownMenuState)
             },
             content = { padding ->
-                PageContent(
+                DeckContent(
                     padding = padding,
                     scrollState = scrollState,
                     dropdownVisibleAnimation = dropdownVisibleAnimation,
@@ -254,7 +254,7 @@ fun cardAttributesList(
 
 @Composable
 
-private fun PageContent(
+private fun DeckContent(
     padding: PaddingValues,
     scrollState: ScrollState,
     dropdownVisibleAnimation: Float,
