@@ -24,7 +24,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -36,9 +35,13 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.mindeck.domain.models.Card
+import com.mindeck.domain.models.Deck
+import com.mindeck.domain.models.ReviewType
 import com.mindeck.presentation.R
 import com.mindeck.presentation.state.RenderUiState
 import com.mindeck.presentation.state.UiState
@@ -52,6 +55,7 @@ import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMen
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.animateDropdownMenuHeightIn
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
 import com.mindeck.presentation.ui.navigation.NavigationRoute
+import com.mindeck.presentation.ui.theme.MindeckTheme
 import com.mindeck.presentation.viewmodel.CardViewModel
 
 @Composable
@@ -65,18 +69,10 @@ fun CardScreen(
         cardViewModel.loadCardById(cardId = cardId)
     }
 
-    val scrollState = rememberScrollState()
-
     val card = cardViewModel.cardByCardIdUIState.collectAsState().value
     val deck = cardViewModel.deckUIState.collectAsState().value
-    val nameDeck = deck.getOrNull()?.deckName
 
     val dropdownMenuState = remember { DropdownMenuState() }
-
-    val dropdownVisibleAnimation = animateDropdownMenuHeightIn(
-        targetAlpha = dropdownMenuState.dropdownAlpha,
-        animationDuration = dropdownMenuState.animationDuration
-    )
 
     val listDropdownMenu = dropdownMenuDataList(
         navController = navController,
@@ -85,30 +81,50 @@ fun CardScreen(
         cardViewModel = cardViewModel
     )
 
+    CardContent(
+        navController,
+        deck,
+        dropdownMenuState,
+        card,
+        listDropdownMenu
+    )
+}
+
+@Composable
+private fun CardContent(
+    navController: NavController,
+    deck: UiState<Deck>,
+    dropdownMenuState: DropdownMenuState,
+    card: UiState<Card>,
+    listDropdownMenu: List<DropdownMenuData>
+) {
+    val scrollState = rememberScrollState()
+
+    val nameDeck = deck.getOrNull()?.deckName
     val cardAttributes = cardAttributesList(card = card, nameDeck)
 
-    Surface(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-    ) {
-        Scaffold(
-            topBar = {
-                CardTopBar(navController = navController, dropdownMenuState = dropdownMenuState)
-            },
-            content = { padding ->
-                DeckContent(
-                    padding = padding,
-                    scrollState = scrollState,
-                    dropdownVisibleAnimation = dropdownVisibleAnimation,
-                    card = card,
-                    cardAttributes = cardAttributes,
-                    listDropdownMenu = listDropdownMenu,
-                    dropdownMenuState = dropdownMenuState
-                )
-            }
-        )
-    }
+    val dropdownVisibleAnimation = animateDropdownMenuHeightIn(
+        targetAlpha = dropdownMenuState.dropdownAlpha,
+        animationDuration = dropdownMenuState.animationDuration
+    )
+
+    Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
+        topBar = {
+            CardTopBar(navController = navController, dropdownMenuState = dropdownMenuState)
+        },
+        content = { padding ->
+            Content(
+                padding = padding,
+                scrollState = scrollState,
+                dropdownVisibleAnimation = dropdownVisibleAnimation,
+                card = card,
+                cardAttributes = cardAttributes,
+                listDropdownMenu = listDropdownMenu,
+                dropdownMenuState = dropdownMenuState
+            )
+        }
+    )
 }
 
 @Composable
@@ -141,7 +157,7 @@ private fun dropdownMenuDataList(
                     }
                 ),
                 DropdownMenuData(
-                    title = stringResource(R.string.dropdown_menu_data_remove_deck),
+                    title = stringResource(R.string.dropdown_menu_data_remove_card),
                     titleStyle = MaterialTheme.typography.bodyMedium,
                     action = {
                         dropdownMenuState.reset()
@@ -254,7 +270,7 @@ fun cardAttributesList(
 
 @Composable
 
-private fun DeckContent(
+private fun Content(
     padding: PaddingValues,
     scrollState: ScrollState,
     dropdownVisibleAnimation: Float,
@@ -473,3 +489,74 @@ private fun CardDropdownMenu(
             .wrapContentSize(Alignment.TopEnd)
     )
 }
+
+@Preview(
+    showBackground = true,
+    backgroundColor = 0xFFE6E6FF
+)
+@Composable
+private fun ScreenPreview() {
+    val navController = rememberNavController()
+    val deckState: UiState<Deck> = deckDataMock()
+    val cardState: UiState<Card> = cardDataMock()
+    val dropdownMenuState = DropdownMenuState()
+
+    MindeckTheme {
+        CardContent(
+            navController,
+            deckState,
+            dropdownMenuState,
+            cardState,
+            emptyList<DropdownMenuData>()
+        )
+    }
+}
+
+@Preview(
+    device = "spec:parent=pixel_5,orientation=landscape",
+    showBackground = true,
+    backgroundColor = 0xFFE6E6FF
+)
+@Composable
+private fun ScreenPreviewLandscape() {
+    val navController = rememberNavController()
+    val deckState: UiState<Deck> = deckDataMock()
+    val cardState: UiState<Card> = cardDataMock()
+    val dropdownMenuState = DropdownMenuState()
+
+    MindeckTheme {
+        CardContent(
+            navController,
+            deckState,
+            dropdownMenuState,
+            cardState,
+            emptyList<DropdownMenuData>()
+        )
+    }
+}
+
+@Composable
+private fun deckDataMock(): UiState<Deck> = UiState.Success(
+    Deck(
+        deckId = 1,
+        deckName = "Kotlin Basics"
+    )
+)
+
+@Composable
+private fun cardDataMock(): UiState<Card> = UiState.Success(
+    Card(
+        cardId = 1,
+        cardName = "Basic Kotlin",
+        cardQuestion = "Что такое data class в Kotlin?",
+        cardAnswer = "Это класс, предназначенный для хранения данных. Он автоматически генерирует equals, hashCode и toString.",
+        cardType = "Теория",
+        cardTag = "Kotlin",
+        deckId = 101,
+        firstReviewDate = 1_725_000_000_000,
+        lastReviewDate = 1_725_086_400_000,
+        nextReviewDate = 1_725_172_800_000,
+        repetitionCount = 2,
+        lastReviewType = ReviewType.EASY
+    )
+)

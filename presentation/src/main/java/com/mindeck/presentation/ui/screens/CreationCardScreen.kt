@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -20,7 +19,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -31,9 +29,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.mindeck.domain.models.Deck
 import com.mindeck.presentation.R
 import com.mindeck.presentation.state.CardState
@@ -47,6 +47,7 @@ import com.mindeck.presentation.ui.components.textfields.TegInputField
 import com.mindeck.presentation.ui.components.textfields.TitleInputField
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
 import com.mindeck.presentation.ui.components.utils.textInputModifier
+import com.mindeck.presentation.ui.theme.MindeckTheme
 import com.mindeck.presentation.ui.theme.text_gray
 import com.mindeck.presentation.ui.theme.text_white
 import com.mindeck.presentation.viewmodel.CreationCardViewModel
@@ -65,7 +66,6 @@ fun CreationCardScreen(
     val selectedDeckForCreatingCard by creationCardViewModel.selectedDeckForCreatingCard
     val selectedTypeForCreatingCard by creationCardViewModel.selectedTypeForCreatingCard
 
-    val typeDropdownList = dropdownMenuTypeList()
 
     LaunchedEffect(Unit) {
         creationCardViewModel.getAllDecks()
@@ -73,36 +73,91 @@ fun CreationCardScreen(
             creationCardViewModel.getDeckById(deckId)
     }
 
-    Surface(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(color = MaterialTheme.colorScheme.background)
-    ) {
-        Scaffold(
-            topBar = {
-                TopBar(onClick = { navController.popBackStack() })
-            },
-            content = { padding ->
-                DeckContent(
-                    navController = navController,
-                    padding = padding,
-                    deck = deck,
-                    typeDropdownList = typeDropdownList,
-                    validation = validation,
-                    cardState = cardState,
-                    creationCardViewModel = creationCardViewModel,
-                    selectedDeckForCreatingCard = selectedDeckForCreatingCard,
-                    selectedTypeForCreatingCard = selectedTypeForCreatingCard,
-                    {
-                        creationCardViewModel.selectedDeckForCreatingCard.value = it
-                    },
-                    {
-                        creationCardViewModel.selectedTypeForCreatingCard.value = it
-                    }
-                )
+    CreationCardContent(
+        navController,
+        deck,
+        validation,
+        cardState,
+        selectedDeckForCreatingCard,
+        selectedTypeForCreatingCard,
+        {
+            creationCardViewModel.selectedDeckForCreatingCard.value = it
+        },
+        {
+            creationCardViewModel.selectedTypeForCreatingCard.value = it
+        },
+        onCardNameSave = {
+            creationCardViewModel.updateCardState { copy(title = it) }
+        },
+        onCardQuestionSave = {
+            creationCardViewModel.updateCardState { copy(question = it) }
+        },
+        onCardAnswerSave = {
+            creationCardViewModel.updateCardState { copy(answer = it) }
+        },
+        onCardTagSave = {
+            creationCardViewModel.updateCardState { copy(tag = it) }
+        },
+        onSaveCard = {
+            if (creationCardViewModel.validateInput()) {
+                selectedDeckForCreatingCard.second?.let {
+                    creationCardViewModel.createCard(
+                        cardName = cardState.title,
+                        cardQuestion = cardState.question,
+                        cardAnswer = cardState.answer,
+                        cardType = selectedDeckForCreatingCard.second.toString(),
+                        cardTag = cardState.tag,
+                        deckId = it
+                    )
+                }
+                navController.popBackStack()
             }
-        )
-    }
+        }
+    )
+}
+
+@Composable
+private fun CreationCardContent(
+    navController: NavController,
+    decks: UiState<List<Deck>>,
+    validation: Boolean?,
+    cardState: CardState,
+    selectedDeckForCreatingCard: Pair<String, Int?>,
+    selectedTypeForCreatingCard: Pair<String, Int?>,
+    onSelectedDeckForCreatingCard: (Pair<String, Int>) -> Unit = { },
+    onSelectedTypeForCreatingCard: (Pair<String, Int>) -> Unit = { },
+    onCardNameSave: (String) -> Unit,
+    onCardQuestionSave: (String) -> Unit,
+    onCardAnswerSave: (String) -> Unit,
+    onCardTagSave: (String) -> Unit,
+    onSaveCard: () -> Unit
+) {
+    val typeDropdownList = dropdownMenuTypeList()
+
+    Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
+        topBar = {
+            TopBar(onClick = { navController.popBackStack() })
+        },
+        content = { padding ->
+            Content(
+                padding = padding,
+                deck = decks,
+                typeDropdownList = typeDropdownList,
+                validation = validation,
+                cardState = cardState,
+                selectedDeckForCreatingCard = selectedDeckForCreatingCard,
+                selectedTypeForCreatingCard = selectedTypeForCreatingCard,
+                onSelectedDeckForCreatingCard = onSelectedDeckForCreatingCard,
+                onSelectedTypeForCreatingCard = onSelectedTypeForCreatingCard,
+                onCardNameSave = onCardNameSave,
+                onCardQuestionSave = onCardQuestionSave,
+                onCardAnswerSave = onCardAnswerSave,
+                onCardTagSave = onCardTagSave,
+                onSaveCard = onSaveCard
+            )
+        }
+    )
 }
 
 @Composable
@@ -124,18 +179,21 @@ private fun TopBar(onClick: () -> Unit) {
 }
 
 @Composable
-private fun DeckContent(
-    navController: NavController,
+private fun Content(
     padding: PaddingValues,
     deck: UiState<List<Deck>>,
     typeDropdownList: List<Pair<String, Int>>,
     validation: Boolean?,
     cardState: CardState,
-    creationCardViewModel: CreationCardViewModel,
     selectedDeckForCreatingCard: Pair<String, Int?>,
     selectedTypeForCreatingCard: Pair<String, Int?>,
     onSelectedDeckForCreatingCard: (Pair<String, Int>) -> Unit = { },
-    onSelectedTypeForCreatingCard: (Pair<String, Int>) -> Unit = { }
+    onSelectedTypeForCreatingCard: (Pair<String, Int>) -> Unit = { },
+    onCardNameSave: (String) -> Unit,
+    onCardQuestionSave: (String) -> Unit,
+    onCardAnswerSave: (String) -> Unit,
+    onCardTagSave: (String) -> Unit,
+    onSaveCard: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -177,24 +235,15 @@ private fun DeckContent(
         InputFields(
             validation = validation == true || validation == null,
             cardState = cardState,
-            creationCardViewModel = creationCardViewModel
+            onCardNameSave = onCardNameSave,
+            onCardQuestionSave = onCardQuestionSave,
+            onCardAnswerSave = onCardAnswerSave,
+            onCardTagSave = onCardTagSave
         )
         Spacer(modifier = Modifier.height(height = dimenDpResource(R.dimen.spacer_large)))
         SaveButton(
             onClick = {
-                if (creationCardViewModel.validateInput() ) {
-                    selectedDeckForCreatingCard.second?.let {
-                        creationCardViewModel.createCard(
-                            cardName = cardState.title,
-                            cardQuestion = cardState.question,
-                            cardAnswer = cardState.answer,
-                            cardType = selectedDeckForCreatingCard.second.toString(),
-                            cardTag = cardState.tag,
-                            deckId = it
-                        )
-                    }
-                    navController.popBackStack()
-                }
+                onSaveCard()
             }
         )
     }
@@ -212,13 +261,18 @@ private fun dropdownMenuTypeList(): List<Pair<String, Int>> {
 private fun InputFields(
     validation: Boolean,
     cardState: CardState,
-    creationCardViewModel: CreationCardViewModel
+    onCardNameSave: (String) -> Unit,
+    onCardQuestionSave: (String) -> Unit,
+    onCardAnswerSave: (String) -> Unit,
+    onCardTagSave: (String) -> Unit,
 ) {
     TitleInputField(
         placeholder = stringResource(R.string.enter_name_for_card),
         value = cardState.title,
         singleLine = true,
-        onValueChange = { creationCardViewModel.updateCardState { copy(title = it) } },
+        onValueChange = {
+            onCardNameSave(it)
+        },
         readOnly = false,
         textStyle = MaterialTheme.typography.bodyMedium,
         placeholderTextStyle = MaterialTheme.typography.bodyMedium.copy(
@@ -236,7 +290,9 @@ private fun InputFields(
     CardInputField(
         placeholder = stringResource(R.string.enter_question_for_card),
         value = cardState.question,
-        onValueChange = { creationCardViewModel.updateCardState { copy(question = it) } },
+        onValueChange = {
+            onCardQuestionSave(it)
+        },
         textStyle = MaterialTheme.typography.bodyMedium,
         placeholderTextStyle = MaterialTheme.typography.bodyMedium.copy(
             color = if (cardState.question.isNotBlank() || validation) text_gray else MaterialTheme.colorScheme.error
@@ -258,7 +314,9 @@ private fun InputFields(
     CardInputField(
         placeholder = stringResource(R.string.enter_answer_for_card),
         value = cardState.answer,
-        onValueChange = { creationCardViewModel.updateCardState { copy(answer = it) } },
+        onValueChange = {
+            onCardAnswerSave(it)
+        },
         textStyle = MaterialTheme.typography.bodyMedium,
         placeholderTextStyle = MaterialTheme.typography.bodyMedium.copy(
             color = if (cardState.answer.isNotBlank() || validation) text_gray else MaterialTheme.colorScheme.error
@@ -282,7 +340,9 @@ private fun InputFields(
     TegInputField(
         titleTextInput = stringResource(R.string.text_tag_input_field),
         value = cardState.tag,
-        onValueChange = { creationCardViewModel.updateCardState { copy(tag = it) } },
+        onValueChange = {
+            onCardTagSave(it)
+        },
         textStyle = MaterialTheme.typography.bodyMedium,
         placeholderTextStyle = MaterialTheme.typography.bodyMedium.copy(
             color = text_gray
@@ -325,3 +385,83 @@ private fun SaveButton(
     }
 }
 
+@Preview(
+    showBackground = true,
+    backgroundColor = 0xFFE6E6FF
+)
+@Composable
+private fun CreationCardContentScreenPreview() {
+    val navController = rememberNavController()
+    val decksState: UiState<List<Deck>> = decksDataMock()
+    val cardState: CardState = CardState("", "", "", "", 1)
+
+    MindeckTheme {
+        CreationCardContent(
+            navController,
+            decksState,
+            null,
+            cardState,
+            Pair("Выберите колоду", null),
+            Pair("Выберите тип", null),
+            {},
+            {},
+            {},
+            {},
+            {},
+            {},
+            {},
+        )
+    }
+}
+
+@Preview(
+    device = "spec:parent=pixel_5,orientation=landscape",
+    showBackground = true,
+    backgroundColor = 0xFFE6E6FF
+)
+@Composable
+private fun CreationCardContentScreenPreviewLandscape() {
+    val navController = rememberNavController()
+    val decksState: UiState<List<Deck>> = decksDataMock()
+    val cardState: CardState = CardState("", "", "", "", 1)
+
+    MindeckTheme {
+        CreationCardContent(
+            navController,
+            decksState,
+            null,
+            cardState,
+            Pair("Выберите колоду", null),
+            Pair("Выберите тип", null),
+            {},
+            {},
+            {},
+            {},
+            {},
+            {},
+            {},
+        )
+    }
+}
+
+@Composable
+private fun decksDataMock(): UiState<List<Deck>> = UiState.Success(
+    listOf<Deck>(
+        Deck(
+            deckId = 1,
+            deckName = "Kotlin Basics"
+        ),
+        Deck(
+            deckId = 2,
+            deckName = "Jetpack Compose"
+        ),
+        Deck(
+            deckId = 3,
+            deckName = "Architecture Patterns"
+        ),
+        Deck(
+            deckId = 4,
+            deckName = "Coroutines & Flow"
+        )
+    )
+)
