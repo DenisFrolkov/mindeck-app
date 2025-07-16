@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.wrapContentSize
@@ -111,7 +112,7 @@ private fun DecksContent(
             DecksEditTopBar(navController, dropdownMenuState)
         },
         content = { padding ->
-            DeckContent(padding, decks, navController, listDropdownMenu, dropdownMenuState)
+            DecksContent(padding, decks, navController, listDropdownMenu, dropdownMenuState)
 
             if (initialDialog) {
                 Dialog(
@@ -181,7 +182,7 @@ private fun DecksEditTopBar(
 }
 
 @Composable
-private fun DeckContent(
+private fun DecksContent(
     padding: PaddingValues,
     decks: UiState<List<Deck>>,
     navController: NavController,
@@ -192,6 +193,7 @@ private fun DeckContent(
         modifier = Modifier
             .padding(padding)
             .padding(horizontal = dimenDpResource(R.dimen.padding_medium))
+            .navigationBarsPadding()
     ) {
         DecksInfo(decks, navController)
     }
@@ -212,22 +214,24 @@ private fun DecksInfo(
 ) {
     decksState.RenderUiState(
         onSuccess = { decks ->
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentSize(Alignment.Center)
-            ) {
-                Text(
-                    text = pluralStringResource(
-                        R.plurals.deck_amount,
-                        decks.size,
-                        decks.size
-                    ),
-                    style = MaterialTheme.typography.titleMedium,
-                )
-            }
-            Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_large)))
             LazyColumn {
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .wrapContentSize(Alignment.Center)
+                    ) {
+                        Text(
+                            text = pluralStringResource(
+                                R.plurals.deck_amount,
+                                decks.size,
+                                decks.size
+                            ),
+                            style = MaterialTheme.typography.titleMedium,
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_large)))
+                }
                 items(
                     items = decks,
                     key = { it.deckId }) { deck ->
@@ -361,7 +365,7 @@ private fun ScreenPreviewLandscape() {
             dropdownMenuState,
             createModalWindow,
             { },
-            { _ ->}
+            { _ -> }
         )
     }
 }
@@ -385,7 +389,7 @@ private fun RenameDeckModalWindowScreenPreview() {
             dropdownMenuState,
             createModalWindow,
             { },
-            { _ ->}
+            { _ -> }
         )
     }
 }
@@ -410,7 +414,7 @@ private fun EditElementModalWindowScreenPreview() {
             dropdownMenuState,
             createModalWindow,
             { },
-            { _ ->}
+            { _ -> }
         )
     }
 }

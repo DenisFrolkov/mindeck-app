@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -36,6 +37,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
@@ -269,7 +271,6 @@ fun cardAttributesList(
 }
 
 @Composable
-
 private fun Content(
     padding: PaddingValues,
     scrollState: ScrollState,
@@ -283,9 +284,9 @@ private fun Content(
     Column(
         modifier = Modifier
             .padding(padding)
-            .padding(horizontal = dimenDpResource(R.dimen.padding_medium))
-            .statusBarsPadding()
             .verticalScroll(state = scrollState)
+            .padding(horizontal = dimenDpResource(R.dimen.padding_medium))
+            .navigationBarsPadding()
     ) {
         for (attribute in cardAttributes) {
             CardAttributesList(attribute = attribute)
@@ -306,7 +307,7 @@ private fun Content(
 @Composable
 private fun CardAttributesList(attribute: CardAttributes) {
     Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_medium)))
-    Row() {
+    Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
         Text(
             text = attribute.title,
             style = MaterialTheme.typography.bodyMedium,
@@ -315,44 +316,38 @@ private fun CardAttributesList(attribute: CardAttributes) {
                 .wrapContentSize(Alignment.CenterStart)
                 .width(dimenDpResource(R.dimen.dropdown_min_weight))
         )
-        Spacer(modifier = Modifier.width(dimenDpResource(R.dimen.spacer_small)))
-        Column(
+        Box(
             modifier = Modifier
-                .fillMaxWidth()
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        shape = MaterialTheme.shapes.extraSmall
-                    )
-                    .height(height = dimenDpResource(R.dimen.dropdown_menu_item_height))
-                    .border(
-                        dimenDpResource(R.dimen.border_width_dot_two_five),
-                        MaterialTheme.colorScheme.outline,
-                        shape = MaterialTheme.shapes.extraSmall
-                    )
-                    .wrapContentSize(Alignment.Center)
+                .width(220.dp)
+                .background(
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    shape = MaterialTheme.shapes.extraSmall
+                )
+                .height(height = dimenDpResource(R.dimen.dropdown_menu_item_height))
+                .border(
+                    dimenDpResource(R.dimen.border_width_dot_two_five),
+                    MaterialTheme.colorScheme.outline,
+                    shape = MaterialTheme.shapes.extraSmall
+                )
+                .wrapContentSize(Alignment.Center)
 
-            ) {
-                if (attribute.load || attribute.value == null) {
-                    Box(
-                        modifier = Modifier
-                            .wrapContentSize(Alignment.Center)
-                    ) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(dimenDpResource(R.dimen.circular_progress_indicator_size_mini)),
-                            color = MaterialTheme.colorScheme.primary,
-                            strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_two)
-                        )
-                    }
-                } else {
-                    Text(
-                        text = attribute.value,
-                        style = MaterialTheme.typography.bodyMedium
+        ) {
+            if (attribute.load || attribute.value == null) {
+                Box(
+                    modifier = Modifier
+                        .wrapContentSize(Alignment.Center)
+                ) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(dimenDpResource(R.dimen.circular_progress_indicator_size_mini)),
+                        color = MaterialTheme.colorScheme.primary,
+                        strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_two)
                     )
                 }
+            } else {
+                Text(
+                    text = attribute.value,
+                    style = MaterialTheme.typography.bodyMedium
+                )
             }
         }
     }
