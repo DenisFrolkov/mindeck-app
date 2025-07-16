@@ -445,11 +445,9 @@ private fun Content(
         modifier = Modifier
             .padding(padding)
             .padding(horizontal = dimenDpResource(R.dimen.padding_medium))
-            .statusBarsPadding()
     ) {
-        DeckInfo(deck)
-        Spacer(Modifier.height(dimenDpResource(R.dimen.spacer_medium)))
         CardInfo(
+            deck = deck,
             cardsState = cards,
             navController = navController,
             isEditModeEnabled = isEditModeEnabled,
@@ -584,6 +582,7 @@ private fun DeckInfo(
 
 @Composable
 private fun CardInfo(
+    deck: UiState<Deck>,
     cardsState: UiState<List<Card>>,
     navController: NavController,
     selectedCards: Set<Int>,
@@ -592,12 +591,16 @@ private fun CardInfo(
 ) {
     cardsState.RenderUiState(
         onSuccess = { cards ->
-            DisplayItemCount(
-                plurals = R.plurals.card_amount,
-                count = cards.size,
-                textStyle = MaterialTheme.typography.bodyMedium
-            )
             LazyColumn {
+                item {
+                    DeckInfo(deck)
+                    Spacer(Modifier.height(dimenDpResource(R.dimen.spacer_medium)))
+                    DisplayItemCount(
+                        plurals = R.plurals.card_amount,
+                        count = cards.size,
+                        textStyle = MaterialTheme.typography.bodyMedium
+                    )
+                }
                 items(items = cards, key = { it.cardId }) { card ->
                     DisplayItem(
                         modifier = Modifier

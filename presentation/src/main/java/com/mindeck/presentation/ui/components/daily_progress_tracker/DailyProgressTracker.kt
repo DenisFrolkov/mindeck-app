@@ -65,7 +65,7 @@ fun DailyProgressTracker(
         ) {
             cardsRepetitionState.onSuccess { cardsRepetition ->
                 DPTText(
-                    plurals = R.plurals.deck_amount,
+                    plurals = R.plurals.card_amount,
                     count = cardsRepetition.size,
                     textStyle = MaterialTheme.typography.labelMedium
                 )
