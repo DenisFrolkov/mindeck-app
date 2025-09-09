@@ -1,4 +1,4 @@
-package com.mimdeck.data
+package com.mimdeck.data.work
 
 import android.content.Context
 import androidx.work.ListenableWorker

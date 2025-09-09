@@ -55,7 +55,9 @@
     <string name="dropdown_menu_data_create_deck_list">Создать колоду</string>
     <string name="dropdown_menu_data_create_card">Создать карточку</string>
     <string name="dropdown_menu_data_edit_card">Редактировать</string>
-    <string name="dropdown_menu_data_remove_card">Удалить</string>
+    <string name="dropdown_menu_data_remove_deck">Удалить колоду</string>
+    <string name="dropdown_menu_data_remove_cards">Удалить карточки</string>
+    <string name="dropdown_menu_data_remove_card">Удалить карточку</string>
     <string name="dropdown_menu_data_study_card">Повторить карточку</string>
 
     //Toast
