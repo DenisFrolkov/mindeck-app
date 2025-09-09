@@ -3,8 +3,8 @@ package com.mimdeck.data.repository
 import com.mimdeck.data.database.dao.DeckDao
 import com.mimdeck.data.database.mapper.Mappers.toData
 import com.mimdeck.data.database.mapper.Mappers.toDomain
-import com.mimdeck.data.util.handleDatabase
-import com.mimdeck.data.util.handleDatabaseSuspend
+import com.mimdeck.data.repository.util.handleDatabase
+import com.mimdeck.data.repository.util.handleDatabaseSuspend
 import com.mindeck.domain.models.Deck
 import com.mindeck.domain.repository.DeckRepository
 import kotlinx.coroutines.flow.Flow

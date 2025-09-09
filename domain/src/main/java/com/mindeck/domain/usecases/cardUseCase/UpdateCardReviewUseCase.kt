@@ -5,12 +5,12 @@ import com.mindeck.domain.models.ReviewType.EASY
 import com.mindeck.domain.models.ReviewType.HARD
 import com.mindeck.domain.models.ReviewType.MEDIUM
 import com.mindeck.domain.models.ReviewType.REPEAT
-import com.mindeck.domain.repository.CardRepository
+import com.mindeck.domain.repository.CardRepetitionRepository
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.concurrent.TimeUnit
 
-class UpdateCardReviewUseCase(private val cardRepository: CardRepository) {
+class UpdateCardReviewUseCase(private val cardRepetitionRepository: CardRepetitionRepository) {
     suspend operator fun invoke(
         cardId: Int,
         firstReviewDate: Long?,
@@ -43,7 +43,7 @@ class UpdateCardReviewUseCase(private val cardRepository: CardRepository) {
             }
         }
 
-        cardRepository.updateReview(
+        cardRepetitionRepository.updateReview(
             cardId,
             firstReviewDateUpdate,
             currentTimeMillis,
