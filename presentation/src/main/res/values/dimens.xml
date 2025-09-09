@@ -12,7 +12,7 @@
     <dimen name="spacer_large">20dp</dimen>
     <dimen name="spacer_extra_large">50dp</dimen>
 
-    <dimen name="icon_size">14dp</dimen>
+    <dimen name="icon_size">18dp</dimen>
     <dimen name="action_handler_icon_padding">12dp</dimen>
     <dimen name="action_handler_size">18dp</dimen>
 

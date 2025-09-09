@@ -1,5 +1,7 @@
-package com.mimdeck.data.database.entities
+package com.mimdeck.data.database.mapper
 
+import com.mimdeck.data.database.entities.CardEntity
+import com.mimdeck.data.database.entities.DeckEntity
 import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.Deck
 import com.mindeck.domain.models.ReviewType
