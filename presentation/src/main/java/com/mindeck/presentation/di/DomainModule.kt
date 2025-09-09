@@ -1,5 +1,7 @@
 package com.mindeck.presentation.di
 
+import com.mindeck.domain.repository.CardDeckOperations
+import com.mindeck.domain.repository.CardRepetitionRepository
 import com.mindeck.domain.repository.CardRepository
 import com.mindeck.domain.repository.DeckRepository
 import com.mindeck.domain.repository.NotificationRepository
@@ -82,27 +84,27 @@ class DomainModule() {
     }
 
     @Provides
-    fun providesAddCardsToDeckUseCase(repository: CardRepository): AddCardsToDeckUseCase {
+    fun providesAddCardsToDeckUseCase(repository: CardDeckOperations): AddCardsToDeckUseCase {
         return AddCardsToDeckUseCase(repository)
     }
 
     @Provides
-    fun providesDeleteCardsFromDeckUseCase(repository: CardRepository): DeleteCardsFromDeckUseCase {
+    fun providesDeleteCardsFromDeckUseCase(repository: CardDeckOperations): DeleteCardsFromDeckUseCase {
         return DeleteCardsFromDeckUseCase(repository)
     }
 
     @Provides
-    fun providesMoveCardsBetweenDeckUseCase(repository: CardRepository): MoveCardsBetweenDeckUseCase {
+    fun providesMoveCardsBetweenDeckUseCase(repository: CardDeckOperations): MoveCardsBetweenDeckUseCase {
         return MoveCardsBetweenDeckUseCase(repository)
     }
 
     @Provides
-    fun providesGetCardsRepetitionUseCase(repository: CardRepository): GetCardsRepetitionUseCase {
+    fun providesGetCardsRepetitionUseCase(repository: CardRepetitionRepository): GetCardsRepetitionUseCase {
         return GetCardsRepetitionUseCase(repository)
     }
 
     @Provides
-    fun providesUpdateCardReviewUseCase(repository: CardRepository): UpdateCardReviewUseCase {
+    fun providesUpdateCardReviewUseCase(repository: CardRepetitionRepository): UpdateCardReviewUseCase {
         return UpdateCardReviewUseCase(repository)
     }
 
