@@ -2,11 +2,16 @@ package com.mindeck.presentation.ui.navigation
 
 sealed class NavigationRoute(val route: String) {
     object MainScreen : NavigationRoute("main_screen")
-    object CreationCardScreen : NavigationRoute("creation_card_screen")
-    object FoldersScreen : NavigationRoute("folders_screen")
-    object FolderScreen : NavigationRoute("folder_screen/{folderId}") {
-        fun createRoute(folderId: Int): String = "folder_screen/$folderId"
+    object CreationCardScreen : NavigationRoute("creation_card_screen?deckId={deckId}") {
+        fun createRoute(deckId: Int? = null): String {
+            return if (deckId != null) {
+                "creation_card_screen?deckId=$deckId"
+            } else {
+                "creation_card_screen"
+            }
+        }
     }
+    object DecksScreen : NavigationRoute("decks_screen")
     object DeckScreen : NavigationRoute("deck_screen/{deckId}") {
         fun createRoute(deckId: Int): String = "deck_screen/$deckId"
     }

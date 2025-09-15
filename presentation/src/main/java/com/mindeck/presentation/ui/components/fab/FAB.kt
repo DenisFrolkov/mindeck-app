@@ -84,7 +84,7 @@ fun FAB(
                         Icon(
                             painter = painterResource(menuItem.icon),
                             contentDescription = menuItem.iconContentDescription,
-                            modifier = Modifier.size(dimenDpResource(R.dimen.fab_menu_icon_size)),
+                            modifier = Modifier.size(dimenDpResource(R.dimen.fab_menu_icon_item_size)),
                             tint = fabIconColor
                         )
                     }
@@ -103,7 +103,7 @@ fun FAB(
                 contentDescription = stringResource(R.string.floating_action_button),
                 tint = fabIconColor,
                 modifier = Modifier
-                    .size(dimenDpResource(R.dimen.icon_size))
+                    .padding(dimenDpResource(R.dimen.fab_menu_icon_padding))
                     .alpha(alphaFab)
             )
         }

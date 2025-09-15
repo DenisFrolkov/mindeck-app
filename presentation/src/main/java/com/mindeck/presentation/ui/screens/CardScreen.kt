@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -23,7 +25,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -32,18 +33,22 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.mindeck.domain.models.Card
-import com.mindeck.domain.models.Folder
+import com.mindeck.domain.models.Deck
+import com.mindeck.domain.models.ReviewType
 import com.mindeck.presentation.R
+import com.mindeck.presentation.state.RenderUiState
 import com.mindeck.presentation.state.UiState
-import com.mindeck.presentation.state.UiState.Loading.getOrNull
-import com.mindeck.presentation.state.UiState.Loading.mapSuccess
-import com.mindeck.presentation.ui.components.common.ActionBar
+import com.mindeck.presentation.state.getOrNull
+import com.mindeck.presentation.ui.components.buttons.ActionHandlerButton
 import com.mindeck.presentation.ui.components.common.QuestionAndAnswerElement
 import com.mindeck.presentation.ui.components.dataclasses.CardAttributes
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenu
@@ -52,6 +57,7 @@ import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMen
 import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.animateDropdownMenuHeightIn
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
 import com.mindeck.presentation.ui.navigation.NavigationRoute
+import com.mindeck.presentation.ui.theme.MindeckTheme
 import com.mindeck.presentation.viewmodel.CardViewModel
 
 @Composable
@@ -63,20 +69,12 @@ fun CardScreen(
 
     LaunchedEffect(cardId) {
         cardViewModel.loadCardById(cardId = cardId)
-        cardViewModel.getFolderByCardId(cardId = cardId)
     }
 
-    val scrollState = rememberScrollState()
-
     val card = cardViewModel.cardByCardIdUIState.collectAsState().value
-    val folder = cardViewModel.folderUIState.collectAsState().value
+    val deck = cardViewModel.deckUIState.collectAsState().value
 
     val dropdownMenuState = remember { DropdownMenuState() }
-
-    val dropdownVisibleAnimation = animateDropdownMenuHeightIn(
-        targetAlpha = dropdownMenuState.dropdownAlpha,
-        animationDuration = dropdownMenuState.animationDuration
-    )
 
     val listDropdownMenu = dropdownMenuDataList(
         navController = navController,
@@ -85,30 +83,50 @@ fun CardScreen(
         cardViewModel = cardViewModel
     )
 
-    val cardAttributes = cardAttributesList(card = card, folder = folder)
+    CardContent(
+        navController,
+        deck,
+        dropdownMenuState,
+        card,
+        listDropdownMenu
+    )
+}
 
-    Surface(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-    ) {
-        Scaffold(
-            topBar = {
-                CardTopBar(navController = navController, dropdownMenuState = dropdownMenuState)
-            },
-            content = { padding ->
-                Content(
-                    padding = padding,
-                    scrollState = scrollState,
-                    dropdownVisibleAnimation = dropdownVisibleAnimation,
-                    card = card,
-                    cardAttributes = cardAttributes,
-                    listDropdownMenu = listDropdownMenu,
-                    dropdownMenuState = dropdownMenuState
-                )
-            }
-        )
-    }
+@Composable
+private fun CardContent(
+    navController: NavController,
+    deck: UiState<Deck>,
+    dropdownMenuState: DropdownMenuState,
+    card: UiState<Card>,
+    listDropdownMenu: List<DropdownMenuData>
+) {
+    val scrollState = rememberScrollState()
+
+    val nameDeck = deck.getOrNull()?.deckName
+    val cardAttributes = cardAttributesList(card = card, nameDeck)
+
+    val dropdownVisibleAnimation = animateDropdownMenuHeightIn(
+        targetAlpha = dropdownMenuState.dropdownAlpha,
+        animationDuration = dropdownMenuState.animationDuration
+    )
+
+    Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
+        topBar = {
+            CardTopBar(navController = navController, dropdownMenuState = dropdownMenuState)
+        },
+        content = { padding ->
+            Content(
+                padding = padding,
+                scrollState = scrollState,
+                dropdownVisibleAnimation = dropdownVisibleAnimation,
+                card = card,
+                cardAttributes = cardAttributes,
+                listDropdownMenu = listDropdownMenu,
+                dropdownMenuState = dropdownMenuState
+            )
+        }
+    )
 }
 
 @Composable
@@ -118,9 +136,9 @@ private fun dropdownMenuDataList(
     dropdownMenuState: DropdownMenuState,
     cardViewModel: CardViewModel
 ): List<DropdownMenuData> {
-    when (card) {
+    return when (card) {
         is UiState.Success -> {
-            return listOf(
+            listOf(
                 DropdownMenuData(
                     title = stringResource(R.string.dropdown_menu_data_study_card),
                     titleStyle = MaterialTheme.typography.bodyMedium,
@@ -153,7 +171,7 @@ private fun dropdownMenuDataList(
         }
 
         is UiState.Loading -> {
-            return listOf(
+            listOf(
                 DropdownMenuData(
                     title = stringResource(R.string.text_loading),
                     titleStyle = MaterialTheme.typography.bodyMedium,
@@ -163,7 +181,7 @@ private fun dropdownMenuDataList(
         }
 
         else -> {
-            return listOf(
+            listOf(
                 DropdownMenuData(
                     title = stringResource(R.string.text_error_loading),
                     titleStyle = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.error),
@@ -187,51 +205,48 @@ private fun CardTopBar(
             .padding(top = dimenDpResource(R.dimen.padding_medium))
             .statusBarsPadding()
     ) {
-        ActionBar(
-            onBackClick = { navController.popBackStack() },
-            onMenuClick = { dropdownMenuState.toggle() },
-            containerModifier = Modifier
+        Row(
+            modifier = Modifier
                 .fillMaxWidth(),
-            iconModifier = Modifier
-                .clip(shape = MaterialTheme.shapes.extraLarge)
-                .background(
-                    color = MaterialTheme.colorScheme.outlineVariant,
-                    shape = MaterialTheme.shapes.extraLarge
-                )
-                .padding(dimenDpResource(R.dimen.padding_small))
-                .size(dimenDpResource(R.dimen.padding_medium)),
-        )
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            ActionHandlerButton(
+                iconPainter = painterResource(R.drawable.back_icon),
+                contentDescription = stringResource(R.string.back_screen_icon_button),
+                iconTint = MaterialTheme.colorScheme.onPrimary,
+                onClick = { navController.popBackStack() },
+            )
+            ActionHandlerButton(
+                iconPainter = painterResource(R.drawable.menu_icon),
+                contentDescription = stringResource(R.string.back_screen_icon_button),
+                iconTint = MaterialTheme.colorScheme.onPrimary,
+                onClick = { dropdownMenuState.toggle() },
+            )
+        }
     }
 }
 
 @Composable
-
 fun cardAttributesList(
     card: UiState<Card>,
-    folder: UiState<Folder?>
+    deckName: String?
 ): List<CardAttributes> {
     return when (card) {
         is UiState.Success -> listOf(
             CardAttributes(
-                title = stringResource(R.string.text_folder_dropdown_selector),
-                value = folder.mapSuccess { it?.folderName }.getOrNull()
-                    ?: stringResource(R.string.text_no_folder)
-            ),
-            CardAttributes(
                 title = stringResource(R.string.text_deck_dropdown_selector),
-                value = card.data.deckId.toString()
+                value = deckName
             ),
             CardAttributes(
                 title = stringResource(R.string.text_type_dropdown_selector),
-                value = card.data.cardType
+                value = when (card.data.cardType) {
+                    "0" -> stringResource(R.string.text_folder_dropdown_selector_simple)
+                    else -> stringResource(R.string.text_folder_dropdown_selector_simple_with_answer_input)
+                }
             )
         )
 
         is UiState.Error -> listOf(
-            CardAttributes(
-                title = stringResource(R.string.text_folder_dropdown_selector),
-                value = stringResource(R.string.text_error_loading)
-            ),
             CardAttributes(
                 title = stringResource(R.string.text_deck_dropdown_selector),
                 value = stringResource(R.string.text_error_loading)
@@ -244,10 +259,6 @@ fun cardAttributesList(
 
         else -> listOf(
             CardAttributes(
-                title = stringResource(R.string.text_folder_dropdown_selector),
-                load = true
-            ),
-            CardAttributes(
                 title = stringResource(R.string.text_deck_dropdown_selector),
                 load = true
             ),
@@ -260,7 +271,6 @@ fun cardAttributesList(
 }
 
 @Composable
-
 private fun Content(
     padding: PaddingValues,
     scrollState: ScrollState,
@@ -274,13 +284,15 @@ private fun Content(
     Column(
         modifier = Modifier
             .padding(padding)
-            .padding(horizontal = dimenDpResource(R.dimen.padding_medium))
-            .statusBarsPadding()
             .verticalScroll(state = scrollState)
+            .padding(horizontal = dimenDpResource(R.dimen.padding_medium))
+            .navigationBarsPadding()
     ) {
-        CardAttributesList(cardAttributes = cardAttributes)
+        for (attribute in cardAttributes) {
+            CardAttributesList(attribute = attribute)
+        }
         Spacer(modifier = Modifier.height(height = dimenDpResource(R.dimen.spacer_large)))
-        CardInfo(card = card)
+        CardInfo(cardState = card)
     }
     if (dropdownMenuState.isExpanded) {
         CardDropdownMenu(
@@ -293,75 +305,66 @@ private fun Content(
 }
 
 @Composable
-private fun CardAttributesList(cardAttributes: List<CardAttributes>) {
-    for (attribute in cardAttributes) {
-        Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_medium)))
-        Row() {
-            Text(
-                text = attribute.title,
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier
-                    .padding(dimenDpResource(R.dimen.padding_extra_small))
-                    .wrapContentSize(Alignment.CenterStart)
-                    .width(dimenDpResource(R.dimen.dropdown_min_weight))
-            )
-            Spacer(modifier = Modifier.width(dimenDpResource(R.dimen.spacer_small)))
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-            ) {
+private fun CardAttributesList(attribute: CardAttributes) {
+    Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_medium)))
+    Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
+        Text(
+            text = attribute.title,
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier
+                .padding(dimenDpResource(R.dimen.padding_extra_small))
+                .wrapContentSize(Alignment.CenterStart)
+                .width(dimenDpResource(R.dimen.dropdown_min_weight))
+        )
+        Box(
+            modifier = Modifier
+                .width(220.dp)
+                .background(
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    shape = MaterialTheme.shapes.extraSmall
+                )
+                .height(height = dimenDpResource(R.dimen.dropdown_menu_item_height))
+                .border(
+                    dimenDpResource(R.dimen.border_width_dot_two_five),
+                    MaterialTheme.colorScheme.outline,
+                    shape = MaterialTheme.shapes.extraSmall
+                )
+                .wrapContentSize(Alignment.Center)
+
+        ) {
+            if (attribute.load || attribute.value == null) {
                 Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .background(
-                            color = MaterialTheme.colorScheme.onPrimary,
-                            shape = MaterialTheme.shapes.extraSmall
-                        )
-                        .height(height = dimenDpResource(R.dimen.dropdown_menu_item_height))
-                        .border(
-                            dimenDpResource(R.dimen.border_width_dot_two_five),
-                            MaterialTheme.colorScheme.outline,
-                            shape = MaterialTheme.shapes.extraSmall
-                        )
                         .wrapContentSize(Alignment.Center)
-
                 ) {
-                    if (attribute.load) {
-                        Box(
-                            modifier = Modifier
-                                .wrapContentSize(Alignment.Center)
-                        ) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(dimenDpResource(R.dimen.circular_progress_indicator_size_mini)),
-                                color = MaterialTheme.colorScheme.primary,
-                                strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_two)
-                            )
-                        }
-                    } else if (attribute.value != null) {
-                        Text(
-                            text = attribute.value,
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                    }
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(dimenDpResource(R.dimen.circular_progress_indicator_size_mini)),
+                        color = MaterialTheme.colorScheme.primary,
+                        strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_two)
+                    )
                 }
+            } else {
+                Text(
+                    text = attribute.value,
+                    style = MaterialTheme.typography.bodyMedium
+                )
             }
         }
     }
 }
 
 @Composable
-
 private fun CardInfo(
-    card: UiState<Card>
+    cardState: UiState<Card>
 ) {
-    when (card) {
-        is UiState.Success -> {
+    cardState.RenderUiState(
+        onSuccess = { card ->
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = card.data.cardName,
+                    text = card.cardName,
                     style = MaterialTheme.typography.bodyLarge
                 )
             }
@@ -371,8 +374,8 @@ private fun CardInfo(
                     .fillMaxSize()
             ) {
                 QuestionAndAnswerElement(
-                    question = card.data.cardQuestion,
-                    answer = card.data.cardAnswer,
+                    question = card.cardQuestion,
+                    answer = card.cardAnswer,
                     questionStyle = MaterialTheme.typography.bodyMedium.copy(
                         textAlign = TextAlign.Start
                     ),
@@ -390,7 +393,7 @@ private fun CardInfo(
                 )
             }
 
-            if (card.data.cardTag.isEmpty()) {
+            if (card.cardTag.isEmpty()) {
                 Spacer(modifier = Modifier.height(height = dimenDpResource(R.dimen.spacer_medium)))
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -422,16 +425,15 @@ private fun CardInfo(
 
                         ) {
                             Text(
-                                text = card.data.cardTag,
+                                text = card.cardTag,
                                 style = MaterialTheme.typography.bodyMedium
                             )
                         }
                     }
                 }
             }
-        }
-
-        is UiState.Loading -> {
+        },
+        onLoading = {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -444,17 +446,16 @@ private fun CardInfo(
                     strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_two)
                 )
             }
-        }
-
-        is UiState.Error -> {
+        },
+        onError = {
             Text(
-                stringResource(R.string.error_get_info_about_folder),
+                stringResource(R.string.error_get_info_about_deck),
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.error)
             )
         }
-    }
+    )
 }
 
 @Composable
@@ -464,12 +465,13 @@ private fun CardDropdownMenu(
     dropdownVisibleAnimation: Float,
     dropdownMenuState: DropdownMenuState
 ) {
-    Box(modifier = Modifier
-        .fillMaxSize()
-        .clickable(
-            interactionSource = remember { MutableInteractionSource() },
-            indication = null
-        ) { dropdownMenuState.toggle() })
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) { dropdownMenuState.toggle() })
 
     DropdownMenu(
         listDropdownMenuItem = listDropdownMenu,
@@ -482,3 +484,74 @@ private fun CardDropdownMenu(
             .wrapContentSize(Alignment.TopEnd)
     )
 }
+
+@Preview(
+    showBackground = true,
+    backgroundColor = 0xFFE6E6FF
+)
+@Composable
+private fun ScreenPreview() {
+    val navController = rememberNavController()
+    val deckState: UiState<Deck> = deckDataMock()
+    val cardState: UiState<Card> = cardDataMock()
+    val dropdownMenuState = DropdownMenuState()
+
+    MindeckTheme {
+        CardContent(
+            navController,
+            deckState,
+            dropdownMenuState,
+            cardState,
+            emptyList<DropdownMenuData>()
+        )
+    }
+}
+
+@Preview(
+    device = "spec:parent=pixel_5,orientation=landscape",
+    showBackground = true,
+    backgroundColor = 0xFFE6E6FF
+)
+@Composable
+private fun ScreenPreviewLandscape() {
+    val navController = rememberNavController()
+    val deckState: UiState<Deck> = deckDataMock()
+    val cardState: UiState<Card> = cardDataMock()
+    val dropdownMenuState = DropdownMenuState()
+
+    MindeckTheme {
+        CardContent(
+            navController,
+            deckState,
+            dropdownMenuState,
+            cardState,
+            emptyList<DropdownMenuData>()
+        )
+    }
+}
+
+@Composable
+private fun deckDataMock(): UiState<Deck> = UiState.Success(
+    Deck(
+        deckId = 1,
+        deckName = "Kotlin Basics"
+    )
+)
+
+@Composable
+private fun cardDataMock(): UiState<Card> = UiState.Success(
+    Card(
+        cardId = 1,
+        cardName = "Basic Kotlin",
+        cardQuestion = "Что такое data class в Kotlin?",
+        cardAnswer = "Это класс, предназначенный для хранения данных. Он автоматически генерирует equals, hashCode и toString.",
+        cardType = "Теория",
+        cardTag = "Kotlin",
+        deckId = 101,
+        firstReviewDate = 1_725_000_000_000,
+        lastReviewDate = 1_725_086_400_000,
+        nextReviewDate = 1_725_172_800_000,
+        repetitionCount = 2,
+        lastReviewType = ReviewType.EASY
+    )
+)
