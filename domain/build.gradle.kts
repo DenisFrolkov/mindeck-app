@@ -15,6 +15,8 @@ kotlin {
 }
 
 dependencies {
+    implementation("javax.inject:javax.inject:1")
+
     //Coroutines
     implementation(libs.kotlinx.coroutines.core)
 }

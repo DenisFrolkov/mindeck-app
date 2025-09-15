@@ -1,10 +1,11 @@
-package com.mindeck.domain.usecases.cardUseCase
+package com.mindeck.domain.usecases.card.command
 
 import com.mindeck.domain.repository.CardDeckOperations
+import javax.inject.Inject
 
-class MoveCardsBetweenDeckUseCase(private val cardDeckOperations: CardDeckOperations) {
+class MoveCardsBetweenDeckUseCase @Inject constructor (private val cardDeckOperations: CardDeckOperations) {
     suspend operator fun invoke(cardIds: List<Int>, sourceDeckId: Int, targetDeckId: Int) {
-        return cardDeckOperations.moveCardsBetweenDeck(
+        cardDeckOperations.moveCardsBetweenDeck(
             cardIds = cardIds,
             sourceDeckId = sourceDeckId,
             targetDeckId = targetDeckId

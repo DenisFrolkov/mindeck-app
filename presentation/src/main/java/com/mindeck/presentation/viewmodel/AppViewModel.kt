@@ -1,8 +1,8 @@
 package com.mindeck.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
-import com.mindeck.domain.usecases.notificationUseCase.StartNotificationUseCase
-import com.mindeck.domain.usecases.notificationUseCase.StopNotificationUseCase
+import com.mindeck.domain.usecases.notification.StartNotificationUseCase
+import com.mindeck.domain.usecases.notification.StopNotificationUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 

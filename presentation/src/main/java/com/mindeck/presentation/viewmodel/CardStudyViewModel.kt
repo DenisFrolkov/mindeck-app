@@ -4,9 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.ReviewType
-import com.mindeck.domain.usecases.cardUseCase.GetCardByIdUseCase
-import com.mindeck.domain.usecases.cardUseCase.GetCardsRepetitionUseCase
-import com.mindeck.domain.usecases.cardUseCase.UpdateCardReviewUseCase
+import com.mindeck.domain.usecases.card.query.GetCardByIdUseCase
+import com.mindeck.domain.usecases.card.query.GetCardsRepetitionUseCase
+import com.mindeck.domain.usecases.card.command.UpdateCardReviewUseCase
 import com.mindeck.presentation.state.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
