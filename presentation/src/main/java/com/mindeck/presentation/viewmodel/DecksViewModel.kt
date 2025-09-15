@@ -3,8 +3,8 @@ package com.mindeck.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mindeck.domain.models.Deck
-import com.mindeck.domain.usecases.deckUseCases.CreateDeckUseCase
-import com.mindeck.domain.usecases.deckUseCases.GetAllDecksUseCase
+import com.mindeck.domain.usecases.deck.command.CreateDeckUseCase
+import com.mindeck.domain.usecases.deck.query.GetAllDecksUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import com.mindeck.presentation.state.UiState
 import kotlinx.coroutines.flow.MutableStateFlow

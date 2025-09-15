@@ -1,8 +1,9 @@
-package com.mindeck.domain.usecases.notificationUseCase
+package com.mindeck.domain.usecases.notification
 
 import com.mindeck.domain.repository.NotificationRepository
+import javax.inject.Inject
 
-class StopNotificationUseCase(
+class StopNotificationUseCase @Inject constructor (
     private val repository: NotificationRepository
 ) {
     operator fun invoke() {

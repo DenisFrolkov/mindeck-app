@@ -6,9 +6,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.Deck
-import com.mindeck.domain.usecases.cardUseCase.CreateCardUseCase
-import com.mindeck.domain.usecases.deckUseCases.GetAllDecksUseCase
-import com.mindeck.domain.usecases.deckUseCases.GetDeckByIdUseCase
+import com.mindeck.domain.usecases.card.command.CreateCardUseCase
+import com.mindeck.domain.usecases.deck.query.GetAllDecksUseCase
+import com.mindeck.domain.usecases.deck.query.GetDeckByIdUseCase
 import com.mindeck.presentation.state.CardState
 import com.mindeck.presentation.state.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
