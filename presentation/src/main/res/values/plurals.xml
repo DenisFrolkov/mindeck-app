@@ -1,11 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <plurals name="folder_amount">
-        <item quantity="one">%d папка</item>
-        <item quantity="few">%d папки</item>
-        <item quantity="many">%d папок</item>
-        <item quantity="other">%d папок</item>
-    </plurals>
 
     <plurals name="deck_amount">
         <item quantity="one">%d колода</item>

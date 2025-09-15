@@ -8,43 +8,44 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.mindeck.domain.models.Card
-import com.mindeck.domain.models.Folder
+import com.mindeck.domain.models.Deck
+import com.mindeck.domain.models.ReviewType
 import com.mindeck.presentation.R
+import com.mindeck.presentation.state.RenderUiState
 import com.mindeck.presentation.state.UiState
+import com.mindeck.presentation.state.onSuccess
 import com.mindeck.presentation.ui.components.daily_progress_tracker.DailyProgressTracker
 import com.mindeck.presentation.ui.components.daily_progress_tracker.DailyProgressTrackerState
 import com.mindeck.presentation.ui.components.dataclasses.DisplayItemData
 import com.mindeck.presentation.ui.components.dataclasses.DisplayItemStyle
-import com.mindeck.presentation.ui.components.dialog.DialogState
-import com.mindeck.presentation.ui.components.dialog.animateDialogCreateItem
-import com.mindeck.presentation.ui.components.dialog.data_class.CreateItemDialog
+import com.mindeck.presentation.ui.components.dialog.CustomModalWindow
 import com.mindeck.presentation.ui.components.fab.FAB
 import com.mindeck.presentation.ui.components.fab.FabMenuData
 import com.mindeck.presentation.ui.components.fab.FabState
@@ -52,11 +53,9 @@ import com.mindeck.presentation.ui.components.fab.FabState.Companion.ITEM_HEIGHT
 import com.mindeck.presentation.ui.components.folder.DisplayItem
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
 import com.mindeck.presentation.ui.components.utils.dimenFloatResource
-import com.mindeck.presentation.ui.components.utils.stringToMillis
 import com.mindeck.presentation.ui.navigation.NavigationRoute
+import com.mindeck.presentation.ui.theme.MindeckTheme
 import com.mindeck.presentation.viewmodel.MainViewModel
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
 @Composable
 fun MainScreen(
@@ -64,179 +63,204 @@ fun MainScreen(
 ) {
     val mainViewModel: MainViewModel = hiltViewModel(navController.currentBackStackEntry!!)
 
-    val currentDateTime = remember {
-        LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-    }
-
     LaunchedEffect(Unit) {
-        mainViewModel.loadCardRepetition(stringToMillis(currentDateTime))
+        mainViewModel.initRepetition()
     }
 
-    val folders = mainViewModel.foldersState.collectAsState().value
-    val cardsRepetition = mainViewModel.cardsForRepetitionState.collectAsState().value
+    val decksState = mainViewModel.decksState.collectAsState().value
+    val cardsForRepetitionState = mainViewModel.cardsForRepetitionState.collectAsState().value
+    val createDeckState = mainViewModel.createDeckState.collectAsState().value
+    val createModalWindowValue by mainViewModel.createModalWindowValue.collectAsState()
 
-    val dialogState = remember { DialogState() }
-
-    val validation = dialogState.dialogStateData.isValid
-
-    val dailyProgressTrackerState =
-        remember { DailyProgressTrackerState() }
-
-    val dialogVisibleAnimation = animateDialogCreateItem(
-        targetAlpha = dialogState.animateExpandedAlpha,
-        animationDuration = dialogState.animationDuration * 3
+    MainContent(
+        navController,
+        decksState,
+        cardsForRepetitionState,
+        createDeckState,
+        createModalWindowValue,
+        onSaveDeck = { deckName ->
+            mainViewModel.createDeck(deckName)
+        },
+        toggleModalWindow = {
+            mainViewModel.toggleModalWindow(it)
+        }
     )
-    val MAX_DISPLAY_ITEMS = 5
-    val fabMenuItems = fabMenuDataList(dialogState, navController)
-    val fabState = remember { FabState(expandedHeight = ITEM_HEIGHT.dp * fabMenuItems.size) }
-
-    Surface(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-    ) {
-        Scaffold(
-            floatingActionButton = {
-                FAB(
-                    fabIcon = painterResource(R.drawable.fab_menu_icon),
-                    fabMenuItems = fabMenuItems,
-                    fabColor = MaterialTheme.colorScheme.outlineVariant,
-                    fabIconColor = MaterialTheme.colorScheme.onPrimary,
-                    fabState = fabState,
-                    textStyle = MaterialTheme.typography.bodyMedium.copy(
-                        color = MaterialTheme.colorScheme.onPrimary
-                    )
-                )
-            },
-            content = { paddingValues ->
-                Content(
-                    paddingValues,
-                    dailyProgressTrackerState,
-                    folders,
-                    cardsRepetition,
-                    MAX_DISPLAY_ITEMS,
-                    navController
-                )
-                BackgroundFAB(fabState)
-                OpeningCreateItemDialog(
-                    dialogState,
-                    dialogVisibleAnimation,
-                    validation,
-                    mainViewModel
-                )
-            }
-        )
-    }
 }
 
 @Composable
-private fun Content(
+private fun MainContent(
+    navController: NavController,
+    decksState: UiState<List<Deck>>,
+    cardsForRepetitionState: UiState<List<Card>>,
+    createDeckState: UiState<Unit>,
+    createModalWindowValue: Boolean = false,
+    onSaveDeck: (String) -> Unit,
+    toggleModalWindow: (Boolean) -> Unit,
+) {
+    val dailyProgressTrackerState =
+        remember { DailyProgressTrackerState() }
+
+    val fabMenuItems = getFabMenuItems({ toggleModalWindow(true) }, navController)
+    val fabState = remember { FabState(expandedHeight = ITEM_HEIGHT.dp * fabMenuItems.size) }
+
+    Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
+        floatingActionButton = {
+            FAB(
+                fabIcon = painterResource(R.drawable.fab_menu_icon),
+                fabMenuItems = fabMenuItems,
+                fabColor = MaterialTheme.colorScheme.outlineVariant,
+                fabIconColor = MaterialTheme.colorScheme.onPrimary,
+                fabState = fabState,
+                textStyle = MaterialTheme.typography.bodyMedium.copy(
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+            )
+        },
+        content = { paddingValues ->
+            MainContent(
+                paddingValues,
+                dailyProgressTrackerState,
+                decksState,
+                cardsForRepetitionState,
+                navController
+            )
+
+            if (createModalWindowValue) {
+                Dialog(
+                    onDismissRequest = {
+                        toggleModalWindow(false)
+                    }
+                ) {
+                    CustomModalWindow(
+                        stringResource(R.string.create_item_dialog_text_creating_deck),
+                        stringResource(R.string.create_item_dialog_text_create_deck),
+                        stringResource(R.string.create_item_dialog_text_input_name_deck),
+                        createDeckState,
+                        exitButton = {
+                            toggleModalWindow(false)
+                        },
+                        saveButton = {
+                            onSaveDeck(it)
+                        }
+                    )
+                }
+            }
+        }
+    )
+}
+
+@Composable
+private fun MainContent(
     paddingValues: PaddingValues,
     dailyProgressTrackerState: DailyProgressTrackerState,
-    folders: UiState<List<Folder>>,
+    decksState: UiState<List<Deck>>,
     cardsRepetition: UiState<List<Card>>,
-    MAX_DISPLAY_ITEMS: Int,
     navController: NavController
 ) {
     Column(
         modifier = Modifier
-            .statusBarsPadding()
             .padding(paddingValues)
-            .padding(horizontal = dimenDpResource(R.dimen.padding_medium))
+            .padding(dimenDpResource(R.dimen.padding_medium))
+            .navigationBarsPadding()
     ) {
         DailyProgressTracker(
-            cardsRepetition,
+            cardsRepetitionState = cardsRepetition,
             dptIcon = painterResource(R.drawable.dpt_icon),
             dailyProgressTrackerState = dailyProgressTrackerState
         )
         Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_large)))
-        RepeatCardItem(navController = navController, cardsRepetition = cardsRepetition)
-        Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_small)))
-        when (folders) {
-            is UiState.Success -> {
-                folders.data.take(MAX_DISPLAY_ITEMS).forEach { folder ->
-                    FolderItem(navController, folder)
-                    Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_small)))
-                }
-                if (folders.data.size > MAX_DISPLAY_ITEMS) {
-                    Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_small)))
-                    ButtonAllFolders(navController)
-                }
-            }
+        RepeatCardItem(navController = navController, cardsRepetitionState = cardsRepetition)
+        Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_large)))
+        DecksSection(navController = navController, decksState = decksState)
+    }
+}
 
-            is UiState.Loading -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentSize(Alignment.Center)
-                ) {
-                    CircularProgressIndicator(
-                        color = MaterialTheme.colorScheme.primary,
-                        strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_one)
-                    )
-                }
+@Composable
+private fun DecksSection(
+    navController: NavController,
+    decksState: UiState<List<Deck>>
+) {
+    decksState.RenderUiState(
+        onSuccess = { decks ->
+            decks.take(5).forEach { folder ->
+                DeckItem(navController, folder)
+                Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_small)))
             }
-
-            is UiState.Error -> {
-                Text(
-                    stringResource(R.string.error_get_all_folders),
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.error)
+            if (decks.size > 5) {
+                Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_small)))
+                ButtonAllFolders(navController)
+            }
+        },
+        onLoading = {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentSize(Alignment.Center)
+            ) {
+                CircularProgressIndicator(
+                    color = MaterialTheme.colorScheme.primary,
+                    strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_one)
                 )
             }
+        },
+        onError = {
+            Text(
+                stringResource(R.string.error_get_all_decks),
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.error)
+            )
         }
-    }
+    )
 }
 
 @Composable
 private fun RepeatCardItem(
     navController: NavController,
-    cardsRepetition: UiState<List<Card>>
+    cardsRepetitionState: UiState<List<Card>>
 ) {
-    when (cardsRepetition) {
-        is UiState.Success -> {
-            if (cardsRepetition.data.isNotEmpty()) {
-                DisplayItem(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .border(
-                            dimenDpResource(R.dimen.border_width_dot_two_five),
-                            MaterialTheme.colorScheme.outline,
-                            MaterialTheme.shapes.small
-                        )
-                        .clip(shape = MaterialTheme.shapes.small)
-                        .height(dimenDpResource(R.dimen.display_card_item_size))
-                        .clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null
-                        ) {
-                            navController.navigate(NavigationRoute.RepeatCardsScreen.route)
-                        },
-                    showCount = true,
-                    displayItemData = DisplayItemData(
-                        itemIcon = R.drawable.folder_icon,
-                        numberOfCards = cardsRepetition.data.size,
-                        itemName = stringResource(R.string.text_repeat_cards)
-                    ),
-                    displayItemStyle = DisplayItemStyle(
-                        backgroundColor = MaterialTheme.colorScheme.tertiary.copy(
-                            dimenFloatResource(R.dimen.float_zero_dot_five_significance)
-                        ),
-                        iconColor = MaterialTheme.colorScheme.onTertiary,
-                        textStyle = MaterialTheme.typography.bodyMedium,
+    cardsRepetitionState.onSuccess { cardsRepetition ->
+        if (cardsRepetition.isNotEmpty()) {
+            DisplayItem(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .border(
+                        dimenDpResource(R.dimen.border_width_dot_two_five),
+                        MaterialTheme.colorScheme.outline,
+                        MaterialTheme.shapes.small
                     )
+                    .clip(shape = MaterialTheme.shapes.small)
+                    .height(dimenDpResource(R.dimen.display_card_item_size))
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) {
+                        navController.navigate(NavigationRoute.RepeatCardsScreen.route)
+                    },
+                showCount = true,
+                displayItemData = DisplayItemData(
+                    itemIcon = R.drawable.deck_icon,
+                    numberOfCards = cardsRepetition.size,
+                    itemName = stringResource(R.string.text_repeat_cards)
+                ),
+                displayItemStyle = DisplayItemStyle(
+                    backgroundColor = MaterialTheme.colorScheme.tertiary.copy(
+                        dimenFloatResource(R.dimen.float_zero_dot_five_significance)
+                    ),
+                    iconColor = MaterialTheme.colorScheme.onTertiary,
+                    textStyle = MaterialTheme.typography.bodyMedium,
                 )
-            }
+            )
         }
-    }
 
+    }
 }
 
 @Composable
-private fun FolderItem(
+private fun DeckItem(
     navController: NavController,
-    folder: Folder
+    deck: Deck
 ) {
     DisplayItem(
         modifier = Modifier
@@ -253,16 +277,16 @@ private fun FolderItem(
                 indication = null
             ) {
                 navController.navigate(
-                    NavigationRoute.FolderScreen.createRoute(
-                        folder.folderId
+                    NavigationRoute.DeckScreen.createRoute(
+                        deck.deckId
                     )
                 )
             },
         showCount = false,
         displayItemData = DisplayItemData(
-            itemIcon = R.drawable.folder_icon,
-            numberOfCards = folder.folderId,
-            itemName = folder.folderName
+            itemIcon = R.drawable.deck_icon,
+            numberOfCards = deck.deckId,
+            itemName = deck.deckName
         ),
         displayItemStyle = DisplayItemStyle(
             backgroundColor = MaterialTheme.colorScheme.secondary.copy(
@@ -281,26 +305,26 @@ private fun ButtonAllFolders(navController: NavController) {
             .fillMaxWidth()
             .wrapContentSize(Alignment.Center)
     ) {
-
-        Box(modifier = Modifier
-            .background(
-                color = MaterialTheme.colorScheme.outlineVariant,
-                shape = MaterialTheme.shapes.medium
-            )
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null
-            ) {
-                navController.navigate(NavigationRoute.FoldersScreen.route)
-            }) {
+        Box(
+            modifier = Modifier
+                .background(
+                    color = MaterialTheme.colorScheme.outlineVariant,
+                    shape = MaterialTheme.shapes.medium
+                )
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) {
+                    navController.navigate(NavigationRoute.DecksScreen.route)
+                }) {
             Text(
-                text = stringResource(R.string.title_text_all_folders),
+                text = stringResource(R.string.title_text_all_decks),
                 style = MaterialTheme.typography.bodyMedium.copy(
                     color = MaterialTheme.colorScheme.onPrimary
                 ),
                 modifier = Modifier.padding(
-                    vertical = dimenDpResource(R.dimen.padding_medium),
-                    horizontal = dimenDpResource(R.dimen.padding_extra_large)
+                    vertical = dimenDpResource(R.dimen.padding_small),
+                    horizontal = dimenDpResource(R.dimen.padding_large)
                 )
             )
         }
@@ -308,103 +332,204 @@ private fun ButtonAllFolders(navController: NavController) {
 }
 
 @Composable
-private fun BackgroundFAB(fabState: FabState) {
-    if (fabState.isExpanded) {
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null
-            ) {
-                fabState.reset()
-            }
-        )
-    }
-}
-
-@Composable
-private fun fabMenuDataList(
-    dialogState: DialogState,
+private fun getFabMenuItems(
+    openModalWindow: () -> Unit,
     navController: NavController
 ): List<FabMenuData> {
     return listOf(
         FabMenuData(
             idItem = 0,
-            text = stringResource(R.string.fab_menu_data_setting_list),
-            icon = R.drawable.fab_open_menu_setting_icon,
-            navigation = { }
-        ),
-        FabMenuData(
-            idItem = 1,
-            text = stringResource(R.string.fab_menu_data_create_folder_list),
-            icon = R.drawable.fab_open_menu_create_folder_icon,
+            text = stringResource(R.string.fab_menu_data_create_deck),
+            icon = R.drawable.fab_open_menu_create_card_icon,
             navigation = {
-                dialogState.openCreateDialog()
+                openModalWindow()
             }
         ),
         FabMenuData(
-            idItem = 2,
+            idItem = 1,
             text = stringResource(R.string.fab_menu_data_create_card_list),
             icon = R.drawable.fab_open_menu_create_card_icon,
-            navigation = { navController.navigate(NavigationRoute.CreationCardScreen.route) }
+            navigation = { navController.navigate(NavigationRoute.CreationCardScreen.createRoute()) }
         )
     )
 }
 
+@Preview(
+    showBackground = true,
+    backgroundColor = 0xFFE6E6FF
+)
 @Composable
-private fun OpeningCreateItemDialog(
-    dialogState: DialogState,
-    dialogVisibleAnimation: Float,
-    validation: Boolean?,
-    mainViewModel: MainViewModel
-) {
-    if (dialogState.isDialogVisible) {
-        Box(modifier = Modifier.alpha(dialogVisibleAnimation)) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        MaterialTheme.colorScheme.outline.copy(
-                            dimenFloatResource(R.dimen.float_zero_dot_five_significance)
-                        )
-                    )
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null
-                    ) {}
-            )
-            CreateItemDialog(
-                titleDialog = stringResource(R.string.create_item_dialog_text_creating_folder),
-                placeholder = stringResource(R.string.create_item_dialog_text_input_title_folder),
-                buttonText = stringResource(R.string.create_item_dialog_text_create_folder),
-                isInputValid = validation == true || validation == null,
-                inputValue = dialogState.dialogStateData.text,
-                onInputChange = { newValue ->
-                    dialogState.validateFolderName(newValue)
-                    dialogState.updateDialogText(newValue)
-                },
-                onBackClick = {
-                    dialogState.closeDialog()
-                },
-                onSaveClick = {
-                    if (dialogState.validateFolderName(dialogState.dialogStateData.text)) {
-                        mainViewModel.createFolder(dialogState.dialogStateData.text)
-                        dialogState.closeDialog()
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(MaterialTheme.shapes.small)
-                    .wrapContentSize(Alignment.CenterStart),
-                iconModifier = Modifier
-                    .clip(shape = MaterialTheme.shapes.extraLarge)
-                    .background(
-                        color = MaterialTheme.colorScheme.outlineVariant,
-                        shape = MaterialTheme.shapes.extraLarge
-                    )
-                    .padding(dimenDpResource(R.dimen.padding_small))
-                    .size(dimenDpResource(R.dimen.padding_medium)),
-            )
-        }
+private fun ScreenPreview() {
+    val navController = rememberNavController()
+    val decksState: UiState<List<Deck>> = decksDataMock()
+    val cardsForRepetitionState: UiState<List<Card>> = cardsForRepetitionDataMock()
+
+    MindeckTheme {
+        MainContent(
+            navController,
+            decksState,
+            cardsForRepetitionState,
+            UiState.Loading,
+            false,
+            { },
+            { _ ->}
+        )
     }
 }
+
+@Preview(
+    device = "spec:parent=pixel_5,orientation=landscape",
+    showBackground = true,
+    backgroundColor = 0xFFE6E6FF
+)
+@Composable
+private fun ScreenPreviewLandscape() {
+    val navController = rememberNavController()
+    val decksState: UiState<List<Deck>> = decksDataMock()
+    val cardsForRepetitionState: UiState<List<Card>> = cardsForRepetitionDataMock()
+
+    MindeckTheme {
+        MainContent(
+            navController,
+            decksState,
+            cardsForRepetitionState,
+            UiState.Loading,
+            false,
+            { },
+            { _ ->}
+        )
+    }
+}
+
+@Preview(
+    showBackground = true,
+    backgroundColor = 0xFFE6E6FF
+)
+@Composable
+private fun RenameDeckModalWindowScreenPreview() {
+    val navController = rememberNavController()
+    val decksState: UiState<List<Deck>> = decksDataMock()
+    val cardsForRepetitionState: UiState<List<Card>> = cardsForRepetitionDataMock()
+    val fabModalWindow = true
+
+    MindeckTheme {
+        MainContent(
+            navController,
+            decksState,
+            cardsForRepetitionState,
+            UiState.Loading,
+            fabModalWindow,
+            { },
+            { _ ->}
+        )
+    }
+}
+
+@Preview(
+    device = "spec:parent=pixel_5,orientation=landscape",
+    showBackground = true,
+    backgroundColor = 0xFFE6E6FF
+)
+@Composable
+private fun EditElementModalWindowScreenPreview() {
+    val navController = rememberNavController()
+    val decksState: UiState<List<Deck>> = decksDataMock()
+    val cardsForRepetitionState: UiState<List<Card>> = cardsForRepetitionDataMock()
+    val fabModalWindow = true
+
+    MindeckTheme {
+        MainContent(
+            navController,
+            decksState,
+            cardsForRepetitionState,
+            UiState.Loading,
+            fabModalWindow,
+            { },
+            { _ ->}
+        )
+    }
+}
+
+@Composable
+private fun decksDataMock(): UiState<List<Deck>> = UiState.Success(
+    listOf<Deck>(
+        Deck(
+            deckId = 1,
+            deckName = "Kotlin Basics"
+        ),
+        Deck(
+            deckId = 2,
+            deckName = "Jetpack Compose"
+        ),
+        Deck(
+            deckId = 3,
+            deckName = "Architecture Patterns"
+        ),
+        Deck(
+            deckId = 4,
+            deckName = "Coroutines & Flow"
+        )
+    )
+)
+
+@Composable
+private fun cardsForRepetitionDataMock(): UiState<List<Card>> = UiState.Success(
+    listOf<Card>(
+        Card(
+            cardId = 1,
+            cardName = "Basics of Kotlin",
+            cardQuestion = "What is a data class in Kotlin?",
+            cardAnswer = "A class used to hold data; automatically provides equals(), hashCode(), toString(), etc.",
+            cardType = "text",
+            cardTag = "kotlin",
+            deckId = 1,
+            firstReviewDate = System.currentTimeMillis() - 5 * 24 * 60 * 60 * 1000,
+            lastReviewDate = System.currentTimeMillis() - 1 * 24 * 60 * 60 * 1000,
+            nextReviewDate = System.currentTimeMillis() + 2 * 24 * 60 * 60 * 1000,
+            repetitionCount = 3,
+            lastReviewType = ReviewType.MEDIUM
+        ),
+        Card(
+            cardId = 2,
+            cardName = "Jetpack Compose",
+            cardQuestion = "What is @Composable?",
+            cardAnswer = "A function annotation that marks a function as composable.",
+            cardType = "text",
+            cardTag = "compose",
+            deckId = 1,
+            firstReviewDate = System.currentTimeMillis() - 10 * 24 * 60 * 60 * 1000,
+            lastReviewDate = System.currentTimeMillis() - 3 * 24 * 60 * 60 * 1000,
+            nextReviewDate = System.currentTimeMillis() + 1 * 24 * 60 * 60 * 1000,
+            repetitionCount = 5,
+            lastReviewType = ReviewType.HARD
+        ),
+        Card(
+            cardId = 3,
+            cardName = "Design Patterns",
+            cardQuestion = "Explain the Singleton pattern.",
+            cardAnswer = "A design pattern that ensures a class has only one instance.",
+            cardType = "text",
+            cardTag = "architecture",
+            deckId = 2,
+            firstReviewDate = System.currentTimeMillis() - 20 * 24 * 60 * 60 * 1000,
+            lastReviewDate = System.currentTimeMillis() - 2 * 24 * 60 * 60 * 1000,
+            nextReviewDate = System.currentTimeMillis() + 3 * 24 * 60 * 60 * 1000,
+            repetitionCount = 7,
+            lastReviewType = ReviewType.EASY
+        ),
+        Card(
+            cardId = 4,
+            cardName = "Coroutines",
+            cardQuestion = "What does `launch {}` do in Kotlin?",
+            cardAnswer = "Starts a new coroutine without blocking the current thread.",
+            cardType = "text",
+            cardTag = "async",
+            deckId = 2,
+            firstReviewDate = System.currentTimeMillis() - 7 * 24 * 60 * 60 * 1000,
+            lastReviewDate = System.currentTimeMillis() - 1 * 24 * 60 * 60 * 1000,
+            nextReviewDate = System.currentTimeMillis() + 5 * 24 * 60 * 60 * 1000,
+            repetitionCount = 4,
+            lastReviewType = ReviewType.MEDIUM
+        )
+    )
+)

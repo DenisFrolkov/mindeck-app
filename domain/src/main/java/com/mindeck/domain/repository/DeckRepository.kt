@@ -10,16 +10,7 @@ interface DeckRepository {
 
     suspend fun deleteDeck(deck: Deck)
 
-    fun getAllDecksByFolderId(folderId: Int): Flow<List<Deck>>
-
-    suspend fun deleteDecksFromFolder(deckIds: List<Int>, folderId: Int)
-
-    suspend fun addDecksToFolder(deckIds: List<Int>, folderId: Int)
+    fun getAllDecks(): Flow<List<Deck>>
 
     suspend fun getDeckById(deckId: Int): Deck
-
-    suspend fun moveDecksBetweenFolders(deckIds: List<Int>, sourceFolderId: Int, targetFolderId: Int) {
-        addDecksToFolder(deckIds, targetFolderId)
-        deleteDecksFromFolder(deckIds, sourceFolderId)
-    }
 }

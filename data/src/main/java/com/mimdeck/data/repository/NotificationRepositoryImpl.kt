@@ -5,7 +5,7 @@ import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
-import com.mimdeck.data.NotificationWorker
+import com.mimdeck.data.work.NotificationWorker
 import com.mindeck.domain.repository.NotificationRepository
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject

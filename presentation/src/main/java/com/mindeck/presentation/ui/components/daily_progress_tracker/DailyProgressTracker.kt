@@ -13,8 +13,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -26,23 +24,17 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.mindeck.domain.models.Card
 import com.mindeck.presentation.R
 import com.mindeck.presentation.state.UiState
-import com.mindeck.presentation.state.UiState.Loading.mapSuccess
+import com.mindeck.presentation.state.onLoading
+import com.mindeck.presentation.state.onSuccess
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
 import com.mindeck.presentation.ui.components.utils.dimenFloatResource
-import com.mindeck.presentation.ui.theme.outline_variant_blue
-import com.mindeck.presentation.ui.theme.on_primary_white
-import com.mindeck.presentation.ui.theme.secondary_light_blue
 
 @Composable
 fun DailyProgressTracker(
-    cardsRepetition: UiState<List<Card>>,
+    cardsRepetitionState: UiState<List<Card>>,
     dptIcon: Painter,
     dailyProgressTrackerState: DailyProgressTrackerState
 ) {
@@ -71,18 +63,22 @@ fun DailyProgressTracker(
                 )
                 .weight(dimenFloatResource(R.dimen.float_one_significance))
         ) {
-            when (cardsRepetition) {
-                is UiState.Success -> {
-                    DPTText(
-                        plurals = R.plurals.deck_amount,
-                        count = cardsRepetition.data.size,
-                        textStyle = MaterialTheme.typography.labelMedium
-                    )
-                }
+            cardsRepetitionState.onSuccess { cardsRepetition ->
+                DPTText(
+                    plurals = R.plurals.card_amount,
+                    count = cardsRepetition.size,
+                    textStyle = MaterialTheme.typography.labelMedium
+                )
             }
 
+            cardsRepetitionState.onLoading {
+                DPTText(
+                    plurals = R.plurals.card_amount,
+                    count = 0,
+                    textStyle = MaterialTheme.typography.labelMedium
+                )
+            }
             Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_medium)))
-
             DPTProgress(
                 dptAnimationProgress = dptAnimationProgress,
                 progressColor = MaterialTheme.colorScheme.onPrimary,
