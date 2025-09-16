@@ -4,16 +4,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.ReviewType
+import com.mindeck.domain.usecases.card.command.UpdateCardReviewUseCase
 import com.mindeck.domain.usecases.card.query.GetCardByIdUseCase
 import com.mindeck.domain.usecases.card.query.GetCardsRepetitionUseCase
-import com.mindeck.domain.usecases.card.command.UpdateCardReviewUseCase
 import com.mindeck.presentation.state.UiState
+import com.mindeck.presentation.util.asUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -63,10 +62,7 @@ class CardStudyViewModel @Inject constructor(
     fun loadCardRepetition(currentTime: Long) {
         viewModelScope.launch {
             getCardsRepetitionUseCase(currentTime = currentTime)
-                .map<List<Card>, UiState<List<Card>>> {
-                    UiState.Success(it)
-                }
-                .catch { emit(UiState.Error(it)) }
+                .asUiState()
                 .collect { state ->
                     _cardsForRepetitionState.value = state
                 }

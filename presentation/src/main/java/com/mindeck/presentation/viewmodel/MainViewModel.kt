@@ -9,13 +9,12 @@ import com.mindeck.domain.usecases.deck.command.CreateDeckUseCase
 import com.mindeck.domain.usecases.deck.query.GetAllDecksUseCase
 import com.mindeck.presentation.state.UiState
 import com.mindeck.presentation.ui.components.utils.stringToMillis
+import com.mindeck.presentation.util.asUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
@@ -37,8 +36,7 @@ open class MainViewModel @Inject constructor(
     }
 
     val decksState: StateFlow<UiState<List<Deck>>> = getAllFoldersUseCase()
-        .map<List<Deck>, UiState<List<Deck>>> { UiState.Success(it) }
-        .catch { emit(UiState.Error(it)) }
+        .asUiState()
         .stateIn(viewModelScope, SharingStarted.Lazily, UiState.Loading)
 
     private val _createDeckState = MutableStateFlow<UiState<Unit>>(UiState.Success(Unit))
@@ -69,10 +67,7 @@ open class MainViewModel @Inject constructor(
     fun loadCardRepetition(currentTime: Long) {
         viewModelScope.launch {
             getCardsRepetitionUseCase(currentTime = currentTime)
-                .map<List<Card>, UiState<List<Card>>> {
-                    UiState.Success(it)
-                }
-                .catch { emit(UiState.Error(it)) }
+                .asUiState()
                 .collect { state ->
                     _cardsForRepetitionState.value = state
                 }

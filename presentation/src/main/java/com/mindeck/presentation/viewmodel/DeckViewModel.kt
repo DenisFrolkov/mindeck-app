@@ -5,21 +5,20 @@ import androidx.lifecycle.viewModelScope
 import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.Deck
 import com.mindeck.domain.usecases.card.command.DeleteCardsFromDeckUseCase
-import com.mindeck.domain.usecases.card.query.GetAllCardsByDeckIdUseCase
 import com.mindeck.domain.usecases.card.command.MoveCardsBetweenDeckUseCase
+import com.mindeck.domain.usecases.card.query.GetAllCardsByDeckIdUseCase
 import com.mindeck.domain.usecases.deck.command.DeleteDeckUseCase
+import com.mindeck.domain.usecases.deck.command.RenameDeckUseCase
 import com.mindeck.domain.usecases.deck.query.GetAllDecksUseCase
 import com.mindeck.domain.usecases.deck.query.GetDeckByIdUseCase
-import com.mindeck.domain.usecases.deck.command.RenameDeckUseCase
 import com.mindeck.presentation.state.UiState
 import com.mindeck.presentation.state.getOrNull
+import com.mindeck.presentation.util.asUiState
 import com.mindeck.presentation.viewmodel.managers.EditModeManager
 import com.mindeck.presentation.viewmodel.managers.SelectionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -42,10 +41,7 @@ class DeckViewModel @Inject constructor(
     fun loadCardsForDeck(deckId: Int) {
         viewModelScope.launch {
             getAllCardsByDeckIdUseCase(deckId = deckId)
-                .map<List<Card>, UiState<List<Card>>> {
-                    UiState.Success(it)
-                }
-                .catch { emit(UiState.Error(it)) }
+                .asUiState()
                 .collect { state ->
                     _listCardsUiState.value = state
                 }
@@ -71,10 +67,7 @@ class DeckViewModel @Inject constructor(
     fun getAllDecks() {
         viewModelScope.launch {
             getAllDecksUseCase()
-                .map<List<Deck>, UiState<List<Deck>>> {
-                    UiState.Success(it)
-                }
-                .catch { emit(UiState.Error(it)) }
+                .asUiState()
                 .collect { state ->
                     _listDecksUiState.value = state
                 }
