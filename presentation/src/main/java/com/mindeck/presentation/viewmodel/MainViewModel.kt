@@ -2,85 +2,64 @@ package com.mindeck.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mindeck.domain.exception.DomainError
 import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.Deck
 import com.mindeck.domain.usecases.card.query.GetCardsRepetitionUseCase
 import com.mindeck.domain.usecases.deck.command.CreateDeckUseCase
 import com.mindeck.domain.usecases.deck.query.GetAllDecksUseCase
 import com.mindeck.presentation.state.UiState
-import com.mindeck.presentation.ui.components.utils.stringToMillis
 import com.mindeck.presentation.util.asUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 @HiltViewModel
 open class MainViewModel @Inject constructor(
     getAllFoldersUseCase: GetAllDecksUseCase,
-    private val createDeckUseCase: CreateDeckUseCase,
-    private val getCardsRepetitionUseCase: GetCardsRepetitionUseCase
+    getCardsRepetitionUseCase: GetCardsRepetitionUseCase,
+    private val createDeckUseCase: CreateDeckUseCase
 ) : ViewModel() {
 
-    val currentDateTime: String = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-
-    fun initRepetition() {
-        val millis = stringToMillis(currentDateTime)
-        loadCardRepetition(millis)
-    }
+    val cardsForRepetitionState: StateFlow<UiState<List<Card>>> =
+        getCardsRepetitionUseCase(currentTime = System.currentTimeMillis())
+            .asUiState()
+            .stateIn(viewModelScope, SharingStarted.Lazily, UiState.Loading)
 
     val decksState: StateFlow<UiState<List<Deck>>> = getAllFoldersUseCase()
         .asUiState()
         .stateIn(viewModelScope, SharingStarted.Lazily, UiState.Loading)
 
-    private val _createDeckState = MutableStateFlow<UiState<Unit>>(UiState.Success(Unit))
-    val createDeckState: StateFlow<UiState<Unit>> = _createDeckState
+    var createModalWindowValue = MutableStateFlow(false)
+    private val _createDeckResult = MutableStateFlow<UiState<Unit>>(UiState.Success(Unit))
+    val createDeckResult: StateFlow<UiState<Unit>> = _createDeckResult
+
+    fun toggleCreateModalWindow(switch: Boolean) {
+        createModalWindowValue.value = switch
+        if (!switch) {
+            _createDeckResult.value = UiState.Success(Unit)
+        }
+    }
 
     fun createDeck(deckName: String) {
+        if (deckName.isBlank()) {
+            _createDeckResult.value = UiState.Error(DomainError.UnknownError(Throwable("Поле ввода пустое.")))
+            return
+        }
+
         viewModelScope.launch {
-            _createDeckState.value = UiState.Loading
-
-            if (deckName.isBlank()) {
-                _createDeckState.value = UiState.Error(Throwable("Поле ввода пустое."))
-                return@launch
-            }
-
-            _createDeckState.value = try {
+            _createDeckResult.value = UiState.Loading
+            _createDeckResult.value = try {
                 createDeckUseCase(Deck(deckName = deckName))
-                toggleModalWindow(false)
+                toggleCreateModalWindow(false)
                 UiState.Success(Unit)
-            } catch (e: Exception) {
-                UiState.Error(Throwable("Колода с таким названием уже существует."))
+            } catch (e: DomainError) {
+                UiState.Error(e)
             }
         }
-    }
-
-    private val _cardsForRepetitionState = MutableStateFlow<UiState<List<Card>>>(UiState.Loading)
-    val cardsForRepetitionState = _cardsForRepetitionState.asStateFlow()
-
-    fun loadCardRepetition(currentTime: Long) {
-        viewModelScope.launch {
-            getCardsRepetitionUseCase(currentTime = currentTime)
-                .asUiState()
-                .collect { state ->
-                    _cardsForRepetitionState.value = state
-                }
-        }
-    }
-
-    var createModalWindowValue = MutableStateFlow<Boolean>(false)
-
-    fun toggleModalWindow(switch: Boolean) {
-        if (!switch) {
-            _createDeckState.value = UiState.Success(Unit)
-        }
-
-        createModalWindowValue.value = switch
     }
 }
