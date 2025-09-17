@@ -1,6 +1,5 @@
 package com.mindeck.presentation.viewmodel
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mindeck.domain.exception.DomainError
 import com.mindeck.domain.models.Card
@@ -10,12 +9,12 @@ import com.mindeck.domain.usecases.deck.command.CreateDeckUseCase
 import com.mindeck.domain.usecases.deck.query.GetAllDecksUseCase
 import com.mindeck.presentation.state.UiState
 import com.mindeck.presentation.util.asUiState
+import com.mindeck.presentation.viewmodel.managers.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -23,7 +22,7 @@ open class MainViewModel @Inject constructor(
     getAllFoldersUseCase: GetAllDecksUseCase,
     getCardsRepetitionUseCase: GetCardsRepetitionUseCase,
     private val createDeckUseCase: CreateDeckUseCase
-) : ViewModel() {
+) : BaseViewModel() {
 
     val cardsForRepetitionState: StateFlow<UiState<List<Card>>> =
         getCardsRepetitionUseCase(currentTime = System.currentTimeMillis())
@@ -51,15 +50,9 @@ open class MainViewModel @Inject constructor(
             return
         }
 
-        viewModelScope.launch {
-            _createDeckResult.value = UiState.Loading
-            _createDeckResult.value = try {
-                createDeckUseCase(Deck(deckName = deckName))
-                toggleCreateModalWindow(false)
-                UiState.Success(Unit)
-            } catch (e: DomainError) {
-                UiState.Error(e)
-            }
+        launchUiState(_createDeckResult) {
+            createDeckUseCase(Deck(deckName = deckName))
+            toggleCreateModalWindow(false)
         }
     }
 }

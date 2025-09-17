@@ -163,7 +163,7 @@ private fun dropdownMenuDataList(
                     titleStyle = MaterialTheme.typography.bodyMedium,
                     action = {
                         dropdownMenuState.reset()
-                        cardViewModel.deleteDeck(card = card.data)
+                        cardViewModel.deleteCard(card = card.data)
                         navController.popBackStack()
                     }
                 )

@@ -115,7 +115,6 @@ fun DeckScreen(
             deckViewModel.toggleDeleteCardsModalWindow(false)
         } else {
             deckViewModel.toggleEditCardsInDeckModalWindow(true)
-            deckViewModel.getAllDecks()
         }
     }
 

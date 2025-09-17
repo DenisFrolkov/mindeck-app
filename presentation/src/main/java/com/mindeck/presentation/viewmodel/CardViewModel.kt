@@ -1,14 +1,14 @@
 package com.mindeck.presentation.viewmodel
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.Deck
 import com.mindeck.domain.usecases.card.command.DeleteCardUseCase
-import com.mindeck.domain.usecases.card.query.GetCardByIdUseCase
 import com.mindeck.domain.usecases.card.command.UpdateCardUseCase
+import com.mindeck.domain.usecases.card.query.GetCardByIdUseCase
 import com.mindeck.domain.usecases.deck.query.GetDeckByIdUseCase
 import com.mindeck.presentation.state.UiState
+import com.mindeck.presentation.viewmodel.managers.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -22,47 +22,35 @@ class CardViewModel @Inject constructor(
     private val getDeckByIdUseCase: GetDeckByIdUseCase,
     private val updateCardUseCase: UpdateCardUseCase,
     private val deleteCardUseCase: DeleteCardUseCase
-) : ViewModel() {
+) : BaseViewModel() {
 
     private val _cardByCardIdUIState = MutableStateFlow<UiState<Card>>(UiState.Loading)
     val cardByCardIdUIState = _cardByCardIdUIState.asStateFlow()
 
-    fun loadCardById(cardId: Int) {
-        viewModelScope.launch {
-            _cardByCardIdUIState.value = try {
-                val card = getCardByIdUseCase(cardId = cardId)
-                getDeckById(card.deckId)
-                UiState.Success(card)
-            } catch (e: Exception) {
-                UiState.Error(e)
-            }
-        }
+    fun loadCardById(cardId: Int) = launchUiState(_cardByCardIdUIState) {
+        val card = getCardByIdUseCase(cardId)
+        viewModelScope.launch { getDeckById(card.deckId) }
+        card
     }
 
     private val _deckUiState = MutableStateFlow<UiState<Deck>>(UiState.Loading)
     val deckUIState: StateFlow<UiState<Deck>> = _deckUiState
 
-    fun getDeckById(deckId: Int) {
-        viewModelScope.launch {
-            _deckUiState.value = try {
-                UiState.Success(getDeckByIdUseCase(deckId = deckId))
-            } catch (e: Exception) {
-                UiState.Error(e)
-            }
-        }
+    fun getDeckById(deckId: Int) = launchUiState(_deckUiState) {
+        getDeckByIdUseCase(deckId)
     }
 
-    private val _deleteCardState = MutableStateFlow<UiState<Unit>>(UiState.Loading)
+    private val _updateCardState = MutableStateFlow<UiState<Unit>>(UiState.Success(Unit))
+    val updateCardState: StateFlow<UiState<Unit>> = _updateCardState
+
+    fun updateCard(card: Card) = launchUiState(_updateCardState) {
+        updateCardUseCase(card)
+    }
+
+    private val _deleteCardState = MutableStateFlow<UiState<Unit>>(UiState.Success(Unit))
     val deleteCardState: StateFlow<UiState<Unit>> = _deleteCardState
 
-    fun deleteDeck(card: Card) {
-        viewModelScope.launch {
-            _deleteCardState.value = try {
-                deleteCardUseCase(card = card)
-                UiState.Success(Unit)
-            } catch (e: Exception) {
-                UiState.Error(e)
-            }
-        }
+    fun deleteCard(card: Card) = launchUiState(_deleteCardState) {
+        deleteCardUseCase(card)
     }
 }

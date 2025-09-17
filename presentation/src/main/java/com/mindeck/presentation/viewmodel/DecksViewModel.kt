@@ -1,12 +1,13 @@
 package com.mindeck.presentation.viewmodel
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mindeck.domain.exception.DomainError
 import com.mindeck.domain.models.Deck
 import com.mindeck.domain.usecases.deck.command.CreateDeckUseCase
 import com.mindeck.domain.usecases.deck.query.GetAllDecksUseCase
 import com.mindeck.presentation.state.UiState
 import com.mindeck.presentation.util.asUiState
+import com.mindeck.presentation.viewmodel.managers.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -19,41 +20,38 @@ import javax.inject.Inject
 class DecksViewModel @Inject constructor(
     getAllDecksUseCase: GetAllDecksUseCase,
     private val createDeckUseCase: CreateDeckUseCase
-) : ViewModel() {
+) : BaseViewModel() {
 
     val decksState: StateFlow<UiState<List<Deck>>> = getAllDecksUseCase()
         .asUiState()
         .stateIn(viewModelScope, SharingStarted.Lazily, UiState.Loading)
 
-    private val _createDeckState = MutableStateFlow<UiState<Unit>>(UiState.Success(Unit))
-    val createDeckState: StateFlow<UiState<Unit>> = _createDeckState
+    var createModalWindowValue = MutableStateFlow(false)
+    private val _createDeckResult = MutableStateFlow<UiState<Unit>>(UiState.Success(Unit))
+    val createDeckResult: StateFlow<UiState<Unit>> = _createDeckResult
 
-    fun createDeck(deckName: String) {
-        viewModelScope.launch {
-            if (deckName.isBlank()) {
-                _createDeckState.value = UiState.Error(Throwable("Поле ввода пустое."))
-                return@launch
-            }
-
-            _createDeckState.value = UiState.Loading
-
-            _createDeckState.value = try {
-                createDeckUseCase(Deck(deckName = deckName))
-                modalWindowValue.value = false
-                UiState.Success(Unit)
-            } catch (e: Exception) {
-                UiState.Error(Throwable("Колода с таким названием уже существует."))
-            }
+    fun toggleCreateModalWindow(switch: Boolean) {
+        createModalWindowValue.value = switch
+        if (!switch) {
+            _createDeckResult.value = UiState.Success(Unit)
         }
     }
 
-    var modalWindowValue = MutableStateFlow<Boolean>(false)
-
-    fun toggleModalWindow(switch: Boolean) {
-        if (!switch) {
-            _createDeckState.value = UiState.Success(Unit)
+    fun createDeck(deckName: String) {
+        if (deckName.isBlank()) {
+            _createDeckResult.value = UiState.Error(DomainError.UnknownError(Throwable("Поле ввода пустое.")))
+            return
         }
 
-        modalWindowValue.value = switch
+        viewModelScope.launch {
+            _createDeckResult.value = UiState.Loading
+            _createDeckResult.value = try {
+                createDeckUseCase(Deck(deckName = deckName))
+                toggleCreateModalWindow(false)
+                UiState.Success(Unit)
+            } catch (e: DomainError) {
+                UiState.Error(e)
+            }
+        }
     }
 }

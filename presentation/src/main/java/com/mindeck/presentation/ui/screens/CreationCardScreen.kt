@@ -68,7 +68,6 @@ fun CreationCardScreen(
 
 
     LaunchedEffect(Unit) {
-        creationCardViewModel.getAllDecks()
         if (deckId != null)
             creationCardViewModel.getDeckById(deckId)
     }

@@ -64,12 +64,12 @@ fun DecksScreen(
     val decksViewModel: DecksViewModel = hiltViewModel(navController.currentBackStackEntry!!)
 
     val decks = decksViewModel.decksState.collectAsState().value
-    val createDeckState by decksViewModel.createDeckState.collectAsState()
-    val modalWindowValue by decksViewModel.modalWindowValue.collectAsState()
+    val createDeckState by decksViewModel.createDeckResult.collectAsState()
+    val modalWindowValue by decksViewModel.createModalWindowValue.collectAsState()
 
     LaunchedEffect(createDeckState) {
         if (createDeckState is UiState.Success) {
-            decksViewModel.toggleModalWindow(false)
+            decksViewModel.toggleCreateModalWindow(false)
         }
     }
 
@@ -85,7 +85,7 @@ fun DecksScreen(
             decksViewModel.createDeck(deckName)
         },
         toggleCreateDeckModalWindow = {
-            decksViewModel.toggleModalWindow(it)
+            decksViewModel.toggleCreateModalWindow(it)
         }
     )
 }

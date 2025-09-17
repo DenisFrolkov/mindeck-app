@@ -2,7 +2,6 @@ package com.mindeck.presentation.viewmodel
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.Deck
@@ -12,19 +11,21 @@ import com.mindeck.domain.usecases.deck.query.GetDeckByIdUseCase
 import com.mindeck.presentation.state.CardState
 import com.mindeck.presentation.state.UiState
 import com.mindeck.presentation.util.asUiState
+import com.mindeck.presentation.viewmodel.managers.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 @HiltViewModel
 class CreationCardViewModel @Inject constructor(
     private val createCardUseCase: CreateCardUseCase,
-    private val getAllDecksUseCase: GetAllDecksUseCase,
+     getAllDecksUseCase: GetAllDecksUseCase,
     private val getDeckByIdUseCase: GetDeckByIdUseCase
-) : ViewModel() {
+) : BaseViewModel() {
     private var _cardState = mutableStateOf(
         CardState("", "", "", "", -1)
     )
@@ -33,23 +34,15 @@ class CreationCardViewModel @Inject constructor(
     private val _validation = MutableStateFlow<Boolean?>(null)
     val validation: StateFlow<Boolean?> = _validation.asStateFlow()
 
-    val selectedDeckForCreatingCard = mutableStateOf<Pair<String, Int?>>(Pair("Выберите колоду", null))
+    val selectedDeckForCreatingCard =
+        mutableStateOf<Pair<String, Int?>>(Pair("Выберите колоду", null))
     val selectedTypeForCreatingCard = mutableStateOf<Pair<String, Int?>>(Pair("Выберите тип", null))
 
-    private val _listDecksUiState = MutableStateFlow<UiState<List<Deck>>>(UiState.Loading)
-    val listDecksUiState: StateFlow<UiState<List<Deck>>> = _listDecksUiState
+    val listDecksUiState: StateFlow<UiState<List<Deck>>> = getAllDecksUseCase()
+        .asUiState()
+        .stateIn(viewModelScope, SharingStarted.Lazily, UiState.Loading)
 
-    fun getAllDecks() {
-        viewModelScope.launch {
-            getAllDecksUseCase()
-                .asUiState()
-                .collect { state ->
-                    _listDecksUiState.value = state
-                }
-        }
-    }
-
-    private val _createCardState = MutableStateFlow<UiState<Unit>>(UiState.Loading)
+    private val _createCardState = MutableStateFlow<UiState<Unit>>(UiState.Success(Unit))
     val createCardState: StateFlow<UiState<Unit>> = _createCardState
 
     fun createCard(
@@ -59,39 +52,26 @@ class CreationCardViewModel @Inject constructor(
         cardType: String,
         cardTag: String,
         deckId: Int
-    ) {
-        viewModelScope.launch {
-            _createCardState.value = try {
-                createCardUseCase(
-                    card = Card(
-                        cardName = cardName,
-                        cardQuestion = cardQuestion,
-                        cardAnswer = cardAnswer,
-                        cardType = cardType,
-                        cardTag = cardTag,
-                        deckId = deckId
-                    )
-                )
-                UiState.Success(Unit)
-            } catch (e: Exception) {
-                UiState.Error(e)
-            }
-        }
+    ) = launchUiState(_createCardState) {
+        createCardUseCase(
+            card = Card(
+                cardName = cardName,
+                cardQuestion = cardQuestion,
+                cardAnswer = cardAnswer,
+                cardType = cardType,
+                cardTag = cardTag,
+                deckId = deckId
+            )
+        )
     }
 
     private val _deckUiState = MutableStateFlow<UiState<Deck>>(UiState.Loading)
     val deckUIState: StateFlow<UiState<Deck>> = _deckUiState
 
-    fun getDeckById(deckId: Int) {
-        viewModelScope.launch {
-            _deckUiState.value = try {
-                val deck = getDeckByIdUseCase(deckId = deckId)
-                selectedDeckForCreatingCard.value = Pair(deck.deckName, deck.deckId)
-                UiState.Success(deck)
-            } catch (e: Exception) {
-                UiState.Error(e)
-            }
-        }
+    fun getDeckById(deckId: Int) = launchUiState(_deckUiState) {
+        val deck = getDeckByIdUseCase(deckId = deckId)
+        selectedDeckForCreatingCard.value = Pair(deck.deckName, deck.deckId)
+        deck
     }
 
     fun updateCardState(update: CardState.() -> CardState) {
