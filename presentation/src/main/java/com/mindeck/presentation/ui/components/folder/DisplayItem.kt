@@ -45,7 +45,7 @@ fun DisplayItem(
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
+        modifier = modifier,
     ) {
         if (showCount) {
             Text(
@@ -54,13 +54,13 @@ fun DisplayItem(
                 modifier = Modifier
                     .background(MaterialTheme.colorScheme.onPrimary)
                     .size(dimenDpResource(R.dimen.display_card_item_size))
-                    .wrapContentSize(Alignment.Center)
+                    .wrapContentSize(Alignment.Center),
             )
 
             VerticalDivider(
                 modifier = Modifier.fillMaxHeight(),
                 thickness = dimenDpResource(R.dimen.vertical_divider_height),
-                color = MaterialTheme.colorScheme.outline
+                color = MaterialTheme.colorScheme.outline,
             )
         }
 
@@ -70,7 +70,7 @@ fun DisplayItem(
                 .weight(1f)
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.onPrimary)
-                .padding(horizontal = dimenDpResource(R.dimen.padding_extra_small))
+                .padding(horizontal = dimenDpResource(R.dimen.padding_extra_small)),
         ) {
             Text(
                 text = displayItemData.itemName,
@@ -83,14 +83,14 @@ fun DisplayItem(
         VerticalDivider(
             modifier = Modifier.fillMaxHeight(),
             thickness = dimenDpResource(R.dimen.vertical_divider_height),
-            color = MaterialTheme.colorScheme.outline
+            color = MaterialTheme.colorScheme.outline,
         )
 
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
                 .size(dimenDpResource(R.dimen.display_card_item_size))
-                .background(color = displayItemStyle.backgroundColor)
+                .background(color = displayItemStyle.backgroundColor),
         ) {
             AnimatedContent(
                 modifier = Modifier
@@ -99,7 +99,7 @@ fun DisplayItem(
                 targetState = showEditMode,
                 transitionSpec = {
                     fadeIn(animationSpec = tween(200)) with fadeOut(animationSpec = tween(200))
-                }
+                },
             ) { editModeEnabled ->
                 if (editModeEnabled) {
                     Checkbox(
@@ -107,14 +107,14 @@ fun DisplayItem(
                         onCheckedChange = {
                             onCheckedChange()
                         },
-                        colors = CheckboxDefaults.colors(uncheckedColor = MaterialTheme.colorScheme.primary)
+                        colors = CheckboxDefaults.colors(uncheckedColor = MaterialTheme.colorScheme.primary),
                     )
                 } else {
                     Icon(
                         modifier = Modifier.size(dimenDpResource(R.dimen.icon_size)),
                         painter = painterResource(displayItemData.itemIcon),
                         tint = displayItemStyle.iconColor,
-                        contentDescription = stringResource(R.string.folder_icon)
+                        contentDescription = stringResource(R.string.folder_icon),
                     )
                 }
             }

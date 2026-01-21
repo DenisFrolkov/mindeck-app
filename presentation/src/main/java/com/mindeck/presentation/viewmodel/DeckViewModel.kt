@@ -5,12 +5,12 @@ import androidx.lifecycle.viewModelScope
 import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.Deck
 import com.mindeck.domain.usecases.card.command.DeleteCardsFromDeckUseCase
-import com.mindeck.domain.usecases.card.query.GetAllCardsByDeckIdUseCase
 import com.mindeck.domain.usecases.card.command.MoveCardsBetweenDeckUseCase
+import com.mindeck.domain.usecases.card.query.GetAllCardsByDeckIdUseCase
 import com.mindeck.domain.usecases.deck.command.DeleteDeckUseCase
+import com.mindeck.domain.usecases.deck.command.RenameDeckUseCase
 import com.mindeck.domain.usecases.deck.query.GetAllDecksUseCase
 import com.mindeck.domain.usecases.deck.query.GetDeckByIdUseCase
-import com.mindeck.domain.usecases.deck.command.RenameDeckUseCase
 import com.mindeck.presentation.state.UiState
 import com.mindeck.presentation.state.getOrNull
 import com.mindeck.presentation.viewmodel.managers.EditModeManager
@@ -123,7 +123,7 @@ class DeckViewModel @Inject constructor(
     fun moveCardsBetweenDecks(
         cardIds: List<Int>,
         sourceDeckId: Int?,
-        targetDeckId: Int?
+        targetDeckId: Int?,
     ) {
         viewModelScope.launch {
             _moveCardsBetweenDecksState.value = try {
@@ -219,8 +219,9 @@ class DeckViewModel @Inject constructor(
     var deleteCardsModalWindowValue = MutableStateFlow<Boolean>(false)
 
     fun toggleDeleteCardsModalWindow(switch: Boolean) {
-        if (!switch)
+        if (!switch) {
             toggleEditMode()
+        }
 
         deleteCardsModalWindowValue.value = switch
     }
@@ -243,7 +244,8 @@ class DeckViewModel @Inject constructor(
     }
 
     fun toggleMovementButton() {
-        if (!isEditModeEnabled.value)
+        if (!isEditModeEnabled.value) {
             selectionManager.clearCardSelection()
+        }
     }
 }

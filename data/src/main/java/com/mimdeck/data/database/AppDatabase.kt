@@ -10,9 +10,8 @@ import com.mimdeck.data.database.entities.DeckEntity
 
 @Database(
     entities = [DeckEntity::class, CardEntity::class],
-    version = 3,
+    version = 1,
     exportSchema = true,
-    autoMigrations = [AutoMigration(from = 2, to = 3)]
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun deckDao(): DeckDao

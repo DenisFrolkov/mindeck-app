@@ -17,7 +17,7 @@ fun CardInputField(
     textStyle: TextStyle,
     placeholderTextStyle: TextStyle,
     onValueChange: (String) -> Unit,
-    modifier: Modifier
+    modifier: Modifier,
 ) {
     BasicTextField(
         value = value,
@@ -27,17 +27,17 @@ fun CardInputField(
         decorationBox = { innerTextField ->
             Box(
                 contentAlignment = Alignment.CenterStart,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 if (value.isEmpty()) {
                     Text(
                         text = placeholder,
-                        style = placeholderTextStyle
+                        style = placeholderTextStyle,
                     )
                 }
                 innerTextField()
             }
         },
-        modifier = modifier
+        modifier = modifier,
     )
 }

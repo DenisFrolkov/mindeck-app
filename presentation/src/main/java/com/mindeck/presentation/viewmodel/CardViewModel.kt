@@ -5,8 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.Deck
 import com.mindeck.domain.usecases.card.command.DeleteCardUseCase
-import com.mindeck.domain.usecases.card.query.GetCardByIdUseCase
 import com.mindeck.domain.usecases.card.command.UpdateCardUseCase
+import com.mindeck.domain.usecases.card.query.GetCardByIdUseCase
 import com.mindeck.domain.usecases.deck.query.GetDeckByIdUseCase
 import com.mindeck.presentation.state.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,7 +21,7 @@ class CardViewModel @Inject constructor(
     private val getCardByIdUseCase: GetCardByIdUseCase,
     private val getDeckByIdUseCase: GetDeckByIdUseCase,
     private val updateCardUseCase: UpdateCardUseCase,
-    private val deleteCardUseCase: DeleteCardUseCase
+    private val deleteCardUseCase: DeleteCardUseCase,
 ) : ViewModel() {
 
     private val _cardByCardIdUIState = MutableStateFlow<UiState<Card>>(UiState.Loading)

@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class CardRepositoryImpl @Inject constructor(
-    private val cardDao: CardDao
+    private val cardDao: CardDao,
 ) : CardRepository {
     override suspend fun insertCard(card: Card) = handleDatabaseSuspend {
         cardDao.insertCard(cardEntity = card.toData())

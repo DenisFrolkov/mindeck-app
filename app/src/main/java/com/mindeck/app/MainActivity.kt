@@ -40,5 +40,3 @@ class MainActivity : ComponentActivity() {
         appViewModel.stopNotifications()
     }
 }
-
-

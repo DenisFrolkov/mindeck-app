@@ -22,7 +22,7 @@ android {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
         }
     }
@@ -48,20 +48,20 @@ ksp {
 
 dependencies {
 
-    //Подключение модулей
+    // Подключение модулей
     implementation(project(":domain"))
 
-    //Coroutines
+    // Coroutines
     implementation(libs.kotlinx.coroutines.core)
 
     implementation("androidx.work:work-runtime-ktx:2.8.1")
 
-    //Hilt
+    // Hilt
     implementation("androidx.hilt:hilt-work:1.0.0")
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
 
-    //Room
+    // Room
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)

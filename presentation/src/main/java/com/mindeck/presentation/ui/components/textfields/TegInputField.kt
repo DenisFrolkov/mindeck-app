@@ -19,14 +19,14 @@ fun TegInputField(
     onValueChange: (String) -> Unit,
     textStyle: TextStyle,
     placeholderTextStyle: TextStyle,
-    modifier: Modifier
+    modifier: Modifier,
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
             text = titleTextInput,
-            style = textStyle
+            style = textStyle,
         )
         Spacer(modifier = Modifier.width(dimenDpResource(R.dimen.spacer_large)))
         BasicTextField(
@@ -34,7 +34,7 @@ fun TegInputField(
             onValueChange = onValueChange,
             singleLine = true,
             textStyle = placeholderTextStyle,
-            modifier = modifier
+            modifier = modifier,
         )
     }
 }

@@ -1,7 +1,10 @@
 package com.mindeck.presentation.ui.components.fab
 
-import androidx.compose.animation.core.*
-import androidx.compose.runtime.*
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.unit.Dp
 
 @Composable
@@ -9,7 +12,7 @@ fun animateFabWidth(targetWidth: Dp, animationDuration: Int): Dp {
     val fabWidthAnimate by animateDpAsState(
         targetValue = targetWidth,
         animationSpec = tween(durationMillis = animationDuration),
-        label = "Fab Width Animation"
+        label = "Fab Width Animation",
     )
     return fabWidthAnimate
 }
@@ -19,7 +22,7 @@ fun animateFabHeight(targetHeight: Dp, animationDuration: Int): Dp {
     val fabHeightAnimate by animateDpAsState(
         targetValue = targetHeight,
         animationSpec = tween(durationMillis = animationDuration),
-        label = "Fab Height Animation"
+        label = "Fab Height Animation",
     )
     return fabHeightAnimate
 }
@@ -29,7 +32,7 @@ fun animateFabShape(targetShape: Dp, animationDuration: Int): Dp {
     val fabShapeAnimate by animateDpAsState(
         targetValue = targetShape,
         animationSpec = tween(durationMillis = animationDuration),
-        label = "Fab Shape Animation"
+        label = "Fab Shape Animation",
     )
     return fabShapeAnimate
 }
@@ -37,11 +40,11 @@ fun animateFabShape(targetShape: Dp, animationDuration: Int): Dp {
 @Composable
 fun animateMenuAlpha(targetAlpha: Float, animationDuration: Int): Float {
     val alphaMenu by
-    animateFloatAsState(
-        targetValue = targetAlpha,
-        animationSpec = tween(durationMillis = animationDuration),
-        label = "Fab Menu Alpha Animation"
-    )
+        animateFloatAsState(
+            targetValue = targetAlpha,
+            animationSpec = tween(durationMillis = animationDuration),
+            label = "Fab Menu Alpha Animation",
+        )
     return alphaMenu
 }
 
@@ -50,7 +53,7 @@ fun animateFabAlpha(targetAlpha: Float, animationDuration: Int): Float {
     val alphaFab by animateFloatAsState(
         targetValue = targetAlpha,
         animationSpec = tween(durationMillis = animationDuration),
-        label = "Fab Alpha Animation"
+        label = "Fab Alpha Animation",
     )
     return alphaFab
 }

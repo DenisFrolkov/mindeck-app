@@ -21,26 +21,26 @@ abstract class RepositoryModule {
 
     @Binds
     abstract fun bindCardRepository(
-        impl: CardRepositoryImpl
+        impl: CardRepositoryImpl,
     ): CardRepository
 
     @Binds
     abstract fun bindCardDeckOperations(
-        impl: CardDeckOperationsImpl
+        impl: CardDeckOperationsImpl,
     ): CardDeckOperations
 
     @Binds
     abstract fun bindCardRepetitionRepository(
-        impl: CardRepetitionRepositoryImpl
+        impl: CardRepetitionRepositoryImpl,
     ): CardRepetitionRepository
 
     @Binds
     abstract fun bindDeckRepository(
-        impl: DeckRepositoryImpl
+        impl: DeckRepositoryImpl,
     ): DeckRepository
 
     @Binds
     abstract fun bindNotificationRepository(
-        impl: NotificationRepositoryImpl
+        impl: NotificationRepositoryImpl,
     ): NotificationRepository
 }

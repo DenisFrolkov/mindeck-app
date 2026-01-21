@@ -22,7 +22,7 @@ class DatabaseModule {
         return Room.databaseBuilder(
             context,
             AppDatabase::class.java,
-            "mindeck_app_database"
+            "mindeck_app_database",
         )
             .build()
     }

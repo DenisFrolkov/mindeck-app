@@ -5,10 +5,10 @@ import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
 import androidx.core.app.NotificationCompat
+import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.mimdeck.data.database.dao.CardDao
-import androidx.hilt.work.HiltWorker
 import com.mindeck.data.R
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -47,7 +47,7 @@ class NotificationWorker @AssistedInject constructor(
             val channel = NotificationChannel(
                 channelId,
                 "Повторение карточек",
-                NotificationManager.IMPORTANCE_HIGH
+                NotificationManager.IMPORTANCE_HIGH,
             ).apply {
                 description = "Уведомления о карточках, которые пора повторить"
             }

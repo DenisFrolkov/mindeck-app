@@ -1,4 +1,4 @@
-package com.mindeck.presentation.ui.components.dropdown.dropdown_selector
+package com.mindeck.presentation.ui.components.dropdown.dropdownSelector
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -12,7 +12,7 @@ class DropdownSelectorState(
     private val expandedHeight: Dp = MAX_VISIBLE_ITEMS * ITEM_HEIGHT.dp - 14.dp,
     private val animateOffsetY: Dp = 50.dp,
     private val animateAlpha: Float = 1f,
-    val animationDuration: Int = 100
+    val animationDuration: Int = 100,
 ) {
     companion object {
         const val ITEM_HEIGHT = 36
@@ -43,4 +43,3 @@ class DropdownSelectorState(
         if (isExpanded) reset() else open()
     }
 }
-

@@ -35,7 +35,7 @@ object Mappers {
             this.lastReviewDate,
             this.nextReviewDate,
             this.repetitionCount,
-            this.lastReviewType?.name
+            this.lastReviewType?.name,
         )
     }
 
@@ -52,7 +52,7 @@ object Mappers {
             this.lastReviewDate,
             this.nextReviewDate,
             this.repetitionCount,
-            this.lastReviewType?.toData()
+            this.lastReviewType?.toData(),
         )
     }
 

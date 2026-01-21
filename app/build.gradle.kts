@@ -26,7 +26,7 @@ android {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
         }
     }
@@ -44,12 +44,12 @@ android {
 
 dependencies {
 
-    //Подключение модулей
+    // Подключение модулей
     implementation(project(":presentation"))
     implementation(project(":domain"))
     implementation(project(":data"))
 
-    //Room
+    // Room
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
@@ -58,12 +58,12 @@ dependencies {
 
     implementation("androidx.lifecycle:lifecycle-process:2.8.7")
 
-    //Hilt
+    // Hilt
     implementation("androidx.hilt:hilt-work:1.0.0")
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
 
-    //Jetpack Compose
+    // Jetpack Compose
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.compose.material3.material3)

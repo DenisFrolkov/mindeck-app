@@ -13,6 +13,6 @@ interface CardRepetitionRepository {
         lastReviewDate: Long,
         newReviewDate: Long,
         newRepetitionCount: Int,
-        lastReviewType: ReviewType
+        lastReviewType: ReviewType,
     )
 }
