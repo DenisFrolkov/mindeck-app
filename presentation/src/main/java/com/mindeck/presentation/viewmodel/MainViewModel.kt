@@ -26,7 +26,7 @@ import javax.inject.Inject
 open class MainViewModel @Inject constructor(
     getAllFoldersUseCase: GetAllDecksUseCase,
     private val createDeckUseCase: CreateDeckUseCase,
-    private val getCardsRepetitionUseCase: GetCardsRepetitionUseCase
+    private val getCardsRepetitionUseCase: GetCardsRepetitionUseCase,
 ) : ViewModel() {
 
     val currentDateTime: String = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))

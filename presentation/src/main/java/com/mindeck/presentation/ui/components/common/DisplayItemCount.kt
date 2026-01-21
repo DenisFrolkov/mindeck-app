@@ -20,18 +20,18 @@ import com.mindeck.presentation.ui.components.utils.dimenFloatResource
 fun DisplayItemCount(
     @PluralsRes plurals: Int,
     count: Int,
-    textStyle: TextStyle
+    textStyle: TextStyle,
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
-            .fillMaxWidth()
+            .fillMaxWidth(),
     ) {
         Text(
             text = pluralStringResource(plurals, count, count),
             style = textStyle,
             modifier = Modifier.weight(dimenFloatResource(R.dimen.float_one_significance)),
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
         )
     }
     Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_medium)))

@@ -5,5 +5,5 @@ data class CardState(
     var question: String,
     var answer: String,
     var tag: String,
-    var deckId: Int
+    var deckId: Int,
 )

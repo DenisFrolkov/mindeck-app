@@ -46,7 +46,7 @@ fun CustomModalWindow(
     placeholder: String,
     isInputValid: UiState<Unit?>,
     exitButton: () -> Unit,
-    saveButton: (String) -> Unit
+    saveButton: (String) -> Unit,
 ) {
     var text by remember { mutableStateOf("") }
 
@@ -61,10 +61,10 @@ fun CustomModalWindow(
             modifier = Modifier
                 .background(
                     color = MaterialTheme.colorScheme.background,
-                    shape = MaterialTheme.shapes.small
+                    shape = MaterialTheme.shapes.small,
                 )
                 .clip(MaterialTheme.shapes.small)
-                .padding(dimenDpResource(R.dimen.card_input_field_item_padding))
+                .padding(dimenDpResource(R.dimen.card_input_field_item_padding)),
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 ActionHandlerButton(
@@ -77,7 +77,7 @@ fun CustomModalWindow(
                     text = titleText,
                     style = MaterialTheme.typography.bodyMedium,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 )
             }
             Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_large)))
@@ -91,20 +91,20 @@ fun CustomModalWindow(
                 },
                 textStyle = MaterialTheme.typography.bodyMedium,
                 placeholderTextStyle = MaterialTheme.typography.bodyMedium.copy(
-                    color = if (isError) MaterialTheme.colorScheme.error else text_gray
+                    color = if (isError) MaterialTheme.colorScheme.error else text_gray,
                 ),
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(
                         if (isError) MaterialTheme.colorScheme.onError else MaterialTheme.colorScheme.onPrimary,
-                        MaterialTheme.shapes.large
+                        MaterialTheme.shapes.large,
                     )
                     .border(
                         dimenDpResource(R.dimen.border_width_dot_two_five),
                         MaterialTheme.colorScheme.outline,
-                        MaterialTheme.shapes.large
+                        MaterialTheme.shapes.large,
                     )
-                    .padding(dimenDpResource(R.dimen.card_input_field_item_padding))
+                    .padding(dimenDpResource(R.dimen.card_input_field_item_padding)),
 
             )
 
@@ -114,7 +114,7 @@ fun CustomModalWindow(
                         it,
                         modifier = Modifier.fillMaxWidth().padding(dimenDpResource(R.dimen.spacer_extra_small)),
                         textAlign = TextAlign.Start,
-                        style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.error)
+                        style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.error),
                     )
                 }
             }
@@ -125,30 +125,30 @@ fun CustomModalWindow(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = dimenDpResource(R.dimen.circular_progress_indicator_top_padding))
-                        .wrapContentSize(Alignment.Center)
+                        .wrapContentSize(Alignment.Center),
                 ) {
                     CircularProgressIndicator(
                         color = MaterialTheme.colorScheme.primary,
-                        strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_one)
+                        strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_one),
                     )
                 }
             } else {
                 SaveDataButton(
                     text = buttonText,
                     textStyle = MaterialTheme.typography.bodyMedium.copy(
-                        color = text_white
+                        color = text_white,
                     ),
                     buttonModifier = Modifier
                         .background(
                             color = MaterialTheme.colorScheme.outlineVariant,
-                            shape = MaterialTheme.shapes.medium
+                            shape = MaterialTheme.shapes.medium,
                         )
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },
-                            indication = null
+                            indication = null,
                         ) {
                             saveButton(text)
-                        }
+                        },
                 )
             }
         }
@@ -165,11 +165,9 @@ private fun CustomModalWindowPreview() {
             placeholder = "Введите текст",
             isInputValid = UiState.Loading,
             exitButton = {
-
             },
             saveButton = {
-
-            }
+            },
         )
     }
 }

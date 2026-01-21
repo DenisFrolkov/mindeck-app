@@ -2,5 +2,5 @@ package com.mimdeck.data.exception
 
 class DatabaseException(
     message: String,
-    cause: Throwable? = null
+    cause: Throwable? = null,
 ) : Exception(message, cause)

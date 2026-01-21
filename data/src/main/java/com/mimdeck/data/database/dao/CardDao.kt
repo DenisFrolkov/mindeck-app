@@ -42,7 +42,8 @@ interface CardDao {
     @Query("SELECT * FROM card WHERE next_review_date IS NULL OR next_review_date <= :currentTime")
     fun getCardsRepetition(currentTime: Long): Flow<List<CardEntity>>
 
-    @Query("""
+    @Query(
+        """
         UPDATE card
         SET first_review_date = :firstReviewDate,
             last_review_date = :lastReviewDate,
@@ -50,13 +51,14 @@ interface CardDao {
             repetition_count = :newRepetitionCount,
             last_review_type = :lastReviewType
         WHERE card_id = :cardId
-    """)
+    """,
+    )
     suspend fun updateReview(
         cardId: Int,
         firstReviewDate: Long,
         lastReviewDate: Long,
         newReviewDate: Long,
         newRepetitionCount: Int,
-        lastReviewType: ReviewType
+        lastReviewType: ReviewType,
     )
 }

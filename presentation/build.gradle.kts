@@ -22,7 +22,7 @@ android {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
         }
     }
@@ -36,22 +36,22 @@ android {
 }
 
 dependencies {
-    //Подключение модулей
+    // Подключение модулей
     implementation(project(":domain"))
 
-    //Hilt
+    // Hilt
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
 
-    //Jetpack Compose
+    // Jetpack Compose
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.compose.material3.material3)
     implementation(libs.ui)
     debugImplementation(libs.ui.tooling)
 
-    //Navigation
+    // Navigation
     implementation(libs.androidx.navigation.compose)
 
     implementation(libs.androidx.core.ktx)

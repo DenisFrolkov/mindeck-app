@@ -1,5 +1,6 @@
 package com.mindeck.presentation.ui.components.utils
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.padding
@@ -13,6 +14,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.mindeck.presentation.R
 
+@SuppressLint("ModifierFactoryExtensionFunction")
 @Composable
 fun textInputModifier(
     backgroundColor: Color = MaterialTheme.colorScheme.onPrimary,
@@ -20,7 +22,7 @@ fun textInputModifier(
     topEnd: Dp = 0.dp,
     bottomStart: Dp = 0.dp,
     bottomEnd: Dp = 0.dp,
-    size: Dp = 0.dp
+    size: Dp = 0.dp,
 ) = Modifier
     .clip(
         shape =
@@ -29,16 +31,16 @@ fun textInputModifier(
                 topStart = topStart,
                 topEnd = topEnd,
                 bottomStart = bottomStart,
-                bottomEnd = bottomEnd
+                bottomEnd = bottomEnd,
             )
         } else {
             RoundedCornerShape(
-                size
+                size,
             )
         },
     )
     .background(
-        backgroundColor
+        backgroundColor,
     )
     .border(
         dimenDpResource(R.dimen.border_width_dot_two_five),
@@ -49,12 +51,12 @@ fun textInputModifier(
                 topStart = topStart,
                 topEnd = topEnd,
                 bottomStart = bottomStart,
-                bottomEnd = bottomEnd
+                bottomEnd = bottomEnd,
             )
         } else {
             RoundedCornerShape(
-                size
+                size,
             )
-        }
+        },
     )
     .padding(start = dimenDpResource(R.dimen.padding_small))

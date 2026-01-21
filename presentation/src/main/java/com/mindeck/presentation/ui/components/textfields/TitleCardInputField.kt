@@ -21,7 +21,7 @@ fun TitleInputField(
     modifier: Modifier,
 ) {
     Box(
-        modifier = modifier
+        modifier = modifier,
     ) {
         BasicTextField(
             value = value,
@@ -32,19 +32,18 @@ fun TitleInputField(
             decorationBox = { innerTextField ->
                 Box(
                     contentAlignment = Alignment.CenterStart,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize(),
                 ) {
                     if (value.isEmpty()) {
                         Text(
                             text = placeholder,
-                            style = placeholderTextStyle
+                            style = placeholderTextStyle,
                         )
                     }
                     innerTextField()
                 }
             },
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
         )
     }
 }
-

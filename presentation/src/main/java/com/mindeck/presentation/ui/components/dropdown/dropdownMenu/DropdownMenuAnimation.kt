@@ -1,4 +1,4 @@
-package com.mindeck.presentation.ui.components.dropdown.dropdown_menu
+package com.mindeck.presentation.ui.components.dropdown.dropdownMenu
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -11,8 +11,8 @@ import com.mindeck.presentation.R
 fun animateDropdownMenuHeightIn(targetAlpha: Float, animationDuration: Int): Float {
     val animatedFloatIn by animateFloatAsState(
         targetValue = targetAlpha,
-        animationSpec = tween(durationMillis = animationDuration), label = stringResource(R.string.label_animated_dropdown_menu_alpha)
+        animationSpec = tween(durationMillis = animationDuration),
+        label = stringResource(R.string.label_animated_dropdown_menu_alpha),
     )
     return animatedFloatIn
 }
-

@@ -1,4 +1,4 @@
-package com.mindeck.presentation.ui.components.dropdown.dropdown_menu
+package com.mindeck.presentation.ui.components.dropdown.dropdownMenu
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -20,23 +20,23 @@ import com.mindeck.presentation.ui.components.utils.dimenDpResource
 @Composable
 fun DropdownMenu(
     listDropdownMenuItem: List<DropdownMenuData>,
-    dropdownModifier: Modifier
+    dropdownModifier: Modifier,
 ) {
     Box(
-        modifier = dropdownModifier
+        modifier = dropdownModifier,
     ) {
         LazyColumn(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .background(
                     MaterialTheme.colorScheme.onPrimary,
-                    shape = MaterialTheme.shapes.medium
+                    shape = MaterialTheme.shapes.medium,
                 )
                 .border(
                     width = dimenDpResource(R.dimen.border_width_dot_two_five),
                     color = MaterialTheme.colorScheme.outlineVariant,
-                    shape = MaterialTheme.shapes.medium
-                )
+                    shape = MaterialTheme.shapes.medium,
+                ),
         ) {
             items(listDropdownMenuItem) { item ->
                 Text(
@@ -45,12 +45,12 @@ fun DropdownMenu(
                     modifier = Modifier
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },
-                            indication = null
+                            indication = null,
                         ) { item.action.invoke() }
                         .padding(
                             horizontal = dimenDpResource(R.dimen.dropdown_menu_horizontal_text_padding),
-                            vertical = dimenDpResource(R.dimen.dropdown_menu_vertical_text_padding)
-                        )
+                            vertical = dimenDpResource(R.dimen.dropdown_menu_vertical_text_padding),
+                        ),
                 )
             }
         }
