@@ -1,17 +1,18 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
-    id("dagger.hilt.android.plugin")
-    id("com.google.devtools.ksp")
-    id("kotlin-kapt")
+    alias(libs.plugins.org.jetbrains.kotlin.android)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.hilt)
 }
 
 android {
     namespace = "com.mindeck.data"
-    compileSdk = 35
+    compileSdk = rootProject.extra["compileSdk"] as Int
 
     defaultConfig {
-        minSdk = 26
+        minSdk = rootProject.extra["minSdk"] as Int
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
@@ -27,48 +28,39 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
-    }
-    kotlinOptions {
-        jvmTarget = "11"
-    }
-    defaultConfig {
-        kapt {
-            arguments {
-                arg("room.schemaLocation", "$projectDir/schemas")
-            }
-        }
+        sourceCompatibility = rootProject.extra["javaVersion"] as JavaVersion
+        targetCompatibility = rootProject.extra["javaVersion"] as JavaVersion
     }
 }
-
-ksp {
-    arg("room.schemaLocation", "$projectDir/schemas")
+kotlin {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.fromTarget(rootProject.extra["jvmTarget"] as String))
+    }
 }
 
 dependencies {
-
-    // Подключение модулей
-    implementation(project(":domain"))
+    implementation(projects.domain)
 
     // Coroutines
-    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.coroutines)
 
-    implementation("androidx.work:work-runtime-ktx:2.8.1")
+    // Work
+    implementation(libs.androidx.work.runtime.ktx)
 
     // Hilt
-    implementation("androidx.hilt:hilt-work:1.0.0")
-    implementation(libs.hilt.android)
-    kapt(libs.hilt.compiler)
+    implementation(libs.androidx.hilt.work)
+    implementation(libs.bundles.hilt)
+    ksp(libs.hilt.compiler)
+    ksp(libs.android.hilt.compiler)
 
     // Room
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
-    testImplementation(libs.androidx.room.testing)
     implementation(libs.androidx.room.paging)
+    testImplementation(libs.androidx.room.testing)
 
-    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.core)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
 }

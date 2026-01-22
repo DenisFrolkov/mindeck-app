@@ -512,8 +512,9 @@ private fun dropdownMenuDataList(
                 cardsState.onSuccess {
                     if (it.isNotEmpty()) {
                         deckViewModel.toggleEditMode()
-                    } else
+                    } else {
                         Toast.makeText(context, "Колода пуста!", Toast.LENGTH_LONG).show()
+                    }
                 }
             },
         ),
@@ -527,8 +528,9 @@ private fun dropdownMenuDataList(
                         dropdownMenuState.reset()
                         deckViewModel.toggleEditMode()
                         deckViewModel.toggleDeleteCardsModalWindow(true)
-                    } else
+                    } else {
                         Toast.makeText(context, "Колода пуста!", Toast.LENGTH_LONG).show()
+                    }
                 }
             },
         ),
