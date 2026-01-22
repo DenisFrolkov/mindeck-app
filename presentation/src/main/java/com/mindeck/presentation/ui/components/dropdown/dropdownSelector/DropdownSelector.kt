@@ -87,7 +87,9 @@ fun DropdownSelector(
                                 topStart = dimenDpResource(R.dimen.text_input_topStart_padding),
                                 topEnd = dimenDpResource(R.dimen.text_input_topEnd_padding),
                             )
-                        } else MaterialTheme.shapes.extraSmall,
+                        } else {
+                            MaterialTheme.shapes.extraSmall
+                        },
                     )
                     .wrapContentSize(Alignment.Center),
             ) {

@@ -1,6 +1,5 @@
 package com.mimdeck.data.database
 
-import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import com.mimdeck.data.database.dao.CardDao

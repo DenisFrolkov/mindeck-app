@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.firstOrNull
 
 @HiltWorker
 class NotificationWorker @AssistedInject constructor(
-    @Assisted private val cardDao: CardDao,
+    private val cardDao: CardDao,
     @Assisted appContext: Context,
     @Assisted workerParameters: WorkerParameters,
 ) : CoroutineWorker(appContext, workerParameters) {
