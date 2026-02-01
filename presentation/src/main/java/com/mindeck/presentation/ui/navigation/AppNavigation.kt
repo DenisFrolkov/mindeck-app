@@ -1,6 +1,5 @@
 package com.mindeck.presentation.ui.navigation
 
-import android.util.Log
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -22,17 +21,20 @@ fun AppNavigation() {
     val navController = rememberNavController()
 
     NavHost(
-        navController = navController, startDestination = NavigationRoute.MainScreen.route
+        navController = navController,
+        startDestination = NavigationRoute.MainScreen.route,
     ) {
-        composable(NavigationRoute.MainScreen.route,
+        composable(
+            NavigationRoute.MainScreen.route,
             enterTransition = { fadeIn(animationSpec = tween(100)) },
-            exitTransition = { fadeOut(animationSpec = tween(100)) }
+            exitTransition = { fadeOut(animationSpec = tween(100)) },
         ) {
             MainScreen(
-                navController = navController
+                navController = navController,
             )
         }
-        composable(NavigationRoute.CreationCardScreen.route,
+        composable(
+            NavigationRoute.CreationCardScreen.route,
             enterTransition = { fadeIn(animationSpec = tween(150)) },
             exitTransition = { fadeOut(animationSpec = tween(150)) },
             arguments = listOf(
@@ -40,19 +42,20 @@ fun AppNavigation() {
                     type = NavType.StringType
                     nullable = true
                     defaultValue = null
-                }
-            )
+                },
+            ),
         ) { backStackEntry ->
             val deckIdString = backStackEntry.arguments?.getString("deckId")
             val deckId = deckIdString?.toIntOrNull()
             CreationCardScreen(
                 navController = navController,
-                deckId = deckId
+                deckId = deckId,
             )
         }
-        composable(NavigationRoute.DecksScreen.route,
+        composable(
+            NavigationRoute.DecksScreen.route,
             enterTransition = { fadeIn(animationSpec = tween(150)) },
-            exitTransition = { fadeOut(animationSpec = tween(150)) }
+            exitTransition = { fadeOut(animationSpec = tween(150)) },
         ) {
             DecksScreen(navController = navController)
         }
@@ -60,13 +63,13 @@ fun AppNavigation() {
             NavigationRoute.DeckScreen.route,
             enterTransition = { fadeIn(animationSpec = tween(100)) },
             exitTransition = { fadeOut(animationSpec = tween(100)) },
-            arguments = listOf(navArgument("deckId") { type = NavType.IntType })
+            arguments = listOf(navArgument("deckId") { type = NavType.IntType }),
         ) { backStackEntry ->
             val deckId = backStackEntry.arguments?.getInt("deckId")
             if (deckId != null) {
                 DeckScreen(
                     navController = navController,
-                    deckId = deckId
+                    deckId = deckId,
                 )
             } else {
                 navController.popBackStack()
@@ -76,13 +79,13 @@ fun AppNavigation() {
             NavigationRoute.CardScreen.route,
             enterTransition = { fadeIn(animationSpec = tween(100)) },
             exitTransition = { fadeOut(animationSpec = tween(100)) },
-            arguments = listOf(navArgument("cardId") { type = NavType.IntType })
+            arguments = listOf(navArgument("cardId") { type = NavType.IntType }),
         ) { backStackEntry ->
             val cardId = backStackEntry.arguments?.getInt("cardId")
             if (cardId != null) {
                 CardScreen(
                     navController = navController,
-                    cardId = cardId
+                    cardId = cardId,
                 )
             } else {
                 navController.popBackStack()
@@ -92,7 +95,7 @@ fun AppNavigation() {
             NavigationRoute.CardStudyScreen.route,
             enterTransition = { fadeIn(animationSpec = tween(100)) },
             exitTransition = { fadeOut(animationSpec = tween(100)) },
-            arguments = listOf(navArgument("cardId") { type = NavType.IntType })
+            arguments = listOf(navArgument("cardId") { type = NavType.IntType }),
         ) { backStackEntry ->
             val cardId = backStackEntry.arguments?.getInt("cardId")
             if (cardId != null) {

@@ -50,7 +50,7 @@ fun EditElementModalWindow(
     exitButton: () -> Unit,
     saveButton: (Int) -> Unit,
     onClickItem: (id: Int) -> Unit = {},
-    onEditItem: (id: Int) -> Unit
+    onEditItem: (id: Int) -> Unit,
 ) {
     val isLoading by remember(isInputValid) { derivedStateOf { isInputValid is UiState.Loading } }
 
@@ -62,10 +62,10 @@ fun EditElementModalWindow(
             modifier = Modifier
                 .background(
                     color = MaterialTheme.colorScheme.background,
-                    shape = MaterialTheme.shapes.small
+                    shape = MaterialTheme.shapes.small,
                 )
                 .clip(MaterialTheme.shapes.small)
-                .padding(dimenDpResource(R.dimen.card_input_field_item_padding))
+                .padding(dimenDpResource(R.dimen.card_input_field_item_padding)),
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 ActionHandlerButton(
@@ -78,7 +78,7 @@ fun EditElementModalWindow(
                     text = titleText,
                     style = MaterialTheme.typography.bodyMedium,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 )
             }
             Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_large)))
@@ -90,8 +90,8 @@ fun EditElementModalWindow(
                     .height(dimenDpResource(R.dimen.display_card_item_min_size) * if (listItem.size < 3) listItem.size.toFloat() else 2.8f)
                     .border(
                         width = dimenDpResource(R.dimen.border_width_dot_five),
-                        color = MaterialTheme.colorScheme.onSecondary
-                    )
+                        color = MaterialTheme.colorScheme.onSecondary,
+                    ),
             ) {
                 items(listItem) { item ->
                     DisplayItem(
@@ -100,13 +100,13 @@ fun EditElementModalWindow(
                             .border(
                                 dimenDpResource(R.dimen.border_width_dot_two_five),
                                 MaterialTheme.colorScheme.outline,
-                                MaterialTheme.shapes.extraSmall
+                                MaterialTheme.shapes.extraSmall,
                             )
                             .clip(shape = MaterialTheme.shapes.extraSmall)
                             .height(dimenDpResource(R.dimen.display_card_item_min_size))
                             .clickable(
                                 interactionSource = remember { MutableInteractionSource() },
-                                indication = null
+                                indication = null,
                             ) {
                                 onClickItem(item.id)
                             },
@@ -120,13 +120,12 @@ fun EditElementModalWindow(
                         ),
                         displayItemStyle = DisplayItemStyle(
                             backgroundColor = MaterialTheme.colorScheme.secondary.copy(
-                                dimenFloatResource(R.dimen.float_zero_dot_five_significance)
+                                dimenFloatResource(R.dimen.float_zero_dot_five_significance),
                             ),
                             iconColor = MaterialTheme.colorScheme.outlineVariant,
                             textStyle = MaterialTheme.typography.bodyMedium,
-                        )
+                        ),
                     )
-
                 }
             }
 
@@ -138,7 +137,7 @@ fun EditElementModalWindow(
                             .fillMaxWidth()
                             .padding(dimenDpResource(R.dimen.spacer_extra_small)),
                         textAlign = TextAlign.Start,
-                        style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.error)
+                        style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.error),
                     )
                 }
             }
@@ -149,30 +148,30 @@ fun EditElementModalWindow(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = dimenDpResource(R.dimen.circular_progress_indicator_top_padding))
-                        .wrapContentSize(Alignment.Center)
+                        .wrapContentSize(Alignment.Center),
                 ) {
                     CircularProgressIndicator(
                         color = MaterialTheme.colorScheme.primary,
-                        strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_one)
+                        strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_one),
                     )
                 }
             } else {
                 SaveDataButton(
                     text = buttonText,
                     textStyle = MaterialTheme.typography.bodyMedium.copy(
-                        color = text_white
+                        color = text_white,
                     ),
                     buttonModifier = Modifier
                         .background(
                             color = MaterialTheme.colorScheme.outlineVariant,
-                            shape = MaterialTheme.shapes.medium
+                            shape = MaterialTheme.shapes.medium,
                         )
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },
-                            indication = null
+                            indication = null,
                         ) {
                             saveButton(0)
-                        }
+                        },
                 )
             }
         }

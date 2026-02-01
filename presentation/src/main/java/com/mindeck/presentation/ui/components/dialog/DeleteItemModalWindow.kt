@@ -40,10 +40,10 @@ fun DeleteItemModalWindow(
             modifier = Modifier
                 .background(
                     color = MaterialTheme.colorScheme.background,
-                    shape = MaterialTheme.shapes.small
+                    shape = MaterialTheme.shapes.small,
                 )
                 .clip(MaterialTheme.shapes.small)
-                .padding(dimenDpResource(R.dimen.card_input_field_item_padding))
+                .padding(dimenDpResource(R.dimen.card_input_field_item_padding)),
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 ActionHandlerButton(
@@ -56,7 +56,7 @@ fun DeleteItemModalWindow(
                     text = titleText,
                     style = MaterialTheme.typography.titleMedium,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 )
             }
             Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_large)))
@@ -67,18 +67,18 @@ fun DeleteItemModalWindow(
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = dimenDpResource(R.dimen.padding_medium))
+                    .padding(horizontal = dimenDpResource(R.dimen.padding_medium)),
             )
             Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_large)))
             Box(
                 modifier = Modifier
                     .background(
                         color = MaterialTheme.colorScheme.outlineVariant,
-                        shape = MaterialTheme.shapes.medium
+                        shape = MaterialTheme.shapes.medium,
                     )
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
-                        indication = null
+                        indication = null,
                     ) {
                         deleteButton()
                     },
@@ -88,8 +88,8 @@ fun DeleteItemModalWindow(
                     style = MaterialTheme.typography.labelLarge.copy(color = text_white),
                     modifier = Modifier.padding(
                         vertical = dimenDpResource(R.dimen.padding_small),
-                        horizontal = dimenDpResource(R.dimen.padding_extra_large)
-                    )
+                        horizontal = dimenDpResource(R.dimen.padding_extra_large),
+                    ),
                 )
             }
         }

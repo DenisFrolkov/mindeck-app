@@ -11,26 +11,27 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class NotificationRepositoryImpl @Inject constructor(
-    private val context: Context
+    private val context: Context,
 ) : NotificationRepository {
 
     override fun scheduleWork() {
         val periodicWorkRequest = PeriodicWorkRequestBuilder<NotificationWorker>(
-            1, TimeUnit.MINUTES
+            1,
+            TimeUnit.MINUTES,
         )
             .setInitialDelay(1, TimeUnit.MINUTES)
             .setConstraints(
                 Constraints.Builder()
                     .setRequiresBatteryNotLow(true)
                     .setRequiresStorageNotLow(true)
-                    .build()
+                    .build(),
             )
             .build()
 
         WorkManager.getInstance(context).enqueueUniquePeriodicWork(
             "CheckCardsWork",
             ExistingPeriodicWorkPolicy.REPLACE,
-            periodicWorkRequest
+            periodicWorkRequest,
         )
     }
 

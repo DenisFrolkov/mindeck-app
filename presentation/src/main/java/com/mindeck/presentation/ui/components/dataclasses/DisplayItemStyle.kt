@@ -7,5 +7,5 @@ data class DisplayItemStyle(
     val backgroundColor: Color,
     val iconColor: Color,
     val textStyle: TextStyle,
-    val textMaxLines: Int = 1
+    val textMaxLines: Int = 1,
 )

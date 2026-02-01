@@ -47,9 +47,9 @@ import com.mindeck.presentation.ui.components.buttons.ActionHandlerButton
 import com.mindeck.presentation.ui.components.dataclasses.DisplayItemData
 import com.mindeck.presentation.ui.components.dataclasses.DisplayItemStyle
 import com.mindeck.presentation.ui.components.dialog.CustomModalWindow
-import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenu
-import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenuData
-import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenuState
+import com.mindeck.presentation.ui.components.dropdown.dropdownMenu.DropdownMenu
+import com.mindeck.presentation.ui.components.dropdown.dropdownMenu.DropdownMenuData
+import com.mindeck.presentation.ui.components.dropdown.dropdownMenu.DropdownMenuState
 import com.mindeck.presentation.ui.components.folder.DisplayItem
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
 import com.mindeck.presentation.ui.components.utils.dimenFloatResource
@@ -59,7 +59,7 @@ import com.mindeck.presentation.viewmodel.DecksViewModel
 
 @Composable
 fun DecksScreen(
-    navController: NavController
+    navController: NavController,
 ) {
     val decksViewModel: DecksViewModel = hiltViewModel(navController.currentBackStackEntry!!)
 
@@ -86,7 +86,7 @@ fun DecksScreen(
         },
         toggleCreateDeckModalWindow = {
             decksViewModel.toggleModalWindow(it)
-        }
+        },
     )
 }
 
@@ -118,7 +118,7 @@ private fun DecksContent(
                 Dialog(
                     onDismissRequest = {
                         toggleCreateDeckModalWindow(false)
-                    }
+                    },
                 ) {
                     CustomModalWindow(
                         stringResource(R.string.create_item_dialog_text_creating_deck),
@@ -130,17 +130,17 @@ private fun DecksContent(
                         },
                         saveButton = {
                             onSaveDeck(it)
-                        }
+                        },
                     )
                 }
             }
-        }
+        },
     )
 }
 
 @Composable
 private fun dropdownMenuDataList(
-    onCreateDeck: () -> Unit
+    onCreateDeck: () -> Unit,
 ): List<DropdownMenuData> {
     return listOf(
         DropdownMenuData(
@@ -148,15 +148,15 @@ private fun dropdownMenuDataList(
             titleStyle = MaterialTheme.typography.bodyMedium,
             action = {
                 onCreateDeck()
-            }
-        )
+            },
+        ),
     )
 }
 
 @Composable
 private fun DecksEditTopBar(
     navController: NavController,
-    dropdownMenuState: DropdownMenuState
+    dropdownMenuState: DropdownMenuState,
 ) {
     Row(
         modifier = Modifier
@@ -164,7 +164,7 @@ private fun DecksEditTopBar(
             .padding(horizontal = dimenDpResource(R.dimen.padding_medium))
             .padding(top = dimenDpResource(R.dimen.padding_medium))
             .statusBarsPadding(),
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.SpaceBetween,
     ) {
         ActionHandlerButton(
             iconPainter = painterResource(R.drawable.back_icon),
@@ -187,13 +187,13 @@ private fun DecksContent(
     decks: UiState<List<Deck>>,
     navController: NavController,
     listDropdownMenu: List<DropdownMenuData>,
-    dropdownMenuState: DropdownMenuState
+    dropdownMenuState: DropdownMenuState,
 ) {
     Column(
         modifier = Modifier
             .padding(padding)
             .padding(horizontal = dimenDpResource(R.dimen.padding_medium))
-            .navigationBarsPadding()
+            .navigationBarsPadding(),
     ) {
         DecksInfo(decks, navController)
     }
@@ -210,7 +210,7 @@ private fun DecksContent(
 @Composable
 private fun DecksInfo(
     decksState: UiState<List<Deck>>,
-    navController: NavController
+    navController: NavController,
 ) {
     decksState.RenderUiState(
         onSuccess = { decks ->
@@ -219,13 +219,13 @@ private fun DecksInfo(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .wrapContentSize(Alignment.Center)
+                            .wrapContentSize(Alignment.Center),
                     ) {
                         Text(
                             text = pluralStringResource(
                                 R.plurals.deck_amount,
                                 decks.size,
-                                decks.size
+                                decks.size,
                             ),
                             style = MaterialTheme.typography.titleMedium,
                         )
@@ -234,25 +234,26 @@ private fun DecksInfo(
                 }
                 items(
                     items = decks,
-                    key = { it.deckId }) { deck ->
+                    key = { it.deckId },
+                ) { deck ->
                     DisplayItem(
                         modifier = Modifier
                             .fillMaxWidth()
                             .border(
                                 dimenDpResource(R.dimen.border_width_dot_two_five),
                                 MaterialTheme.colorScheme.outline,
-                                MaterialTheme.shapes.medium
+                                MaterialTheme.shapes.medium,
                             )
                             .clip(MaterialTheme.shapes.medium)
                             .height(dimenDpResource(R.dimen.display_card_item_size))
                             .clickable(
                                 interactionSource = remember { MutableInteractionSource() },
-                                indication = null
+                                indication = null,
                             ) {
                                 navController.navigate(
                                     NavigationRoute.DeckScreen.createRoute(
-                                        deck.deckId
-                                    )
+                                        deck.deckId,
+                                    ),
                                 )
                             },
                         showCount = false,
@@ -263,11 +264,11 @@ private fun DecksInfo(
                         ),
                         displayItemStyle = DisplayItemStyle(
                             backgroundColor = MaterialTheme.colorScheme.secondary.copy(
-                                dimenFloatResource(R.dimen.float_zero_dot_five_significance)
+                                dimenFloatResource(R.dimen.float_zero_dot_five_significance),
                             ),
                             iconColor = MaterialTheme.colorScheme.outlineVariant,
-                            textStyle = MaterialTheme.typography.bodyMedium
-                        )
+                            textStyle = MaterialTheme.typography.bodyMedium,
+                        ),
                     )
                     Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_small)))
                 }
@@ -278,11 +279,11 @@ private fun DecksInfo(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = dimenDpResource(R.dimen.padding_large))
-                    .wrapContentSize(Alignment.Center)
+                    .wrapContentSize(Alignment.Center),
             ) {
                 CircularProgressIndicator(
                     color = MaterialTheme.colorScheme.primary,
-                    strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_one)
+                    strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_one),
                 )
             }
         },
@@ -291,9 +292,9 @@ private fun DecksInfo(
                 stringResource(R.string.error_get_all_decks),
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.error)
+                style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.error),
             )
-        }
+        },
     )
 }
 
@@ -301,15 +302,16 @@ private fun DecksInfo(
 private fun DeckDropdownMenu(
     padding: PaddingValues,
     listDropdownMenu: List<DropdownMenuData>,
-    dropdownMenuState: DropdownMenuState
+    dropdownMenuState: DropdownMenuState,
 ) {
     Box(
         modifier = Modifier
             .fillMaxSize()
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
-                indication = null
-            ) { dropdownMenuState.toggle() })
+                indication = null,
+            ) { dropdownMenuState.toggle() },
+    )
 
     DropdownMenu(
         listDropdownMenuItem = listDropdownMenu,
@@ -318,13 +320,13 @@ private fun DeckDropdownMenu(
             .padding(padding)
             .fillMaxWidth()
             .padding(top = dimenDpResource(R.dimen.spacer_extra_small))
-            .wrapContentSize(Alignment.TopEnd)
+            .wrapContentSize(Alignment.TopEnd),
     )
 }
 
 @Preview(
     showBackground = true,
-    backgroundColor = 0xFFE6E6FF
+    backgroundColor = 0xFFE6E6FF,
 )
 @Composable
 private fun ScreenPreview() {
@@ -340,7 +342,7 @@ private fun ScreenPreview() {
             dropdownMenuState,
             false,
             { },
-            { _ -> }
+            { _ -> },
         )
     }
 }
@@ -348,7 +350,7 @@ private fun ScreenPreview() {
 @Preview(
     device = "spec:parent=pixel_5,orientation=landscape",
     showBackground = true,
-    backgroundColor = 0xFFE6E6FF
+    backgroundColor = 0xFFE6E6FF,
 )
 @Composable
 private fun ScreenPreviewLandscape() {
@@ -365,14 +367,14 @@ private fun ScreenPreviewLandscape() {
             dropdownMenuState,
             createModalWindow,
             { },
-            { _ -> }
+            { _ -> },
         )
     }
 }
 
 @Preview(
     showBackground = true,
-    backgroundColor = 0xFFE6E6FF
+    backgroundColor = 0xFFE6E6FF,
 )
 @Composable
 private fun RenameDeckModalWindowScreenPreview() {
@@ -389,7 +391,7 @@ private fun RenameDeckModalWindowScreenPreview() {
             dropdownMenuState,
             createModalWindow,
             { },
-            { _ -> }
+            { _ -> },
         )
     }
 }
@@ -397,7 +399,7 @@ private fun RenameDeckModalWindowScreenPreview() {
 @Preview(
     device = "spec:parent=pixel_5,orientation=landscape",
     showBackground = true,
-    backgroundColor = 0xFFE6E6FF
+    backgroundColor = 0xFFE6E6FF,
 )
 @Composable
 private fun EditElementModalWindowScreenPreview() {
@@ -414,7 +416,7 @@ private fun EditElementModalWindowScreenPreview() {
             dropdownMenuState,
             createModalWindow,
             { },
-            { _ -> }
+            { _ -> },
         )
     }
 }
@@ -424,19 +426,19 @@ private fun decksDataMock(): UiState<List<Deck>> = UiState.Success(
     listOf<Deck>(
         Deck(
             deckId = 1,
-            deckName = "Kotlin Basics"
+            deckName = "Kotlin Basics",
         ),
         Deck(
             deckId = 2,
-            deckName = "Jetpack Compose"
+            deckName = "Jetpack Compose",
         ),
         Deck(
             deckId = 3,
-            deckName = "Architecture Patterns"
+            deckName = "Architecture Patterns",
         ),
         Deck(
             deckId = 4,
-            deckName = "Coroutines & Flow"
-        )
-    )
+            deckName = "Coroutines & Flow",
+        ),
+    ),
 )

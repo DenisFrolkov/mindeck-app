@@ -11,7 +11,7 @@ class FabState(
     private val collapsedSize: Dp = 56.dp,
     private val expandedWidth: Dp = 196.dp,
     private val expandedHeight: Dp,
-    val animationDuration: Int = 100
+    val animationDuration: Int = 100,
 ) {
 
     companion object {

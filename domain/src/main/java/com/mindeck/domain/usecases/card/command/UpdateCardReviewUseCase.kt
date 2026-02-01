@@ -7,12 +7,12 @@ import java.time.ZonedDateTime
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
-class UpdateCardReviewUseCase @Inject constructor (private val cardRepetitionRepository: CardRepetitionRepository) {
+class UpdateCardReviewUseCase @Inject constructor(private val cardRepetitionRepository: CardRepetitionRepository) {
     suspend operator fun invoke(
         cardId: Int,
         firstReviewDate: Long?,
         newRepetitionCount: Int,
-        lastReviewType: ReviewType
+        lastReviewType: ReviewType,
     ) {
         val now = ZonedDateTime.now(ZoneId.systemDefault()).toInstant().toEpochMilli()
         val firstReview = firstReviewDate ?: now
@@ -24,7 +24,7 @@ class UpdateCardReviewUseCase @Inject constructor (private val cardRepetitionRep
             now,
             nextReview,
             newRepetitionCount + 1,
-            lastReviewType
+            lastReviewType,
         )
     }
 
@@ -32,7 +32,7 @@ class UpdateCardReviewUseCase @Inject constructor (private val cardRepetitionRep
         firstReviewDate: Long,
         currentTimeMillis: Long,
         newRepetitionCount: Int,
-        lastReviewType: ReviewType
+        lastReviewType: ReviewType,
     ): Long {
         return if (newRepetitionCount <= 1) {
             currentTimeMillis + when (lastReviewType) {

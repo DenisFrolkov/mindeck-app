@@ -29,11 +29,11 @@ fun ActionHandlerButton(
         contentAlignment = Alignment.TopStart,
         modifier = Modifier
             .clickable(
-            interactionSource = remember { MutableInteractionSource() },
-            indication = null
-        ) {
-            onClick()
-        }
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+            ) {
+                onClick()
+            },
     ) {
         Icon(
             painter = iconPainter,
@@ -43,10 +43,10 @@ fun ActionHandlerButton(
                 .clip(shape = MaterialTheme.shapes.extraLarge)
                 .background(
                     color = MaterialTheme.colorScheme.outlineVariant,
-                    shape = MaterialTheme.shapes.extraLarge
+                    shape = MaterialTheme.shapes.extraLarge,
                 )
                 .padding(dimenDpResource(R.dimen.action_handler_icon_padding))
-                .size(dimenDpResource(R.dimen.action_handler_size))
+                .size(dimenDpResource(R.dimen.action_handler_size)),
         )
     }
 }

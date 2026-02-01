@@ -24,10 +24,10 @@ import javax.inject.Inject
 class CreationCardViewModel @Inject constructor(
     private val createCardUseCase: CreateCardUseCase,
     private val getAllDecksUseCase: GetAllDecksUseCase,
-    private val getDeckByIdUseCase: GetDeckByIdUseCase
+    private val getDeckByIdUseCase: GetDeckByIdUseCase,
 ) : ViewModel() {
     private var _cardState = mutableStateOf(
-        CardState("", "", "", "", -1)
+        CardState("", "", "", "", -1),
     )
     val cardState: State<CardState> = _cardState
 
@@ -62,7 +62,7 @@ class CreationCardViewModel @Inject constructor(
         cardAnswer: String,
         cardType: String,
         cardTag: String,
-        deckId: Int
+        deckId: Int,
     ) {
         viewModelScope.launch {
             _createCardState.value = try {
@@ -73,8 +73,8 @@ class CreationCardViewModel @Inject constructor(
                         cardAnswer = cardAnswer,
                         cardType = cardType,
                         cardTag = cardTag,
-                        deckId = deckId
-                    )
+                        deckId = deckId,
+                    ),
                 )
                 UiState.Success(Unit)
             } catch (e: Exception) {
@@ -104,10 +104,10 @@ class CreationCardViewModel @Inject constructor(
 
     fun validateInput(): Boolean {
         val isValid = cardState.value.title.isNotBlank() &&
-                cardState.value.question.isNotBlank() &&
-                cardState.value.answer.isNotBlank() &&
-                selectedDeckForCreatingCard.value.second != null &&
-                selectedTypeForCreatingCard.value.second != null
+            cardState.value.question.isNotBlank() &&
+            cardState.value.answer.isNotBlank() &&
+            selectedDeckForCreatingCard.value.second != null &&
+            selectedTypeForCreatingCard.value.second != null
 
         _validation.value = isValid
         return isValid

@@ -11,8 +11,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
-class CardRepetitionRepositoryImpl  @Inject constructor(
-    private val cardDao: CardDao
+class CardRepetitionRepositoryImpl @Inject constructor(
+    private val cardDao: CardDao,
 ) : CardRepetitionRepository {
     override fun getCardsRepetition(currentTime: Long): Flow<List<Card>> = handleDatabase {
         cardDao.getCardsRepetition(currentTime = currentTime)
@@ -25,7 +25,7 @@ class CardRepetitionRepositoryImpl  @Inject constructor(
         lastReviewDate: Long,
         newReviewDate: Long,
         newRepetitionCount: Int,
-        lastReviewType: ReviewType
+        lastReviewType: ReviewType,
     ) = handleDatabaseSuspend {
         cardDao.updateReview(
             cardId,
@@ -33,7 +33,7 @@ class CardRepetitionRepositoryImpl  @Inject constructor(
             lastReviewDate,
             newReviewDate,
             newRepetitionCount,
-            lastReviewType
+            lastReviewType,
         )
     }
 }

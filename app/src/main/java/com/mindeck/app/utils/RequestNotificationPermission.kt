@@ -8,7 +8,9 @@ import androidx.core.app.ActivityCompat
 fun requestNotificationPermission(activity: Activity) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         ActivityCompat.requestPermissions(
-            activity, arrayOf(Manifest.permission.POST_NOTIFICATIONS), 1
+            activity,
+            arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+            1,
         )
     }
 }

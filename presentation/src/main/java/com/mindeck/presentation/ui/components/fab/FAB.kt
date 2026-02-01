@@ -52,14 +52,14 @@ fun FAB(
             .background(fabColor)
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
-                indication = null
+                indication = null,
             ) {
                 fabState.open()
-            }
+            },
     ) {
         if (fabState.isExpanded) {
             Column(
-                modifier = Modifier.alpha(alphaMenu)
+                modifier = Modifier.alpha(alphaMenu),
             ) {
                 fabMenuItems.forEachIndexed { index, menuItem ->
                     Row(
@@ -70,29 +70,29 @@ fun FAB(
                             .padding(dimenDpResource(R.dimen.padding_extra_small))
                             .clickable(
                                 interactionSource = remember { MutableInteractionSource() },
-                                indication = null
+                                indication = null,
                             ) {
                                 fabState.reset()
                                 menuItem.navigation.invoke()
-                            }
+                            },
                     ) {
                         Text(
                             text = menuItem.text,
                             style = textStyle,
-                            modifier = Modifier.padding(vertical = dimenDpResource(R.dimen.fab_menu_text_vertical_padding))
+                            modifier = Modifier.padding(vertical = dimenDpResource(R.dimen.fab_menu_text_vertical_padding)),
                         )
                         Icon(
                             painter = painterResource(menuItem.icon),
                             contentDescription = menuItem.iconContentDescription,
                             modifier = Modifier.size(dimenDpResource(R.dimen.fab_menu_icon_item_size)),
-                            tint = fabIconColor
+                            tint = fabIconColor,
                         )
                     }
                     if (index != fabMenuItems.size - 1) {
                         HorizontalDivider(
                             modifier = Modifier.fillMaxWidth(),
                             thickness = dimenDpResource(R.dimen.horizontal_divider_one_height),
-                            color = MaterialTheme.colorScheme.onPrimary
+                            color = MaterialTheme.colorScheme.onPrimary,
                         )
                     }
                 }
@@ -104,7 +104,7 @@ fun FAB(
                 tint = fabIconColor,
                 modifier = Modifier
                     .padding(dimenDpResource(R.dimen.fab_menu_icon_padding))
-                    .alpha(alphaFab)
+                    .alpha(alphaFab),
             )
         }
     }
