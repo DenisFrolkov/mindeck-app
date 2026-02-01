@@ -9,7 +9,7 @@ import javax.inject.Inject
 @HiltViewModel
 class AppViewModel @Inject constructor(
     private val startNotificationUseCase: StartNotificationUseCase,
-    private val stopNotificationUseCase: StopNotificationUseCase
+    private val stopNotificationUseCase: StopNotificationUseCase,
 ) : ViewModel() {
 
     fun startNotifications() {

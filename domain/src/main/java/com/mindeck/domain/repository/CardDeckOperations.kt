@@ -6,7 +6,7 @@ interface CardDeckOperations {
     suspend fun moveCardsBetweenDeck(
         cardIds: List<Int>,
         sourceDeckId: Int,
-        targetDeckId: Int
+        targetDeckId: Int,
     ) {
         addCardsToDeck(cardIds, targetDeckId)
         deleteCardsFromDeck(cardIds, sourceDeckId)

@@ -1,12 +1,6 @@
 pluginManagement {
     repositories {
-        google {
-            content {
-                includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx.*")
-            }
-        }
+        google()
         mavenCentral()
         gradlePluginPortal()
     }
@@ -19,5 +13,10 @@ dependencyResolutionManagement {
     }
 }
 
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
 rootProject.name = "mindeck-app"
-include(":app", ":presentation", ":data", ":domain")
+include(":app")
+include(":presentation")
+include(":data")
+include(":domain")

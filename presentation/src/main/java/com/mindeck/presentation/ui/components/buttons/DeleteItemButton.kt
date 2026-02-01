@@ -15,25 +15,26 @@ import com.mindeck.presentation.ui.components.utils.dimenDpResource
 
 @Composable
 fun DeleteItemButton(titleButton: String, onClick: () -> Unit) {
-    Box(modifier = Modifier
-        .background(
-            color = MaterialTheme.colorScheme.outlineVariant,
-            shape = MaterialTheme.shapes.medium
-        )
-        .clickable(
-            interactionSource = remember { MutableInteractionSource() },
-            indication = null
-        ) {
-            onClick()
-        }
+    Box(
+        modifier = Modifier
+            .background(
+                color = MaterialTheme.colorScheme.outlineVariant,
+                shape = MaterialTheme.shapes.medium,
+            )
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+            ) {
+                onClick()
+            },
     ) {
         Text(
             text = titleButton,
             style = MaterialTheme.typography.labelMedium.copy(color = MaterialTheme.colorScheme.onPrimary),
             modifier = Modifier.padding(
                 vertical = dimenDpResource(R.dimen.padding_extra_small),
-                horizontal = dimenDpResource(R.dimen.padding_small)
-            )
+                horizontal = dimenDpResource(R.dimen.padding_small),
+            ),
         )
     }
 }

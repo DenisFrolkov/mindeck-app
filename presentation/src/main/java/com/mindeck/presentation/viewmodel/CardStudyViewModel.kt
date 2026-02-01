@@ -4,9 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.ReviewType
+import com.mindeck.domain.usecases.card.command.UpdateCardReviewUseCase
 import com.mindeck.domain.usecases.card.query.GetCardByIdUseCase
 import com.mindeck.domain.usecases.card.query.GetCardsRepetitionUseCase
-import com.mindeck.domain.usecases.card.command.UpdateCardReviewUseCase
 import com.mindeck.presentation.state.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,7 +21,7 @@ import javax.inject.Inject
 class CardStudyViewModel @Inject constructor(
     private val getCardByIdUseCase: GetCardByIdUseCase,
     private val updateCardReviewUseCase: UpdateCardReviewUseCase,
-    private val getCardsRepetitionUseCase: GetCardsRepetitionUseCase
+    private val getCardsRepetitionUseCase: GetCardsRepetitionUseCase,
 ) : ViewModel() {
     private val _cardByCardIdUIState = MutableStateFlow<UiState<Card>>(UiState.Loading)
     val cardByCardIdUIState = _cardByCardIdUIState.asStateFlow()
@@ -43,12 +43,15 @@ class CardStudyViewModel @Inject constructor(
         cardId: Int,
         firstReviewDate: Long?,
         repetitionCount: Int,
-        lastReviewType: ReviewType
+        lastReviewType: ReviewType,
     ) {
         viewModelScope.launch {
             _updateCardReviewState.value = try {
                 updateCardReviewUseCase(
-                    cardId, firstReviewDate, repetitionCount, lastReviewType
+                    cardId,
+                    firstReviewDate,
+                    repetitionCount,
+                    lastReviewType,
                 )
                 UiState.Success(Unit)
             } catch (e: Exception) {

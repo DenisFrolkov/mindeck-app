@@ -1,4 +1,4 @@
-package com.mindeck.presentation.ui.components.repeat_options
+package com.mindeck.presentation.ui.components.repeatOptions
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -25,7 +25,7 @@ fun RepeatOptionsButton(
     buttonColor: Color,
     textDifficultyOfRepetition: String,
     titleTextStyle: TextStyle,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -33,22 +33,22 @@ fun RepeatOptionsButton(
             .border(
                 width = dimenDpResource(R.dimen.border_width_dot_two_five),
                 color = MaterialTheme.colorScheme.outline,
-                shape = MaterialTheme.shapes.extraSmall
+                shape = MaterialTheme.shapes.extraSmall,
             )
             .width(dimenDpResource(R.dimen.repeat_options_button_weight))
             .padding(vertical = dimenDpResource(R.dimen.repeat_options_button_vertical_padding))
             .wrapContentSize(Alignment.Center)
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
-                indication = null
+                indication = null,
             ) {
                 onClick()
-            }
+            },
     ) {
         Text(
             text = textDifficultyOfRepetition,
             style = titleTextStyle,
-            modifier = Modifier.fillMaxWidth().padding(horizontal = dimenDpResource(R.dimen.padding_extra_small))
+            modifier = Modifier.fillMaxWidth().padding(horizontal = dimenDpResource(R.dimen.padding_extra_small)),
         )
     }
 }

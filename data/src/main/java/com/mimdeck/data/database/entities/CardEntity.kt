@@ -1,24 +1,28 @@
 package com.mimdeck.data.database.entities
 
-import androidx.room.Entity
-import androidx.room.PrimaryKey
 import androidx.room.ColumnInfo
+import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.ForeignKey.Companion.CASCADE
 import androidx.room.Index
+import androidx.room.PrimaryKey
 
 @Entity(
     tableName = "card",
-    indices = [Index(
-        value = ["card_name", "card_question"],
-        unique = true
-    ), Index(value = ["deck_id"])],
-    foreignKeys = [ForeignKey(
-        entity = DeckEntity::class,
-        parentColumns = ["deck_id"],
-        childColumns = ["deck_id"],
-        onDelete = CASCADE
-    )]
+    indices = [
+        Index(
+            value = ["card_name", "card_question"],
+            unique = true,
+        ), Index(value = ["deck_id"]),
+    ],
+    foreignKeys = [
+        ForeignKey(
+            entity = DeckEntity::class,
+            parentColumns = ["deck_id"],
+            childColumns = ["deck_id"],
+            onDelete = CASCADE,
+        ),
+    ],
 )
 data class CardEntity(
     @PrimaryKey(autoGenerate = true)
@@ -34,5 +38,5 @@ data class CardEntity(
     @ColumnInfo(name = "last_review_date") val lastReviewDate: Long?,
     @ColumnInfo(name = "next_review_date") val nextReviewDate: Long?,
     @ColumnInfo(name = "repetition_count", defaultValue = "0") val repetitionCount: Int = 0,
-    @ColumnInfo(name = "last_review_type") val lastReviewType: String? = null
+    @ColumnInfo(name = "last_review_type") val lastReviewType: String? = null,
 )

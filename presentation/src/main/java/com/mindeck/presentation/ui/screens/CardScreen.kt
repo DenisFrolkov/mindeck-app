@@ -51,10 +51,10 @@ import com.mindeck.presentation.state.getOrNull
 import com.mindeck.presentation.ui.components.buttons.ActionHandlerButton
 import com.mindeck.presentation.ui.components.common.QuestionAndAnswerElement
 import com.mindeck.presentation.ui.components.dataclasses.CardAttributes
-import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenu
-import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenuData
-import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenuState
-import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.animateDropdownMenuHeightIn
+import com.mindeck.presentation.ui.components.dropdown.dropdownMenu.DropdownMenu
+import com.mindeck.presentation.ui.components.dropdown.dropdownMenu.DropdownMenuData
+import com.mindeck.presentation.ui.components.dropdown.dropdownMenu.DropdownMenuState
+import com.mindeck.presentation.ui.components.dropdown.dropdownMenu.animateDropdownMenuHeightIn
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
 import com.mindeck.presentation.ui.navigation.NavigationRoute
 import com.mindeck.presentation.ui.theme.MindeckTheme
@@ -63,7 +63,7 @@ import com.mindeck.presentation.viewmodel.CardViewModel
 @Composable
 fun CardScreen(
     navController: NavController,
-    cardId: Int
+    cardId: Int,
 ) {
     val cardViewModel: CardViewModel = hiltViewModel(navController.currentBackStackEntry!!)
 
@@ -80,7 +80,7 @@ fun CardScreen(
         navController = navController,
         card = card,
         dropdownMenuState = dropdownMenuState,
-        cardViewModel = cardViewModel
+        cardViewModel = cardViewModel,
     )
 
     CardContent(
@@ -88,7 +88,7 @@ fun CardScreen(
         deck,
         dropdownMenuState,
         card,
-        listDropdownMenu
+        listDropdownMenu,
     )
 }
 
@@ -98,7 +98,7 @@ private fun CardContent(
     deck: UiState<Deck>,
     dropdownMenuState: DropdownMenuState,
     card: UiState<Card>,
-    listDropdownMenu: List<DropdownMenuData>
+    listDropdownMenu: List<DropdownMenuData>,
 ) {
     val scrollState = rememberScrollState()
 
@@ -107,7 +107,7 @@ private fun CardContent(
 
     val dropdownVisibleAnimation = animateDropdownMenuHeightIn(
         targetAlpha = dropdownMenuState.dropdownAlpha,
-        animationDuration = dropdownMenuState.animationDuration
+        animationDuration = dropdownMenuState.animationDuration,
     )
 
     Scaffold(
@@ -123,9 +123,9 @@ private fun CardContent(
                 card = card,
                 cardAttributes = cardAttributes,
                 listDropdownMenu = listDropdownMenu,
-                dropdownMenuState = dropdownMenuState
+                dropdownMenuState = dropdownMenuState,
             )
-        }
+        },
     )
 }
 
@@ -134,7 +134,7 @@ private fun dropdownMenuDataList(
     navController: NavController,
     card: UiState<Card>,
     dropdownMenuState: DropdownMenuState,
-    cardViewModel: CardViewModel
+    cardViewModel: CardViewModel,
 ): List<DropdownMenuData> {
     return when (card) {
         is UiState.Success -> {
@@ -146,17 +146,17 @@ private fun dropdownMenuDataList(
                         dropdownMenuState.reset()
                         navController.navigate(
                             NavigationRoute.CardStudyScreen.createRoute(
-                                card.data.cardId
-                            )
+                                card.data.cardId,
+                            ),
                         )
-                    }
+                    },
                 ),
                 DropdownMenuData(
                     title = stringResource(R.string.dropdown_menu_data_edit_card),
                     titleStyle = MaterialTheme.typography.bodyMedium,
                     action = {
                         dropdownMenuState.reset()
-                    }
+                    },
                 ),
                 DropdownMenuData(
                     title = stringResource(R.string.dropdown_menu_data_remove_card),
@@ -165,8 +165,8 @@ private fun dropdownMenuDataList(
                         dropdownMenuState.reset()
                         cardViewModel.deleteDeck(card = card.data)
                         navController.popBackStack()
-                    }
-                )
+                    },
+                ),
             )
         }
 
@@ -175,8 +175,8 @@ private fun dropdownMenuDataList(
                 DropdownMenuData(
                     title = stringResource(R.string.text_loading),
                     titleStyle = MaterialTheme.typography.bodyMedium,
-                    action = {}
-                )
+                    action = {},
+                ),
             )
         }
 
@@ -187,8 +187,8 @@ private fun dropdownMenuDataList(
                     titleStyle = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.error),
                     action = {
                         dropdownMenuState.reset()
-                    }
-                )
+                    },
+                ),
             )
         }
     }
@@ -197,18 +197,18 @@ private fun dropdownMenuDataList(
 @Composable
 private fun CardTopBar(
     navController: NavController,
-    dropdownMenuState: DropdownMenuState
+    dropdownMenuState: DropdownMenuState,
 ) {
     Box(
         modifier = Modifier
             .padding(horizontal = dimenDpResource(R.dimen.padding_medium))
             .padding(top = dimenDpResource(R.dimen.padding_medium))
-            .statusBarsPadding()
+            .statusBarsPadding(),
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             ActionHandlerButton(
                 iconPainter = painterResource(R.drawable.back_icon),
@@ -229,43 +229,43 @@ private fun CardTopBar(
 @Composable
 fun cardAttributesList(
     card: UiState<Card>,
-    deckName: String?
+    deckName: String?,
 ): List<CardAttributes> {
     return when (card) {
         is UiState.Success -> listOf(
             CardAttributes(
                 title = stringResource(R.string.text_deck_dropdown_selector),
-                value = deckName
+                value = deckName,
             ),
             CardAttributes(
                 title = stringResource(R.string.text_type_dropdown_selector),
                 value = when (card.data.cardType) {
                     "0" -> stringResource(R.string.text_folder_dropdown_selector_simple)
                     else -> stringResource(R.string.text_folder_dropdown_selector_simple_with_answer_input)
-                }
-            )
+                },
+            ),
         )
 
         is UiState.Error -> listOf(
             CardAttributes(
                 title = stringResource(R.string.text_deck_dropdown_selector),
-                value = stringResource(R.string.text_error_loading)
+                value = stringResource(R.string.text_error_loading),
             ),
             CardAttributes(
                 title = stringResource(R.string.text_type_dropdown_selector),
-                value = stringResource(R.string.text_error_loading)
-            )
+                value = stringResource(R.string.text_error_loading),
+            ),
         )
 
         else -> listOf(
             CardAttributes(
                 title = stringResource(R.string.text_deck_dropdown_selector),
-                load = true
+                load = true,
             ),
             CardAttributes(
                 title = stringResource(R.string.text_type_dropdown_selector),
-                load = true
-            )
+                load = true,
+            ),
         )
     }
 }
@@ -278,7 +278,7 @@ private fun Content(
     card: UiState<Card>,
     cardAttributes: List<CardAttributes>,
     listDropdownMenu: List<DropdownMenuData>,
-    dropdownMenuState: DropdownMenuState
+    dropdownMenuState: DropdownMenuState,
 
 ) {
     Column(
@@ -286,7 +286,7 @@ private fun Content(
             .padding(padding)
             .verticalScroll(state = scrollState)
             .padding(horizontal = dimenDpResource(R.dimen.padding_medium))
-            .navigationBarsPadding()
+            .navigationBarsPadding(),
     ) {
         for (attribute in cardAttributes) {
             CardAttributesList(attribute = attribute)
@@ -299,7 +299,7 @@ private fun Content(
             padding = padding,
             listDropdownMenu = listDropdownMenu,
             dropdownVisibleAnimation = dropdownVisibleAnimation,
-            dropdownMenuState = dropdownMenuState
+            dropdownMenuState = dropdownMenuState,
         )
     }
 }
@@ -314,39 +314,39 @@ private fun CardAttributesList(attribute: CardAttributes) {
             modifier = Modifier
                 .padding(dimenDpResource(R.dimen.padding_extra_small))
                 .wrapContentSize(Alignment.CenterStart)
-                .width(dimenDpResource(R.dimen.dropdown_min_weight))
+                .width(dimenDpResource(R.dimen.dropdown_min_weight)),
         )
         Box(
             modifier = Modifier
                 .width(220.dp)
                 .background(
                     color = MaterialTheme.colorScheme.onPrimary,
-                    shape = MaterialTheme.shapes.extraSmall
+                    shape = MaterialTheme.shapes.extraSmall,
                 )
                 .height(height = dimenDpResource(R.dimen.dropdown_menu_item_height))
                 .border(
                     dimenDpResource(R.dimen.border_width_dot_two_five),
                     MaterialTheme.colorScheme.outline,
-                    shape = MaterialTheme.shapes.extraSmall
+                    shape = MaterialTheme.shapes.extraSmall,
                 )
-                .wrapContentSize(Alignment.Center)
+                .wrapContentSize(Alignment.Center),
 
         ) {
             if (attribute.load || attribute.value == null) {
                 Box(
                     modifier = Modifier
-                        .wrapContentSize(Alignment.Center)
+                        .wrapContentSize(Alignment.Center),
                 ) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(dimenDpResource(R.dimen.circular_progress_indicator_size_mini)),
                         color = MaterialTheme.colorScheme.primary,
-                        strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_two)
+                        strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_two),
                     )
                 }
             } else {
                 Text(
                     text = attribute.value,
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
                 )
             }
         }
@@ -355,32 +355,32 @@ private fun CardAttributesList(attribute: CardAttributes) {
 
 @Composable
 private fun CardInfo(
-    cardState: UiState<Card>
+    cardState: UiState<Card>,
 ) {
     cardState.RenderUiState(
         onSuccess = { card ->
             Box(
                 contentAlignment = Alignment.Center,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 Text(
                     text = card.cardName,
-                    style = MaterialTheme.typography.bodyLarge
+                    style = MaterialTheme.typography.bodyLarge,
                 )
             }
             Spacer(modifier = Modifier.height(height = dimenDpResource(R.dimen.spacer_medium)))
             Box(
                 modifier = Modifier
-                    .fillMaxSize()
+                    .fillMaxSize(),
             ) {
                 QuestionAndAnswerElement(
                     question = card.cardQuestion,
                     answer = card.cardAnswer,
                     questionStyle = MaterialTheme.typography.bodyMedium.copy(
-                        textAlign = TextAlign.Start
+                        textAlign = TextAlign.Start,
                     ),
                     answerStyle = MaterialTheme.typography.bodyMedium.copy(
-                        textAlign = TextAlign.Start
+                        textAlign = TextAlign.Start,
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
@@ -388,8 +388,8 @@ private fun CardInfo(
                         .border(
                             dimenDpResource(R.dimen.border_width_dot_five),
                             MaterialTheme.colorScheme.outline,
-                            MaterialTheme.shapes.extraSmall
-                        )
+                            MaterialTheme.shapes.extraSmall,
+                        ),
                 )
             }
 
@@ -400,33 +400,33 @@ private fun CardInfo(
                 ) {
                     Text(
                         text = stringResource(R.string.text_tag_input_field),
-                        style = MaterialTheme.typography.bodyMedium
+                        style = MaterialTheme.typography.bodyMedium,
                     )
                     Spacer(modifier = Modifier.width(dimenDpResource(R.dimen.spacer_large)))
                     Column(
                         modifier = Modifier
-                            .fillMaxWidth()
+                            .fillMaxWidth(),
                     ) {
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .background(
                                     color = MaterialTheme.colorScheme.onPrimary,
-                                    shape = MaterialTheme.shapes.extraSmall
+                                    shape = MaterialTheme.shapes.extraSmall,
                                 )
                                 .height(height = dimenDpResource(R.dimen.dropdown_menu_item_height))
                                 .border(
                                     dimenDpResource(R.dimen.border_width_dot_two_five),
                                     MaterialTheme.colorScheme.outline,
-                                    shape = MaterialTheme.shapes.extraSmall
+                                    shape = MaterialTheme.shapes.extraSmall,
                                 )
                                 .padding(dimenDpResource(R.dimen.padding_extra_small))
-                                .wrapContentSize(Alignment.CenterStart)
+                                .wrapContentSize(Alignment.CenterStart),
 
                         ) {
                             Text(
                                 text = card.cardTag,
-                                style = MaterialTheme.typography.bodyMedium
+                                style = MaterialTheme.typography.bodyMedium,
                             )
                         }
                     }
@@ -438,12 +438,12 @@ private fun CardInfo(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = dimenDpResource(R.dimen.padding_large))
-                    .wrapContentSize(Alignment.Center)
+                    .wrapContentSize(Alignment.Center),
             ) {
                 CircularProgressIndicator(
                     modifier = Modifier.size(dimenDpResource(R.dimen.circular_progress_indicator_size)),
                     color = MaterialTheme.colorScheme.primary,
-                    strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_two)
+                    strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_two),
                 )
             }
         },
@@ -452,9 +452,9 @@ private fun CardInfo(
                 stringResource(R.string.error_get_info_about_deck),
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.error)
+                style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.error),
             )
-        }
+        },
     )
 }
 
@@ -463,15 +463,16 @@ private fun CardDropdownMenu(
     padding: PaddingValues,
     listDropdownMenu: List<DropdownMenuData>,
     dropdownVisibleAnimation: Float,
-    dropdownMenuState: DropdownMenuState
+    dropdownMenuState: DropdownMenuState,
 ) {
     Box(
         modifier = Modifier
             .fillMaxSize()
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
-                indication = null
-            ) { dropdownMenuState.toggle() })
+                indication = null,
+            ) { dropdownMenuState.toggle() },
+    )
 
     DropdownMenu(
         listDropdownMenuItem = listDropdownMenu,
@@ -481,13 +482,13 @@ private fun CardDropdownMenu(
             .alpha(dropdownVisibleAnimation)
             .fillMaxWidth()
             .padding(top = dimenDpResource(R.dimen.spacer_extra_small))
-            .wrapContentSize(Alignment.TopEnd)
+            .wrapContentSize(Alignment.TopEnd),
     )
 }
 
 @Preview(
     showBackground = true,
-    backgroundColor = 0xFFE6E6FF
+    backgroundColor = 0xFFE6E6FF,
 )
 @Composable
 private fun ScreenPreview() {
@@ -502,7 +503,7 @@ private fun ScreenPreview() {
             deckState,
             dropdownMenuState,
             cardState,
-            emptyList<DropdownMenuData>()
+            emptyList<DropdownMenuData>(),
         )
     }
 }
@@ -510,7 +511,7 @@ private fun ScreenPreview() {
 @Preview(
     device = "spec:parent=pixel_5,orientation=landscape",
     showBackground = true,
-    backgroundColor = 0xFFE6E6FF
+    backgroundColor = 0xFFE6E6FF,
 )
 @Composable
 private fun ScreenPreviewLandscape() {
@@ -525,7 +526,7 @@ private fun ScreenPreviewLandscape() {
             deckState,
             dropdownMenuState,
             cardState,
-            emptyList<DropdownMenuData>()
+            emptyList<DropdownMenuData>(),
         )
     }
 }
@@ -534,8 +535,8 @@ private fun ScreenPreviewLandscape() {
 private fun deckDataMock(): UiState<Deck> = UiState.Success(
     Deck(
         deckId = 1,
-        deckName = "Kotlin Basics"
-    )
+        deckName = "Kotlin Basics",
+    ),
 )
 
 @Composable
@@ -552,6 +553,6 @@ private fun cardDataMock(): UiState<Card> = UiState.Success(
         lastReviewDate = 1_725_086_400_000,
         nextReviewDate = 1_725_172_800_000,
         repetitionCount = 2,
-        lastReviewType = ReviewType.EASY
-    )
+        lastReviewType = ReviewType.EASY,
+    ),
 )

@@ -41,7 +41,7 @@ import com.mindeck.presentation.state.RenderUiState
 import com.mindeck.presentation.state.UiState
 import com.mindeck.presentation.ui.components.buttons.ActionHandlerButton
 import com.mindeck.presentation.ui.components.buttons.SaveDataButton
-import com.mindeck.presentation.ui.components.dropdown.dropdown_selector.DropdownSelector
+import com.mindeck.presentation.ui.components.dropdown.dropdownSelector.DropdownSelector
 import com.mindeck.presentation.ui.components.textfields.CardInputField
 import com.mindeck.presentation.ui.components.textfields.TegInputField
 import com.mindeck.presentation.ui.components.textfields.TitleInputField
@@ -55,7 +55,7 @@ import com.mindeck.presentation.viewmodel.CreationCardViewModel
 @Composable
 fun CreationCardScreen(
     navController: NavController,
-    deckId: Int?
+    deckId: Int?,
 ) {
     val creationCardViewModel: CreationCardViewModel =
         hiltViewModel(navController.currentBackStackEntry!!)
@@ -66,11 +66,11 @@ fun CreationCardScreen(
     val selectedDeckForCreatingCard by creationCardViewModel.selectedDeckForCreatingCard
     val selectedTypeForCreatingCard by creationCardViewModel.selectedTypeForCreatingCard
 
-
     LaunchedEffect(Unit) {
         creationCardViewModel.getAllDecks()
-        if (deckId != null)
+        if (deckId != null) {
             creationCardViewModel.getDeckById(deckId)
+        }
     }
 
     CreationCardContent(
@@ -107,12 +107,12 @@ fun CreationCardScreen(
                         cardAnswer = cardState.answer,
                         cardType = selectedDeckForCreatingCard.second.toString(),
                         cardTag = cardState.tag,
-                        deckId = it
+                        deckId = it,
                     )
                 }
                 navController.popBackStack()
             }
-        }
+        },
     )
 }
 
@@ -130,7 +130,7 @@ private fun CreationCardContent(
     onCardQuestionSave: (String) -> Unit,
     onCardAnswerSave: (String) -> Unit,
     onCardTagSave: (String) -> Unit,
-    onSaveCard: () -> Unit
+    onSaveCard: () -> Unit,
 ) {
     val typeDropdownList = dropdownMenuTypeList()
 
@@ -154,9 +154,9 @@ private fun CreationCardContent(
                 onCardQuestionSave = onCardQuestionSave,
                 onCardAnswerSave = onCardAnswerSave,
                 onCardTagSave = onCardTagSave,
-                onSaveCard = onSaveCard
+                onSaveCard = onSaveCard,
             )
-        }
+        },
     )
 }
 
@@ -166,7 +166,7 @@ private fun TopBar(onClick: () -> Unit) {
         modifier = Modifier
             .statusBarsPadding()
             .padding(horizontal = dimenDpResource(R.dimen.padding_medium))
-            .padding(top = dimenDpResource(R.dimen.padding_large))
+            .padding(top = dimenDpResource(R.dimen.padding_large)),
     ) {
         ActionHandlerButton(
             iconPainter = painterResource(R.drawable.back_icon),
@@ -193,14 +193,14 @@ private fun Content(
     onCardQuestionSave: (String) -> Unit,
     onCardAnswerSave: (String) -> Unit,
     onCardTagSave: (String) -> Unit,
-    onSaveCard: () -> Unit
+    onSaveCard: () -> Unit,
 ) {
     Column(
         modifier = Modifier
             .padding(padding)
             .verticalScroll(rememberScrollState())
             .padding(horizontal = dimenDpResource(R.dimen.padding_medium))
-            .navigationBarsPadding()
+            .navigationBarsPadding(),
     ) {
         deck.RenderUiState(
             onSuccess = { deckInfo ->
@@ -210,7 +210,7 @@ private fun Content(
                     deckInfo.map { Pair<String, Int>(it.deckName, it.deckId) },
                     onItemClick = onSelectedDeckForCreatingCard,
                     onClick = {},
-                    textStyle = MaterialTheme.typography.bodyMedium
+                    textStyle = MaterialTheme.typography.bodyMedium,
                 )
             },
             onError = {
@@ -218,7 +218,7 @@ private fun Content(
             },
             onLoading = {
                 Text("loading")
-            }
+            },
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -229,7 +229,7 @@ private fun Content(
             typeDropdownList,
             onItemClick = onSelectedTypeForCreatingCard,
             onClick = {},
-            textStyle = MaterialTheme.typography.bodyMedium
+            textStyle = MaterialTheme.typography.bodyMedium,
         )
         Spacer(modifier = Modifier.height(height = dimenDpResource(R.dimen.spacer_medium)))
         InputFields(
@@ -238,13 +238,13 @@ private fun Content(
             onCardNameSave = onCardNameSave,
             onCardQuestionSave = onCardQuestionSave,
             onCardAnswerSave = onCardAnswerSave,
-            onCardTagSave = onCardTagSave
+            onCardTagSave = onCardTagSave,
         )
         Spacer(modifier = Modifier.height(height = dimenDpResource(R.dimen.spacer_large)))
         SaveButton(
             onClick = {
                 onSaveCard()
-            }
+            },
         )
     }
 }
@@ -253,7 +253,7 @@ private fun Content(
 private fun dropdownMenuTypeList(): List<Pair<String, Int>> {
     return listOf(
         Pair(stringResource(R.string.text_folder_dropdown_selector_simple), 0),
-        Pair(stringResource(R.string.text_folder_dropdown_selector_simple_with_answer_input), 1)
+        Pair(stringResource(R.string.text_folder_dropdown_selector_simple_with_answer_input), 1),
     )
 }
 
@@ -276,15 +276,15 @@ private fun InputFields(
         readOnly = false,
         textStyle = MaterialTheme.typography.bodyMedium,
         placeholderTextStyle = MaterialTheme.typography.bodyMedium.copy(
-            color = if (cardState.title.isNotBlank() || validation) text_gray else MaterialTheme.colorScheme.error
+            color = if (cardState.title.isNotBlank() || validation) text_gray else MaterialTheme.colorScheme.error,
         ),
         modifier = textInputModifier(
             backgroundColor = if (cardState.title.isNotBlank() || validation) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onError,
-            size = dimenDpResource(R.dimen.text_input_size_padding)
+            size = dimenDpResource(R.dimen.text_input_size_padding),
         )
             .fillMaxWidth()
             .heightIn(min = dimenDpResource(R.dimen.text_input_min_height))
-            .wrapContentSize(Alignment.CenterStart)
+            .wrapContentSize(Alignment.CenterStart),
     )
     Spacer(modifier = Modifier.height(height = dimenDpResource(R.dimen.spacer_medium)))
     CardInputField(
@@ -295,21 +295,21 @@ private fun InputFields(
         },
         textStyle = MaterialTheme.typography.bodyMedium,
         placeholderTextStyle = MaterialTheme.typography.bodyMedium.copy(
-            color = if (cardState.question.isNotBlank() || validation) text_gray else MaterialTheme.colorScheme.error
+            color = if (cardState.question.isNotBlank() || validation) text_gray else MaterialTheme.colorScheme.error,
         ),
         modifier = textInputModifier(
             backgroundColor = if (cardState.question.isNotBlank() || validation) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onError,
             topStart = dimenDpResource(R.dimen.text_input_topStart_padding),
             topEnd = dimenDpResource(R.dimen.text_input_topEnd_padding),
             bottomStart = dimenDpResource(R.dimen.text_input_bottomStart_zero_padding),
-            bottomEnd = dimenDpResource(R.dimen.text_input_bottomEnd_zero_padding)
+            bottomEnd = dimenDpResource(R.dimen.text_input_bottomEnd_zero_padding),
         )
             .fillMaxWidth()
             .heightIn(
                 min = dimenDpResource(R.dimen.text_input_min_height),
-                max = dimenDpResource(R.dimen.text_input_max_height)
+                max = dimenDpResource(R.dimen.text_input_max_height),
             )
-            .wrapContentSize(Alignment.CenterStart)
+            .wrapContentSize(Alignment.CenterStart),
     )
     CardInputField(
         placeholder = stringResource(R.string.enter_answer_for_card),
@@ -319,23 +319,23 @@ private fun InputFields(
         },
         textStyle = MaterialTheme.typography.bodyMedium,
         placeholderTextStyle = MaterialTheme.typography.bodyMedium.copy(
-            color = if (cardState.answer.isNotBlank() || validation) text_gray else MaterialTheme.colorScheme.error
+            color = if (cardState.answer.isNotBlank() || validation) text_gray else MaterialTheme.colorScheme.error,
         ),
         modifier = textInputModifier(
             backgroundColor = if (cardState.answer.isNotBlank() || validation) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onError,
             topEnd = dimenDpResource(R.dimen.text_input_topEnd_zero_padding),
             topStart = dimenDpResource(R.dimen.text_input_topStart_zero_padding),
             bottomStart = dimenDpResource(R.dimen.text_input_topStart_padding),
-            bottomEnd = dimenDpResource(R.dimen.text_input_topStart_padding)
+            bottomEnd = dimenDpResource(R.dimen.text_input_topStart_padding),
         )
             .fillMaxWidth()
             .heightIn(
                 min = dimenDpResource(R.dimen.text_input_min_height),
-                max = dimenDpResource(R.dimen.text_input_max_height)
+                max = dimenDpResource(R.dimen.text_input_max_height),
             )
             .wrapContentSize(Alignment.CenterStart),
 
-        )
+    )
     Spacer(modifier = Modifier.height(height = dimenDpResource(R.dimen.spacer_medium)))
     TegInputField(
         titleTextInput = stringResource(R.string.text_tag_input_field),
@@ -345,49 +345,49 @@ private fun InputFields(
         },
         textStyle = MaterialTheme.typography.bodyMedium,
         placeholderTextStyle = MaterialTheme.typography.bodyMedium.copy(
-            color = text_gray
+            color = text_gray,
         ),
         modifier = textInputModifier(size = dimenDpResource(R.dimen.text_input_size_padding))
             .size(
                 width = dimenDpResource(R.dimen.tag_text_input_min_weight),
-                height = dimenDpResource(R.dimen.text_input_min_height)
+                height = dimenDpResource(R.dimen.text_input_min_height),
             )
-            .wrapContentSize(Alignment.CenterStart)
+            .wrapContentSize(Alignment.CenterStart),
     )
 }
 
 @Composable
 private fun SaveButton(
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .wrapContentSize(Alignment.Center)
+            .wrapContentSize(Alignment.Center),
     ) {
         SaveDataButton(
             text = stringResource(R.string.text_save_card_button),
             textStyle = MaterialTheme.typography.bodyMedium.copy(
-                color = text_white
+                color = text_white,
             ),
             buttonModifier = Modifier
                 .background(
                     color = MaterialTheme.colorScheme.outlineVariant,
-                    shape = MaterialTheme.shapes.small
+                    shape = MaterialTheme.shapes.small,
                 )
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
-                    indication = null
+                    indication = null,
                 ) {
                     onClick()
-                }
+                },
         )
     }
 }
 
 @Preview(
     showBackground = true,
-    backgroundColor = 0xFFE6E6FF
+    backgroundColor = 0xFFE6E6FF,
 )
 @Composable
 private fun CreationCardContentScreenPreview() {
@@ -417,7 +417,7 @@ private fun CreationCardContentScreenPreview() {
 @Preview(
     device = "spec:parent=pixel_5,orientation=landscape",
     showBackground = true,
-    backgroundColor = 0xFFE6E6FF
+    backgroundColor = 0xFFE6E6FF,
 )
 @Composable
 private fun CreationCardContentScreenPreviewLandscape() {
@@ -449,19 +449,19 @@ private fun decksDataMock(): UiState<List<Deck>> = UiState.Success(
     listOf<Deck>(
         Deck(
             deckId = 1,
-            deckName = "Kotlin Basics"
+            deckName = "Kotlin Basics",
         ),
         Deck(
             deckId = 2,
-            deckName = "Jetpack Compose"
+            deckName = "Jetpack Compose",
         ),
         Deck(
             deckId = 3,
-            deckName = "Architecture Patterns"
+            deckName = "Architecture Patterns",
         ),
         Deck(
             deckId = 4,
-            deckName = "Coroutines & Flow"
-        )
-    )
+            deckName = "Coroutines & Flow",
+        ),
+    ),
 )

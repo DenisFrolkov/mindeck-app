@@ -1,4 +1,4 @@
-package com.mindeck.presentation.ui.components.daily_progress_tracker
+package com.mindeck.presentation.ui.components.dailyProgressTracker
 
 import androidx.annotation.PluralsRes
 import androidx.compose.foundation.background
@@ -36,12 +36,11 @@ import com.mindeck.presentation.ui.components.utils.dimenFloatResource
 fun DailyProgressTracker(
     cardsRepetitionState: UiState<List<Card>>,
     dptIcon: Painter,
-    dailyProgressTrackerState: DailyProgressTrackerState
+    dailyProgressTrackerState: DailyProgressTrackerState,
 ) {
-
     val dptAnimationProgress = dailyProgressTrackerAnimationProgress(
         dptProgressFloat = dailyProgressTrackerState.dptProgress,
-        animationDuration = dailyProgressTrackerState.animationDuration
+        animationDuration = dailyProgressTrackerState.animationDuration,
     )
 
     Row(
@@ -50,8 +49,8 @@ fun DailyProgressTracker(
             .fillMaxWidth()
             .background(
                 color = MaterialTheme.colorScheme.secondary,
-                shape = MaterialTheme.shapes.medium
-            )
+                shape = MaterialTheme.shapes.medium,
+            ),
     ) {
         Column(
             modifier = Modifier
@@ -59,15 +58,15 @@ fun DailyProgressTracker(
                     start = dimenDpResource(R.dimen.daily_progress_tracker_start_padding),
                     top = dimenDpResource(R.dimen.daily_progress_tracker_top_padding),
                     end = dimenDpResource(R.dimen.daily_progress_tracker_end_padding),
-                    bottom = dimenDpResource(R.dimen.daily_progress_tracker_bottom_padding)
+                    bottom = dimenDpResource(R.dimen.daily_progress_tracker_bottom_padding),
                 )
-                .weight(dimenFloatResource(R.dimen.float_one_significance))
+                .weight(dimenFloatResource(R.dimen.float_one_significance)),
         ) {
             cardsRepetitionState.onSuccess { cardsRepetition ->
                 DPTText(
                     plurals = R.plurals.card_amount,
                     count = cardsRepetition.size,
-                    textStyle = MaterialTheme.typography.labelMedium
+                    textStyle = MaterialTheme.typography.labelMedium,
                 )
             }
 
@@ -75,14 +74,14 @@ fun DailyProgressTracker(
                 DPTText(
                     plurals = R.plurals.card_amount,
                     count = 0,
-                    textStyle = MaterialTheme.typography.labelMedium
+                    textStyle = MaterialTheme.typography.labelMedium,
                 )
             }
             Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_medium)))
             DPTProgress(
                 dptAnimationProgress = dptAnimationProgress,
                 progressColor = MaterialTheme.colorScheme.onPrimary,
-                backProgressColor = MaterialTheme.colorScheme.outlineVariant
+                backProgressColor = MaterialTheme.colorScheme.outlineVariant,
             )
         }
         IconBox(dptIcon, modifier = Modifier.align(Alignment.CenterVertically))
@@ -93,17 +92,17 @@ fun DailyProgressTracker(
 private fun DPTText(
     @PluralsRes plurals: Int,
     count: Int,
-    textStyle: TextStyle
+    textStyle: TextStyle,
 ) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Text(
             text = stringResource(R.string.text_is_necessary_to_repeat),
-            style = textStyle
+            style = textStyle,
         )
         Spacer(modifier = Modifier.width(dimenDpResource(R.dimen.spacer_extra_small)))
         Text(
             text = pluralStringResource(plurals, count, count),
-            style = textStyle
+            style = textStyle,
         )
     }
 }
@@ -112,19 +111,19 @@ private fun DPTText(
 private fun DPTProgress(
     dptAnimationProgress: Float,
     progressColor: Color,
-    backProgressColor: Color
+    backProgressColor: Color,
 ) {
     Box(
         modifier = Modifier
             .background(color = progressColor, shape = MaterialTheme.shapes.extraLarge)
             .height(dimenDpResource(R.dimen.spacer_extra_small))
-            .fillMaxWidth()
+            .fillMaxWidth(),
     ) {
         Box(
             modifier = Modifier
                 .fillMaxHeight()
                 .fillMaxWidth(dptAnimationProgress)
-                .background(backProgressColor, shape = MaterialTheme.shapes.extraLarge)
+                .background(backProgressColor, shape = MaterialTheme.shapes.extraLarge),
         )
     }
 }
@@ -133,16 +132,16 @@ private fun DPTProgress(
 private fun IconBox(dptIcon: Painter, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
-            .padding(end = dimenDpResource(R.dimen.padding_medium))
+            .padding(end = dimenDpResource(R.dimen.padding_medium)),
     ) {
         Icon(
             modifier = Modifier.size(
                 width = dimenDpResource(R.dimen.daily_progress_tracker_icon_width),
-                height = dimenDpResource(R.dimen.daily_progress_tracker_icon_height)
+                height = dimenDpResource(R.dimen.daily_progress_tracker_icon_height),
             ),
             painter = dptIcon,
             tint = MaterialTheme.colorScheme.outlineVariant,
-            contentDescription = stringResource(R.string.daily_progress_tracker)
+            contentDescription = stringResource(R.string.daily_progress_tracker),
         )
     }
 }

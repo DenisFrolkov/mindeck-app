@@ -12,5 +12,5 @@ data class Card(
     val lastReviewDate: Long? = null,
     val nextReviewDate: Long? = null,
     val repetitionCount: Int = 0,
-    val lastReviewType: ReviewType? = null
+    val lastReviewType: ReviewType? = null,
 )

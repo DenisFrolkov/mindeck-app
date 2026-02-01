@@ -9,7 +9,8 @@ import androidx.core.content.ContextCompat
 fun isNotificationPermissionGranted(context: Context): Boolean {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         ContextCompat.checkSelfPermission(
-            context, Manifest.permission.POST_NOTIFICATIONS
+            context,
+            Manifest.permission.POST_NOTIFICATIONS,
         ) == PackageManager.PERMISSION_GRANTED
     } else {
         true

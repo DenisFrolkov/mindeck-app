@@ -20,10 +20,10 @@ fun QuestionAndAnswerElement(
     answer: String,
     questionStyle: TextStyle,
     answerStyle: TextStyle,
-    modifier: Modifier
+    modifier: Modifier,
 ) {
     Column(
-        modifier = modifier
+        modifier = modifier,
     ) {
         Text(
             text = question,
@@ -31,12 +31,12 @@ fun QuestionAndAnswerElement(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(dimenDpResource(R.dimen.padding_small))
-                .wrapContentSize(Alignment.CenterStart)
+                .wrapContentSize(Alignment.CenterStart),
         )
         HorizontalDivider(
             modifier = Modifier.fillMaxWidth(),
             thickness = dimenDpResource(R.dimen.horizontal_divider_dot_two_five_height),
-            color = MaterialTheme.colorScheme.outline
+            color = MaterialTheme.colorScheme.outline,
         )
         Text(
             text = answer,
@@ -44,7 +44,7 @@ fun QuestionAndAnswerElement(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(dimenDpResource(R.dimen.padding_small))
-                .wrapContentSize(Alignment.CenterStart)
+                .wrapContentSize(Alignment.CenterStart),
         )
     }
 }

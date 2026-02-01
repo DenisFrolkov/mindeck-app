@@ -39,7 +39,7 @@ fun <T> UiState<T>.getOrNull(): T? {
 inline fun <T> UiState<T>.RenderUiState(
     onSuccess: @Composable (T) -> Unit,
     onLoading: @Composable () -> Unit,
-    onError: @Composable (Throwable) -> Unit
+    onError: @Composable (Throwable) -> Unit,
 ) {
     when (this) {
         is UiState.Success -> onSuccess(data)
@@ -47,5 +47,3 @@ inline fun <T> UiState<T>.RenderUiState(
         is UiState.Error -> onError(exception)
     }
 }
-
-

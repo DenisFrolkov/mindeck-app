@@ -1,22 +1,20 @@
 plugins {
     id("java-library")
-    alias(libs.plugins.jetbrains.kotlin.jvm)
+    alias(libs.plugins.kotlin.jvm)
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
+    sourceCompatibility = rootProject.extra["javaVersion"] as JavaVersion
+    targetCompatibility = rootProject.extra["javaVersion"] as JavaVersion
 }
 
 kotlin {
-    compilerOptions {
-        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11
-    }
+    jvmToolchain(rootProject.extra["jdkVersion"] as Int)
 }
 
 dependencies {
-    implementation("javax.inject:javax.inject:1")
+    implementation(libs.javax)
 
-    //Coroutines
-    implementation(libs.kotlinx.coroutines.core)
+    // Coroutines
+    implementation(libs.coroutines)
 }

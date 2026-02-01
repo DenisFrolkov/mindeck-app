@@ -6,7 +6,6 @@ val text_black = Color(0xFF000000)
 val text_white = Color(0xFFFFFFFF)
 val text_gray = Color(0xFFAEAEAE)
 
-
 val primary_blue = Color(0xFF3D8FF7)
 val on_primary_white = Color(0xFFFFFFFF)
 

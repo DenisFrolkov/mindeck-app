@@ -63,9 +63,9 @@ import com.mindeck.presentation.ui.components.dialog.ChooseElement
 import com.mindeck.presentation.ui.components.dialog.CustomModalWindow
 import com.mindeck.presentation.ui.components.dialog.DeleteItemModalWindow
 import com.mindeck.presentation.ui.components.dialog.EditElementModalWindow
-import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenu
-import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenuData
-import com.mindeck.presentation.ui.components.dropdown.dropdown_menu.DropdownMenuState
+import com.mindeck.presentation.ui.components.dropdown.dropdownMenu.DropdownMenu
+import com.mindeck.presentation.ui.components.dropdown.dropdownMenu.DropdownMenuData
+import com.mindeck.presentation.ui.components.dropdown.dropdownMenu.DropdownMenuState
 import com.mindeck.presentation.ui.components.folder.DisplayItem
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
 import com.mindeck.presentation.ui.components.utils.dimenFloatResource
@@ -76,7 +76,7 @@ import com.mindeck.presentation.viewmodel.DeckViewModel
 @Composable
 fun DeckScreen(
     navController: NavController,
-    deckId: Int
+    deckId: Int,
 ) {
     val context = LocalContext.current
 
@@ -110,7 +110,7 @@ fun DeckScreen(
         if (deleteCardsModalWindowValue) {
             deckViewModel.deleteCardsBetweenDeck(
                 selectedCardIdSet.toList(),
-                sourceDeckId?.deckId
+                sourceDeckId?.deckId,
             )
             deckViewModel.toggleDeleteCardsModalWindow(false)
         } else {
@@ -126,7 +126,7 @@ fun DeckScreen(
             deck,
             cards,
             deckViewModel,
-            dropdownMenuState
+            dropdownMenuState,
         )
 
     DeckContent(
@@ -148,7 +148,7 @@ fun DeckScreen(
         },
         toggleCardSelection = { cardId ->
             deckViewModel.toggleCardSelection(cardId)
-        }
+        },
     )
 
     if (renameModalWindowValue) {
@@ -160,7 +160,7 @@ fun DeckScreen(
             },
             { id, deckName ->
                 deckViewModel.renameDeck(id, deckName)
-            }
+            },
         )
     }
 
@@ -178,12 +178,12 @@ fun DeckScreen(
                 deckViewModel.moveCardsBetweenDecks(
                     selectedCardIdSet.toList(),
                     sourceDeckId?.deckId,
-                    selectedDeckId
+                    selectedDeckId,
                 )
             },
             chooseElement = {
                 deckViewModel.toggleDeckSelection(it)
-            }
+            },
         )
     }
 
@@ -198,7 +198,7 @@ fun DeckScreen(
                 deckViewModel.toggleDeleteDeckModalWindow(false)
                 navController.navigate(NavigationRoute.MainScreen.route)
                 deckViewModel.deleteDeck(it)
-            }
+            },
         )
     }
 }
@@ -208,13 +208,13 @@ private fun RenameDeckModalWindow(
     deck: UiState<Deck>,
     renameDeckState: UiState<Unit>,
     toggleRenameModalWindow: (Boolean) -> Unit,
-    renameDeck: (Int, String) -> Unit
+    renameDeck: (Int, String) -> Unit,
 ) {
     deck.onSuccess { deckInfo ->
         Dialog(
             onDismissRequest = {
                 toggleRenameModalWindow(false)
-            }
+            },
         ) {
             CustomModalWindow(
                 stringResource(R.string.rename_title_item_dialog),
@@ -226,7 +226,7 @@ private fun RenameDeckModalWindow(
                 },
                 saveButton = {
                     renameDeck(deckInfo.deckId, it)
-                }
+                },
             )
         }
     }
@@ -241,7 +241,7 @@ private fun EditElementModalWindow(
     selectedDeckId: Int?,
     toggleEditCardsInDeckModalWindow: (Boolean) -> Unit,
     editElement: () -> Unit,
-    chooseElement: (Int) -> Unit
+    chooseElement: (Int) -> Unit,
 ) {
     val sourceDeckId = deck.getOrNull()
 
@@ -249,7 +249,7 @@ private fun EditElementModalWindow(
         Dialog(
             onDismissRequest = {
                 toggleEditCardsInDeckModalWindow(false)
-            }
+            },
         ) {
             EditElementModalWindow(
                 stringResource(R.string.rename_title_item_dialog),
@@ -267,7 +267,7 @@ private fun EditElementModalWindow(
                 },
                 onEditItem = {
                     chooseElement(it)
-                }
+                },
             )
         }
     }
@@ -278,13 +278,13 @@ private fun DeleteModalWindow(
     deck: UiState<Deck>,
     navController: NavController,
     toggleDeleteDeckModalWindow: (Boolean) -> Unit,
-    deleteItem: (Deck) -> Unit
+    deleteItem: (Deck) -> Unit,
 ) {
     deck.onSuccess { deck ->
         Dialog(
             onDismissRequest = {
                 toggleDeleteDeckModalWindow(false)
-            }
+            },
         ) {
             DeleteItemModalWindow(
                 "Удалить колоду",
@@ -296,7 +296,7 @@ private fun DeleteModalWindow(
                 },
                 {
                     toggleDeleteDeckModalWindow(false)
-                }
+                },
             )
         }
     }
@@ -314,7 +314,7 @@ private fun DeckContent(
     deleteCardsModalWindowValue: Boolean,
     editTopAppBarActionButton: () -> Unit,
     editTopAppBarExitButton: () -> Unit,
-    toggleCardSelection: (Int) -> Unit
+    toggleCardSelection: (Int) -> Unit,
 ) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -323,25 +323,29 @@ private fun DeckContent(
                 targetState = isEditModeEnabled,
                 transitionSpec = {
                     fadeIn(tween(50)) togetherWith fadeOut(tween(50))
-                }
+                },
             ) { editMode ->
                 if (editMode) {
                     DeckEditTopBar(
                         selectedCards = selectedCardIdsSet,
-                        buttonTitle = if (deleteCardsModalWindowValue) stringResource(R.string.dropdown_menu_data_remove_cards) else stringResource(
-                            R.string.text_move_mode_top_bar_edit_button
-                        ),
+                        buttonTitle = if (deleteCardsModalWindowValue) {
+                            stringResource(R.string.dropdown_menu_data_remove_cards)
+                        } else {
+                            stringResource(
+                                R.string.text_move_mode_top_bar_edit_button,
+                            )
+                        },
                         onExitButton = {
                             editTopAppBarExitButton()
                         },
                         onActionButton = {
                             editTopAppBarActionButton()
-                        }
+                        },
                     )
                 } else {
                     DeckTopBar(
                         navController = navController,
-                        dropdownMenuState = dropdownMenuState
+                        dropdownMenuState = dropdownMenuState,
                     )
                 }
             }
@@ -358,9 +362,9 @@ private fun DeckContent(
                 dropdownMenuState = dropdownMenuState,
                 toggleCardSelection = { cardId ->
                     toggleCardSelection(cardId)
-                }
+                },
             )
-        }
+        },
     )
 }
 
@@ -369,28 +373,28 @@ private fun DeckEditTopBar(
     selectedCards: Set<Int>,
     buttonTitle: String,
     onExitButton: () -> Unit,
-    onActionButton: () -> Unit
+    onActionButton: () -> Unit,
 ) {
     Box(
         modifier = Modifier
             .padding(horizontal = dimenDpResource(R.dimen.padding_medium))
             .padding(top = dimenDpResource(R.dimen.padding_medium))
-            .statusBarsPadding()
+            .statusBarsPadding(),
     ) {
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         ) {
             ButtonMoveMode(
                 buttonTitle = stringResource(R.string.text_move_mode_top_bar_back_button),
                 onClickButton = {
                     onExitButton()
-                }
+                },
             )
             if (selectedCards.isNotEmpty()) {
                 ButtonMoveMode(
                     buttonTitle = buttonTitle,
-                    onClickButton = onActionButton
+                    onClickButton = onActionButton,
                 )
             }
         }
@@ -400,18 +404,18 @@ private fun DeckEditTopBar(
 @Composable
 private fun DeckTopBar(
     navController: NavController,
-    dropdownMenuState: DropdownMenuState
+    dropdownMenuState: DropdownMenuState,
 ) {
     Box(
         modifier = Modifier
             .padding(horizontal = dimenDpResource(R.dimen.padding_medium))
             .padding(top = dimenDpResource(R.dimen.padding_medium))
-            .statusBarsPadding()
+            .statusBarsPadding(),
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             ActionHandlerButton(
                 iconPainter = painterResource(R.drawable.back_icon),
@@ -439,12 +443,12 @@ private fun Content(
     cards: UiState<List<Card>>,
     listDropdownMenu: List<DropdownMenuData>,
     dropdownMenuState: DropdownMenuState,
-    toggleCardSelection: (Int) -> Unit
+    toggleCardSelection: (Int) -> Unit,
 ) {
     Column(
         modifier = Modifier
             .padding(padding)
-            .padding(horizontal = dimenDpResource(R.dimen.padding_medium))
+            .padding(horizontal = dimenDpResource(R.dimen.padding_medium)),
     ) {
         CardInfo(
             deck = deck,
@@ -454,7 +458,7 @@ private fun Content(
             selectedCards = selectedCards,
             toggleCardSelection = { cardId ->
                 toggleCardSelection(cardId)
-            }
+            },
         )
     }
     if (dropdownMenuState.isExpanded) {
@@ -484,7 +488,7 @@ private fun dropdownMenuDataList(
             action = {
                 dropdownMenuState.reset()
                 deckViewModel.toggleRenameModalWindow(true)
-            }
+            },
         ),
         DropdownMenuData(
             title = stringResource(R.string.dropdown_menu_data_create_card),
@@ -494,11 +498,11 @@ private fun dropdownMenuDataList(
                 sourceDeck?.let {
                     navController.navigate(
                         NavigationRoute.CreationCardScreen.createRoute(
-                            it.deckId
-                        )
+                            it.deckId,
+                        ),
                     )
                 }
-            }
+            },
         ),
         DropdownMenuData(
             title = stringResource(R.string.dropdown_menu_data_edit_cards_list),
@@ -506,12 +510,13 @@ private fun dropdownMenuDataList(
             action = {
                 dropdownMenuState.reset()
                 cardsState.onSuccess {
-                    if (it.isNotEmpty())
+                    if (it.isNotEmpty()) {
                         deckViewModel.toggleEditMode()
-                    else
+                    } else {
                         Toast.makeText(context, "Колода пуста!", Toast.LENGTH_LONG).show()
+                    }
                 }
-            }
+            },
         ),
         DropdownMenuData(
             title = stringResource(R.string.dropdown_menu_data_remove_cards),
@@ -523,10 +528,11 @@ private fun dropdownMenuDataList(
                         dropdownMenuState.reset()
                         deckViewModel.toggleEditMode()
                         deckViewModel.toggleDeleteCardsModalWindow(true)
-                    } else
+                    } else {
                         Toast.makeText(context, "Колода пуста!", Toast.LENGTH_LONG).show()
+                    }
                 }
-            }
+            },
         ),
         DropdownMenuData(
             title = stringResource(R.string.dropdown_menu_data_remove_deck),
@@ -536,8 +542,8 @@ private fun dropdownMenuDataList(
                 deckViewModel.deleteDeckOrIncludeModalWindow(deck) {
                     navController.popBackStack()
                 }
-            }
-        )
+            },
+        ),
     )
 }
 
@@ -552,7 +558,7 @@ private fun DeckInfo(
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .wrapContentSize(Alignment.Center)
+                    .wrapContentSize(Alignment.Center),
             )
         },
         onLoading = {
@@ -560,12 +566,12 @@ private fun DeckInfo(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = dimenDpResource(R.dimen.padding_large))
-                    .wrapContentSize(Alignment.Center)
+                    .wrapContentSize(Alignment.Center),
             ) {
                 CircularProgressIndicator(
                     modifier = Modifier.size(dimenDpResource(R.dimen.circular_progress_indicator_size)),
                     color = MaterialTheme.colorScheme.primary,
-                    strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_two)
+                    strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_two),
                 )
             }
         },
@@ -574,9 +580,9 @@ private fun DeckInfo(
                 stringResource(R.string.error_get_info_about_deck),
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.error)
+                style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.error),
             )
-        }
+        },
     )
 }
 
@@ -587,7 +593,7 @@ private fun CardInfo(
     navController: NavController,
     selectedCards: Set<Int>,
     isEditModeEnabled: Boolean,
-    toggleCardSelection: (Int) -> Unit
+    toggleCardSelection: (Int) -> Unit,
 ) {
     cardsState.RenderUiState(
         onSuccess = { cards ->
@@ -598,7 +604,7 @@ private fun CardInfo(
                     DisplayItemCount(
                         plurals = R.plurals.card_amount,
                         count = cards.size,
-                        textStyle = MaterialTheme.typography.bodyMedium
+                        textStyle = MaterialTheme.typography.bodyMedium,
                     )
                 }
                 items(items = cards, key = { it.cardId }) { card ->
@@ -608,18 +614,18 @@ private fun CardInfo(
                             .border(
                                 dimenDpResource(R.dimen.border_width_dot_two_five),
                                 MaterialTheme.colorScheme.outline,
-                                MaterialTheme.shapes.extraSmall
+                                MaterialTheme.shapes.extraSmall,
                             )
                             .clip(shape = MaterialTheme.shapes.extraSmall)
                             .height(dimenDpResource(R.dimen.display_card_item_size))
                             .clickable(
                                 interactionSource = remember { MutableInteractionSource() },
-                                indication = null
+                                indication = null,
                             ) {
                                 navController.navigate(
                                     NavigationRoute.CardScreen.createRoute(
-                                        card.cardId
-                                    )
+                                        card.cardId,
+                                    ),
                                 )
                             },
                         showCount = false,
@@ -634,28 +640,26 @@ private fun CardInfo(
                         ),
                         displayItemStyle = DisplayItemStyle(
                             backgroundColor = MaterialTheme.colorScheme.secondary.copy(
-                                dimenFloatResource(R.dimen.float_zero_dot_five_significance)
+                                dimenFloatResource(R.dimen.float_zero_dot_five_significance),
                             ),
                             iconColor = MaterialTheme.colorScheme.outlineVariant,
                             textStyle = MaterialTheme.typography.bodyMedium,
-                        )
+                        ),
                     )
                     Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_small)))
                 }
             }
-
-
         },
         onLoading = {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = dimenDpResource(R.dimen.padding_large))
-                    .wrapContentSize(Alignment.Center)
+                    .wrapContentSize(Alignment.Center),
             ) {
                 CircularProgressIndicator(
                     color = MaterialTheme.colorScheme.primary,
-                    strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_one)
+                    strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_one),
                 )
             }
         },
@@ -664,26 +668,26 @@ private fun CardInfo(
                 stringResource(R.string.error_get_cards_by_deck_id),
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.error)
+                style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.error),
             )
-        }
+        },
     )
 }
-
 
 @Composable
 private fun DeckDropdownMenu(
     padding: PaddingValues,
     listDropdownMenu: List<DropdownMenuData>,
-    dropdownMenuState: DropdownMenuState
+    dropdownMenuState: DropdownMenuState,
 ) {
     Box(
         modifier = Modifier
             .fillMaxSize()
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
-                indication = null
-            ) { dropdownMenuState.toggle() })
+                indication = null,
+            ) { dropdownMenuState.toggle() },
+    )
 
     DropdownMenu(
         listDropdownMenuItem = listDropdownMenu,
@@ -692,13 +696,13 @@ private fun DeckDropdownMenu(
             .padding(padding)
             .fillMaxWidth()
             .padding(top = dimenDpResource(R.dimen.spacer_extra_small))
-            .wrapContentSize(Alignment.TopEnd)
+            .wrapContentSize(Alignment.TopEnd),
     )
 }
 
 @Preview(
     showBackground = true,
-    backgroundColor = 0xFFE6E6FF
+    backgroundColor = 0xFFE6E6FF,
 )
 @Composable
 private fun ScreenPreview() {
@@ -720,7 +724,7 @@ private fun ScreenPreview() {
             deleteCardsModalWindowValue = false,
             editTopAppBarActionButton = {},
             editTopAppBarExitButton = {},
-            toggleCardSelection = {}
+            toggleCardSelection = {},
         )
     }
 }
@@ -728,7 +732,7 @@ private fun ScreenPreview() {
 @Preview(
     device = "spec:parent=pixel_5,orientation=landscape",
     showBackground = true,
-    backgroundColor = 0xFFE6E6FF
+    backgroundColor = 0xFFE6E6FF,
 )
 @Composable
 private fun ScreenPreviewLandscape() {
@@ -750,7 +754,7 @@ private fun ScreenPreviewLandscape() {
             deleteCardsModalWindowValue = false,
             editTopAppBarActionButton = {},
             editTopAppBarExitButton = {},
-            toggleCardSelection = {}
+            toggleCardSelection = {},
         )
     }
 }
@@ -758,7 +762,7 @@ private fun ScreenPreviewLandscape() {
 @Preview(
     device = "spec:parent=pixel_5",
     showBackground = true,
-    backgroundColor = 0xFFE6E6FF
+    backgroundColor = 0xFFE6E6FF,
 )
 @Composable
 private fun RenameDeckModalWindowScreenPreview() {
@@ -780,13 +784,13 @@ private fun RenameDeckModalWindowScreenPreview() {
             deleteCardsModalWindowValue = false,
             editTopAppBarActionButton = {},
             editTopAppBarExitButton = {},
-            toggleCardSelection = {}
+            toggleCardSelection = {},
         )
         RenameDeckModalWindow(
             deckState,
             UiState.Success(Unit),
             { _ -> },
-            { _, _ -> }
+            { _, _ -> },
         )
     }
 }
@@ -794,7 +798,7 @@ private fun RenameDeckModalWindowScreenPreview() {
 @Preview(
     device = "spec:parent=pixel_5",
     showBackground = true,
-    backgroundColor = 0xFFE6E6FF
+    backgroundColor = 0xFFE6E6FF,
 )
 @Composable
 private fun EditElementModalWindowScreenPreview() {
@@ -817,7 +821,7 @@ private fun EditElementModalWindowScreenPreview() {
             deleteCardsModalWindowValue = false,
             editTopAppBarActionButton = {},
             editTopAppBarExitButton = {},
-            toggleCardSelection = {}
+            toggleCardSelection = {},
         )
         EditElementModalWindow(
             decksState,
@@ -827,7 +831,7 @@ private fun EditElementModalWindowScreenPreview() {
             1,
             { _ -> },
             { },
-            { _ -> }
+            { _ -> },
         )
     }
 }
@@ -835,7 +839,7 @@ private fun EditElementModalWindowScreenPreview() {
 @Preview(
     device = "spec:parent=pixel_5",
     showBackground = true,
-    backgroundColor = 0xFFE6E6FF
+    backgroundColor = 0xFFE6E6FF,
 )
 @Composable
 private fun DeleteModalWindowScreenPreview() {
@@ -857,13 +861,13 @@ private fun DeleteModalWindowScreenPreview() {
             deleteCardsModalWindowValue = false,
             editTopAppBarActionButton = {},
             editTopAppBarExitButton = {},
-            toggleCardSelection = {}
+            toggleCardSelection = {},
         )
         DeleteModalWindow(
             deckState,
             navController,
             {},
-            {}
+            {},
         )
     }
 }
@@ -872,8 +876,8 @@ private fun DeleteModalWindowScreenPreview() {
 private fun deckDataMock(): UiState<Deck> = UiState.Success(
     Deck(
         deckId = 1,
-        deckName = "Kotlin Basics"
-    )
+        deckName = "Kotlin Basics",
+    ),
 )
 
 @Composable
@@ -881,21 +885,21 @@ private fun decksDataMock(): UiState<List<Deck>> = UiState.Success(
     listOf<Deck>(
         Deck(
             deckId = 1,
-            deckName = "Kotlin Basics"
+            deckName = "Kotlin Basics",
         ),
         Deck(
             deckId = 2,
-            deckName = "Jetpack Compose"
+            deckName = "Jetpack Compose",
         ),
         Deck(
             deckId = 3,
-            deckName = "Architecture Patterns"
+            deckName = "Architecture Patterns",
         ),
         Deck(
             deckId = 4,
-            deckName = "Coroutines & Flow"
-        )
-    )
+            deckName = "Coroutines & Flow",
+        ),
+    ),
 )
 
 @Composable
@@ -913,7 +917,7 @@ private fun cardsDataMock(): UiState<List<Card>> = UiState.Success(
             lastReviewDate = 1_725_086_400_000,
             nextReviewDate = 1_725_172_800_000,
             repetitionCount = 2,
-            lastReviewType = ReviewType.EASY
+            lastReviewType = ReviewType.EASY,
         ),
         Card(
             cardId = 2,
@@ -924,7 +928,7 @@ private fun cardsDataMock(): UiState<List<Card>> = UiState.Success(
             cardTag = "Android",
             deckId = 102,
             repetitionCount = 0,
-            lastReviewType = null
+            lastReviewType = null,
         ),
         Card(
             cardId = 3,
@@ -938,7 +942,7 @@ private fun cardsDataMock(): UiState<List<Card>> = UiState.Success(
             lastReviewDate = 1_725_000_000_000,
             nextReviewDate = 1_726_000_000_000,
             repetitionCount = 5,
-            lastReviewType = ReviewType.HARD
+            lastReviewType = ReviewType.HARD,
         ),
         Card(
             cardId = 4,
@@ -950,7 +954,7 @@ private fun cardsDataMock(): UiState<List<Card>> = UiState.Success(
             deckId = 101,
             firstReviewDate = 1_725_000_000_000,
             repetitionCount = 1,
-            lastReviewType = ReviewType.MEDIUM
+            lastReviewType = ReviewType.MEDIUM,
         ),
         Card(
             cardId = 5,
@@ -961,7 +965,7 @@ private fun cardsDataMock(): UiState<List<Card>> = UiState.Success(
             cardTag = "Room",
             deckId = 102,
             repetitionCount = 3,
-            lastReviewType = ReviewType.EASY
-        )
-    )
+            lastReviewType = ReviewType.EASY,
+        ),
+    ),
 )

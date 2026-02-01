@@ -25,21 +25,21 @@ fun ButtonMoveMode(buttonTitle: String, onClickButton: () -> Unit) {
             .clip(shape = MaterialTheme.shapes.extraLarge)
             .background(
                 color = MaterialTheme.colorScheme.outlineVariant,
-                shape = MaterialTheme.shapes.extraLarge
+                shape = MaterialTheme.shapes.extraLarge,
             )
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
-                indication = null
+                indication = null,
             ) { onClickButton() }
             .padding(
                 horizontal = dimenDpResource(R.dimen.button_move_mode_horizontal_padding),
-                vertical = dimenDpResource(R.dimen.button_move_mode_vertical_padding)
+                vertical = dimenDpResource(R.dimen.button_move_mode_vertical_padding),
             )
-            .width(dimenDpResource(R.dimen.button_move_mode_wight))
+            .width(dimenDpResource(R.dimen.button_move_mode_wight)),
     ) {
         Text(
             text = buttonTitle,
-            style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onPrimary, fontSize = 15.sp)
+            style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onPrimary, fontSize = 15.sp),
         )
     }
 }

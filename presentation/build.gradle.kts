@@ -1,18 +1,19 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.compose)
-    id("dagger.hilt.android.plugin")
-    id("org.jetbrains.kotlin.kapt")
+    alias(libs.plugins.org.jetbrains.kotlin.android)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.hilt)
+    alias(libs.plugins.compose.compiler)
 }
 
 android {
     namespace = "com.mindeck.presentation"
-    compileSdk = 35
+    compileSdk = rootProject.extra["compileSdk"] as Int
 
     defaultConfig {
-        minSdk = 26
-
+        minSdk = rootProject.extra["minSdk"] as Int
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
     }
@@ -22,41 +23,46 @@ android {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
         }
     }
+
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = rootProject.extra["javaVersion"] as JavaVersion
+        targetCompatibility = rootProject.extra["javaVersion"] as JavaVersion
     }
-    kotlinOptions {
-        jvmTarget = "11"
+
+    buildFeatures {
+        compose = true
+    }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.fromTarget(rootProject.extra["jvmTarget"] as String))
     }
 }
 
 dependencies {
-    //Подключение модулей
-    implementation(project(":domain"))
+    // Modules
+    implementation(projects.domain)
 
-    //Hilt
-    implementation(libs.hilt.android)
-    kapt(libs.hilt.compiler)
-    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+    // Hilt
+    implementation(libs.bundles.hilt)
+    implementation(libs.androidx.hilt.work)
+    ksp(libs.bundles.hilt.compiler)
 
-    //Jetpack Compose
-    implementation(libs.androidx.ui)
-    implementation(libs.androidx.ui.graphics)
-    implementation(libs.androidx.compose.material3.material3)
-    implementation(libs.ui)
-    debugImplementation(libs.ui.tooling)
+    api(platform(libs.compose.bom))
+    api(libs.bundles.compose)
+    implementation(libs.compose.material.icons)
 
-    //Navigation
-    implementation(libs.androidx.navigation.compose)
-
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.appcompat)
+    // Core
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.core)
+    api(libs.accompanistController)
     testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(platform(libs.compose.bom))
+    androidTestImplementation(libs.compose.ui.test.junit)
+    kspAndroidTest(libs.hilt.compiler)
 }

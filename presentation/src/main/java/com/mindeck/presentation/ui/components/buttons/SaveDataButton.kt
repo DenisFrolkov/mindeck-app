@@ -14,7 +14,7 @@ fun SaveDataButton(
     text: String,
     textStyle: TextStyle,
     buttonModifier: Modifier = Modifier,
-    textModifier: Modifier = Modifier
+    textModifier: Modifier = Modifier,
 ) {
     Box(
         modifier = buttonModifier,
@@ -24,8 +24,8 @@ fun SaveDataButton(
             style = textStyle,
             modifier = textModifier.padding(
                 vertical = dimenDpResource(R.dimen.padding_small),
-                horizontal = dimenDpResource(R.dimen.padding_extra_large)
-            )
+                horizontal = dimenDpResource(R.dimen.padding_extra_large),
+            ),
         )
     }
 }

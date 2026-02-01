@@ -44,8 +44,8 @@ import com.mindeck.presentation.state.RenderUiState
 import com.mindeck.presentation.state.UiState
 import com.mindeck.presentation.ui.components.buttons.ActionHandlerButton
 import com.mindeck.presentation.ui.components.common.QuestionAndAnswerElement
-import com.mindeck.presentation.ui.components.repeat_options.RepeatOptionData
-import com.mindeck.presentation.ui.components.repeat_options.RepeatOptionsButton
+import com.mindeck.presentation.ui.components.repeatOptions.RepeatOptionData
+import com.mindeck.presentation.ui.components.repeatOptions.RepeatOptionsButton
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
 import com.mindeck.presentation.ui.theme.MindeckTheme
 import com.mindeck.presentation.ui.theme.repeat_button_light_blue
@@ -57,7 +57,7 @@ import com.mindeck.presentation.viewmodel.CardStudyViewModel
 @Composable
 fun CardStudyScreen(
     navController: NavController,
-    cardId: Int? = null
+    cardId: Int? = null,
 ) {
     val cardStudyViewModel: CardStudyViewModel =
         hiltViewModel(navController.currentBackStackEntry!!)
@@ -74,7 +74,6 @@ fun CardStudyScreen(
     val cardByCardIdState = cardStudyViewModel.cardByCardIdUIState.collectAsState().value
     val cardsForRepetitionState = cardStudyViewModel.cardsForRepetitionState.collectAsState().value
     var currentIndex by remember { mutableIntStateOf(0) }
-
 
     CardStudyContent(
         cardsForRepetitionState,
@@ -110,7 +109,7 @@ private fun CardStudyContent(
 //                            ) {
 //                                when {
 //                                    currentIndex < cardCount.size - 1 -> {
-////                                        currentIndex1 += 1
+// //                                        currentIndex1 += 1
 //                                    }
 //
 //                                    currentIndex == cardCount.size - 1 -> {
@@ -128,12 +127,12 @@ private fun CardStudyContent(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = dimenDpResource(R.dimen.padding_large))
-                            .wrapContentSize(Alignment.Center)
+                            .wrapContentSize(Alignment.Center),
                     ) {
                         CircularProgressIndicator(
                             modifier = Modifier.size(dimenDpResource(R.dimen.circular_progress_indicator_size)),
                             color = MaterialTheme.colorScheme.primary,
-                            strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_two)
+                            strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_two),
                         )
                     }
                 },
@@ -142,11 +141,11 @@ private fun CardStudyContent(
                         stringResource(R.string.error_get_card_by_card_id),
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.error)
+                        style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.error),
                     )
-                }
+                },
             )
-        }
+        },
     )
 
 //    if (cardId == null) {
@@ -282,14 +281,14 @@ private fun DeckContent(
     padding: PaddingValues,
     card: Card,
     scrollState: ScrollState,
-    repeatOptionsButton: List<RepeatOptionData>
+    repeatOptionsButton: List<RepeatOptionData>,
 ) {
     Box(
         modifier = Modifier
             .padding(padding)
             .padding(horizontal = dimenDpResource(R.dimen.padding_medium))
             .statusBarsPadding()
-            .verticalScroll(state = scrollState)
+            .verticalScroll(state = scrollState),
     ) {
         CardInfo(padding = padding, card = card)
     }
@@ -299,9 +298,8 @@ private fun DeckContent(
 }
 
 @Composable
-
 private fun RepeatButtons(
-    repeatOptionsButton: List<RepeatOptionData>
+    repeatOptionsButton: List<RepeatOptionData>,
 ) {
     Row(
         horizontalArrangement = Arrangement.SpaceAround,
@@ -310,7 +308,7 @@ private fun RepeatButtons(
             .fillMaxSize()
             .padding(horizontal = dimenDpResource(R.dimen.padding_medium))
             .padding(bottom = dimenDpResource(R.dimen.padding_medium))
-            .navigationBarsPadding()
+            .navigationBarsPadding(),
     ) {
         repeatOptionsButton.forEach {
             RepeatOptionsButton(
@@ -318,7 +316,7 @@ private fun RepeatButtons(
                 textDifficultyOfRepetition = it.title,
                 onClick = it.action,
                 titleTextStyle = MaterialTheme.typography.bodyMedium.copy(
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
                 ),
             )
         }
@@ -328,24 +326,24 @@ private fun RepeatButtons(
 @Composable
 private fun CardInfo(
     padding: PaddingValues,
-    card: Card
+    card: Card,
 ) {
     Column(
-        modifier = Modifier.padding(padding)
+        modifier = Modifier.padding(padding),
     ) {
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxSize(),
         ) {
             QuestionAndAnswerElement(
                 question = card.cardQuestion,
                 answer = card.cardAnswer,
                 questionStyle = MaterialTheme.typography.bodyMedium.copy(
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
                 ),
                 answerStyle = MaterialTheme.typography.bodyMedium.copy(
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
                 ),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -353,8 +351,8 @@ private fun CardInfo(
                     .border(
                         dimenDpResource(R.dimen.border_width_dot_five),
                         MaterialTheme.colorScheme.outline,
-                        MaterialTheme.shapes.extraSmall
-                    )
+                        MaterialTheme.shapes.extraSmall,
+                    ),
             )
         }
     }
@@ -368,7 +366,7 @@ private fun CardStudyTopBar(navController: NavController) {
             .padding(horizontal = dimenDpResource(R.dimen.padding_medium))
             .padding(top = dimenDpResource(R.dimen.padding_medium))
             .statusBarsPadding(),
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.SpaceBetween,
     ) {
         ActionHandlerButton(
             iconPainter = painterResource(R.drawable.back_icon),
@@ -389,7 +387,7 @@ private fun CardStudyTopBar(navController: NavController) {
 private fun repeatOptionDataList(
     cardStudyViewModel: CardStudyViewModel,
     card: Card,
-    clickButton: () -> Unit
+    clickButton: () -> Unit,
 ): List<RepeatOptionData> {
     return if (card.repetitionCount != 0) {
         listOf(
@@ -401,10 +399,10 @@ private fun repeatOptionDataList(
                         card.cardId,
                         card.firstReviewDate,
                         card.repetitionCount,
-                        ReviewType.REPEAT
+                        ReviewType.REPEAT,
                     )
                     clickButton()
-                }
+                },
             ),
             RepeatOptionData(
                 title = stringResource(R.string.repeat_option_title_easy_text),
@@ -414,10 +412,10 @@ private fun repeatOptionDataList(
                         card.cardId,
                         card.firstReviewDate,
                         card.repetitionCount,
-                        ReviewType.EASY
+                        ReviewType.EASY,
                     )
                     clickButton()
-                }
+                },
             ),
             RepeatOptionData(
                 title = stringResource(R.string.repeat_option_title_medium_text),
@@ -427,10 +425,10 @@ private fun repeatOptionDataList(
                         card.cardId,
                         card.firstReviewDate,
                         card.repetitionCount,
-                        ReviewType.MEDIUM
+                        ReviewType.MEDIUM,
                     )
                     clickButton()
-                }
+                },
             ),
             RepeatOptionData(
                 title = stringResource(R.string.repeat_option_title_hard_text),
@@ -440,11 +438,12 @@ private fun repeatOptionDataList(
                         card.cardId,
                         card.firstReviewDate,
                         card.repetitionCount,
-                        ReviewType.HARD
+                        ReviewType.HARD,
                     )
                     clickButton()
-                }
-            ))
+                },
+            ),
+        )
     } else {
         listOf(
             RepeatOptionData(
@@ -455,18 +454,18 @@ private fun repeatOptionDataList(
                         card.cardId,
                         card.firstReviewDate,
                         card.repetitionCount,
-                        ReviewType.REPEAT
+                        ReviewType.REPEAT,
                     )
                     clickButton()
-                }
-            )
+                },
+            ),
         )
     }
 }
 
 @Preview(
     showBackground = true,
-    backgroundColor = 0xFFE6E6FF
+    backgroundColor = 0xFFE6E6FF,
 )
 @Composable
 private fun ScreenPreview() {
@@ -485,7 +484,7 @@ private fun ScreenPreview() {
 @Preview(
     device = "spec:parent=pixel_5,orientation=landscape",
     showBackground = true,
-    backgroundColor = 0xFFE6E6FF
+    backgroundColor = 0xFFE6E6FF,
 )
 @Composable
 private fun ScreenPreviewLandscape() {
@@ -516,7 +515,7 @@ private fun cardsForRepetitionDataMock(): UiState<List<Card>> = UiState.Success(
             lastReviewDate = System.currentTimeMillis() - 1 * 24 * 60 * 60 * 1000,
             nextReviewDate = System.currentTimeMillis() + 2 * 24 * 60 * 60 * 1000,
             repetitionCount = 3,
-            lastReviewType = ReviewType.MEDIUM
+            lastReviewType = ReviewType.MEDIUM,
         ),
         Card(
             cardId = 2,
@@ -530,7 +529,7 @@ private fun cardsForRepetitionDataMock(): UiState<List<Card>> = UiState.Success(
             lastReviewDate = System.currentTimeMillis() - 3 * 24 * 60 * 60 * 1000,
             nextReviewDate = System.currentTimeMillis() + 1 * 24 * 60 * 60 * 1000,
             repetitionCount = 5,
-            lastReviewType = ReviewType.HARD
+            lastReviewType = ReviewType.HARD,
         ),
         Card(
             cardId = 3,
@@ -544,7 +543,7 @@ private fun cardsForRepetitionDataMock(): UiState<List<Card>> = UiState.Success(
             lastReviewDate = System.currentTimeMillis() - 2 * 24 * 60 * 60 * 1000,
             nextReviewDate = System.currentTimeMillis() + 3 * 24 * 60 * 60 * 1000,
             repetitionCount = 7,
-            lastReviewType = ReviewType.EASY
+            lastReviewType = ReviewType.EASY,
         ),
         Card(
             cardId = 4,
@@ -558,7 +557,7 @@ private fun cardsForRepetitionDataMock(): UiState<List<Card>> = UiState.Success(
             lastReviewDate = System.currentTimeMillis() - 1 * 24 * 60 * 60 * 1000,
             nextReviewDate = System.currentTimeMillis() + 5 * 24 * 60 * 60 * 1000,
             repetitionCount = 4,
-            lastReviewType = ReviewType.MEDIUM
-        )
-    )
+            lastReviewType = ReviewType.MEDIUM,
+        ),
+    ),
 )

@@ -5,8 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.mindeck.domain.models.Deck
 import com.mindeck.domain.usecases.deck.command.CreateDeckUseCase
 import com.mindeck.domain.usecases.deck.query.GetAllDecksUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import com.mindeck.presentation.state.UiState
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -19,7 +19,7 @@ import javax.inject.Inject
 @HiltViewModel
 class DecksViewModel @Inject constructor(
     getAllDecksUseCase: GetAllDecksUseCase,
-    private val createDeckUseCase: CreateDeckUseCase
+    private val createDeckUseCase: CreateDeckUseCase,
 ) : ViewModel() {
 
     val decksState: StateFlow<UiState<List<Deck>>> = getAllDecksUseCase()

@@ -11,6 +11,6 @@ class CustomWorkerFactory @Inject constructor(private val cardDao: CardDao) : Wo
     override fun createWorker(
         appContext: Context,
         workerClassName: String,
-        workerParameters: WorkerParameters
+        workerParameters: WorkerParameters,
     ): ListenableWorker = NotificationWorker(cardDao, appContext, workerParameters)
 }
