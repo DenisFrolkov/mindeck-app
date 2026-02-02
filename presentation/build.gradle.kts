@@ -50,7 +50,6 @@ dependencies {
 
     // Hilt
     implementation(libs.bundles.hilt)
-    implementation(libs.androidx.hilt.work)
     ksp(libs.bundles.hilt.compiler)
 
     api(platform(libs.compose.bom))

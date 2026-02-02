@@ -44,11 +44,7 @@ dependencies {
     // Coroutines
     implementation(libs.coroutines)
 
-    // Work
-    implementation(libs.androidx.work.runtime.ktx)
-
     // Hilt
-    implementation(libs.androidx.hilt.work)
     implementation(libs.bundles.hilt)
     ksp(libs.hilt.compiler)
     ksp(libs.android.hilt.compiler)
