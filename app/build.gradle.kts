@@ -63,17 +63,12 @@ dependencies {
 
     // Hilt
     implementation(libs.bundles.hilt)
-    implementation(libs.androidx.hilt.work)
     ksp(libs.bundles.hilt.compiler)
 
     // Room
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
-
-    // Work / Lifecycle
-    implementation(libs.androidx.work.runtime.ktx)
-    implementation(libs.androidx.hilt.work)
 
     // Tests
     testImplementation(libs.junit)
