@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <plurals name="deck_amount">
+        <item quantity="one">%d колода</item>
+        <item quantity="few">%d колоды</item>
+        <item quantity="many">%d колод</item>
+        <item quantity="other">%d колод</item>
+    </plurals>
+
+    <plurals name="card_amount">
+        <item quantity="one">%d карточка</item>
+        <item quantity="few">%d карточки</item>
+        <item quantity="many">%d карточек</item>
+        <item quantity="other">%d карточек</item>
+    </plurals>
+</resources>
