@@ -1,5 +1,6 @@
 package com.mindeck.presentation.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mindeck.domain.models.Card
@@ -28,6 +29,10 @@ open class MainViewModel @Inject constructor(
     private val createDeckUseCase: CreateDeckUseCase,
     private val getCardsRepetitionUseCase: GetCardsRepetitionUseCase,
 ) : ViewModel() {
+
+    init {
+        Log.d("MainViewModel", "created")
+    }
 
     val currentDateTime: String = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
 

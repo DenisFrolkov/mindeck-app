@@ -19,6 +19,12 @@ navigation = "2.9.5"
 material3Android = "1.3.2"
 materialIconsExtended = "1.7.8"
 
+# Navigation
+nav3Core = "1.0.0"
+lifecycleViewmodelNav3 = "2.10.0"
+kotlinSerialization = "2.2.21"
+kotlinxSerializationCore = "1.9.0"
+
 # DI
 hilt-android = "1.3.0"
 hilt-dagger = "2.57.2"
@@ -54,20 +60,22 @@ compose-bom = { module = "androidx.compose:compose-bom", version.ref = "bomCompo
 compose-ui = { module = "androidx.compose.ui:ui" }
 compose-ui-graphics = { module = "androidx.compose.ui:ui-graphics" }
 compose-ui-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
-compose-navigation = { module = "androidx.navigation:navigation-compose", version.ref = "navigation" }
 compose-material3 = { module = "androidx.compose.material3:material3-android", version.ref = "material3Android" }
-androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" } # ????
-compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
-compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
 compose-ui-test-junit = { module = "androidx.compose.ui:ui-test-junit4" }
 compose-material-icons = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
+
+# Naviation
+androidx-navigation3-runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "nav3Core" }
+androidx-navigation3-ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "nav3Core" }
+androidx-lifecycle-viewmodel-navigation3 = { module = "androidx.lifecycle:lifecycle-viewmodel-navigation3", version.ref = "lifecycleViewmodelNav3" }
+kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinxSerializationCore" }
+android-hilt-nav-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hilt-android" }
 
 # Dependency Injection (Hilt)
 hilt = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt-dagger" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "hilt-dagger" }
 hilt-core = { group = "com.google.dagger", name = "hilt-core", version.ref = "hilt-dagger" }
 android-hilt-compiler = { group = "androidx.hilt", name = "hilt-compiler", version.ref = "hilt-android" }
-android-hilt-nav-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hilt-android" }
 javax = { group = "javax.inject", name = "javax.inject", version.ref = "javax" }
 
 # Room (Database)
@@ -84,7 +92,7 @@ androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "j
 [bundles]
 hilt = ["hilt", "android-hilt-nav-compose"]
 hilt-compiler = ["hilt-compiler", "android-hilt-compiler"]
-compose = ["compose-ui", "compose-ui-graphics", "compose-ui-preview", "compose-navigation", "compose-material3"]
+compose = ["compose-ui", "compose-ui-graphics", "compose-ui-preview", "compose-material3"]
 
 [plugins]
 # Android
@@ -96,7 +104,9 @@ org-jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.re
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
-kapt = { id = "org.jetbrains.kotlin.kapt" }
+
+# Navigation
+jetbrains-kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlinSerialization"}
 
 #DI
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt-dagger" }

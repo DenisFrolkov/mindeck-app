@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.mindeck.presentation.ui.navigation.AppNavigation
+import com.mindeck.presentation.ui.navigation.MyApp
 import com.mindeck.presentation.ui.theme.MindeckTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -15,7 +15,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             MindeckTheme() {
-                AppNavigation()
+                MyApp()
             }
         }
     }
