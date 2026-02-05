@@ -26,6 +26,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -35,8 +36,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.ReviewType
 import com.mindeck.presentation.R
@@ -47,6 +46,11 @@ import com.mindeck.presentation.ui.components.common.QuestionAndAnswerElement
 import com.mindeck.presentation.ui.components.repeatOptions.RepeatOptionData
 import com.mindeck.presentation.ui.components.repeatOptions.RepeatOptionsButton
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
+import com.mindeck.presentation.ui.navigation.CardStudyRoute
+import com.mindeck.presentation.ui.navigation.DeckRoute
+import com.mindeck.presentation.ui.navigation.NavigationRoute
+import com.mindeck.presentation.ui.navigation.Navigator
+import com.mindeck.presentation.ui.navigation.StackNavigator
 import com.mindeck.presentation.ui.theme.MindeckTheme
 import com.mindeck.presentation.ui.theme.repeat_button_light_blue
 import com.mindeck.presentation.ui.theme.repeat_button_light_mint
@@ -56,12 +60,10 @@ import com.mindeck.presentation.viewmodel.CardStudyViewModel
 
 @Composable
 fun CardStudyScreen(
-    navController: NavController,
+    navigator: Navigator,
+    cardStudyViewModel: CardStudyViewModel = hiltViewModel<CardStudyViewModel>(),
     cardId: Int? = null,
 ) {
-    val cardStudyViewModel: CardStudyViewModel =
-        hiltViewModel(navController.currentBackStackEntry!!)
-
     LaunchedEffect(Unit) {
         if (cardId != null) {
             cardStudyViewModel.loadCardById(cardId)
@@ -77,7 +79,7 @@ fun CardStudyScreen(
 
     CardStudyContent(
         cardsForRepetitionState,
-        navController,
+        navigator,
         currentIndex,
     )
 }
@@ -85,13 +87,13 @@ fun CardStudyScreen(
 @Composable
 private fun CardStudyContent(
     cardsState: UiState<Any>,
-    navController: NavController,
+    navigator: Navigator,
     currentIndex: Int,
 ) {
     val scrollState = rememberScrollState()
 
     Scaffold(
-        topBar = { CardStudyTopBar(navController = navController) },
+        topBar = { CardStudyTopBar(navigator = navigator) },
         content = { padding ->
             cardsState.RenderUiState(
                 onSuccess = { cards ->
@@ -359,7 +361,9 @@ private fun CardInfo(
 }
 
 @Composable
-private fun CardStudyTopBar(navController: NavController) {
+private fun CardStudyTopBar(
+    navigator: Navigator,
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -372,7 +376,7 @@ private fun CardStudyTopBar(navController: NavController) {
             iconPainter = painterResource(R.drawable.back_icon),
             contentDescription = stringResource(R.string.back_screen_icon_button),
             iconTint = MaterialTheme.colorScheme.onPrimary,
-            onClick = { navController.popBackStack() },
+            onClick = { navigator.pop() },
         )
         ActionHandlerButton(
             iconPainter = painterResource(R.drawable.menu_icon),
@@ -469,13 +473,14 @@ private fun repeatOptionDataList(
 )
 @Composable
 private fun ScreenPreview() {
-    val navController = rememberNavController()
+    val backStack = remember { mutableStateListOf<NavigationRoute>(CardStudyRoute(1)) }
+    val navigator = remember { StackNavigator(backStack) }
     val cardsForRepetitionState: UiState<List<Card>> = cardsForRepetitionDataMock()
 
     MindeckTheme {
         CardStudyContent(
             cardsForRepetitionState,
-            navController,
+            navigator,
             1,
         )
     }
@@ -488,13 +493,14 @@ private fun ScreenPreview() {
 )
 @Composable
 private fun ScreenPreviewLandscape() {
-    val navController = rememberNavController()
+    val backStack = remember { mutableStateListOf<NavigationRoute>(DeckRoute(1)) }
+    val navigator = remember { StackNavigator(backStack) }
     val cardsForRepetitionState: UiState<List<Card>> = cardsForRepetitionDataMock()
 
     MindeckTheme {
         CardStudyContent(
             cardsForRepetitionState,
-            navController,
+            navigator = navigator,
             1,
         )
     }

@@ -33,6 +33,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,9 +44,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.Dialog
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.Deck
 import com.mindeck.domain.models.ReviewType
@@ -69,18 +68,23 @@ import com.mindeck.presentation.ui.components.dropdown.dropdownMenu.DropdownMenu
 import com.mindeck.presentation.ui.components.folder.DisplayItem
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
 import com.mindeck.presentation.ui.components.utils.dimenFloatResource
+import com.mindeck.presentation.ui.navigation.CardRoute
+import com.mindeck.presentation.ui.navigation.CreationCardRoute
+import com.mindeck.presentation.ui.navigation.DeckRoute
+import com.mindeck.presentation.ui.navigation.MainRoute
 import com.mindeck.presentation.ui.navigation.NavigationRoute
+import com.mindeck.presentation.ui.navigation.Navigator
+import com.mindeck.presentation.ui.navigation.StackNavigator
 import com.mindeck.presentation.ui.theme.MindeckTheme
 import com.mindeck.presentation.viewmodel.DeckViewModel
 
 @Composable
 fun DeckScreen(
-    navController: NavController,
+    navigator: Navigator,
     deckId: Int,
+    deckViewModel: DeckViewModel = hiltViewModel<DeckViewModel>(),
 ) {
     val context = LocalContext.current
-
-    val deckViewModel: DeckViewModel = hiltViewModel(navController.currentBackStackEntry!!)
 
     LaunchedEffect(deckId) {
         deckViewModel.getDeckById(deckId)
@@ -122,7 +126,7 @@ fun DeckScreen(
     val listDropdownMenu =
         dropdownMenuDataList(
             context,
-            navController,
+            navigator,
             deck,
             cards,
             deckViewModel,
@@ -130,7 +134,7 @@ fun DeckScreen(
         )
 
     DeckContent(
-        navController,
+        navigator,
         deck,
         cards,
         dropdownMenuState,
@@ -190,13 +194,13 @@ fun DeckScreen(
     if (deleteDeckModalWindowValue) {
         DeleteModalWindow(
             deck,
-            navController,
+            navigator,
             {
                 deckViewModel.toggleDeleteDeckModalWindow(false)
             },
             {
                 deckViewModel.toggleDeleteDeckModalWindow(false)
-                navController.navigate(NavigationRoute.MainScreen.route)
+                navigator.push(MainRoute)
                 deckViewModel.deleteDeck(it)
             },
         )
@@ -276,7 +280,7 @@ private fun EditElementModalWindow(
 @Composable
 private fun DeleteModalWindow(
     deck: UiState<Deck>,
-    navController: NavController,
+    navigator: Navigator,
     toggleDeleteDeckModalWindow: (Boolean) -> Unit,
     deleteItem: (Deck) -> Unit,
 ) {
@@ -291,7 +295,7 @@ private fun DeleteModalWindow(
                 "Удаляя колоду, вы удаляете и все карточки в ней!",
                 {
                     toggleDeleteDeckModalWindow(false)
-                    navController.navigate(NavigationRoute.MainScreen.route)
+                    navigator.push(MainRoute)
                     deleteItem(deck)
                 },
                 {
@@ -304,7 +308,7 @@ private fun DeleteModalWindow(
 
 @Composable
 private fun DeckContent(
-    navController: NavController,
+    navigator: Navigator,
     deck: UiState<Deck>,
     cards: UiState<List<Card>>,
     dropdownMenuState: DropdownMenuState,
@@ -344,7 +348,7 @@ private fun DeckContent(
                     )
                 } else {
                     DeckTopBar(
-                        navController = navController,
+                        navigator = navigator,
                         dropdownMenuState = dropdownMenuState,
                     )
                 }
@@ -352,7 +356,7 @@ private fun DeckContent(
         },
         content = { padding ->
             Content(
-                navController = navController,
+                navigator = navigator,
                 padding = padding,
                 isEditModeEnabled = isEditModeEnabled,
                 selectedCards = selectedCardIdsSet,
@@ -403,7 +407,7 @@ private fun DeckEditTopBar(
 
 @Composable
 private fun DeckTopBar(
-    navController: NavController,
+    navigator: Navigator,
     dropdownMenuState: DropdownMenuState,
 ) {
     Box(
@@ -421,7 +425,7 @@ private fun DeckTopBar(
                 iconPainter = painterResource(R.drawable.back_icon),
                 contentDescription = stringResource(R.string.back_screen_icon_button),
                 iconTint = MaterialTheme.colorScheme.onPrimary,
-                onClick = { navController.popBackStack() },
+                onClick = { navigator.pop() },
             )
             ActionHandlerButton(
                 iconPainter = painterResource(R.drawable.menu_icon),
@@ -435,7 +439,7 @@ private fun DeckTopBar(
 
 @Composable
 private fun Content(
-    navController: NavController,
+    navigator: Navigator,
     padding: PaddingValues,
     deck: UiState<Deck>,
     isEditModeEnabled: Boolean,
@@ -453,7 +457,7 @@ private fun Content(
         CardInfo(
             deck = deck,
             cardsState = cards,
-            navController = navController,
+            navigator = navigator,
             isEditModeEnabled = isEditModeEnabled,
             selectedCards = selectedCards,
             toggleCardSelection = { cardId ->
@@ -473,7 +477,7 @@ private fun Content(
 @Composable
 private fun dropdownMenuDataList(
     context: Context,
-    navController: NavController,
+    navigator: Navigator,
     deck: UiState<Deck>?,
     cardsState: UiState<List<Card>>,
     deckViewModel: DeckViewModel,
@@ -496,11 +500,7 @@ private fun dropdownMenuDataList(
             action = {
                 dropdownMenuState.reset()
                 sourceDeck?.let {
-                    navController.navigate(
-                        NavigationRoute.CreationCardScreen.createRoute(
-                            it.deckId,
-                        ),
-                    )
+                    navigator.push(CreationCardRoute(it.deckId))
                 }
             },
         ),
@@ -540,7 +540,7 @@ private fun dropdownMenuDataList(
             action = {
                 dropdownMenuState.reset()
                 deckViewModel.deleteDeckOrIncludeModalWindow(deck) {
-                    navController.popBackStack()
+                    navigator.pop()
                 }
             },
         ),
@@ -590,7 +590,7 @@ private fun DeckInfo(
 private fun CardInfo(
     deck: UiState<Deck>,
     cardsState: UiState<List<Card>>,
-    navController: NavController,
+    navigator: Navigator,
     selectedCards: Set<Int>,
     isEditModeEnabled: Boolean,
     toggleCardSelection: (Int) -> Unit,
@@ -622,11 +622,7 @@ private fun CardInfo(
                                 interactionSource = remember { MutableInteractionSource() },
                                 indication = null,
                             ) {
-                                navController.navigate(
-                                    NavigationRoute.CardScreen.createRoute(
-                                        card.cardId,
-                                    ),
-                                )
+                                navigator.push(CardRoute(card.cardId))
                             },
                         showCount = false,
                         showEditMode = isEditModeEnabled,
@@ -706,7 +702,8 @@ private fun DeckDropdownMenu(
 )
 @Composable
 private fun ScreenPreview() {
-    val navController = rememberNavController()
+    val backStack = remember { mutableStateListOf<NavigationRoute>(DeckRoute(1)) }
+    val navigator = remember { StackNavigator(backStack) }
     val cardsState: UiState<List<Card>> = cardsDataMock()
     val deckState: UiState<Deck> = deckDataMock()
     val isEditModeEnabled = false
@@ -714,7 +711,7 @@ private fun ScreenPreview() {
 
     MindeckTheme {
         DeckContent(
-            navController = navController,
+            navigator = navigator,
             deck = deckState,
             cards = cardsState,
             dropdownMenuState = dropdownMenuState,
@@ -736,7 +733,8 @@ private fun ScreenPreview() {
 )
 @Composable
 private fun ScreenPreviewLandscape() {
-    val navController = rememberNavController()
+    val backStack = remember { mutableStateListOf<NavigationRoute>(DeckRoute(1)) }
+    val navigator = remember { StackNavigator(backStack) }
     val cardsState: UiState<List<Card>> = cardsDataMock()
     val deckState: UiState<Deck> = deckDataMock()
     val isEditModeEnabled = false
@@ -744,7 +742,7 @@ private fun ScreenPreviewLandscape() {
 
     MindeckTheme {
         DeckContent(
-            navController = navController,
+            navigator = navigator,
             deck = deckState,
             cards = cardsState,
             dropdownMenuState = dropdownMenuState,
@@ -768,13 +766,14 @@ private fun ScreenPreviewLandscape() {
 private fun RenameDeckModalWindowScreenPreview() {
     val deckState: UiState<Deck> = deckDataMock()
     val isEditModeEnabled = false
-    val navController = rememberNavController()
+    val backStack = remember { mutableStateListOf<NavigationRoute>(DeckRoute(1)) }
+    val navigator = remember { StackNavigator(backStack) }
     val cardsState: UiState<List<Card>> = cardsDataMock()
     val dropdownMenuState = DropdownMenuState()
 
     MindeckTheme {
         DeckContent(
-            navController = navController,
+            navigator = navigator,
             deck = deckState,
             cards = cardsState,
             dropdownMenuState = dropdownMenuState,
@@ -805,13 +804,14 @@ private fun EditElementModalWindowScreenPreview() {
     val decksState: UiState<List<Deck>> = decksDataMock()
     val deckState: UiState<Deck> = deckDataMock()
     val isEditModeEnabled = false
-    val navController = rememberNavController()
+    val backStack = remember { mutableStateListOf<NavigationRoute>(DeckRoute(1)) }
+    val navigator = remember { StackNavigator(backStack) }
     val cardsState: UiState<List<Card>> = cardsDataMock()
     val dropdownMenuState = DropdownMenuState()
 
     MindeckTheme {
         DeckContent(
-            navController = navController,
+            navigator = navigator,
             deck = deckState,
             cards = cardsState,
             dropdownMenuState = dropdownMenuState,
@@ -845,13 +845,14 @@ private fun EditElementModalWindowScreenPreview() {
 private fun DeleteModalWindowScreenPreview() {
     val deckState: UiState<Deck> = deckDataMock()
     val isEditModeEnabled = false
-    val navController = rememberNavController()
+    val backStack = remember { mutableStateListOf<NavigationRoute>(DeckRoute(1)) }
+    val navigator = remember { StackNavigator(backStack) }
     val cardsState: UiState<List<Card>> = cardsDataMock()
     val dropdownMenuState = DropdownMenuState()
 
     MindeckTheme {
         DeckContent(
-            navController = navController,
+            navigator = navigator,
             deck = deckState,
             cards = cardsState,
             dropdownMenuState = dropdownMenuState,
@@ -865,7 +866,7 @@ private fun DeleteModalWindowScreenPreview() {
         )
         DeleteModalWindow(
             deckState,
-            navController,
+            navigator,
             {},
             {},
         )

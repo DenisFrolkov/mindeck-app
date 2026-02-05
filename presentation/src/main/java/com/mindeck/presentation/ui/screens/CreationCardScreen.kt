@@ -24,6 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,9 +32,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.mindeck.domain.models.Deck
 import com.mindeck.presentation.R
 import com.mindeck.presentation.state.CardState
@@ -47,6 +46,10 @@ import com.mindeck.presentation.ui.components.textfields.TegInputField
 import com.mindeck.presentation.ui.components.textfields.TitleInputField
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
 import com.mindeck.presentation.ui.components.utils.textInputModifier
+import com.mindeck.presentation.ui.navigation.CreationCardRoute
+import com.mindeck.presentation.ui.navigation.NavigationRoute
+import com.mindeck.presentation.ui.navigation.Navigator
+import com.mindeck.presentation.ui.navigation.StackNavigator
 import com.mindeck.presentation.ui.theme.MindeckTheme
 import com.mindeck.presentation.ui.theme.text_gray
 import com.mindeck.presentation.ui.theme.text_white
@@ -54,12 +57,10 @@ import com.mindeck.presentation.viewmodel.CreationCardViewModel
 
 @Composable
 fun CreationCardScreen(
-    navController: NavController,
+    navigator: Navigator,
     deckId: Int?,
+    creationCardViewModel: CreationCardViewModel = hiltViewModel<CreationCardViewModel>(),
 ) {
-    val creationCardViewModel: CreationCardViewModel =
-        hiltViewModel(navController.currentBackStackEntry!!)
-
     val cardState by creationCardViewModel.cardState
     val validation by creationCardViewModel.validation.collectAsState()
     val deck by creationCardViewModel.listDecksUiState.collectAsState()
@@ -74,7 +75,7 @@ fun CreationCardScreen(
     }
 
     CreationCardContent(
-        navController,
+        navigator,
         deck,
         validation,
         cardState,
@@ -110,7 +111,7 @@ fun CreationCardScreen(
                         deckId = it,
                     )
                 }
-                navController.popBackStack()
+                navigator.pop()
             }
         },
     )
@@ -118,7 +119,7 @@ fun CreationCardScreen(
 
 @Composable
 private fun CreationCardContent(
-    navController: NavController,
+    navigator: Navigator,
     decks: UiState<List<Deck>>,
     validation: Boolean?,
     cardState: CardState,
@@ -137,7 +138,7 @@ private fun CreationCardContent(
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            TopBar(onClick = { navController.popBackStack() })
+            TopBar(onClick = { navigator.pop() })
         },
         content = { padding ->
             Content(
@@ -391,13 +392,14 @@ private fun SaveButton(
 )
 @Composable
 private fun CreationCardContentScreenPreview() {
-    val navController = rememberNavController()
+    val backStack = remember { mutableStateListOf<NavigationRoute>(CreationCardRoute()) }
+    val navigator = remember { StackNavigator(backStack) }
     val decksState: UiState<List<Deck>> = decksDataMock()
     val cardState: CardState = CardState("", "", "", "", 1)
 
     MindeckTheme {
         CreationCardContent(
-            navController,
+            navigator,
             decksState,
             null,
             cardState,
@@ -421,13 +423,14 @@ private fun CreationCardContentScreenPreview() {
 )
 @Composable
 private fun CreationCardContentScreenPreviewLandscape() {
-    val navController = rememberNavController()
+    val backStack = remember { mutableStateListOf<NavigationRoute>(CreationCardRoute()) }
+    val navigator = remember { StackNavigator(backStack) }
     val decksState: UiState<List<Deck>> = decksDataMock()
     val cardState: CardState = CardState("", "", "", "", 1)
 
     MindeckTheme {
         CreationCardContent(
-            navController,
+            navigator,
             decksState,
             null,
             cardState,
