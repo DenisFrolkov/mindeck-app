@@ -11,15 +11,14 @@ plugins {
 
 buildscript {
     extra.apply {
-        set("compileSdk", 35)
-        set("targetSdk", 35)
+        set("compileSdk", 36)
+        set("targetSdk", 36)
         set("minSdk", 26)
         set("versionCode", 1)
         set("versionName", "1.0.0")
         set("javaVersion", JavaVersion.VERSION_17)
         set("jvmTarget", "17")
         set("jdkVersion", 17)
-        set("kotlinCompilerExtensionVersion", "1.5.10")
     }
 
     dependencies {

@@ -21,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,9 +32,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.Deck
 import com.mindeck.domain.models.ReviewType
@@ -53,16 +52,22 @@ import com.mindeck.presentation.ui.components.fab.FabState.Companion.ITEM_HEIGHT
 import com.mindeck.presentation.ui.components.folder.DisplayItem
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
 import com.mindeck.presentation.ui.components.utils.dimenFloatResource
+import com.mindeck.presentation.ui.navigation.CreationCardRoute
+import com.mindeck.presentation.ui.navigation.DeckRoute
+import com.mindeck.presentation.ui.navigation.DecksRoute
+import com.mindeck.presentation.ui.navigation.MainRoute
 import com.mindeck.presentation.ui.navigation.NavigationRoute
+import com.mindeck.presentation.ui.navigation.Navigator
+import com.mindeck.presentation.ui.navigation.RepeatCardsRoute
+import com.mindeck.presentation.ui.navigation.StackNavigator
 import com.mindeck.presentation.ui.theme.MindeckTheme
 import com.mindeck.presentation.viewmodel.MainViewModel
 
 @Composable
 fun MainScreen(
-    navController: NavController,
+    navigator: Navigator,
+    mainViewModel: MainViewModel = hiltViewModel<MainViewModel>(),
 ) {
-    val mainViewModel: MainViewModel = hiltViewModel(navController.currentBackStackEntry!!)
-
     LaunchedEffect(Unit) {
         mainViewModel.initRepetition()
     }
@@ -73,7 +78,7 @@ fun MainScreen(
     val createModalWindowValue by mainViewModel.createModalWindowValue.collectAsState()
 
     MainContent(
-        navController,
+        navigator,
         decksState,
         cardsForRepetitionState,
         createDeckState,
@@ -89,7 +94,7 @@ fun MainScreen(
 
 @Composable
 private fun MainContent(
-    navController: NavController,
+    navigator: Navigator,
     decksState: UiState<List<Deck>>,
     cardsForRepetitionState: UiState<List<Card>>,
     createDeckState: UiState<Unit>,
@@ -100,7 +105,7 @@ private fun MainContent(
     val dailyProgressTrackerState =
         remember { DailyProgressTrackerState() }
 
-    val fabMenuItems = getFabMenuItems({ toggleModalWindow(true) }, navController)
+    val fabMenuItems = getFabMenuItems(navigator, { toggleModalWindow(true) })
     val fabState = remember { FabState(expandedHeight = ITEM_HEIGHT.dp * fabMenuItems.size) }
 
     Scaffold(
@@ -123,7 +128,7 @@ private fun MainContent(
                 dailyProgressTrackerState,
                 decksState,
                 cardsForRepetitionState,
-                navController,
+                navigator,
             )
 
             if (createModalWindowValue) {
@@ -156,7 +161,7 @@ private fun MainContent(
     dailyProgressTrackerState: DailyProgressTrackerState,
     decksState: UiState<List<Deck>>,
     cardsRepetition: UiState<List<Card>>,
-    navController: NavController,
+    navigator: Navigator,
 ) {
     Column(
         modifier = Modifier
@@ -170,26 +175,26 @@ private fun MainContent(
             dailyProgressTrackerState = dailyProgressTrackerState,
         )
         Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_large)))
-        RepeatCardItem(navController = navController, cardsRepetitionState = cardsRepetition)
+        RepeatCardItem(navigator = navigator, cardsRepetitionState = cardsRepetition)
         Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_large)))
-        DecksSection(navController = navController, decksState = decksState)
+        DecksSection(navigator = navigator, decksState = decksState)
     }
 }
 
 @Composable
 private fun DecksSection(
-    navController: NavController,
+    navigator: Navigator,
     decksState: UiState<List<Deck>>,
 ) {
     decksState.RenderUiState(
         onSuccess = { decks ->
             decks.take(5).forEach { folder ->
-                DeckItem(navController, folder)
+                DeckItem(navigator, folder)
                 Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_small)))
             }
             if (decks.size > 5) {
                 Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_small)))
-                ButtonAllFolders(navController)
+                ButtonAllFolders(navigator)
             }
         },
         onLoading = {
@@ -217,7 +222,7 @@ private fun DecksSection(
 
 @Composable
 private fun RepeatCardItem(
-    navController: NavController,
+    navigator: Navigator,
     cardsRepetitionState: UiState<List<Card>>,
 ) {
     cardsRepetitionState.onSuccess { cardsRepetition ->
@@ -236,7 +241,7 @@ private fun RepeatCardItem(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null,
                     ) {
-                        navController.navigate(NavigationRoute.RepeatCardsScreen.route)
+                        navigator.push(RepeatCardsRoute)
                     },
                 showCount = true,
                 displayItemData = DisplayItemData(
@@ -258,7 +263,7 @@ private fun RepeatCardItem(
 
 @Composable
 private fun DeckItem(
-    navController: NavController,
+    navigator: Navigator,
     deck: Deck,
 ) {
     DisplayItem(
@@ -275,11 +280,7 @@ private fun DeckItem(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
             ) {
-                navController.navigate(
-                    NavigationRoute.DeckScreen.createRoute(
-                        deck.deckId,
-                    ),
-                )
+                navigator.push(DeckRoute(deck.deckId))
             },
         showCount = false,
         displayItemData = DisplayItemData(
@@ -298,7 +299,9 @@ private fun DeckItem(
 }
 
 @Composable
-private fun ButtonAllFolders(navController: NavController) {
+private fun ButtonAllFolders(
+    navigator: Navigator,
+) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -314,7 +317,7 @@ private fun ButtonAllFolders(navController: NavController) {
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null,
                 ) {
-                    navController.navigate(NavigationRoute.DecksScreen.route)
+                    navigator.push(DecksRoute)
                 },
         ) {
             Text(
@@ -333,8 +336,8 @@ private fun ButtonAllFolders(navController: NavController) {
 
 @Composable
 private fun getFabMenuItems(
+    navigator: Navigator,
     openModalWindow: () -> Unit,
-    navController: NavController,
 ): List<FabMenuData> {
     return listOf(
         FabMenuData(
@@ -349,7 +352,7 @@ private fun getFabMenuItems(
             idItem = 1,
             text = stringResource(R.string.fab_menu_data_create_card_list),
             icon = R.drawable.fab_open_menu_create_card_icon,
-            navigation = { navController.navigate(NavigationRoute.CreationCardScreen.createRoute()) },
+            navigation = { navigator.push(CreationCardRoute()) },
         ),
     )
 }
@@ -360,13 +363,14 @@ private fun getFabMenuItems(
 )
 @Composable
 private fun ScreenPreview() {
-    val navController = rememberNavController()
+    val backStack = remember { mutableStateListOf<NavigationRoute>(MainRoute) }
+    val navigator = remember { StackNavigator(backStack) }
     val decksState: UiState<List<Deck>> = decksDataMock()
     val cardsForRepetitionState: UiState<List<Card>> = cardsForRepetitionDataMock()
 
     MindeckTheme {
         MainContent(
-            navController,
+            navigator,
             decksState,
             cardsForRepetitionState,
             UiState.Loading,
@@ -384,13 +388,15 @@ private fun ScreenPreview() {
 )
 @Composable
 private fun ScreenPreviewLandscape() {
-    val navController = rememberNavController()
+    val backStack = remember { mutableStateListOf<NavigationRoute>(MainRoute) }
+    val navigator = remember { StackNavigator(backStack) }
+
     val decksState: UiState<List<Deck>> = decksDataMock()
     val cardsForRepetitionState: UiState<List<Card>> = cardsForRepetitionDataMock()
 
     MindeckTheme {
         MainContent(
-            navController,
+            navigator,
             decksState,
             cardsForRepetitionState,
             UiState.Loading,
@@ -407,14 +413,15 @@ private fun ScreenPreviewLandscape() {
 )
 @Composable
 private fun RenameDeckModalWindowScreenPreview() {
-    val navController = rememberNavController()
+    val backStack = remember { mutableStateListOf<NavigationRoute>(MainRoute) }
+    val navigator = remember { StackNavigator(backStack) }
     val decksState: UiState<List<Deck>> = decksDataMock()
     val cardsForRepetitionState: UiState<List<Card>> = cardsForRepetitionDataMock()
     val fabModalWindow = true
 
     MindeckTheme {
         MainContent(
-            navController,
+            navigator,
             decksState,
             cardsForRepetitionState,
             UiState.Loading,
@@ -432,14 +439,15 @@ private fun RenameDeckModalWindowScreenPreview() {
 )
 @Composable
 private fun EditElementModalWindowScreenPreview() {
-    val navController = rememberNavController()
+    val backStack = remember { mutableStateListOf<NavigationRoute>(MainRoute) }
+    val navigator = remember { StackNavigator(backStack) }
     val decksState: UiState<List<Deck>> = decksDataMock()
     val cardsForRepetitionState: UiState<List<Card>> = cardsForRepetitionDataMock()
     val fabModalWindow = true
 
     MindeckTheme {
         MainContent(
-            navController,
+            navigator,
             decksState,
             cardsForRepetitionState,
             UiState.Loading,

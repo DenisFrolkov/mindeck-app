@@ -26,6 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,9 +37,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.Dialog
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.mindeck.domain.models.Deck
 import com.mindeck.presentation.R
 import com.mindeck.presentation.state.RenderUiState
@@ -53,16 +52,18 @@ import com.mindeck.presentation.ui.components.dropdown.dropdownMenu.DropdownMenu
 import com.mindeck.presentation.ui.components.folder.DisplayItem
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
 import com.mindeck.presentation.ui.components.utils.dimenFloatResource
+import com.mindeck.presentation.ui.navigation.DeckRoute
 import com.mindeck.presentation.ui.navigation.NavigationRoute
+import com.mindeck.presentation.ui.navigation.Navigator
+import com.mindeck.presentation.ui.navigation.StackNavigator
 import com.mindeck.presentation.ui.theme.MindeckTheme
 import com.mindeck.presentation.viewmodel.DecksViewModel
 
 @Composable
 fun DecksScreen(
-    navController: NavController,
+    navigator: Navigator,
+    decksViewModel: DecksViewModel = hiltViewModel<DecksViewModel>(),
 ) {
-    val decksViewModel: DecksViewModel = hiltViewModel(navController.currentBackStackEntry!!)
-
     val decks = decksViewModel.decksState.collectAsState().value
     val createDeckState by decksViewModel.createDeckState.collectAsState()
     val modalWindowValue by decksViewModel.modalWindowValue.collectAsState()
@@ -76,7 +77,7 @@ fun DecksScreen(
     val dropdownMenuState = remember { DropdownMenuState() }
 
     DecksContent(
-        navController,
+        navigator,
         decks,
         createDeckState,
         dropdownMenuState,
@@ -92,7 +93,7 @@ fun DecksScreen(
 
 @Composable
 private fun DecksContent(
-    navController: NavController,
+    navigator: Navigator,
     decks: UiState<List<Deck>>,
     createDeckState: UiState<Unit>,
     dropdownMenuState: DropdownMenuState,
@@ -109,10 +110,10 @@ private fun DecksContent(
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            DecksEditTopBar(navController, dropdownMenuState)
+            DecksEditTopBar(navigator, dropdownMenuState)
         },
         content = { padding ->
-            DecksContent(padding, decks, navController, listDropdownMenu, dropdownMenuState)
+            DecksContent(navigator, padding, decks, listDropdownMenu, dropdownMenuState)
 
             if (initialDialog) {
                 Dialog(
@@ -155,7 +156,7 @@ private fun dropdownMenuDataList(
 
 @Composable
 private fun DecksEditTopBar(
-    navController: NavController,
+    navigator: Navigator,
     dropdownMenuState: DropdownMenuState,
 ) {
     Row(
@@ -170,7 +171,7 @@ private fun DecksEditTopBar(
             iconPainter = painterResource(R.drawable.back_icon),
             contentDescription = stringResource(R.string.back_screen_icon_button),
             iconTint = MaterialTheme.colorScheme.onPrimary,
-            onClick = { navController.popBackStack() },
+            onClick = { navigator.pop() },
         )
         ActionHandlerButton(
             iconPainter = painterResource(R.drawable.menu_icon),
@@ -183,9 +184,9 @@ private fun DecksEditTopBar(
 
 @Composable
 private fun DecksContent(
+    navigator: Navigator,
     padding: PaddingValues,
     decks: UiState<List<Deck>>,
-    navController: NavController,
     listDropdownMenu: List<DropdownMenuData>,
     dropdownMenuState: DropdownMenuState,
 ) {
@@ -195,7 +196,7 @@ private fun DecksContent(
             .padding(horizontal = dimenDpResource(R.dimen.padding_medium))
             .navigationBarsPadding(),
     ) {
-        DecksInfo(decks, navController)
+        DecksInfo(decks, navigator)
     }
 
     if (dropdownMenuState.isExpanded) {
@@ -210,7 +211,7 @@ private fun DecksContent(
 @Composable
 private fun DecksInfo(
     decksState: UiState<List<Deck>>,
-    navController: NavController,
+    navigator: Navigator,
 ) {
     decksState.RenderUiState(
         onSuccess = { decks ->
@@ -250,11 +251,7 @@ private fun DecksInfo(
                                 interactionSource = remember { MutableInteractionSource() },
                                 indication = null,
                             ) {
-                                navController.navigate(
-                                    NavigationRoute.DeckScreen.createRoute(
-                                        deck.deckId,
-                                    ),
-                                )
+                                navigator.push(DeckRoute(deck.deckId))
                             },
                         showCount = false,
                         displayItemData = DisplayItemData(
@@ -330,13 +327,14 @@ private fun DeckDropdownMenu(
 )
 @Composable
 private fun ScreenPreview() {
-    val navController = rememberNavController()
+    val backStack = remember { mutableStateListOf<NavigationRoute>(DeckRoute(1)) }
+    val navigator = remember { StackNavigator(backStack) }
     val decksState: UiState<List<Deck>> = decksDataMock()
     val dropdownMenuState = remember { DropdownMenuState() }
 
     MindeckTheme {
         DecksContent(
-            navController,
+            navigator,
             decksState,
             UiState.Loading,
             dropdownMenuState,
@@ -354,14 +352,15 @@ private fun ScreenPreview() {
 )
 @Composable
 private fun ScreenPreviewLandscape() {
-    val navController = rememberNavController()
+    val backStack = remember { mutableStateListOf<NavigationRoute>(DeckRoute(1)) }
+    val navigator = remember { StackNavigator(backStack) }
     val decksState: UiState<List<Deck>> = decksDataMock()
     val createModalWindow = false
     val dropdownMenuState = DropdownMenuState()
 
     MindeckTheme {
         DecksContent(
-            navController,
+            navigator,
             decksState,
             UiState.Loading,
             dropdownMenuState,
@@ -378,14 +377,15 @@ private fun ScreenPreviewLandscape() {
 )
 @Composable
 private fun RenameDeckModalWindowScreenPreview() {
-    val navController = rememberNavController()
+    val backStack = remember { mutableStateListOf<NavigationRoute>(DeckRoute(1)) }
+    val navigator = remember { StackNavigator(backStack) }
     val decksState: UiState<List<Deck>> = decksDataMock()
 
     val createModalWindow = true
     val dropdownMenuState = DropdownMenuState()
     MindeckTheme {
         DecksContent(
-            navController,
+            navigator,
             decksState,
             UiState.Loading,
             dropdownMenuState,
@@ -403,14 +403,15 @@ private fun RenameDeckModalWindowScreenPreview() {
 )
 @Composable
 private fun EditElementModalWindowScreenPreview() {
-    val navController = rememberNavController()
+    val backStack = remember { mutableStateListOf<NavigationRoute>(DeckRoute(1)) }
+    val navigator = remember { StackNavigator(backStack) }
     val decksState: UiState<List<Deck>> = decksDataMock()
     val createModalWindow = true
     val dropdownMenuState = DropdownMenuState()
 
     MindeckTheme {
         DecksContent(
-            navController,
+            navigator,
             decksState,
             UiState.Loading,
             dropdownMenuState,
