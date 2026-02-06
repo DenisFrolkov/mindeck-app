@@ -36,7 +36,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.mindeck.domain.models.Deck
 import com.mindeck.presentation.R
 import com.mindeck.presentation.state.CardState
-import com.mindeck.presentation.state.RenderUiState
+import com.mindeck.presentation.state.RenderState
 import com.mindeck.presentation.state.UiState
 import com.mindeck.presentation.ui.components.buttons.ActionHandlerButton
 import com.mindeck.presentation.ui.components.buttons.SaveDataButton
@@ -203,7 +203,7 @@ private fun Content(
             .padding(horizontal = dimenDpResource(R.dimen.padding_medium))
             .navigationBarsPadding(),
     ) {
-        deck.RenderUiState(
+        deck.RenderState(
             onSuccess = { deckInfo ->
                 DropdownSelector(
                     "Выберите колоду",

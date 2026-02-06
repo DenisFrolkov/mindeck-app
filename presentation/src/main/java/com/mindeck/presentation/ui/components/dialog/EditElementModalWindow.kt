@@ -130,16 +130,14 @@ fun EditElementModalWindow(
             }
 
             isInputValid.onError { message ->
-                message.message?.let {
-                    Text(
-                        it,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(dimenDpResource(R.dimen.spacer_extra_small)),
-                        textAlign = TextAlign.Start,
-                        style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.error),
-                    )
-                }
+                Text(
+                    message,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(dimenDpResource(R.dimen.spacer_extra_small)),
+                    textAlign = TextAlign.Start,
+                    style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.error),
+                )
             }
 
             Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_large)))

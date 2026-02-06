@@ -46,7 +46,7 @@ class CreationCardViewModel @Inject constructor(
                 .map<List<Deck>, UiState<List<Deck>>> {
                     UiState.Success(it)
                 }
-                .catch { emit(UiState.Error(it)) }
+                .catch { emit(UiState.Error(it.message ?: "")) }
                 .collect { state ->
                     _listDecksUiState.value = state
                 }
@@ -78,7 +78,7 @@ class CreationCardViewModel @Inject constructor(
                 )
                 UiState.Success(Unit)
             } catch (e: Exception) {
-                UiState.Error(e)
+                UiState.Error("e")
             }
         }
     }
@@ -93,7 +93,7 @@ class CreationCardViewModel @Inject constructor(
                 selectedDeckForCreatingCard.value = Pair(deck.deckName, deck.deckId)
                 UiState.Success(deck)
             } catch (e: Exception) {
-                UiState.Error(e)
+                UiState.Error("e")
             }
         }
     }

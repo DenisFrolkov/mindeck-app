@@ -24,7 +24,7 @@ class DecksViewModel @Inject constructor(
 
     val decksState: StateFlow<UiState<List<Deck>>> = getAllDecksUseCase()
         .map<List<Deck>, UiState<List<Deck>>> { UiState.Success(it) }
-        .catch { emit(UiState.Error(it)) }
+        .catch { emit(UiState.Error(it.message ?: "")) }
         .stateIn(viewModelScope, SharingStarted.Lazily, UiState.Loading)
 
     private val _createDeckState = MutableStateFlow<UiState<Unit>>(UiState.Success(Unit))
@@ -33,7 +33,7 @@ class DecksViewModel @Inject constructor(
     fun createDeck(deckName: String) {
         viewModelScope.launch {
             if (deckName.isBlank()) {
-                _createDeckState.value = UiState.Error(Throwable("Поле ввода пустое."))
+                _createDeckState.value = UiState.Error("Поле ввода пустое.")
                 return@launch
             }
 
@@ -44,7 +44,7 @@ class DecksViewModel @Inject constructor(
                 modalWindowValue.value = false
                 UiState.Success(Unit)
             } catch (e: Exception) {
-                UiState.Error(Throwable("Колода с таким названием уже существует."))
+                UiState.Error("Колода с таким названием уже существует.")
             }
         }
     }

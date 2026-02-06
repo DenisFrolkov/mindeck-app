@@ -24,7 +24,6 @@ private val LightColorScheme = lightColorScheme(
     onError = on_error_light_red,
     outline = outline_medium_gray,
     outlineVariant = outline_variant_blue,
-
     scrim = scrim_black,
 )
 

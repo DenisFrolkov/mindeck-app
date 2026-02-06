@@ -20,28 +20,27 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.Deck
-import com.mindeck.domain.models.ReviewType
 import com.mindeck.presentation.R
-import com.mindeck.presentation.state.RenderUiState
+import com.mindeck.presentation.state.RenderState
 import com.mindeck.presentation.state.UiState
 import com.mindeck.presentation.state.onSuccess
-import com.mindeck.presentation.ui.components.dailyProgressTracker.DailyProgressTracker
-import com.mindeck.presentation.ui.components.dailyProgressTracker.DailyProgressTrackerState
 import com.mindeck.presentation.ui.components.dataclasses.DisplayItemData
 import com.mindeck.presentation.ui.components.dataclasses.DisplayItemStyle
 import com.mindeck.presentation.ui.components.dialog.CustomModalWindow
@@ -55,57 +54,54 @@ import com.mindeck.presentation.ui.components.utils.dimenFloatResource
 import com.mindeck.presentation.ui.navigation.CreationCardRoute
 import com.mindeck.presentation.ui.navigation.DeckRoute
 import com.mindeck.presentation.ui.navigation.DecksRoute
-import com.mindeck.presentation.ui.navigation.MainRoute
-import com.mindeck.presentation.ui.navigation.NavigationRoute
 import com.mindeck.presentation.ui.navigation.Navigator
 import com.mindeck.presentation.ui.navigation.RepeatCardsRoute
-import com.mindeck.presentation.ui.navigation.StackNavigator
-import com.mindeck.presentation.ui.theme.MindeckTheme
+import com.mindeck.presentation.viewmodel.MainEvent.OnCreateDeckClick
+import com.mindeck.presentation.viewmodel.MainEvent.OnLoadDecks
 import com.mindeck.presentation.viewmodel.MainViewModel
 
 @Composable
 fun MainScreen(
     navigator: Navigator,
-    mainViewModel: MainViewModel = hiltViewModel<MainViewModel>(),
+    modifier: Modifier = Modifier
 ) {
-    LaunchedEffect(Unit) {
-        mainViewModel.initRepetition()
-    }
-
-    val decksState = mainViewModel.decksState.collectAsState().value
-    val cardsForRepetitionState = mainViewModel.cardsForRepetitionState.collectAsState().value
-    val createDeckState = mainViewModel.createDeckState.collectAsState().value
-    val createModalWindowValue by mainViewModel.createModalWindowValue.collectAsState()
-
-    MainContent(
-        navigator,
-        decksState,
-        cardsForRepetitionState,
-        createDeckState,
-        createModalWindowValue,
-        onSaveDeck = { deckName ->
-            mainViewModel.createDeck(deckName)
-        },
-        toggleModalWindow = {
-            mainViewModel.toggleModalWindow(it)
-        },
+    MainScreenContent(
+        navigator = navigator,
+        viewModel = hiltViewModel<MainViewModel>(),
+        modifier = modifier
     )
 }
 
 @Composable
-private fun MainContent(
+internal fun MainScreenContent(
     navigator: Navigator,
-    decksState: UiState<List<Deck>>,
-    cardsForRepetitionState: UiState<List<Card>>,
-    createDeckState: UiState<Unit>,
-    createModalWindowValue: Boolean = false,
-    onSaveDeck: (String) -> Unit,
-    toggleModalWindow: (Boolean) -> Unit,
+    viewModel: MainViewModel,
+    modifier: Modifier = Modifier
 ) {
-    val dailyProgressTrackerState =
-        remember { DailyProgressTrackerState() }
 
-    val fabMenuItems = getFabMenuItems(navigator, { toggleModalWindow(true) })
+    LaunchedEffect(Unit) {
+        viewModel.onEvent(OnLoadDecks())
+    }
+
+    val decksState by viewModel.decksState.collectAsState()
+    val cardsForRepetitionState = viewModel.cardsForRepetitionState.collectAsState().value
+    val createDeckState by viewModel.createDeckState.collectAsState()
+
+    var isModalOpen by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
+
+//    LaunchedEffect(createDeckState) {
+//        if (createDeckState is UiState.Error) {
+//            Toast.makeText(context, errorText, Toast.LENGTH_SHORT).show()
+//        }
+//    }
+
+    val isLoading by remember(createDeckState) { derivedStateOf { createDeckState is UiState.Loading } }
+
+    val fabMenuItems = getFabMenuItems(navigator, {
+        isModalOpen = true
+    })
     val fabState = remember { FabState(expandedHeight = ITEM_HEIGHT.dp * fabMenuItems.size) }
 
     Scaffold(
@@ -123,30 +119,31 @@ private fun MainContent(
             )
         },
         content = { paddingValues ->
-            MainContent(
+            MainScreen(
                 paddingValues,
-                dailyProgressTrackerState,
-                decksState,
+//                dailyProgressTrackerState,
+                decksState = decksState,
                 cardsForRepetitionState,
                 navigator,
             )
 
-            if (createModalWindowValue) {
+            if (isModalOpen) {
                 Dialog(
                     onDismissRequest = {
-                        toggleModalWindow(false)
+                        isModalOpen = false
                     },
                 ) {
                     CustomModalWindow(
                         stringResource(R.string.create_item_dialog_text_creating_deck),
                         stringResource(R.string.create_item_dialog_text_create_deck),
                         stringResource(R.string.create_item_dialog_text_input_name_deck),
-                        createDeckState,
+                        isInputValid = createDeckState,
                         exitButton = {
-                            toggleModalWindow(false)
+                            isModalOpen = false
                         },
                         saveButton = {
-                            onSaveDeck(it)
+                            viewModel.onEvent(OnCreateDeckClick(it))
+                            isModalOpen = false
                         },
                     )
                 }
@@ -156,9 +153,9 @@ private fun MainContent(
 }
 
 @Composable
-private fun MainContent(
+private fun MainScreen(
     paddingValues: PaddingValues,
-    dailyProgressTrackerState: DailyProgressTrackerState,
+//    dailyProgressTrackerState: DailyProgressTrackerState, Вернуть когда буду уверен, что это часть реально нужна
     decksState: UiState<List<Deck>>,
     cardsRepetition: UiState<List<Card>>,
     navigator: Navigator,
@@ -169,11 +166,12 @@ private fun MainContent(
             .padding(dimenDpResource(R.dimen.padding_medium))
             .navigationBarsPadding(),
     ) {
-        DailyProgressTracker(
-            cardsRepetitionState = cardsRepetition,
-            dptIcon = painterResource(R.drawable.dpt_icon),
-            dailyProgressTrackerState = dailyProgressTrackerState,
-        )
+//          Вернуть когда буду уверен, что это часть реально нужна
+//        DailyProgressTracker(
+//            cardsRepetitionState = cardsRepetition,
+//            dptIcon = painterResource(R.drawable.dpt_icon),
+//            dailyProgressTrackerState = dailyProgressTrackerState,
+//        )
         Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_large)))
         RepeatCardItem(navigator = navigator, cardsRepetitionState = cardsRepetition)
         Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_large)))
@@ -186,7 +184,7 @@ private fun DecksSection(
     navigator: Navigator,
     decksState: UiState<List<Deck>>,
 ) {
-    decksState.RenderUiState(
+    decksState.RenderState(
         onSuccess = { decks ->
             decks.take(5).forEach { folder ->
                 DeckItem(navigator, folder)
@@ -357,187 +355,187 @@ private fun getFabMenuItems(
     )
 }
 
-@Preview(
-    showBackground = true,
-    backgroundColor = 0xFFE6E6FF,
-)
-@Composable
-private fun ScreenPreview() {
-    val backStack = remember { mutableStateListOf<NavigationRoute>(MainRoute) }
-    val navigator = remember { StackNavigator(backStack) }
-    val decksState: UiState<List<Deck>> = decksDataMock()
-    val cardsForRepetitionState: UiState<List<Card>> = cardsForRepetitionDataMock()
-
-    MindeckTheme {
-        MainContent(
-            navigator,
-            decksState,
-            cardsForRepetitionState,
-            UiState.Loading,
-            false,
-            { },
-            { _ -> },
-        )
-    }
-}
-
-@Preview(
-    device = "spec:parent=pixel_5,orientation=landscape",
-    showBackground = true,
-    backgroundColor = 0xFFE6E6FF,
-)
-@Composable
-private fun ScreenPreviewLandscape() {
-    val backStack = remember { mutableStateListOf<NavigationRoute>(MainRoute) }
-    val navigator = remember { StackNavigator(backStack) }
-
-    val decksState: UiState<List<Deck>> = decksDataMock()
-    val cardsForRepetitionState: UiState<List<Card>> = cardsForRepetitionDataMock()
-
-    MindeckTheme {
-        MainContent(
-            navigator,
-            decksState,
-            cardsForRepetitionState,
-            UiState.Loading,
-            false,
-            { },
-            { _ -> },
-        )
-    }
-}
-
-@Preview(
-    showBackground = true,
-    backgroundColor = 0xFFE6E6FF,
-)
-@Composable
-private fun RenameDeckModalWindowScreenPreview() {
-    val backStack = remember { mutableStateListOf<NavigationRoute>(MainRoute) }
-    val navigator = remember { StackNavigator(backStack) }
-    val decksState: UiState<List<Deck>> = decksDataMock()
-    val cardsForRepetitionState: UiState<List<Card>> = cardsForRepetitionDataMock()
-    val fabModalWindow = true
-
-    MindeckTheme {
-        MainContent(
-            navigator,
-            decksState,
-            cardsForRepetitionState,
-            UiState.Loading,
-            fabModalWindow,
-            { },
-            { _ -> },
-        )
-    }
-}
-
-@Preview(
-    device = "spec:parent=pixel_5,orientation=landscape",
-    showBackground = true,
-    backgroundColor = 0xFFE6E6FF,
-)
-@Composable
-private fun EditElementModalWindowScreenPreview() {
-    val backStack = remember { mutableStateListOf<NavigationRoute>(MainRoute) }
-    val navigator = remember { StackNavigator(backStack) }
-    val decksState: UiState<List<Deck>> = decksDataMock()
-    val cardsForRepetitionState: UiState<List<Card>> = cardsForRepetitionDataMock()
-    val fabModalWindow = true
-
-    MindeckTheme {
-        MainContent(
-            navigator,
-            decksState,
-            cardsForRepetitionState,
-            UiState.Loading,
-            fabModalWindow,
-            { },
-            { _ -> },
-        )
-    }
-}
-
-@Composable
-private fun decksDataMock(): UiState<List<Deck>> = UiState.Success(
-    listOf<Deck>(
-        Deck(
-            deckId = 1,
-            deckName = "Kotlin Basics",
-        ),
-        Deck(
-            deckId = 2,
-            deckName = "Jetpack Compose",
-        ),
-        Deck(
-            deckId = 3,
-            deckName = "Architecture Patterns",
-        ),
-        Deck(
-            deckId = 4,
-            deckName = "Coroutines & Flow",
-        ),
-    ),
-)
-
-@Composable
-private fun cardsForRepetitionDataMock(): UiState<List<Card>> = UiState.Success(
-    listOf<Card>(
-        Card(
-            cardId = 1,
-            cardName = "Basics of Kotlin",
-            cardQuestion = "What is a data class in Kotlin?",
-            cardAnswer = "A class used to hold data; automatically provides equals(), hashCode(), toString(), etc.",
-            cardType = "text",
-            cardTag = "kotlin",
-            deckId = 1,
-            firstReviewDate = System.currentTimeMillis() - 5 * 24 * 60 * 60 * 1000,
-            lastReviewDate = System.currentTimeMillis() - 1 * 24 * 60 * 60 * 1000,
-            nextReviewDate = System.currentTimeMillis() + 2 * 24 * 60 * 60 * 1000,
-            repetitionCount = 3,
-            lastReviewType = ReviewType.MEDIUM,
-        ),
-        Card(
-            cardId = 2,
-            cardName = "Jetpack Compose",
-            cardQuestion = "What is @Composable?",
-            cardAnswer = "A function annotation that marks a function as composable.",
-            cardType = "text",
-            cardTag = "compose",
-            deckId = 1,
-            firstReviewDate = System.currentTimeMillis() - 10 * 24 * 60 * 60 * 1000,
-            lastReviewDate = System.currentTimeMillis() - 3 * 24 * 60 * 60 * 1000,
-            nextReviewDate = System.currentTimeMillis() + 1 * 24 * 60 * 60 * 1000,
-            repetitionCount = 5,
-            lastReviewType = ReviewType.HARD,
-        ),
-        Card(
-            cardId = 3,
-            cardName = "Design Patterns",
-            cardQuestion = "Explain the Singleton pattern.",
-            cardAnswer = "A design pattern that ensures a class has only one instance.",
-            cardType = "text",
-            cardTag = "architecture",
-            deckId = 2,
-            firstReviewDate = System.currentTimeMillis() - 20 * 24 * 60 * 60 * 1000,
-            lastReviewDate = System.currentTimeMillis() - 2 * 24 * 60 * 60 * 1000,
-            nextReviewDate = System.currentTimeMillis() + 3 * 24 * 60 * 60 * 1000,
-            repetitionCount = 7,
-            lastReviewType = ReviewType.EASY,
-        ),
-        Card(
-            cardId = 4,
-            cardName = "Coroutines",
-            cardQuestion = "What does `launch {}` do in Kotlin?",
-            cardAnswer = "Starts a new coroutine without blocking the current thread.",
-            cardType = "text",
-            cardTag = "async",
-            deckId = 2,
-            firstReviewDate = System.currentTimeMillis() - 7 * 24 * 60 * 60 * 1000,
-            lastReviewDate = System.currentTimeMillis() - 1 * 24 * 60 * 60 * 1000,
-            nextReviewDate = System.currentTimeMillis() + 5 * 24 * 60 * 60 * 1000,
-            repetitionCount = 4,
-            lastReviewType = ReviewType.MEDIUM,
-        ),
-    ),
-)
+//@Preview(
+//    showBackground = true,
+//    backgroundColor = 0xFFE6E6FF,
+//)
+//@Composable
+//private fun ScreenPreview() {
+//    val backStack = remember { mutableStateListOf<NavigationRoute>(MainRoute) }
+//    val navigator = remember { StackNavigator(backStack) }
+//    val decksState: UiState<List<Deck>> = decksDataMock()
+//    val cardsForRepetitionState: UiState<List<Card>> = cardsForRepetitionDataMock()
+//
+//    MindeckTheme {
+//        MainScreen(
+//            navigator,
+//            decksState,
+//            cardsForRepetitionState,
+//            UiState.Loading,
+//            false,
+//            { },
+//            { _ -> },
+//        )
+//    }
+//}
+//
+//@Preview(
+//    device = "spec:parent=pixel_5,orientation=landscape",
+//    showBackground = true,
+//    backgroundColor = 0xFFE6E6FF,
+//)
+//@Composable
+//private fun ScreenPreviewLandscape() {
+//    val backStack = remember { mutableStateListOf<NavigationRoute>(MainRoute) }
+//    val navigator = remember { StackNavigator(backStack) }
+//
+//    val decksState: UiState<List<Deck>> = decksDataMock()
+//    val cardsForRepetitionState: UiState<List<Card>> = cardsForRepetitionDataMock()
+//
+//    MindeckTheme {
+//        MainScreen(
+//            navigator,
+//            decksState,
+//            cardsForRepetitionState,
+//            UiState.Loading,
+//            false,
+//            { },
+//            { _ -> },
+//        )
+//    }
+//}
+//
+//@Preview(
+//    showBackground = true,
+//    backgroundColor = 0xFFE6E6FF,
+//)
+//@Composable
+//private fun RenameDeckModalWindowScreenPreview() {
+//    val backStack = remember { mutableStateListOf<NavigationRoute>(MainRoute) }
+//    val navigator = remember { StackNavigator(backStack) }
+//    val decksState: UiState<List<Deck>> = decksDataMock()
+//    val cardsForRepetitionState: UiState<List<Card>> = cardsForRepetitionDataMock()
+//    val fabModalWindow = true
+//
+//    MindeckTheme {
+//        MainScreen(
+//            navigator,
+//            decksState,
+//            cardsForRepetitionState,
+//            UiState.Loading,
+//            fabModalWindow,
+//            { },
+//            { _ -> },
+//        )
+//    }
+//}
+//
+//@Preview(
+//    device = "spec:parent=pixel_5,orientation=landscape",
+//    showBackground = true,
+//    backgroundColor = 0xFFE6E6FF,
+//)
+//@Composable
+//private fun EditElementModalWindowScreenPreview() {
+//    val backStack = remember { mutableStateListOf<NavigationRoute>(MainRoute) }
+//    val navigator = remember { StackNavigator(backStack) }
+//    val decksState: UiState<List<Deck>> = decksDataMock()
+//    val cardsForRepetitionState: UiState<List<Card>> = cardsForRepetitionDataMock()
+//    val fabModalWindow = true
+//
+//    MindeckTheme {
+//        MainScreen(
+//            navigator,
+//            decksState,
+//            cardsForRepetitionState,
+//            UiState.Loading,
+//            fabModalWindow,
+//            { },
+//            { _ -> },
+//        )
+//    }
+//}
+//
+//@Composable
+//private fun decksDataMock(): UiState<List<Deck>> = UiState.Success(
+//    listOf<Deck>(
+//        Deck(
+//            deckId = 1,
+//            deckName = "Kotlin Basics",
+//        ),
+//        Deck(
+//            deckId = 2,
+//            deckName = "Jetpack Compose",
+//        ),
+//        Deck(
+//            deckId = 3,
+//            deckName = "Architecture Patterns",
+//        ),
+//        Deck(
+//            deckId = 4,
+//            deckName = "Coroutines & Flow",
+//        ),
+//    ),
+//)
+//
+//@Composable
+//private fun cardsForRepetitionDataMock(): UiState<List<Card>> = UiState.Success(
+//    listOf<Card>(
+//        Card(
+//            cardId = 1,
+//            cardName = "Basics of Kotlin",
+//            cardQuestion = "What is a data class in Kotlin?",
+//            cardAnswer = "A class used to hold data; automatically provides equals(), hashCode(), toString(), etc.",
+//            cardType = "text",
+//            cardTag = "kotlin",
+//            deckId = 1,
+//            firstReviewDate = System.currentTimeMillis() - 5 * 24 * 60 * 60 * 1000,
+//            lastReviewDate = System.currentTimeMillis() - 1 * 24 * 60 * 60 * 1000,
+//            nextReviewDate = System.currentTimeMillis() + 2 * 24 * 60 * 60 * 1000,
+//            repetitionCount = 3,
+//            lastReviewType = ReviewType.MEDIUM,
+//        ),
+//        Card(
+//            cardId = 2,
+//            cardName = "Jetpack Compose",
+//            cardQuestion = "What is @Composable?",
+//            cardAnswer = "A function annotation that marks a function as composable.",
+//            cardType = "text",
+//            cardTag = "compose",
+//            deckId = 1,
+//            firstReviewDate = System.currentTimeMillis() - 10 * 24 * 60 * 60 * 1000,
+//            lastReviewDate = System.currentTimeMillis() - 3 * 24 * 60 * 60 * 1000,
+//            nextReviewDate = System.currentTimeMillis() + 1 * 24 * 60 * 60 * 1000,
+//            repetitionCount = 5,
+//            lastReviewType = ReviewType.HARD,
+//        ),
+//        Card(
+//            cardId = 3,
+//            cardName = "Design Patterns",
+//            cardQuestion = "Explain the Singleton pattern.",
+//            cardAnswer = "A design pattern that ensures a class has only one instance.",
+//            cardType = "text",
+//            cardTag = "architecture",
+//            deckId = 2,
+//            firstReviewDate = System.currentTimeMillis() - 20 * 24 * 60 * 60 * 1000,
+//            lastReviewDate = System.currentTimeMillis() - 2 * 24 * 60 * 60 * 1000,
+//            nextReviewDate = System.currentTimeMillis() + 3 * 24 * 60 * 60 * 1000,
+//            repetitionCount = 7,
+//            lastReviewType = ReviewType.EASY,
+//        ),
+//        Card(
+//            cardId = 4,
+//            cardName = "Coroutines",
+//            cardQuestion = "What does `launch {}` do in Kotlin?",
+//            cardAnswer = "Starts a new coroutine without blocking the current thread.",
+//            cardType = "text",
+//            cardTag = "async",
+//            deckId = 2,
+//            firstReviewDate = System.currentTimeMillis() - 7 * 24 * 60 * 60 * 1000,
+//            lastReviewDate = System.currentTimeMillis() - 1 * 24 * 60 * 60 * 1000,
+//            nextReviewDate = System.currentTimeMillis() + 5 * 24 * 60 * 60 * 1000,
+//            repetitionCount = 4,
+//            lastReviewType = ReviewType.MEDIUM,
+//        ),
+//    ),
+//)
