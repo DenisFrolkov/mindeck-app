@@ -44,7 +44,7 @@ import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.Deck
 import com.mindeck.domain.models.ReviewType
 import com.mindeck.presentation.R
-import com.mindeck.presentation.state.RenderUiState
+import com.mindeck.presentation.state.RenderState
 import com.mindeck.presentation.state.UiState
 import com.mindeck.presentation.state.getOrNull
 import com.mindeck.presentation.ui.components.buttons.ActionHandlerButton
@@ -355,7 +355,7 @@ private fun CardAttributesList(attribute: CardAttributes) {
 private fun CardInfo(
     cardState: UiState<Card>,
 ) {
-    cardState.RenderUiState(
+    cardState.RenderState(
         onSuccess = { card ->
             Box(
                 contentAlignment = Alignment.Center,

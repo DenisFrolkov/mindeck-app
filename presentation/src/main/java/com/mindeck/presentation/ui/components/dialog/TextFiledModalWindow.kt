@@ -1,5 +1,6 @@
 package com.mindeck.presentation.ui.components.dialog
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -16,6 +17,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -24,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -38,6 +41,7 @@ import com.mindeck.presentation.ui.components.utils.dimenDpResource
 import com.mindeck.presentation.ui.theme.MindeckTheme
 import com.mindeck.presentation.ui.theme.text_gray
 import com.mindeck.presentation.ui.theme.text_white
+import kotlin.math.floor
 
 @Composable
 fun CustomModalWindow(
@@ -50,7 +54,6 @@ fun CustomModalWindow(
 ) {
     var text by remember { mutableStateOf("") }
 
-    val isError by remember(isInputValid) { derivedStateOf { isInputValid is UiState.Error } }
     val isLoading by remember(isInputValid) { derivedStateOf { isInputValid is UiState.Loading } }
 
     Box(
@@ -90,13 +93,11 @@ fun CustomModalWindow(
                     text = it
                 },
                 textStyle = MaterialTheme.typography.bodyMedium,
-                placeholderTextStyle = MaterialTheme.typography.bodyMedium.copy(
-                    color = if (isError) MaterialTheme.colorScheme.error else text_gray,
-                ),
+                placeholderTextStyle = MaterialTheme.typography.bodyMedium.copy(text_gray),
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(
-                        if (isError) MaterialTheme.colorScheme.onError else MaterialTheme.colorScheme.onPrimary,
+                        MaterialTheme.colorScheme.onPrimary,
                         MaterialTheme.shapes.large,
                     )
                     .border(
@@ -106,17 +107,17 @@ fun CustomModalWindow(
                     )
                     .padding(dimenDpResource(R.dimen.card_input_field_item_padding)),
 
-            )
+                )
 
             isInputValid.onError { message ->
-                message.message?.let {
-                    Text(
-                        it,
-                        modifier = Modifier.fillMaxWidth().padding(dimenDpResource(R.dimen.spacer_extra_small)),
-                        textAlign = TextAlign.Start,
-                        style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.error),
-                    )
-                }
+                Text(
+                    message,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(dimenDpResource(R.dimen.spacer_extra_small)),
+                    textAlign = TextAlign.Start,
+                    style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.error),
+                )
             }
 
             Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_large)))
@@ -135,12 +136,10 @@ fun CustomModalWindow(
             } else {
                 SaveDataButton(
                     text = buttonText,
-                    textStyle = MaterialTheme.typography.bodyMedium.copy(
-                        color = text_white,
-                    ),
+                    textStyle = MaterialTheme.typography.bodyMedium,
                     buttonModifier = Modifier
                         .background(
-                            color = MaterialTheme.colorScheme.outlineVariant,
+                            color = if (text.isEmpty()) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.onSecondary,
                             shape = MaterialTheme.shapes.medium,
                         )
                         .clickable(

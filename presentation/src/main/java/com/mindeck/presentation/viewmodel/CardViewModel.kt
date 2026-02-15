@@ -34,7 +34,7 @@ class CardViewModel @Inject constructor(
                 getDeckById(card.deckId)
                 UiState.Success(card)
             } catch (e: Exception) {
-                UiState.Error(e)
+                UiState.Error("e")
             }
         }
     }
@@ -47,7 +47,7 @@ class CardViewModel @Inject constructor(
             _deckUiState.value = try {
                 UiState.Success(getDeckByIdUseCase(deckId = deckId))
             } catch (e: Exception) {
-                UiState.Error(e)
+                UiState.Error("e")
             }
         }
     }
@@ -61,7 +61,7 @@ class CardViewModel @Inject constructor(
                 deleteCardUseCase(card = card)
                 UiState.Success(Unit)
             } catch (e: Exception) {
-                UiState.Error(e)
+                UiState.Error("e")
             }
         }
     }

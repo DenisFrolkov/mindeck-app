@@ -3,17 +3,27 @@ package com.mindeck.presentation.ui.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -21,180 +31,175 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.Deck
-import com.mindeck.domain.models.ReviewType
 import com.mindeck.presentation.R
-import com.mindeck.presentation.state.RenderUiState
+import com.mindeck.presentation.state.RenderState
 import com.mindeck.presentation.state.UiState
-import com.mindeck.presentation.state.onSuccess
-import com.mindeck.presentation.ui.components.dailyProgressTracker.DailyProgressTracker
-import com.mindeck.presentation.ui.components.dailyProgressTracker.DailyProgressTrackerState
 import com.mindeck.presentation.ui.components.dataclasses.DisplayItemData
 import com.mindeck.presentation.ui.components.dataclasses.DisplayItemStyle
-import com.mindeck.presentation.ui.components.dialog.CustomModalWindow
-import com.mindeck.presentation.ui.components.fab.FAB
-import com.mindeck.presentation.ui.components.fab.FabMenuData
-import com.mindeck.presentation.ui.components.fab.FabState
-import com.mindeck.presentation.ui.components.fab.FabState.Companion.ITEM_HEIGHT
 import com.mindeck.presentation.ui.components.folder.DisplayItem
-import com.mindeck.presentation.ui.components.utils.dimenDpResource
 import com.mindeck.presentation.ui.components.utils.dimenFloatResource
 import com.mindeck.presentation.ui.navigation.CreationCardRoute
 import com.mindeck.presentation.ui.navigation.DeckRoute
 import com.mindeck.presentation.ui.navigation.DecksRoute
-import com.mindeck.presentation.ui.navigation.MainRoute
-import com.mindeck.presentation.ui.navigation.NavigationRoute
 import com.mindeck.presentation.ui.navigation.Navigator
-import com.mindeck.presentation.ui.navigation.RepeatCardsRoute
-import com.mindeck.presentation.ui.navigation.StackNavigator
-import com.mindeck.presentation.ui.theme.MindeckTheme
+import com.mindeck.presentation.viewmodel.MainEvent.OnLoadDecks
 import com.mindeck.presentation.viewmodel.MainViewModel
 
 @Composable
 fun MainScreen(
     navigator: Navigator,
-    mainViewModel: MainViewModel = hiltViewModel<MainViewModel>(),
+    modifier: Modifier = Modifier
 ) {
-    LaunchedEffect(Unit) {
-        mainViewModel.initRepetition()
-    }
-
-    val decksState = mainViewModel.decksState.collectAsState().value
-    val cardsForRepetitionState = mainViewModel.cardsForRepetitionState.collectAsState().value
-    val createDeckState = mainViewModel.createDeckState.collectAsState().value
-    val createModalWindowValue by mainViewModel.createModalWindowValue.collectAsState()
-
-    MainContent(
-        navigator,
-        decksState,
-        cardsForRepetitionState,
-        createDeckState,
-        createModalWindowValue,
-        onSaveDeck = { deckName ->
-            mainViewModel.createDeck(deckName)
-        },
-        toggleModalWindow = {
-            mainViewModel.toggleModalWindow(it)
-        },
+    MainScreenContent(
+        navigator = navigator,
+        viewModel = hiltViewModel<MainViewModel>(),
+        modifier = modifier
     )
 }
 
 @Composable
-private fun MainContent(
+internal fun MainScreenContent(
     navigator: Navigator,
-    decksState: UiState<List<Deck>>,
-    cardsForRepetitionState: UiState<List<Card>>,
-    createDeckState: UiState<Unit>,
-    createModalWindowValue: Boolean = false,
-    onSaveDeck: (String) -> Unit,
-    toggleModalWindow: (Boolean) -> Unit,
+    viewModel: MainViewModel,
+    modifier: Modifier = Modifier
 ) {
-    val dailyProgressTrackerState =
-        remember { DailyProgressTrackerState() }
 
-    val fabMenuItems = getFabMenuItems(navigator, { toggleModalWindow(true) })
-    val fabState = remember { FabState(expandedHeight = ITEM_HEIGHT.dp * fabMenuItems.size) }
+    LaunchedEffect(Unit) {
+        viewModel.onEvent(OnLoadDecks)
+//        viewModel.onEvent(MainEvent.OnLoadCardRepetition())
+    }
+
+    val decksState by viewModel.decksState.collectAsState()
+    val cardsForRepetitionState by viewModel.cardsForRepetitionState.collectAsState()
 
     Scaffold(
+        modifier = Modifier.fillMaxSize(),
         containerColor = MaterialTheme.colorScheme.background,
-        floatingActionButton = {
-            FAB(
-                fabIcon = painterResource(R.drawable.fab_menu_icon),
-                fabMenuItems = fabMenuItems,
-                fabColor = MaterialTheme.colorScheme.outlineVariant,
-                fabIconColor = MaterialTheme.colorScheme.onPrimary,
-                fabState = fabState,
-                textStyle = MaterialTheme.typography.bodyMedium.copy(
-                    color = MaterialTheme.colorScheme.onPrimary,
-                ),
-            )
-        },
         content = { paddingValues ->
-            MainContent(
-                paddingValues,
-                dailyProgressTrackerState,
-                decksState,
-                cardsForRepetitionState,
-                navigator,
-            )
-
-            if (createModalWindowValue) {
-                Dialog(
-                    onDismissRequest = {
-                        toggleModalWindow(false)
-                    },
+            Column(
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .padding(horizontal = dimensionResource(R.dimen.padding_medium))
+                    .systemBarsPadding(),
+                verticalArrangement = Arrangement.Center
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(dimensionResource(R.dimen.dimen_12)))
+                        .background(MaterialTheme.colorScheme.onPrimary)
+                        .padding(vertical = dimensionResource(R.dimen.dimen_8)),
+                    horizontalArrangement = Arrangement.SpaceAround
                 ) {
-                    CustomModalWindow(
-                        stringResource(R.string.create_item_dialog_text_creating_deck),
-                        stringResource(R.string.create_item_dialog_text_create_deck),
-                        stringResource(R.string.create_item_dialog_text_input_name_deck),
-                        createDeckState,
-                        exitButton = {
-                            toggleModalWindow(false)
-                        },
-                        saveButton = {
-                            onSaveDeck(it)
-                        },
+                    RepeatCountItem(
+                        14,
+                        stringResource(R.string.new_text),
+                        color = Color.Green,
+                        Modifier
+                    )
+
+                    RepeatCountItem(
+                        6,
+                        stringResource(R.string.learning_text),
+                        color = Color.Red,
+                        Modifier
+                    )
+
+                    RepeatCountItem(
+                        10,
+                        stringResource(R.string.to_review_text),
+                        color = Color.Blue,
+                        Modifier
                     )
                 }
+                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacer_large)))
+                ListDecks(
+                    navigator = navigator,
+                    decksState = decksState
+                )
             }
         },
+        floatingActionButton = {
+            FloatingActionButton(
+                modifier = Modifier,
+                elevation = FloatingActionButtonDefaults.elevation(
+                    defaultElevation = dimensionResource(R.dimen.dimen_0)
+                ),
+                shape = RoundedCornerShape(dimensionResource(R.dimen.dimen_20)),
+                containerColor = MaterialTheme.colorScheme.onSecondary,
+                onClick = {
+                    navigator.push(CreationCardRoute())
+                },
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Add,
+                    contentDescription = null,
+                    modifier = Modifier.size(dimensionResource(R.dimen.dimen_24))
+                )
+            }
+        }
     )
 }
 
 @Composable
-private fun MainContent(
-    paddingValues: PaddingValues,
-    dailyProgressTrackerState: DailyProgressTrackerState,
-    decksState: UiState<List<Deck>>,
-    cardsRepetition: UiState<List<Card>>,
-    navigator: Navigator,
+private fun RepeatCountItem(
+    count: Int,
+    label: String,
+    color: Color,
+    modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = Modifier
-            .padding(paddingValues)
-            .padding(dimenDpResource(R.dimen.padding_medium))
-            .navigationBarsPadding(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.dimen_2)),
+        modifier = modifier
     ) {
-        DailyProgressTracker(
-            cardsRepetitionState = cardsRepetition,
-            dptIcon = painterResource(R.drawable.dpt_icon),
-            dailyProgressTrackerState = dailyProgressTrackerState,
+        Text(
+            text = count.toString(),
+            style = MaterialTheme.typography.bodyLarge,
+            color = color
         )
-        Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_large)))
-        RepeatCardItem(navigator = navigator, cardsRepetitionState = cardsRepetition)
-        Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_large)))
-        DecksSection(navigator = navigator, decksState = decksState)
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurface
+        )
     }
 }
 
 @Composable
-private fun DecksSection(
+private fun ListDecks(
     navigator: Navigator,
     decksState: UiState<List<Deck>>,
 ) {
-    decksState.RenderUiState(
+    decksState.RenderState(
         onSuccess = { decks ->
-            decks.take(5).forEach { folder ->
-                DeckItem(navigator, folder)
-                Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_small)))
-            }
-            if (decks.size > 5) {
-                Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_small)))
-                ButtonAllFolders(navigator)
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.dimen_8))
+            ) {
+                items(
+                    items = decks.take(5),
+                    key = { it.deckId }
+                ) { deck ->
+                    DeckItem(navigator = navigator, deck = deck)
+                    Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacer_small)))
+                }
+
+                if (decks.size > 5) {
+                    item {
+                        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_8)))
+                        ButtonAllDecks(navigator)
+                    }
+                }
             }
         },
         onLoading = {
@@ -205,7 +210,7 @@ private fun DecksSection(
             ) {
                 CircularProgressIndicator(
                     color = MaterialTheme.colorScheme.primary,
-                    strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_one),
+                    strokeWidth = dimensionResource(R.dimen.circular_progress_indicator_weight_one),
                 )
             }
         },
@@ -221,47 +226,6 @@ private fun DecksSection(
 }
 
 @Composable
-private fun RepeatCardItem(
-    navigator: Navigator,
-    cardsRepetitionState: UiState<List<Card>>,
-) {
-    cardsRepetitionState.onSuccess { cardsRepetition ->
-        if (cardsRepetition.isNotEmpty()) {
-            DisplayItem(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .border(
-                        dimenDpResource(R.dimen.border_width_dot_two_five),
-                        MaterialTheme.colorScheme.outline,
-                        MaterialTheme.shapes.small,
-                    )
-                    .clip(shape = MaterialTheme.shapes.small)
-                    .height(dimenDpResource(R.dimen.display_card_item_size))
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null,
-                    ) {
-                        navigator.push(RepeatCardsRoute)
-                    },
-                showCount = true,
-                displayItemData = DisplayItemData(
-                    itemIcon = R.drawable.deck_icon,
-                    numberOfCards = cardsRepetition.size,
-                    itemName = stringResource(R.string.text_repeat_cards),
-                ),
-                displayItemStyle = DisplayItemStyle(
-                    backgroundColor = MaterialTheme.colorScheme.tertiary.copy(
-                        dimenFloatResource(R.dimen.float_zero_dot_five_significance),
-                    ),
-                    iconColor = MaterialTheme.colorScheme.onTertiary,
-                    textStyle = MaterialTheme.typography.bodyMedium,
-                ),
-            )
-        }
-    }
-}
-
-@Composable
 private fun DeckItem(
     navigator: Navigator,
     deck: Deck,
@@ -270,16 +234,13 @@ private fun DeckItem(
         modifier = Modifier
             .fillMaxWidth()
             .border(
-                dimenDpResource(R.dimen.border_width_dot_two_five),
+                dimensionResource(R.dimen.border_width_dot_two_five),
                 MaterialTheme.colorScheme.outline,
                 MaterialTheme.shapes.small,
             )
             .clip(shape = MaterialTheme.shapes.small)
-            .height(dimenDpResource(R.dimen.display_card_item_size))
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null,
-            ) {
+            .height(dimensionResource(R.dimen.display_card_item_size))
+            .clickable {
                 navigator.push(DeckRoute(deck.deckId))
             },
         showCount = false,
@@ -299,7 +260,7 @@ private fun DeckItem(
 }
 
 @Composable
-private fun ButtonAllFolders(
+private fun ButtonAllDecks(
     navigator: Navigator,
 ) {
     Box(
@@ -313,10 +274,7 @@ private fun ButtonAllFolders(
                     color = MaterialTheme.colorScheme.outlineVariant,
                     shape = MaterialTheme.shapes.medium,
                 )
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null,
-                ) {
+                .clickable {
                     navigator.push(DecksRoute)
                 },
         ) {
@@ -326,218 +284,10 @@ private fun ButtonAllFolders(
                     color = MaterialTheme.colorScheme.onPrimary,
                 ),
                 modifier = Modifier.padding(
-                    vertical = dimenDpResource(R.dimen.padding_small),
-                    horizontal = dimenDpResource(R.dimen.padding_large),
+                    vertical = dimensionResource(R.dimen.padding_small),
+                    horizontal = dimensionResource(R.dimen.padding_large),
                 ),
             )
         }
     }
 }
-
-@Composable
-private fun getFabMenuItems(
-    navigator: Navigator,
-    openModalWindow: () -> Unit,
-): List<FabMenuData> {
-    return listOf(
-        FabMenuData(
-            idItem = 0,
-            text = stringResource(R.string.fab_menu_data_create_deck),
-            icon = R.drawable.fab_open_menu_create_card_icon,
-            navigation = {
-                openModalWindow()
-            },
-        ),
-        FabMenuData(
-            idItem = 1,
-            text = stringResource(R.string.fab_menu_data_create_card_list),
-            icon = R.drawable.fab_open_menu_create_card_icon,
-            navigation = { navigator.push(CreationCardRoute()) },
-        ),
-    )
-}
-
-@Preview(
-    showBackground = true,
-    backgroundColor = 0xFFE6E6FF,
-)
-@Composable
-private fun ScreenPreview() {
-    val backStack = remember { mutableStateListOf<NavigationRoute>(MainRoute) }
-    val navigator = remember { StackNavigator(backStack) }
-    val decksState: UiState<List<Deck>> = decksDataMock()
-    val cardsForRepetitionState: UiState<List<Card>> = cardsForRepetitionDataMock()
-
-    MindeckTheme {
-        MainContent(
-            navigator,
-            decksState,
-            cardsForRepetitionState,
-            UiState.Loading,
-            false,
-            { },
-            { _ -> },
-        )
-    }
-}
-
-@Preview(
-    device = "spec:parent=pixel_5,orientation=landscape",
-    showBackground = true,
-    backgroundColor = 0xFFE6E6FF,
-)
-@Composable
-private fun ScreenPreviewLandscape() {
-    val backStack = remember { mutableStateListOf<NavigationRoute>(MainRoute) }
-    val navigator = remember { StackNavigator(backStack) }
-
-    val decksState: UiState<List<Deck>> = decksDataMock()
-    val cardsForRepetitionState: UiState<List<Card>> = cardsForRepetitionDataMock()
-
-    MindeckTheme {
-        MainContent(
-            navigator,
-            decksState,
-            cardsForRepetitionState,
-            UiState.Loading,
-            false,
-            { },
-            { _ -> },
-        )
-    }
-}
-
-@Preview(
-    showBackground = true,
-    backgroundColor = 0xFFE6E6FF,
-)
-@Composable
-private fun RenameDeckModalWindowScreenPreview() {
-    val backStack = remember { mutableStateListOf<NavigationRoute>(MainRoute) }
-    val navigator = remember { StackNavigator(backStack) }
-    val decksState: UiState<List<Deck>> = decksDataMock()
-    val cardsForRepetitionState: UiState<List<Card>> = cardsForRepetitionDataMock()
-    val fabModalWindow = true
-
-    MindeckTheme {
-        MainContent(
-            navigator,
-            decksState,
-            cardsForRepetitionState,
-            UiState.Loading,
-            fabModalWindow,
-            { },
-            { _ -> },
-        )
-    }
-}
-
-@Preview(
-    device = "spec:parent=pixel_5,orientation=landscape",
-    showBackground = true,
-    backgroundColor = 0xFFE6E6FF,
-)
-@Composable
-private fun EditElementModalWindowScreenPreview() {
-    val backStack = remember { mutableStateListOf<NavigationRoute>(MainRoute) }
-    val navigator = remember { StackNavigator(backStack) }
-    val decksState: UiState<List<Deck>> = decksDataMock()
-    val cardsForRepetitionState: UiState<List<Card>> = cardsForRepetitionDataMock()
-    val fabModalWindow = true
-
-    MindeckTheme {
-        MainContent(
-            navigator,
-            decksState,
-            cardsForRepetitionState,
-            UiState.Loading,
-            fabModalWindow,
-            { },
-            { _ -> },
-        )
-    }
-}
-
-@Composable
-private fun decksDataMock(): UiState<List<Deck>> = UiState.Success(
-    listOf<Deck>(
-        Deck(
-            deckId = 1,
-            deckName = "Kotlin Basics",
-        ),
-        Deck(
-            deckId = 2,
-            deckName = "Jetpack Compose",
-        ),
-        Deck(
-            deckId = 3,
-            deckName = "Architecture Patterns",
-        ),
-        Deck(
-            deckId = 4,
-            deckName = "Coroutines & Flow",
-        ),
-    ),
-)
-
-@Composable
-private fun cardsForRepetitionDataMock(): UiState<List<Card>> = UiState.Success(
-    listOf<Card>(
-        Card(
-            cardId = 1,
-            cardName = "Basics of Kotlin",
-            cardQuestion = "What is a data class in Kotlin?",
-            cardAnswer = "A class used to hold data; automatically provides equals(), hashCode(), toString(), etc.",
-            cardType = "text",
-            cardTag = "kotlin",
-            deckId = 1,
-            firstReviewDate = System.currentTimeMillis() - 5 * 24 * 60 * 60 * 1000,
-            lastReviewDate = System.currentTimeMillis() - 1 * 24 * 60 * 60 * 1000,
-            nextReviewDate = System.currentTimeMillis() + 2 * 24 * 60 * 60 * 1000,
-            repetitionCount = 3,
-            lastReviewType = ReviewType.MEDIUM,
-        ),
-        Card(
-            cardId = 2,
-            cardName = "Jetpack Compose",
-            cardQuestion = "What is @Composable?",
-            cardAnswer = "A function annotation that marks a function as composable.",
-            cardType = "text",
-            cardTag = "compose",
-            deckId = 1,
-            firstReviewDate = System.currentTimeMillis() - 10 * 24 * 60 * 60 * 1000,
-            lastReviewDate = System.currentTimeMillis() - 3 * 24 * 60 * 60 * 1000,
-            nextReviewDate = System.currentTimeMillis() + 1 * 24 * 60 * 60 * 1000,
-            repetitionCount = 5,
-            lastReviewType = ReviewType.HARD,
-        ),
-        Card(
-            cardId = 3,
-            cardName = "Design Patterns",
-            cardQuestion = "Explain the Singleton pattern.",
-            cardAnswer = "A design pattern that ensures a class has only one instance.",
-            cardType = "text",
-            cardTag = "architecture",
-            deckId = 2,
-            firstReviewDate = System.currentTimeMillis() - 20 * 24 * 60 * 60 * 1000,
-            lastReviewDate = System.currentTimeMillis() - 2 * 24 * 60 * 60 * 1000,
-            nextReviewDate = System.currentTimeMillis() + 3 * 24 * 60 * 60 * 1000,
-            repetitionCount = 7,
-            lastReviewType = ReviewType.EASY,
-        ),
-        Card(
-            cardId = 4,
-            cardName = "Coroutines",
-            cardQuestion = "What does `launch {}` do in Kotlin?",
-            cardAnswer = "Starts a new coroutine without blocking the current thread.",
-            cardType = "text",
-            cardTag = "async",
-            deckId = 2,
-            firstReviewDate = System.currentTimeMillis() - 7 * 24 * 60 * 60 * 1000,
-            lastReviewDate = System.currentTimeMillis() - 1 * 24 * 60 * 60 * 1000,
-            nextReviewDate = System.currentTimeMillis() + 5 * 24 * 60 * 60 * 1000,
-            repetitionCount = 4,
-            lastReviewType = ReviewType.MEDIUM,
-        ),
-    ),
-)

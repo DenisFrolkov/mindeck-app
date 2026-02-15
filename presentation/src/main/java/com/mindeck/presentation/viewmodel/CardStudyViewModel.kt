@@ -31,7 +31,7 @@ class CardStudyViewModel @Inject constructor(
             _cardByCardIdUIState.value = try {
                 UiState.Success(getCardByIdUseCase(cardId = cardId))
             } catch (e: Exception) {
-                UiState.Error(e)
+                UiState.Error("e")
             }
         }
     }
@@ -55,7 +55,7 @@ class CardStudyViewModel @Inject constructor(
                 )
                 UiState.Success(Unit)
             } catch (e: Exception) {
-                UiState.Error(e)
+                UiState.Error("e")
             }
         }
     }
@@ -69,7 +69,7 @@ class CardStudyViewModel @Inject constructor(
                 .map<List<Card>, UiState<List<Card>>> {
                     UiState.Success(it)
                 }
-                .catch { emit(UiState.Error(it)) }
+                .catch { emit(UiState.Error(it.message ?: "")) }
                 .collect { state ->
                     _cardsForRepetitionState.value = state
                 }
