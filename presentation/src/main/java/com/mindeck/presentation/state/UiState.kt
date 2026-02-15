@@ -1,8 +1,11 @@
 package com.mindeck.presentation.state
 
 import androidx.compose.runtime.Composable
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 
 sealed class UiState<out T> {
+    object Idle : UiState<Nothing>()
     object Loading : UiState<Nothing>()
     data class Success<out T>(val data: T) : UiState<T>()
     data class Error(val error: String) : UiState<Nothing>()
@@ -18,6 +21,7 @@ inline fun <T> UiState<T>.RenderState(
         is UiState.Success -> onSuccess(data)
         is UiState.Loading -> onLoading()
         is UiState.Error -> onError(error)
+        else -> {}
     }
 }
 

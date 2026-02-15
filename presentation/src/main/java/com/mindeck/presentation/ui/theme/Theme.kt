@@ -28,6 +28,11 @@ private val LightColorScheme = lightColorScheme(
 )
 
 private val Typography = Typography(
+    titleLarge = TextStyle(
+        fontFamily = FontFamily(Font(R.font.opensans_medium)),
+        fontSize = 18.sp,
+        color = text_black,
+    ),
     titleMedium = TextStyle(
         fontFamily = FontFamily(Font(R.font.opensans_medium)),
         fontSize = 16.sp,
