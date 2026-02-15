@@ -45,7 +45,7 @@ class DeckViewModel @Inject constructor(
                 .map<List<Card>, UiState<List<Card>>> {
                     UiState.Success(it)
                 }
-                .catch { emit(UiState.Error(it)) }
+                .catch { emit(UiState.Error(it.message ?: "")) }
                 .collect { state ->
                     _listCardsUiState.value = state
                 }
@@ -60,7 +60,7 @@ class DeckViewModel @Inject constructor(
             _deckUiState.value = try {
                 UiState.Success(getDeckByIdUseCase(deckId = deckId))
             } catch (e: Exception) {
-                UiState.Error(e)
+                UiState.Error("e")
             }
         }
     }
@@ -74,7 +74,7 @@ class DeckViewModel @Inject constructor(
                 .map<List<Deck>, UiState<List<Deck>>> {
                     UiState.Success(it)
                 }
-                .catch { emit(UiState.Error(it)) }
+                .catch { emit(UiState.Error(it.message ?: "")) }
                 .collect { state ->
                     _listDecksUiState.value = state
                 }
@@ -87,7 +87,7 @@ class DeckViewModel @Inject constructor(
     fun renameDeck(deckId: Int, newDeckName: String) {
         viewModelScope.launch {
             if (newDeckName.isBlank()) {
-                _renameDeckState.value = UiState.Error(Throwable("Поле ввода пустое."))
+                _renameDeckState.value = UiState.Error("Поле ввода пустое.")
                 return@launch
             }
 
@@ -96,7 +96,7 @@ class DeckViewModel @Inject constructor(
                 val currentName = currentDeckState.data.deckName
                 if (newDeckName == currentName) {
                     _renameDeckState.value =
-                        UiState.Error(Throwable("Название совпадает с текущим."))
+                        UiState.Error("Название совпадает с текущим.")
                     return@launch
                 }
             }
@@ -108,7 +108,7 @@ class DeckViewModel @Inject constructor(
                 toggleRenameModalWindow(false)
                 UiState.Success(Unit)
             } catch (e: Exception) {
-                UiState.Error(Throwable("Колода с таким названием уже существует."))
+                UiState.Error("Колода с таким названием уже существует.")
             }
 
             if (_renameDeckState.value is UiState.Success) {
@@ -132,10 +132,10 @@ class DeckViewModel @Inject constructor(
                     toggleEditCardsInDeckModalWindow(false)
                     UiState.Success(Unit)
                 } else {
-                    UiState.Error(Throwable(""))
+                    UiState.Error("")
                 }
             } catch (e: Exception) {
-                UiState.Error(e)
+                UiState.Error("e")
             }
         }
     }
@@ -154,10 +154,10 @@ class DeckViewModel @Inject constructor(
                     deleteCardsFromDeckUseCase(cardIds, sourceDeckId)
                     UiState.Success(Unit)
                 } else {
-                    UiState.Error(Throwable(""))
+                    UiState.Error("")
                 }
             } catch (e: Exception) {
-                UiState.Error(e)
+                UiState.Error("e")
             }
         }
     }
@@ -171,7 +171,7 @@ class DeckViewModel @Inject constructor(
                 deleteDeckUseCase(deck = deck)
                 UiState.Success(Unit)
             } catch (e: Exception) {
-                UiState.Error(e)
+                UiState.Error("e")
             }
         }
     }

@@ -49,7 +49,7 @@ import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.Deck
 import com.mindeck.domain.models.ReviewType
 import com.mindeck.presentation.R
-import com.mindeck.presentation.state.RenderUiState
+import com.mindeck.presentation.state.RenderState
 import com.mindeck.presentation.state.UiState
 import com.mindeck.presentation.state.getOrNull
 import com.mindeck.presentation.state.onSuccess
@@ -551,7 +551,7 @@ private fun dropdownMenuDataList(
 private fun DeckInfo(
     deckState: UiState<Deck>,
 ) {
-    deckState.RenderUiState(
+    deckState.RenderState(
         onSuccess = { deck ->
             Text(
                 text = deck.deckName,
@@ -595,7 +595,7 @@ private fun CardInfo(
     isEditModeEnabled: Boolean,
     toggleCardSelection: (Int) -> Unit,
 ) {
-    cardsState.RenderUiState(
+    cardsState.RenderState(
         onSuccess = { cards ->
             LazyColumn {
                 item {

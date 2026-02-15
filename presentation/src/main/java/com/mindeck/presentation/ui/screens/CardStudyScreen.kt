@@ -39,7 +39,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.ReviewType
 import com.mindeck.presentation.R
-import com.mindeck.presentation.state.RenderUiState
+import com.mindeck.presentation.state.RenderState
 import com.mindeck.presentation.state.UiState
 import com.mindeck.presentation.ui.components.buttons.ActionHandlerButton
 import com.mindeck.presentation.ui.components.common.QuestionAndAnswerElement
@@ -95,7 +95,7 @@ private fun CardStudyContent(
     Scaffold(
         topBar = { CardStudyTopBar(navigator = navigator) },
         content = { padding ->
-            cardsState.RenderUiState(
+            cardsState.RenderState(
                 onSuccess = { cards ->
 //                    if (cards is List<*>) {
 //                        val cardCount = remember { cards }
