@@ -1,8 +1,6 @@
 package com.mindeck.presentation.state
 
 import androidx.compose.runtime.Composable
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 
 sealed class UiState<out T> {
     object Idle : UiState<Nothing>()
@@ -24,7 +22,6 @@ inline fun <T> UiState<T>.RenderState(
         else -> {}
     }
 }
-
 
 inline fun <T> UiState<T>.onSuccess(action: (T) -> Unit): UiState<T> {
     if (this is UiState.Success) action(data)

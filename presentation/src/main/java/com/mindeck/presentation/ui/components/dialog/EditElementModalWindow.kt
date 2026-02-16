@@ -96,24 +96,9 @@ fun EditElementModalWindow(
                 items(listItem) { item ->
                     DisplayItem(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .border(
-                                dimenDpResource(R.dimen.border_width_dot_two_five),
-                                MaterialTheme.colorScheme.outline,
-                                MaterialTheme.shapes.extraSmall,
-                            )
-                            .clip(shape = MaterialTheme.shapes.extraSmall)
-                            .height(dimenDpResource(R.dimen.display_card_item_min_size))
-                            .clickable(
-                                interactionSource = remember { MutableInteractionSource() },
-                                indication = null,
-                            ) {
-                                onClickItem(item.id)
-                            },
+                            .fillMaxWidth(),
+                        shape = MaterialTheme.shapes.extraSmall,
                         showCount = false,
-                        showEditMode = isEditModeEnabled,
-                        isSelected = selectedItems == item.id,
-                        onCheckedChange = { onEditItem(item.id) },
                         displayItemData = DisplayItemData(
                             itemIcon = R.drawable.card_icon,
                             itemName = item.title,
@@ -125,6 +110,9 @@ fun EditElementModalWindow(
                             iconColor = MaterialTheme.colorScheme.outlineVariant,
                             textStyle = MaterialTheme.typography.bodyMedium,
                         ),
+                        onClick = {
+                            onClickItem(item.id)
+                        },
                     )
                 }
             }

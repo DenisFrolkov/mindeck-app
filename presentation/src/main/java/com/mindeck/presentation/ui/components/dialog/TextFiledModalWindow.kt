@@ -1,10 +1,16 @@
 package com.mindeck.presentation.ui.components.dialog
 
-import android.widget.Toast
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,53 +18,60 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.window.Dialog
 import com.mindeck.presentation.R
-import com.mindeck.presentation.state.UiState
-import com.mindeck.presentation.state.onError
 import com.mindeck.presentation.ui.components.buttons.ActionHandlerButton
-import com.mindeck.presentation.ui.components.buttons.SaveDataButton
 import com.mindeck.presentation.ui.components.textfields.CardInputField
-import com.mindeck.presentation.ui.components.utils.dimenDpResource
-import com.mindeck.presentation.ui.theme.MindeckTheme
 import com.mindeck.presentation.ui.theme.text_gray
-import com.mindeck.presentation.ui.theme.text_white
-import kotlin.math.floor
 
 @Composable
 fun CustomModalWindow(
     titleText: String,
     buttonText: String,
     placeholder: String,
-    isInputValid: UiState<Unit?>,
-    exitButton: () -> Unit,
-    saveButton: (String) -> Unit,
+    isLoading: Boolean,
+    errorMsg: String?,
+    onExitClick: () -> Unit,
+    onSaveClick: (String) -> Unit,
 ) {
-    var text by remember { mutableStateOf("") }
+    var text by rememberSaveable { mutableStateOf("") }
 
-    val isLoading by remember(isInputValid) { derivedStateOf { isInputValid is UiState.Loading } }
+    val isTextValid = text.trim().isNotEmpty()
 
-    Box(
-        contentAlignment = Alignment.Center,
-    ) {
+    val animatedButtonColor by animateColorAsState(
+        targetValue = when {
+            !isTextValid -> MaterialTheme.colorScheme.secondary
+            else -> MaterialTheme.colorScheme.onSecondary
+        },
+        animationSpec = tween(300),
+        label = "buttonColor",
+    )
+
+    val animatedTextColor by animateColorAsState(
+        targetValue = when {
+            !isTextValid -> MaterialTheme.colorScheme.outline
+            isLoading -> MaterialTheme.colorScheme.onSecondaryContainer
+            else -> MaterialTheme.colorScheme.scrim
+        },
+        animationSpec = tween(300),
+        label = "textColor",
+    )
+
+    Dialog(onDismissRequest = onExitClick) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
@@ -67,28 +80,32 @@ fun CustomModalWindow(
                     shape = MaterialTheme.shapes.small,
                 )
                 .clip(MaterialTheme.shapes.small)
-                .padding(dimenDpResource(R.dimen.card_input_field_item_padding)),
+                .padding(dimensionResource(R.dimen.dimen_8)),
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
                 ActionHandlerButton(
-                    iconPainter = painterResource(R.drawable.back_icon),
+                    iconPainter = painterResource(R.drawable.img_back),
                     contentDescription = stringResource(R.string.back_screen_icon_button),
-                    iconTint = MaterialTheme.colorScheme.onPrimary,
-                    onClick = exitButton,
+                    iconTint = MaterialTheme.colorScheme.outlineVariant,
+                    onClick = onExitClick,
                 )
                 Text(
                     text = titleText,
                     style = MaterialTheme.typography.bodyMedium,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.weight(1f),
                 )
             }
-            Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_large)))
+
+            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacer_large)))
 
             CardInputField(
                 placeholder = placeholder,
                 value = text,
                 singleLine = true,
+                enabled = !isLoading,
                 onValueChange = {
                     text = it
                 },
@@ -101,72 +118,66 @@ fun CustomModalWindow(
                         MaterialTheme.shapes.large,
                     )
                     .border(
-                        dimenDpResource(R.dimen.border_width_dot_two_five),
+                        dimensionResource(R.dimen.border_width_dot_two_five),
                         MaterialTheme.colorScheme.outline,
                         MaterialTheme.shapes.large,
                     )
-                    .padding(dimenDpResource(R.dimen.card_input_field_item_padding)),
+                    .padding(dimensionResource(R.dimen.card_input_field_item_padding)),
 
-                )
+            )
 
-            isInputValid.onError { message ->
-                Text(
-                    message,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(dimenDpResource(R.dimen.spacer_extra_small)),
-                    textAlign = TextAlign.Start,
-                    style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.error),
-                )
-            }
-
-            Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_large)))
-            if (isLoading) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = dimenDpResource(R.dimen.circular_progress_indicator_top_padding))
-                        .wrapContentSize(Alignment.Center),
-                ) {
-                    CircularProgressIndicator(
-                        color = MaterialTheme.colorScheme.primary,
-                        strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_one),
+            AnimatedVisibility(
+                visible = errorMsg != null,
+                enter = fadeIn() + expandVertically(),
+                exit = fadeOut() + shrinkVertically(),
+            ) {
+                errorMsg?.let { message ->
+                    Text(
+                        text = message,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                top = dimensionResource(R.dimen.spacer_extra_small),
+                            ),
+                        textAlign = TextAlign.Start,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
                     )
                 }
-            } else {
-                SaveDataButton(
-                    text = buttonText,
-                    textStyle = MaterialTheme.typography.bodyMedium,
-                    buttonModifier = Modifier
+            }
+
+            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacer_large)))
+
+            AnimatedContent(
+                targetState = isLoading,
+            ) { target ->
+                Box(
+                    modifier = Modifier
                         .background(
-                            color = if (text.isEmpty()) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.onSecondary,
+                            color = animatedButtonColor,
                             shape = MaterialTheme.shapes.medium,
                         )
-                        .clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null,
-                        ) {
-                            saveButton(text)
-                        },
-                )
+                        .then(
+                            if (text.isEmpty()) {
+                                Modifier
+                            } else {
+                                Modifier.clickable {
+                                    onSaveClick(text)
+                                }
+                            },
+                        ),
+                ) {
+                    Text(
+                        text = if (target) stringResource(R.string.loading_text) else buttonText,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = animatedTextColor,
+                        modifier = Modifier.padding(
+                            vertical = dimensionResource(R.dimen.padding_small),
+                            horizontal = dimensionResource(R.dimen.padding_extra_large),
+                        ),
+                    )
+                }
             }
         }
-    }
-}
-
-@Preview
-@Composable
-private fun CustomModalWindowPreview() {
-    MindeckTheme {
-        CustomModalWindow(
-            titleText = "Тестовое значение",
-            buttonText = "Тестовое значение",
-            placeholder = "Введите текст",
-            isInputValid = UiState.Loading,
-            exitButton = {
-            },
-            saveButton = {
-            },
-        )
     }
 }

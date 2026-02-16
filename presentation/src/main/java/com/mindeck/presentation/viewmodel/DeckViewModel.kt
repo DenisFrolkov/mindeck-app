@@ -2,250 +2,169 @@ package com.mindeck.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mindeck.domain.exception.DomainError
 import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.Deck
-import com.mindeck.domain.usecases.card.command.DeleteCardsFromDeckUseCase
-import com.mindeck.domain.usecases.card.command.MoveCardsBetweenDeckUseCase
-import com.mindeck.domain.usecases.card.query.GetAllCardsByDeckIdUseCase
+import com.mindeck.domain.usecases.card.query.GetAllCardsUseCase
 import com.mindeck.domain.usecases.deck.command.DeleteDeckUseCase
 import com.mindeck.domain.usecases.deck.command.RenameDeckUseCase
-import com.mindeck.domain.usecases.deck.query.GetAllDecksUseCase
 import com.mindeck.domain.usecases.deck.query.GetDeckByIdUseCase
 import com.mindeck.presentation.state.UiState
-import com.mindeck.presentation.state.getOrNull
-import com.mindeck.presentation.viewmodel.managers.EditModeManager
-import com.mindeck.presentation.viewmodel.managers.SelectionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+sealed interface DeckEvent {
+    data class OnLoadDeckWithCards(
+        val deckId: Int,
+    ) : DeckEvent
+
+    data class OnRenameDeck(
+        val deckId: Int,
+        val newDeckName: String,
+    ) : DeckEvent
+
+    data object OnResetRenameDeckState : DeckEvent
+
+    data class OnDeleteDeck(
+        val deck: Deck,
+    ) : DeckEvent
+}
+
 @HiltViewModel
-class DeckViewModel @Inject constructor(
-    private val getAllCardsByDeckIdUseCase: GetAllCardsByDeckIdUseCase,
-    private val getDeckByIdUseCase: GetDeckByIdUseCase,
-    private val getAllDecksUseCase: GetAllDecksUseCase,
-    private val renameDeckUseCase: RenameDeckUseCase,
-    private val moveCardsBetweenDeckUseCase: MoveCardsBetweenDeckUseCase,
-    private val deleteDeckUseCase: DeleteDeckUseCase,
-    private val editModeManager: EditModeManager,
-    private val selectionManager: SelectionManager,
-    private val deleteCardsFromDeckUseCase: DeleteCardsFromDeckUseCase,
-) : ViewModel() {
+class DeckViewModel
+    @Inject
+    constructor(
+        private val getCardsUseCase: GetAllCardsUseCase,
+        private val getDeckByIdUseCase: GetDeckByIdUseCase,
+        private val renameDeckUseCase: RenameDeckUseCase,
+        private val deleteDeckUseCase: DeleteDeckUseCase,
+    ) : ViewModel() {
+        private val _navigationEvent = Channel<NavigationEvent>()
+        val navigationEvent = _navigationEvent.receiveAsFlow()
 
-    private val _listCardsUiState = MutableStateFlow<UiState<List<Card>>>(UiState.Loading)
-    val listCardsUiState: StateFlow<UiState<List<Card>>> = _listCardsUiState
-
-    fun loadCardsForDeck(deckId: Int) {
-        viewModelScope.launch {
-            getAllCardsByDeckIdUseCase(deckId = deckId)
-                .map<List<Card>, UiState<List<Card>>> {
-                    UiState.Success(it)
+        fun onEvent(event: DeckEvent) {
+            when (event) {
+                is DeckEvent.OnLoadDeckWithCards -> {
+                    loadDeckWithCards(event.deckId)
                 }
-                .catch { emit(UiState.Error(it.message ?: "")) }
-                .collect { state ->
-                    _listCardsUiState.value = state
+
+                is DeckEvent.OnRenameDeck -> {
+                    renameDeck(event.deckId, event.newDeckName)
                 }
-        }
-    }
 
-    private val _deckUiState = MutableStateFlow<UiState<Deck>>(UiState.Loading)
-    val deckUIState: StateFlow<UiState<Deck>> = _deckUiState
-
-    fun getDeckById(deckId: Int) {
-        viewModelScope.launch {
-            _deckUiState.value = try {
-                UiState.Success(getDeckByIdUseCase(deckId = deckId))
-            } catch (e: Exception) {
-                UiState.Error("e")
-            }
-        }
-    }
-
-    private val _listDecksUiState = MutableStateFlow<UiState<List<Deck>>>(UiState.Loading)
-    val listDecksUiState: StateFlow<UiState<List<Deck>>> = _listDecksUiState
-
-    fun getAllDecks() {
-        viewModelScope.launch {
-            getAllDecksUseCase()
-                .map<List<Deck>, UiState<List<Deck>>> {
-                    UiState.Success(it)
+                DeckEvent.OnResetRenameDeckState -> {
+                    resetRenameDeckState()
                 }
-                .catch { emit(UiState.Error(it.message ?: "")) }
-                .collect { state ->
-                    _listDecksUiState.value = state
-                }
-        }
-    }
 
-    private val _renameDeckState = MutableStateFlow<UiState<Unit>>(UiState.Success(Unit))
-    val renameDeckState: StateFlow<UiState<Unit>> = _renameDeckState
-
-    fun renameDeck(deckId: Int, newDeckName: String) {
-        viewModelScope.launch {
-            if (newDeckName.isBlank()) {
-                _renameDeckState.value = UiState.Error("Поле ввода пустое.")
-                return@launch
-            }
-
-            val currentDeckState = _deckUiState.value
-            if (currentDeckState is UiState.Success) {
-                val currentName = currentDeckState.data.deckName
-                if (newDeckName == currentName) {
-                    _renameDeckState.value =
-                        UiState.Error("Название совпадает с текущим.")
-                    return@launch
+                is DeckEvent.OnDeleteDeck -> {
+                    deleteDeck(event.deck)
                 }
             }
-
-            _renameDeckState.value = UiState.Loading
-
-            _renameDeckState.value = try {
-                renameDeckUseCase(deckId = deckId, newName = newDeckName)
-                toggleRenameModalWindow(false)
-                UiState.Success(Unit)
-            } catch (e: Exception) {
-                UiState.Error("Колода с таким названием уже существует.")
-            }
-
-            if (_renameDeckState.value is UiState.Success) {
-                getDeckById(deckId)
-            }
         }
-    }
 
-    private val _moveCardsBetweenDecksState = MutableStateFlow<UiState<Unit>>(UiState.Success(Unit))
-    val moveCardsBetweenDecksState: StateFlow<UiState<Unit>> = _moveCardsBetweenDecksState
+        private val _screenUiState = MutableStateFlow<UiState<DeckScreenData>>(UiState.Idle)
+        val screenUiState: StateFlow<UiState<DeckScreenData>> = _screenUiState.asStateFlow()
 
-    fun moveCardsBetweenDecks(
-        cardIds: List<Int>,
-        sourceDeckId: Int?,
-        targetDeckId: Int?,
-    ) {
-        viewModelScope.launch {
-            _moveCardsBetweenDecksState.value = try {
-                if (sourceDeckId != null && targetDeckId != null) {
-                    moveCardsBetweenDeckUseCase(cardIds, sourceDeckId, targetDeckId)
-                    toggleEditCardsInDeckModalWindow(false)
-                    UiState.Success(Unit)
-                } else {
-                    UiState.Error("")
+        private fun loadDeckWithCards(deckId: Int) {
+            if (_screenUiState.value is UiState.Loading) return
+
+            viewModelScope.launch {
+                _screenUiState.value = UiState.Loading
+
+                try {
+                    val (deck, cards) =
+                        coroutineScope {
+                            val deferredDeck = async { getDeckByIdUseCase(deckId) }
+                            val deferredCards = async { getCardsUseCase(deckId).first() }
+                            deferredDeck.await() to deferredCards.await()
+                        }
+
+                    _screenUiState.value =
+                        UiState.Success(
+                            DeckScreenData(deck = deck, cards = cards),
+                        )
+                } catch (e: DomainError.DatabaseError) {
+                    _screenUiState.value = UiState.Error("Failed to load deck")
+                } catch (e: DomainError) {
+                    _screenUiState.value = UiState.Error("Something went wrong")
                 }
-            } catch (e: Exception) {
-                UiState.Error("e")
             }
         }
-    }
 
-    private val _deleteCardsBetweenDecksState =
-        MutableStateFlow<UiState<Unit>>(UiState.Success(Unit))
-    val deleteCardsBetweenDecksState: StateFlow<UiState<Unit>> = _deleteCardsBetweenDecksState
+        private val _renameDeckState = MutableStateFlow<UiState<Unit>>(UiState.Idle)
+        val renameDeckState: StateFlow<UiState<Unit>> = _renameDeckState.asStateFlow()
 
-    fun deleteCardsBetweenDeck(
-        cardIds: List<Int>,
-        sourceDeckId: Int?,
-    ) {
-        viewModelScope.launch {
-            _deleteCardsBetweenDecksState.value = try {
-                if (sourceDeckId != null) {
-                    deleteCardsFromDeckUseCase(cardIds, sourceDeckId)
-                    UiState.Success(Unit)
-                } else {
-                    UiState.Error("")
+        private fun renameDeck(
+            deckId: Int,
+            newDeckName: String,
+        ) {
+            if (_renameDeckState.value is UiState.Loading) return
+
+            viewModelScope.launch {
+                _renameDeckState.value = UiState.Loading
+
+                try {
+                    renameDeckUseCase(deckId = deckId, newName = newDeckName)
+
+                    loadDeckWithCards(deckId)
+                    _renameDeckState.value = UiState.Success(Unit)
+                    _navigationEvent.send(NavigationEvent.CloseRenameWindow)
+                } catch (e: DomainError.NameAlreadyExists) {
+                    _renameDeckState.value = UiState.Error("Deck '$newDeckName' already exists")
+                } catch (e: DomainError.DatabaseError) {
+                    _renameDeckState.value = UiState.Error("Database error, try again")
+                } catch (e: DomainError.UnknownError) {
+                    _renameDeckState.value = UiState.Error("Something went wrong")
+                } finally {
+                    deletionJob = null
                 }
-            } catch (e: Exception) {
-                UiState.Error("e")
             }
         }
-    }
 
-    private val _deleteDeckState = MutableStateFlow<UiState<Unit>>(UiState.Loading)
-    val deleteDeckState: StateFlow<UiState<Unit>> = _deleteDeckState
+        private fun resetRenameDeckState() {
+            _renameDeckState.value = UiState.Idle
+        }
 
-    fun deleteDeck(deck: Deck) {
-        viewModelScope.launch {
-            _deleteDeckState.value = try {
-                deleteDeckUseCase(deck = deck)
-                UiState.Success(Unit)
-            } catch (e: Exception) {
-                UiState.Error("e")
-            }
+        private var deletionJob: Job? = null
+
+        private fun deleteDeck(deck: Deck) {
+            if (deletionJob?.isActive == true) return
+
+            deletionJob =
+                viewModelScope.launch {
+                    try {
+                        deleteDeckUseCase(deck = deck)
+
+                        _navigationEvent.send(NavigationEvent.GoToMain)
+                        _navigationEvent.send(NavigationEvent.ShowToast("Deck deleted successfully"))
+                    } catch (e: DomainError) {
+                        _navigationEvent.send(NavigationEvent.ShowToast("Failed to delete deck"))
+                    }
+                }
         }
     }
 
-    var renameModalWindowValue = MutableStateFlow<Boolean>(false)
+data class DeckScreenData(
+    val deck: Deck,
+    val cards: List<Card>,
+)
 
-    fun toggleRenameModalWindow(switch: Boolean) {
-        if (!switch) {
-            _renameDeckState.value = UiState.Success(Unit)
-        }
+sealed interface NavigationEvent {
+    data object GoToMain : NavigationEvent
 
-        renameModalWindowValue.value = switch
-    }
+    data object CloseRenameWindow : NavigationEvent
 
-    var editCardsInDeckModalWindowValue = MutableStateFlow<Boolean>(false)
-
-    fun toggleEditCardsInDeckModalWindow(switch: Boolean) {
-        if (!switch) {
-            _moveCardsBetweenDecksState.value = UiState.Success(Unit)
-            toggleEditMode()
-            toggleMovementButton()
-        }
-
-        editCardsInDeckModalWindowValue.value = switch
-    }
-
-    var deleteDeckModalWindowValue = MutableStateFlow<Boolean>(false)
-
-    fun toggleDeleteDeckModalWindow(switch: Boolean) {
-        deleteDeckModalWindowValue.value = switch
-    }
-
-    fun deleteDeckOrIncludeModalWindow(deck: UiState<Deck>?, action: () -> Unit) {
-        val deck = deck?.getOrNull()
-        val cards = _listCardsUiState.value.getOrNull()
-
-        if (cards == null || cards.isEmpty()) {
-            deck?.let { deleteDeck(it) }
-            action()
-        } else {
-            toggleDeleteDeckModalWindow(true)
-        }
-    }
-
-    var deleteCardsModalWindowValue = MutableStateFlow<Boolean>(false)
-
-    fun toggleDeleteCardsModalWindow(switch: Boolean) {
-        if (!switch) {
-            toggleEditMode()
-        }
-
-        deleteCardsModalWindowValue.value = switch
-    }
-
-    val isEditModeEnabled: StateFlow<Boolean> = editModeManager.isEditModeEnabled
-
-    val selectedCardIdSet: StateFlow<Set<Int>> = selectionManager.selectedCardIds
-    val selectedDeckId: StateFlow<Int?> = selectionManager.selectedDeckId
-
-    fun toggleCardSelection(cardId: Int) {
-        selectionManager.toggleCardSelection(cardId)
-    }
-
-    fun toggleDeckSelection(deckId: Int) {
-        selectionManager.toggleDeckSelection(deckId)
-    }
-
-    fun toggleEditMode() {
-        editModeManager.toggleEditMode()
-    }
-
-    fun toggleMovementButton() {
-        if (!isEditModeEnabled.value) {
-            selectionManager.clearCardSelection()
-        }
-    }
+    data class ShowToast(
+        val message: String,
+    ) : NavigationEvent
 }
