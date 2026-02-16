@@ -290,7 +290,7 @@ private fun Content(
             CardAttributesList(attribute = attribute)
         }
         Spacer(modifier = Modifier.height(height = dimenDpResource(R.dimen.spacer_large)))
-        CardInfo(cardState = card)
+        DeckSuccessState(cardState = card)
     }
     if (dropdownMenuState.isExpanded) {
         CardDropdownMenu(
@@ -352,7 +352,7 @@ private fun CardAttributesList(attribute: CardAttributes) {
 }
 
 @Composable
-private fun CardInfo(
+private fun DeckSuccessState(
     cardState: UiState<Card>,
 ) {
     cardState.RenderState(

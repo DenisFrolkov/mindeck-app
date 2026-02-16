@@ -1,6 +1,5 @@
 package com.mindeck.presentation.ui.screens
 
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -30,7 +29,6 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -125,11 +123,12 @@ private fun DecksContent(
                         stringResource(R.string.create_item_dialog_text_creating_deck),
                         stringResource(R.string.create_item_dialog_text_create_deck),
                         stringResource(R.string.create_item_dialog_text_input_name_deck),
-                        createDeckState,
-                        exitButton = {
+                        isLoading = createDeckState is UiState.Loading,
+                        errorMsg = (createDeckState as UiState.Error).error,
+                        onExitClick = {
                             toggleCreateDeckModalWindow(false)
                         },
-                        saveButton = {
+                        onSaveClick = {
                             onSaveDeck(it)
                         },
                     )
@@ -239,20 +238,8 @@ private fun DecksInfo(
                 ) { deck ->
                     DisplayItem(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .border(
-                                dimenDpResource(R.dimen.border_width_dot_two_five),
-                                MaterialTheme.colorScheme.outline,
-                                MaterialTheme.shapes.medium,
-                            )
-                            .clip(MaterialTheme.shapes.medium)
-                            .height(dimenDpResource(R.dimen.display_card_item_size))
-                            .clickable(
-                                interactionSource = remember { MutableInteractionSource() },
-                                indication = null,
-                            ) {
-                                navigator.push(DeckRoute(deck.deckId))
-                            },
+                            .fillMaxWidth(),
+                        shape = MaterialTheme.shapes.medium,
                         showCount = false,
                         displayItemData = DisplayItemData(
                             itemIcon = R.drawable.deck_icon,
@@ -266,6 +253,9 @@ private fun DecksInfo(
                             iconColor = MaterialTheme.colorScheme.outlineVariant,
                             textStyle = MaterialTheme.typography.bodyMedium,
                         ),
+                        onClick = {
+                            navigator.push(DeckRoute(deck.deckId))
+                        },
                     )
                     Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_small)))
                 }

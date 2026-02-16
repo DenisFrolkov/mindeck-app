@@ -1,21 +1,17 @@
 package com.mindeck.presentation.ui.components.folder
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.with
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -23,8 +19,9 @@ import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.components.dataclasses.DisplayItemData
@@ -32,20 +29,26 @@ import com.mindeck.presentation.ui.components.dataclasses.DisplayItemStyle
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
 import com.mindeck.presentation.ui.components.utils.formatNumber
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun DisplayItem(
     modifier: Modifier = Modifier,
+    shape: CornerBasedShape,
     showCount: Boolean,
-    showEditMode: Boolean = false,
-    isSelected: Boolean = false,
-    onCheckedChange: () -> Unit = {},
     displayItemData: DisplayItemData,
     displayItemStyle: DisplayItemStyle,
+    onClick: () -> Unit,
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier,
+        modifier = modifier
+            .border(
+                dimensionResource(R.dimen.dimen_0_25),
+                MaterialTheme.colorScheme.outline,
+                shape,
+            )
+            .clip(shape = shape)
+            .height(dimensionResource(R.dimen.dimen_48))
+            .clickable(onClick = onClick),
     ) {
         if (showCount) {
             Text(
@@ -53,13 +56,13 @@ fun DisplayItem(
                 style = displayItemStyle.textStyle,
                 modifier = Modifier
                     .background(MaterialTheme.colorScheme.onPrimary)
-                    .size(dimenDpResource(R.dimen.display_card_item_size))
+                    .size(dimenDpResource(R.dimen.dimen_48))
                     .wrapContentSize(Alignment.Center),
             )
 
             VerticalDivider(
                 modifier = Modifier.fillMaxHeight(),
-                thickness = dimenDpResource(R.dimen.vertical_divider_height),
+                thickness = dimenDpResource(R.dimen.dimen_0_25),
                 color = MaterialTheme.colorScheme.outline,
             )
         }
@@ -70,7 +73,7 @@ fun DisplayItem(
                 .weight(1f)
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.onPrimary)
-                .padding(horizontal = dimenDpResource(R.dimen.padding_extra_small)),
+                .padding(horizontal = dimenDpResource(R.dimen.dimen_8)),
         ) {
             Text(
                 text = displayItemData.itemName,
@@ -82,42 +85,22 @@ fun DisplayItem(
 
         VerticalDivider(
             modifier = Modifier.fillMaxHeight(),
-            thickness = dimenDpResource(R.dimen.vertical_divider_height),
+            thickness = dimenDpResource(R.dimen.dimen_0_25),
             color = MaterialTheme.colorScheme.outline,
         )
 
         Box(
-            contentAlignment = Alignment.Center,
             modifier = Modifier
-                .size(dimenDpResource(R.dimen.display_card_item_size))
+                .size(dimenDpResource(R.dimen.dimen_48))
                 .background(color = displayItemStyle.backgroundColor),
+            contentAlignment = Alignment.Center,
         ) {
-            AnimatedContent(
-                modifier = Modifier
-                    .size(dimenDpResource(R.dimen.display_card_item_animation_size))
-                    .align(Alignment.Center),
-                targetState = showEditMode,
-                transitionSpec = {
-                    fadeIn(animationSpec = tween(200)) with fadeOut(animationSpec = tween(200))
-                },
-            ) { editModeEnabled ->
-                if (editModeEnabled) {
-                    Checkbox(
-                        checked = isSelected,
-                        onCheckedChange = {
-                            onCheckedChange()
-                        },
-                        colors = CheckboxDefaults.colors(uncheckedColor = MaterialTheme.colorScheme.primary),
-                    )
-                } else {
-                    Icon(
-                        modifier = Modifier.size(dimenDpResource(R.dimen.icon_size)),
-                        painter = painterResource(displayItemData.itemIcon),
-                        tint = displayItemStyle.iconColor,
-                        contentDescription = stringResource(R.string.folder_icon),
-                    )
-                }
-            }
+            Icon(
+                modifier = Modifier.size(dimenDpResource(R.dimen.dimen_24)),
+                painter = painterResource(displayItemData.itemIcon),
+                tint = displayItemStyle.iconColor,
+                contentDescription = null,
+            )
         }
     }
 }
