@@ -89,11 +89,12 @@
 
     //Content Description
     <string name="floating_action_button">FAB</string>
-    <string name="folder_icon">Folder Icon</string>
     <string name="back_screen_icon_button">Back To Previous Page</string>
     <string name="daily_progress_tracker">Daily Progress Tracker</string>
 
     <string name="new_text">New</string>
     <string name="learning_text">Learning</string>
     <string name="to_review_text">To Review</string>
+
+    <string name="loading_text">Загрузка...</string>
 </resources>

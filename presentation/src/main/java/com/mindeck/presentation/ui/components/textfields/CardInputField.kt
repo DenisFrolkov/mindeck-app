@@ -14,6 +14,7 @@ fun CardInputField(
     placeholder: String,
     value: String,
     singleLine: Boolean = false,
+    enabled: Boolean = true,
     textStyle: TextStyle,
     placeholderTextStyle: TextStyle,
     onValueChange: (String) -> Unit,
@@ -22,6 +23,7 @@ fun CardInputField(
     BasicTextField(
         value = value,
         onValueChange = { onValueChange(it) },
+        enabled = enabled,
         textStyle = textStyle,
         singleLine = singleLine,
         decorationBox = { innerTextField ->
