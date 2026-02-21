@@ -292,7 +292,7 @@ private fun DeckContent(
             .statusBarsPadding()
             .verticalScroll(state = scrollState),
     ) {
-        CardInfo(padding = padding, card = card)
+        DeckSuccessState(padding = padding, card = card)
     }
     RepeatButtons(
         repeatOptionsButton = repeatOptionsButton,
@@ -326,7 +326,7 @@ private fun RepeatButtons(
 }
 
 @Composable
-private fun CardInfo(
+private fun DeckSuccessState(
     padding: PaddingValues,
     card: Card,
 ) {

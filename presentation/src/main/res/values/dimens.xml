@@ -106,6 +106,7 @@
     <dimen name="button_move_mode_vertical_padding">10.5dp</dimen>
 
     // Default dimensions
+    <dimen name="dimen_0_25">0.25dp</dimen>
     <dimen name="dimen_0">0dp</dimen>
     <dimen name="dimen_1">1dp</dimen>
     <dimen name="dimen_2">2dp</dimen>
