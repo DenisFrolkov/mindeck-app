@@ -23,23 +23,6 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-sealed interface DeckEvent {
-    data class OnLoadDeckWithCards(
-        val deckId: Int,
-    ) : DeckEvent
-
-    data class OnRenameDeck(
-        val deckId: Int,
-        val newDeckName: String,
-    ) : DeckEvent
-
-    data object OnResetRenameDeckState : DeckEvent
-
-    data class OnDeleteDeck(
-        val deck: Deck,
-    ) : DeckEvent
-}
-
 @HiltViewModel
 class DeckViewModel
 @Inject
@@ -52,30 +35,10 @@ constructor(
     private val _navigationEvent = Channel<NavigationEvent>()
     val navigationEvent = _navigationEvent.receiveAsFlow()
 
-    fun onEvent(event: DeckEvent) {
-        when (event) {
-            is DeckEvent.OnLoadDeckWithCards -> {
-                loadDeckWithCards(event.deckId)
-            }
-
-            is DeckEvent.OnRenameDeck -> {
-                renameDeck(event.deckId, event.newDeckName)
-            }
-
-            DeckEvent.OnResetRenameDeckState -> {
-                resetRenameDeckState()
-            }
-
-            is DeckEvent.OnDeleteDeck -> {
-                deleteDeck(event.deck)
-            }
-        }
-    }
-
     private val _screenUiState = MutableStateFlow<UiState<DeckScreenData>>(UiState.Idle)
     val screenUiState: StateFlow<UiState<DeckScreenData>> = _screenUiState.asStateFlow()
 
-    private fun loadDeckWithCards(deckId: Int) {
+    fun loadDeckWithCards(deckId: Int) {
         if (_screenUiState.value is UiState.Loading) return
 
         viewModelScope.launch {
@@ -104,7 +67,7 @@ constructor(
     private val _renameDeckState = MutableStateFlow<UiState<Unit>>(UiState.Idle)
     val renameDeckState: StateFlow<UiState<Unit>> = _renameDeckState.asStateFlow()
 
-    private fun renameDeck(
+    fun renameDeck(
         deckId: Int,
         newDeckName: String,
     ) {
@@ -125,19 +88,17 @@ constructor(
                 _renameDeckState.value = UiState.Error("Database error, try again")
             } catch (e: DomainError.UnknownError) {
                 _renameDeckState.value = UiState.Error("Something went wrong")
-            } finally {
-                deletionJob = null
             }
         }
     }
 
-    private fun resetRenameDeckState() {
+    fun resetRenameDeckState() {
         _renameDeckState.value = UiState.Idle
     }
 
     private var deletionJob: Job? = null
 
-    private fun deleteDeck(deck: Deck) {
+    fun deleteDeck(deck: Deck) {
         if (deletionJob?.isActive == true) return
 
         deletionJob =
@@ -145,12 +106,15 @@ constructor(
                 try {
                     deleteDeckUseCase(deck = deck)
 
-                    _navigationEvent.send(NavigationEvent.GoToMain)
+                    _navigationEvent.send(NavigationEvent.GoBack)
                     _navigationEvent.send(NavigationEvent.ShowToast("Deck deleted successfully"))
                 } catch (e: DomainError) {
                     _navigationEvent.send(NavigationEvent.ShowToast("Failed to delete deck"))
+                } finally {
+                    deletionJob = null
                 }
             }
+
     }
 }
 
@@ -160,7 +124,7 @@ data class DeckScreenData(
 )
 
 sealed interface NavigationEvent {
-    data object GoToMain : NavigationEvent
+    data object GoBack : NavigationEvent
 
     data object CloseRenameWindow : NavigationEvent
 
