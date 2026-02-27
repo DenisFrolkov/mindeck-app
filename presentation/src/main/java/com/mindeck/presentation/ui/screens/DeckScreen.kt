@@ -36,7 +36,7 @@ import com.mindeck.presentation.ui.components.dataclasses.DisplayItemData
 import com.mindeck.presentation.ui.components.dataclasses.DisplayItemStyle
 import com.mindeck.presentation.ui.components.dialog.CustomModalWindow
 import com.mindeck.presentation.ui.components.folder.DisplayItem
-import com.mindeck.presentation.ui.components.topBar.TopAppBar
+import com.mindeck.presentation.ui.components.topBar.AppTopBar
 import com.mindeck.presentation.ui.components.utils.dimenFloatResource
 import com.mindeck.presentation.ui.navigation.CardRoute
 import com.mindeck.presentation.ui.navigation.CreationCardRoute
@@ -107,10 +107,10 @@ internal fun DeckScreenContent(
 
     Scaffold(
         modifier =
-            modifier
-                .fillMaxSize(),
+        modifier
+            .fillMaxSize(),
         topBar = {
-            TopAppBar(
+            AppTopBar(
                 visibleMenuButton = screenUiState is UiState.Success,
                 onBackClick = { navigator.pop() },
                 onMenuClick = { isDropdownExpanded = true },
@@ -122,9 +122,9 @@ internal fun DeckScreenContent(
                 screenUiState = screenUiState,
                 navigator = navigator,
                 modifier =
-                    Modifier
-                        .padding(padding)
-                        .padding(horizontal = dimensionResource(R.dimen.padding_medium)),
+                Modifier
+                    .padding(padding)
+                    .padding(horizontal = dimensionResource(R.dimen.padding_medium)),
             )
 
             dataSuccess?.let { data ->
@@ -207,9 +207,9 @@ private fun DeckSuccessState(
     val cardItemStyle =
         DisplayItemStyle(
             backgroundColor =
-                MaterialTheme.colorScheme.secondary.copy(
-                    dimenFloatResource(R.dimen.float_zero_dot_five_significance),
-                ),
+            MaterialTheme.colorScheme.secondary.copy(
+                dimenFloatResource(R.dimen.float_zero_dot_five_significance),
+            ),
             iconColor = MaterialTheme.colorScheme.outlineVariant,
             textStyle = MaterialTheme.typography.bodyMedium,
         )
@@ -223,10 +223,10 @@ private fun DeckSuccessState(
                 text = data.deck.deckName,
                 style = MaterialTheme.typography.titleMedium,
                 modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .wrapContentSize(Alignment.Center)
-                        .padding(dimensionResource(R.dimen.dimen_6)),
+                Modifier
+                    .fillMaxWidth()
+                    .wrapContentSize(Alignment.Center)
+                    .padding(dimensionResource(R.dimen.dimen_6)),
             )
         }
         items(items = data.cards, key = { it.cardId }) { card ->
@@ -235,10 +235,10 @@ private fun DeckSuccessState(
                 shape = MaterialTheme.shapes.extraSmall,
                 showCount = false,
                 displayItemData =
-                    DisplayItemData(
-                        itemIcon = R.drawable.card_icon,
-                        itemName = card.cardName,
-                    ),
+                DisplayItemData(
+                    itemIcon = R.drawable.card_icon,
+                    itemName = card.cardName,
+                ),
                 displayItemStyle = cardItemStyle,
                 onClick = {
                     navigator.push(CardRoute(card.cardId))
@@ -252,9 +252,9 @@ private fun DeckSuccessState(
 private fun DeckLoadingState(modifier: Modifier = Modifier) {
     Box(
         modifier =
-            modifier
-                .fillMaxWidth()
-                .padding(top = dimensionResource(R.dimen.padding_large)),
+        modifier
+            .fillMaxWidth()
+            .padding(top = dimensionResource(R.dimen.padding_large)),
         contentAlignment = Alignment.Center,
     ) {
         CircularProgressIndicator(
@@ -271,9 +271,9 @@ private fun DeckErrorState(modifier: Modifier = Modifier) {
         modifier = modifier.fillMaxWidth(),
         textAlign = TextAlign.Center,
         style =
-            MaterialTheme.typography.bodyLarge.copy(
-                color = MaterialTheme.colorScheme.error,
-            ),
+        MaterialTheme.typography.bodyLarge.copy(
+            color = MaterialTheme.colorScheme.error,
+        ),
     )
 }
 
@@ -289,11 +289,11 @@ private fun DeckDropdownMenu(
 ) {
     Box(
         modifier =
-            modifier
-                .padding(horizontal = dimensionResource(R.dimen.dimen_28))
-                .padding(padding)
-                .fillMaxWidth()
-                .wrapContentSize(Alignment.TopEnd),
+        modifier
+            .padding(horizontal = dimensionResource(R.dimen.dimen_28))
+            .padding(padding)
+            .fillMaxWidth()
+            .wrapContentSize(Alignment.TopEnd),
     ) {
         DropdownMenu(
             expanded = isExpanded,
@@ -326,12 +326,12 @@ private fun DropdownMenuItem(
         text = text,
         style = MaterialTheme.typography.bodyMedium,
         modifier =
-            Modifier
-                .fillMaxWidth()
-                .clickable(onClick = onClick)
-                .padding(
-                    horizontal = dimensionResource(R.dimen.dimen_20),
-                    vertical = dimensionResource(R.dimen.dimen_10),
-                ),
+        Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(
+                horizontal = dimensionResource(R.dimen.dimen_20),
+                vertical = dimensionResource(R.dimen.dimen_10),
+            ),
     )
 }

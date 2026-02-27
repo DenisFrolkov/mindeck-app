@@ -19,7 +19,7 @@ import com.mindeck.presentation.R
 fun ActionHandlerButton(
     iconPainter: Painter,
     iconTint: Color,
-    contentDescription: String,
+    contentDescription: String? = null,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
