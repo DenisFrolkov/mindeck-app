@@ -13,16 +13,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.components.buttons.ActionHandlerButton
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
 
 @Composable
-fun TopAppBar(
-    visibleMenuButton: Boolean,
+fun AppTopBar(
+    visibleMenuButton: Boolean = false,
     onBackClick: () -> Unit,
-    onMenuClick: () -> Unit,
+    onMenuClick: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val animatedAlpha by animateFloatAsState(if (!visibleMenuButton) 0f else 1f, animationSpec = tween(durationMillis = 100))
@@ -36,13 +35,13 @@ fun TopAppBar(
     ) {
         ActionHandlerButton(
             iconPainter = painterResource(R.drawable.img_back),
-            contentDescription = stringResource(R.string.back_screen_icon_button),
+            contentDescription = null,
             iconTint = MaterialTheme.colorScheme.outlineVariant,
             onClick = onBackClick,
         )
         ActionHandlerButton(
             iconPainter = painterResource(R.drawable.img_menu),
-            contentDescription = stringResource(R.string.back_screen_icon_button),
+            contentDescription = null,
             iconTint = MaterialTheme.colorScheme.outlineVariant,
             onClick = {
                 if (visibleMenuButton) {
