@@ -40,10 +40,7 @@ import com.mindeck.presentation.ui.components.topBar.AppTopBar
 import com.mindeck.presentation.ui.components.utils.dimenFloatResource
 import com.mindeck.presentation.ui.navigation.CardRoute
 import com.mindeck.presentation.ui.navigation.CreationCardRoute
-import com.mindeck.presentation.ui.navigation.MainRoute
 import com.mindeck.presentation.ui.navigation.Navigator
-import com.mindeck.presentation.viewmodel.DeckEvent
-import com.mindeck.presentation.viewmodel.DeckEvent.OnLoadDeckWithCards
 import com.mindeck.presentation.viewmodel.DeckScreenData
 import com.mindeck.presentation.viewmodel.DeckViewModel
 import com.mindeck.presentation.viewmodel.NavigationEvent
@@ -79,14 +76,14 @@ internal fun DeckScreenContent(
     val dataSuccess = (screenUiState as? UiState.Success<DeckScreenData>)?.data
 
     LaunchedEffect(deckId) {
-        viewModel.onEvent(OnLoadDeckWithCards(deckId))
+        viewModel.loadDeckWithCards(deckId)
     }
 
     LaunchedEffect(Unit) {
         viewModel.navigationEvent.collect { event ->
             when (event) {
-                NavigationEvent.GoToMain -> {
-                    navigator.push(MainRoute)
+                NavigationEvent.GoBack -> {
+                    navigator.pop()
                 }
 
                 NavigationEvent.CloseRenameWindow -> {
@@ -106,8 +103,7 @@ internal fun DeckScreenContent(
     }
 
     Scaffold(
-        modifier =
-        modifier
+        modifier = modifier
             .fillMaxSize(),
         topBar = {
             AppTopBar(
@@ -120,12 +116,12 @@ internal fun DeckScreenContent(
         content = { padding ->
             DeckCardList(
                 screenUiState = screenUiState,
-                navigator = navigator,
-                modifier =
-                Modifier
-                    .padding(padding)
-                    .padding(horizontal = dimensionResource(R.dimen.padding_medium)),
-            )
+                modifier = Modifier
+                        .padding(padding)
+                        .padding(horizontal = dimensionResource(R.dimen.padding_medium)),
+            ) { cardId ->
+                navigator.push(CardRoute(cardId))
+            }
 
             dataSuccess?.let { data ->
                 DeckDropdownMenu(
@@ -142,7 +138,7 @@ internal fun DeckScreenContent(
                     },
                     onDeleteClick = {
                         isDropdownExpanded = false
-                        viewModel.onEvent(DeckEvent.OnDeleteDeck(data.deck))
+                        viewModel.deleteDeck(data.deck)
                     },
                 )
             }
@@ -158,11 +154,11 @@ internal fun DeckScreenContent(
             errorMsg = (renameDeckState as? UiState.Error)?.error,
             onExitClick = {
                 renameModalWindow = false
-                viewModel.onEvent(DeckEvent.OnResetRenameDeckState)
+                viewModel.resetRenameDeckState()
             },
             onSaveClick = {
                 dataSuccess?.let { data ->
-                    viewModel.onEvent(DeckEvent.OnRenameDeck(data.deck.deckId, it))
+                    viewModel.renameDeck(data.deck.deckId, it)
                 }
             },
         )
@@ -172,8 +168,8 @@ internal fun DeckScreenContent(
 @Composable
 private fun DeckCardList(
     screenUiState: UiState<DeckScreenData>,
-    navigator: Navigator,
     modifier: Modifier = Modifier,
+    navigatorToCard: (Int) -> Unit,
 ) {
     when (screenUiState) {
         is UiState.Error -> {
@@ -185,31 +181,33 @@ private fun DeckCardList(
         is UiState.Success -> {
             DeckSuccessState(
                 data = screenUiState.data,
-                navigator = navigator,
                 modifier = modifier,
+                navigatorToCard = navigatorToCard
             )
         }
 
-        else -> {
+        is UiState.Loading -> {
             DeckLoadingState(
                 modifier = modifier,
             )
         }
+
+        is UiState.Idle -> Unit
     }
 }
 
 @Composable
 private fun DeckSuccessState(
     data: DeckScreenData,
-    navigator: Navigator,
     modifier: Modifier = Modifier,
+    navigatorToCard: (Int) -> Unit,
 ) {
     val cardItemStyle =
         DisplayItemStyle(
             backgroundColor =
-            MaterialTheme.colorScheme.secondary.copy(
-                dimenFloatResource(R.dimen.float_zero_dot_five_significance),
-            ),
+                MaterialTheme.colorScheme.secondary.copy(
+                    dimenFloatResource(R.dimen.float_zero_dot_five_significance),
+                ),
             iconColor = MaterialTheme.colorScheme.outlineVariant,
             textStyle = MaterialTheme.typography.bodyMedium,
         )
@@ -223,10 +221,10 @@ private fun DeckSuccessState(
                 text = data.deck.deckName,
                 style = MaterialTheme.typography.titleMedium,
                 modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .wrapContentSize(Alignment.Center)
-                    .padding(dimensionResource(R.dimen.dimen_6)),
+                    Modifier
+                        .fillMaxWidth()
+                        .wrapContentSize(Alignment.Center)
+                        .padding(dimensionResource(R.dimen.dimen_6)),
             )
         }
         items(items = data.cards, key = { it.cardId }) { card ->
@@ -235,13 +233,13 @@ private fun DeckSuccessState(
                 shape = MaterialTheme.shapes.extraSmall,
                 showCount = false,
                 displayItemData =
-                DisplayItemData(
-                    itemIcon = R.drawable.card_icon,
-                    itemName = card.cardName,
-                ),
+                    DisplayItemData(
+                        itemIcon = R.drawable.card_icon,
+                        itemName = card.cardName,
+                    ),
                 displayItemStyle = cardItemStyle,
                 onClick = {
-                    navigator.push(CardRoute(card.cardId))
+                    navigatorToCard(card.cardId)
                 },
             )
         }
@@ -252,9 +250,9 @@ private fun DeckSuccessState(
 private fun DeckLoadingState(modifier: Modifier = Modifier) {
     Box(
         modifier =
-        modifier
-            .fillMaxWidth()
-            .padding(top = dimensionResource(R.dimen.padding_large)),
+            modifier
+                .fillMaxWidth()
+                .padding(top = dimensionResource(R.dimen.padding_large)),
         contentAlignment = Alignment.Center,
     ) {
         CircularProgressIndicator(
@@ -271,9 +269,9 @@ private fun DeckErrorState(modifier: Modifier = Modifier) {
         modifier = modifier.fillMaxWidth(),
         textAlign = TextAlign.Center,
         style =
-        MaterialTheme.typography.bodyLarge.copy(
-            color = MaterialTheme.colorScheme.error,
-        ),
+            MaterialTheme.typography.bodyLarge.copy(
+                color = MaterialTheme.colorScheme.error,
+            ),
     )
 }
 
@@ -289,11 +287,11 @@ private fun DeckDropdownMenu(
 ) {
     Box(
         modifier =
-        modifier
-            .padding(horizontal = dimensionResource(R.dimen.dimen_28))
-            .padding(padding)
-            .fillMaxWidth()
-            .wrapContentSize(Alignment.TopEnd),
+            modifier
+                .padding(horizontal = dimensionResource(R.dimen.dimen_28))
+                .padding(padding)
+                .fillMaxWidth()
+                .wrapContentSize(Alignment.TopEnd),
     ) {
         DropdownMenu(
             expanded = isExpanded,
@@ -326,12 +324,12 @@ private fun DropdownMenuItem(
         text = text,
         style = MaterialTheme.typography.bodyMedium,
         modifier =
-        Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(
-                horizontal = dimensionResource(R.dimen.dimen_20),
-                vertical = dimensionResource(R.dimen.dimen_10),
-            ),
+            Modifier
+                .fillMaxWidth()
+                .clickable(onClick = onClick)
+                .padding(
+                    horizontal = dimensionResource(R.dimen.dimen_20),
+                    vertical = dimensionResource(R.dimen.dimen_10),
+                ),
     )
 }

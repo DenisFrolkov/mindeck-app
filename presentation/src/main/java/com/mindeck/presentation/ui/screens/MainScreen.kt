@@ -50,7 +50,6 @@ import com.mindeck.presentation.ui.navigation.CreationCardRoute
 import com.mindeck.presentation.ui.navigation.DeckRoute
 import com.mindeck.presentation.ui.navigation.DecksRoute
 import com.mindeck.presentation.ui.navigation.Navigator
-import com.mindeck.presentation.viewmodel.MainEvent.OnLoadDecks
 import com.mindeck.presentation.viewmodel.MainViewModel
 
 @Composable
@@ -72,15 +71,13 @@ internal fun MainScreenContent(
     modifier: Modifier = Modifier,
 ) {
     LaunchedEffect(Unit) {
-        viewModel.onEvent(OnLoadDecks)
-//        viewModel.onEvent(MainEvent.OnLoadCardRepetition())
+        viewModel.loadDecks()
     }
 
     val decksState by viewModel.decksState.collectAsState()
-    val cardsForRepetitionState by viewModel.cardsForRepetitionState.collectAsState()
 
     Scaffold(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         containerColor = MaterialTheme.colorScheme.background,
         content = { paddingValues ->
             Column(
@@ -121,8 +118,9 @@ internal fun MainScreenContent(
                 }
                 Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacer_large)))
                 ListDecks(
-                    navigator = navigator,
                     decksState = decksState,
+                    navigatorToDeck = { deckId -> navigator.push(DeckRoute(deckId)) },
+                    navigatorToDecks = { navigator.push(DecksRoute) }
                 )
             }
         },
@@ -175,8 +173,9 @@ private fun RepeatCountItem(
 
 @Composable
 private fun ListDecks(
-    navigator: Navigator,
     decksState: UiState<List<Deck>>,
+    navigatorToDeck: (Int) -> Unit,
+    navigatorToDecks: () -> Unit,
 ) {
     decksState.RenderState(
         onSuccess = { decks ->
@@ -188,14 +187,14 @@ private fun ListDecks(
                     items = decks.take(5),
                     key = { it.deckId },
                 ) { deck ->
-                    DeckItem(navigator = navigator, deck = deck)
+                    DeckItem(deck = deck, navigatorToDeck = navigatorToDeck)
                     Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacer_small)))
                 }
 
                 if (decks.size > 5) {
                     item {
                         Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_8)))
-                        ButtonAllDecks(navigator)
+                        ButtonAllDecks(navigatorToDecks = navigatorToDecks)
                     }
                 }
             }
@@ -225,8 +224,8 @@ private fun ListDecks(
 
 @Composable
 private fun DeckItem(
-    navigator: Navigator,
     deck: Deck,
+    navigatorToDeck: (Int) -> Unit,
 ) {
     DisplayItem(
         modifier = Modifier
@@ -245,14 +244,14 @@ private fun DeckItem(
             textStyle = MaterialTheme.typography.bodyMedium,
         ),
         onClick = {
-            navigator.push(DeckRoute(deck.deckId))
+            navigatorToDeck(deck.deckId)
         },
     )
 }
 
 @Composable
 private fun ButtonAllDecks(
-    navigator: Navigator,
+    navigatorToDecks: () -> Unit,
 ) {
     Box(
         modifier = Modifier
@@ -266,7 +265,7 @@ private fun ButtonAllDecks(
                     shape = MaterialTheme.shapes.medium,
                 )
                 .clickable {
-                    navigator.push(DecksRoute)
+                    navigatorToDecks()
                 },
         ) {
             Text(

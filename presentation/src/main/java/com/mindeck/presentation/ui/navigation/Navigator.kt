@@ -13,6 +13,8 @@ class StackNavigator(
     }
 
     override fun pop() {
-        backStack.removeLastOrNull()
+        if (backStack.size > 1) {
+            backStack.removeLastOrNull()
+        }
     }
 }
