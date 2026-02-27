@@ -235,7 +235,6 @@ private fun DeckItem(
         showCount = false,
         displayItemData = DisplayItemData(
             itemIcon = R.drawable.deck_icon,
-            numberOfCards = deck.deckId,
             itemName = deck.deckName,
         ),
         displayItemStyle = DisplayItemStyle(
