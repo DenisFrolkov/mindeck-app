@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -27,7 +26,6 @@ import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.components.dataclasses.DisplayItemData
 import com.mindeck.presentation.ui.components.dataclasses.DisplayItemStyle
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
-import com.mindeck.presentation.ui.components.utils.formatNumber
 
 @Composable
 fun DisplayItem(
@@ -50,23 +48,6 @@ fun DisplayItem(
             .height(dimensionResource(R.dimen.dimen_48))
             .clickable(onClick = onClick),
     ) {
-        if (showCount) {
-            Text(
-                text = formatNumber(displayItemData.numberOfCards),
-                style = displayItemStyle.textStyle,
-                modifier = Modifier
-                    .background(MaterialTheme.colorScheme.onPrimary)
-                    .size(dimenDpResource(R.dimen.dimen_48))
-                    .wrapContentSize(Alignment.Center),
-            )
-
-            VerticalDivider(
-                modifier = Modifier.fillMaxHeight(),
-                thickness = dimenDpResource(R.dimen.dimen_0_25),
-                color = MaterialTheme.colorScheme.outline,
-            )
-        }
-
         Box(
             contentAlignment = Alignment.CenterStart,
             modifier = Modifier
