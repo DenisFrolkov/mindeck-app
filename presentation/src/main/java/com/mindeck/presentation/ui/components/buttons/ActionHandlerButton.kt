@@ -13,12 +13,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.unit.Dp
 import com.mindeck.presentation.R
 
 @Composable
 fun ActionHandlerButton(
     iconPainter: Painter,
     iconTint: Color,
+    iconSize: Dp = dimensionResource(R.dimen.dimen_18),
     contentDescription: String? = null,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -37,7 +39,7 @@ fun ActionHandlerButton(
             contentDescription = contentDescription,
             modifier = Modifier
                 .padding(dimensionResource(R.dimen.action_handler_icon_padding))
-                .size(dimensionResource(R.dimen.action_handler_size)),
+                .size(iconSize),
         )
     }
 }

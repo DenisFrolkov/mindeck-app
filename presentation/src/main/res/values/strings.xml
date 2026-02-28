@@ -19,8 +19,12 @@
     <string name="fab_menu_data_setting_list">Настройки</string>
     <string name="fab_menu_data_create_card_list">Создать карточку</string>
     <string name="create_item_dialog_text_creating_deck">Создание колоды</string>
-    <string name="create_item_dialog_text_input_name_deck">Введите название колоды</string>
+    <string name="create_item_dialog_text_input_name_deck">Введите название</string>
     <string name="create_item_dialog_text_create_deck">Создать колоду</string>
+    <string name="choose_deck_title_dialog">Выберите колоду</string>
+    <string name="choose_type_title_dialog">Выберите тип</string>
+    <string name="card_type_simple">Простой</string>
+    <string name="card_type_complex">Сложный</string>
     <string name="rename_title_item_dialog">Изменить название</string>
     <string name="rename_item_dialog_text_input_title_deck">Введите название колоды</string>
     <string name="save_text">Сохранить</string>
@@ -90,6 +94,7 @@
     //Content Description
     <string name="floating_action_button">FAB</string>
     <string name="back_screen_icon_button">Back To Previous Page</string>
+    <string name="add_icon_button">Add New Item</string>
     <string name="daily_progress_tracker">Daily Progress Tracker</string>
 
     <string name="new_text">New</string>
