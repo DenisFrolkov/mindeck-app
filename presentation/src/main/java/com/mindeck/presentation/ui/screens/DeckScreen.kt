@@ -1,6 +1,5 @@
 package com.mindeck.presentation.ui.screens
 
-import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,7 +24,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -34,16 +32,16 @@ import com.mindeck.presentation.R
 import com.mindeck.presentation.state.UiState
 import com.mindeck.presentation.ui.components.dataclasses.DisplayItemData
 import com.mindeck.presentation.ui.components.dataclasses.DisplayItemStyle
-import com.mindeck.presentation.ui.components.dialog.CustomModalWindow
+import com.mindeck.presentation.ui.components.dialog.WriteModalWindow
 import com.mindeck.presentation.ui.components.folder.DisplayItem
 import com.mindeck.presentation.ui.components.topBar.AppTopBar
 import com.mindeck.presentation.ui.components.utils.dimenFloatResource
 import com.mindeck.presentation.ui.navigation.CardRoute
 import com.mindeck.presentation.ui.navigation.CreationCardRoute
 import com.mindeck.presentation.ui.navigation.Navigator
+import com.mindeck.presentation.viewmodel.DeckNavigationEvent
 import com.mindeck.presentation.viewmodel.DeckScreenData
 import com.mindeck.presentation.viewmodel.DeckViewModel
-import com.mindeck.presentation.viewmodel.NavigationEvent
 
 @Composable
 fun DeckScreen(
@@ -66,8 +64,6 @@ internal fun DeckScreenContent(
     viewModel: DeckViewModel,
     modifier: Modifier = Modifier,
 ) {
-    val context = LocalContext.current
-
     val screenUiState by viewModel.screenUiState.collectAsState()
     val renameDeckState by viewModel.renameDeckState.collectAsState()
 
@@ -82,22 +78,15 @@ internal fun DeckScreenContent(
     LaunchedEffect(Unit) {
         viewModel.navigationEvent.collect { event ->
             when (event) {
-                NavigationEvent.GoBack -> {
+                DeckNavigationEvent.GoBack -> {
                     navigator.pop()
                 }
 
-                NavigationEvent.CloseRenameWindow -> {
+                DeckNavigationEvent.CloseRenameWindow -> {
                     renameModalWindow = false
                 }
 
-                is NavigationEvent.ShowToast -> {
-                    Toast
-                        .makeText(
-                            context,
-                            event.message,
-                            Toast.LENGTH_SHORT,
-                        ).show()
-                }
+                is DeckNavigationEvent.ShowToast -> Unit
             }
         }
     }
@@ -117,8 +106,8 @@ internal fun DeckScreenContent(
             DeckCardList(
                 screenUiState = screenUiState,
                 modifier = Modifier
-                        .padding(padding)
-                        .padding(horizontal = dimensionResource(R.dimen.padding_medium)),
+                    .padding(padding)
+                    .padding(horizontal = dimensionResource(R.dimen.padding_medium)),
             ) { cardId ->
                 navigator.push(CardRoute(cardId))
             }
@@ -146,10 +135,10 @@ internal fun DeckScreenContent(
     )
 
     if (renameModalWindow) {
-        CustomModalWindow(
-            stringResource(R.string.rename_title_item_dialog),
-            stringResource(R.string.save_text),
-            stringResource(R.string.rename_item_dialog_text_input_title_deck),
+        WriteModalWindow(
+            titleText = stringResource(R.string.rename_title_item_dialog),
+            buttonText = stringResource(R.string.save_text),
+            placeholder = stringResource(R.string.rename_item_dialog_text_input_title_deck),
             isLoading = renameDeckState is UiState.Loading,
             errorMsg = (renameDeckState as? UiState.Error)?.error,
             onExitClick = {
@@ -182,7 +171,7 @@ private fun DeckCardList(
             DeckSuccessState(
                 data = screenUiState.data,
                 modifier = modifier,
-                navigatorToCard = navigatorToCard
+                navigatorToCard = navigatorToCard,
             )
         }
 
@@ -205,9 +194,9 @@ private fun DeckSuccessState(
     val cardItemStyle =
         DisplayItemStyle(
             backgroundColor =
-                MaterialTheme.colorScheme.secondary.copy(
-                    dimenFloatResource(R.dimen.float_zero_dot_five_significance),
-                ),
+            MaterialTheme.colorScheme.secondary.copy(
+                dimenFloatResource(R.dimen.float_zero_dot_five_significance),
+            ),
             iconColor = MaterialTheme.colorScheme.outlineVariant,
             textStyle = MaterialTheme.typography.bodyMedium,
         )
@@ -221,10 +210,10 @@ private fun DeckSuccessState(
                 text = data.deck.deckName,
                 style = MaterialTheme.typography.titleMedium,
                 modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .wrapContentSize(Alignment.Center)
-                        .padding(dimensionResource(R.dimen.dimen_6)),
+                Modifier
+                    .fillMaxWidth()
+                    .wrapContentSize(Alignment.Center)
+                    .padding(dimensionResource(R.dimen.dimen_6)),
             )
         }
         items(items = data.cards, key = { it.cardId }) { card ->
@@ -233,10 +222,10 @@ private fun DeckSuccessState(
                 shape = MaterialTheme.shapes.extraSmall,
                 showCount = false,
                 displayItemData =
-                    DisplayItemData(
-                        itemIcon = R.drawable.card_icon,
-                        itemName = card.cardName,
-                    ),
+                DisplayItemData(
+                    itemIcon = R.drawable.card_icon,
+                    itemName = card.cardName,
+                ),
                 displayItemStyle = cardItemStyle,
                 onClick = {
                     navigatorToCard(card.cardId)
@@ -250,9 +239,9 @@ private fun DeckSuccessState(
 private fun DeckLoadingState(modifier: Modifier = Modifier) {
     Box(
         modifier =
-            modifier
-                .fillMaxWidth()
-                .padding(top = dimensionResource(R.dimen.padding_large)),
+        modifier
+            .fillMaxWidth()
+            .padding(top = dimensionResource(R.dimen.padding_large)),
         contentAlignment = Alignment.Center,
     ) {
         CircularProgressIndicator(
@@ -269,9 +258,9 @@ private fun DeckErrorState(modifier: Modifier = Modifier) {
         modifier = modifier.fillMaxWidth(),
         textAlign = TextAlign.Center,
         style =
-            MaterialTheme.typography.bodyLarge.copy(
-                color = MaterialTheme.colorScheme.error,
-            ),
+        MaterialTheme.typography.bodyLarge.copy(
+            color = MaterialTheme.colorScheme.error,
+        ),
     )
 }
 
@@ -287,11 +276,11 @@ private fun DeckDropdownMenu(
 ) {
     Box(
         modifier =
-            modifier
-                .padding(horizontal = dimensionResource(R.dimen.dimen_28))
-                .padding(padding)
-                .fillMaxWidth()
-                .wrapContentSize(Alignment.TopEnd),
+        modifier
+            .padding(horizontal = dimensionResource(R.dimen.dimen_28))
+            .padding(padding)
+            .fillMaxWidth()
+            .wrapContentSize(Alignment.TopEnd),
     ) {
         DropdownMenu(
             expanded = isExpanded,
@@ -324,12 +313,12 @@ private fun DropdownMenuItem(
         text = text,
         style = MaterialTheme.typography.bodyMedium,
         modifier =
-            Modifier
-                .fillMaxWidth()
-                .clickable(onClick = onClick)
-                .padding(
-                    horizontal = dimensionResource(R.dimen.dimen_20),
-                    vertical = dimensionResource(R.dimen.dimen_10),
-                ),
+        Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(
+                horizontal = dimensionResource(R.dimen.dimen_20),
+                vertical = dimensionResource(R.dimen.dimen_10),
+            ),
     )
 }

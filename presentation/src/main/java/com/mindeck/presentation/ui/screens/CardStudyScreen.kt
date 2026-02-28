@@ -37,6 +37,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.mindeck.domain.models.Card
+import com.mindeck.domain.models.CardType
 import com.mindeck.domain.models.ReviewType
 import com.mindeck.presentation.R
 import com.mindeck.presentation.state.RenderState
@@ -514,7 +515,7 @@ private fun cardsForRepetitionDataMock(): UiState<List<Card>> = UiState.Success(
             cardName = "Basics of Kotlin",
             cardQuestion = "What is a data class in Kotlin?",
             cardAnswer = "A class used to hold data; automatically provides equals(), hashCode(), toString(), etc.",
-            cardType = "text",
+            cardType = CardType.SIMPLE,
             cardTag = "kotlin",
             deckId = 1,
             firstReviewDate = System.currentTimeMillis() - 5 * 24 * 60 * 60 * 1000,
@@ -528,7 +529,7 @@ private fun cardsForRepetitionDataMock(): UiState<List<Card>> = UiState.Success(
             cardName = "Jetpack Compose",
             cardQuestion = "What is @Composable?",
             cardAnswer = "A function annotation that marks a function as composable.",
-            cardType = "text",
+            cardType = CardType.SIMPLE,
             cardTag = "compose",
             deckId = 1,
             firstReviewDate = System.currentTimeMillis() - 10 * 24 * 60 * 60 * 1000,
@@ -542,7 +543,7 @@ private fun cardsForRepetitionDataMock(): UiState<List<Card>> = UiState.Success(
             cardName = "Design Patterns",
             cardQuestion = "Explain the Singleton pattern.",
             cardAnswer = "A design pattern that ensures a class has only one instance.",
-            cardType = "text",
+            cardType = CardType.SIMPLE,
             cardTag = "architecture",
             deckId = 2,
             firstReviewDate = System.currentTimeMillis() - 20 * 24 * 60 * 60 * 1000,
@@ -556,7 +557,7 @@ private fun cardsForRepetitionDataMock(): UiState<List<Card>> = UiState.Success(
             cardName = "Coroutines",
             cardQuestion = "What does `launch {}` do in Kotlin?",
             cardAnswer = "Starts a new coroutine without blocking the current thread.",
-            cardType = "text",
+            cardType = CardType.SIMPLE,
             cardTag = "async",
             deckId = 2,
             firstReviewDate = System.currentTimeMillis() - 7 * 24 * 60 * 60 * 1000,

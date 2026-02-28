@@ -11,7 +11,7 @@ import androidx.compose.ui.text.TextStyle
 
 @Composable
 fun CardInputField(
-    placeholder: String,
+    placeholder: String = "",
     value: String,
     singleLine: Boolean = false,
     enabled: Boolean = true,

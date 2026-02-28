@@ -41,6 +41,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.mindeck.domain.models.Card
+import com.mindeck.domain.models.CardType
 import com.mindeck.domain.models.Deck
 import com.mindeck.domain.models.ReviewType
 import com.mindeck.presentation.R
@@ -238,8 +239,8 @@ fun cardAttributesList(
             CardAttributes(
                 title = stringResource(R.string.text_type_dropdown_selector),
                 value = when (card.data.cardType) {
-                    "0" -> stringResource(R.string.text_folder_dropdown_selector_simple)
-                    else -> stringResource(R.string.text_folder_dropdown_selector_simple_with_answer_input)
+                    CardType.SIMPLE -> stringResource(R.string.card_type_simple)
+                    CardType.COMPLEX -> stringResource(R.string.card_type_complex)
                 },
             ),
         )
@@ -546,7 +547,7 @@ private fun cardDataMock(): UiState<Card> = UiState.Success(
         cardName = "Basic Kotlin",
         cardQuestion = "Что такое data class в Kotlin?",
         cardAnswer = "Это класс, предназначенный для хранения данных. Он автоматически генерирует equals, hashCode и toString.",
-        cardType = "Теория",
+        cardType = CardType.SIMPLE,
         cardTag = "Kotlin",
         deckId = 101,
         firstReviewDate = 1_725_000_000_000,
