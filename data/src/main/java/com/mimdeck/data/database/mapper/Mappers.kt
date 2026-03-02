@@ -3,6 +3,7 @@ package com.mimdeck.data.database.mapper
 import com.mimdeck.data.database.entities.CardEntity
 import com.mimdeck.data.database.entities.DeckEntity
 import com.mindeck.domain.models.Card
+import com.mindeck.domain.models.CardType
 import com.mindeck.domain.models.Deck
 import com.mindeck.domain.models.ReviewType
 
@@ -28,7 +29,7 @@ object Mappers {
             this.cardName,
             this.cardQuestion,
             this.cardAnswer,
-            this.cardType,
+            this.cardType.stableId.toString(),
             this.cardTag,
             this.deckId,
             this.firstReviewDate,
@@ -45,7 +46,7 @@ object Mappers {
             this.cardName ?: "Card ${this.cardId}",
             this.cardQuestion ?: "Question №${this.cardId}",
             this.cardAnswer,
-            this.cardType,
+            CardType.fromStableId(this.cardType.toIntOrNull() ?: 1),
             this.cardTag,
             this.deckId,
             this.firstReviewDate,

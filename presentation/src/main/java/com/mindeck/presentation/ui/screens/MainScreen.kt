@@ -27,7 +27,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -70,10 +69,6 @@ internal fun MainScreenContent(
     viewModel: MainViewModel,
     modifier: Modifier = Modifier,
 ) {
-    LaunchedEffect(Unit) {
-        viewModel.loadDecks()
-    }
-
     val decksState by viewModel.decksState.collectAsState()
 
     Scaffold(
@@ -120,7 +115,7 @@ internal fun MainScreenContent(
                 ListDecks(
                     decksState = decksState,
                     navigatorToDeck = { deckId -> navigator.push(DeckRoute(deckId)) },
-                    navigatorToDecks = { navigator.push(DecksRoute) }
+                    navigatorToDecks = { navigator.push(DecksRoute) },
                 )
             }
         },

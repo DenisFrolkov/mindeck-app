@@ -16,9 +16,9 @@ class DeckRepositoryImpl
 constructor(
     private val deckDao: DeckDao,
 ) : DeckRepository {
-    override suspend fun insertDeck(deck: Deck) =
+    override suspend fun insertDeck(deck: Deck): Int =
         handleDatabaseSuspend {
-            deckDao.insertDeck(deckEntity = deck.toData())
+            deckDao.insertDeck(deckEntity = deck.toData()).toInt()
         }
 
     override suspend fun renameDeck(

@@ -107,6 +107,7 @@
 
     // Default dimensions
     <dimen name="dimen_0_25">0.25dp</dimen>
+    <dimen name="dimen_0_5">0.5dp</dimen>
     <dimen name="dimen_0">0dp</dimen>
     <dimen name="dimen_1">1dp</dimen>
     <dimen name="dimen_2">2dp</dimen>
@@ -159,5 +160,8 @@
     <dimen name="dimen_96">96dp</dimen>
     <dimen name="dimen_98">98dp</dimen>
     <dimen name="dimen_100">100dp</dimen>
+    <dimen name="dimen_120">120dp</dimen>
+    <dimen name="dimen_140">140dp</dimen>
+    <dimen name="dimen_200">200dp</dimen>
 
 </resources>

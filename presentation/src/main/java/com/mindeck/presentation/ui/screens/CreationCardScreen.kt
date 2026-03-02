@@ -1,11 +1,16 @@
 package com.mindeck.presentation.ui.screens
 
+import android.widget.Toast
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -13,9 +18,9 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -24,447 +29,480 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.mindeck.domain.models.CardType
 import com.mindeck.domain.models.Deck
 import com.mindeck.presentation.R
-import com.mindeck.presentation.state.CardState
-import com.mindeck.presentation.state.RenderState
+import com.mindeck.presentation.state.CreateCardFormState
+import com.mindeck.presentation.state.ModalState
 import com.mindeck.presentation.state.UiState
-import com.mindeck.presentation.ui.components.buttons.ActionHandlerButton
-import com.mindeck.presentation.ui.components.buttons.SaveDataButton
-import com.mindeck.presentation.ui.components.dropdown.dropdownSelector.DropdownSelector
+import com.mindeck.presentation.ui.components.dialog.ChooseModalWindow
 import com.mindeck.presentation.ui.components.textfields.CardInputField
-import com.mindeck.presentation.ui.components.textfields.TegInputField
-import com.mindeck.presentation.ui.components.textfields.TitleInputField
-import com.mindeck.presentation.ui.components.utils.dimenDpResource
-import com.mindeck.presentation.ui.components.utils.textInputModifier
-import com.mindeck.presentation.ui.navigation.CreationCardRoute
-import com.mindeck.presentation.ui.navigation.NavigationRoute
+import com.mindeck.presentation.ui.components.topBar.AppTopBar
 import com.mindeck.presentation.ui.navigation.Navigator
-import com.mindeck.presentation.ui.navigation.StackNavigator
-import com.mindeck.presentation.ui.theme.MindeckTheme
+import com.mindeck.presentation.ui.theme.text_black
 import com.mindeck.presentation.ui.theme.text_gray
-import com.mindeck.presentation.ui.theme.text_white
+import com.mindeck.presentation.viewmodel.CreationCardNavigationEvent
 import com.mindeck.presentation.viewmodel.CreationCardViewModel
 
 @Composable
 fun CreationCardScreen(
     navigator: Navigator,
     deckId: Int?,
-    creationCardViewModel: CreationCardViewModel = hiltViewModel<CreationCardViewModel>(),
+    modifier: Modifier = Modifier,
 ) {
-    val cardState by creationCardViewModel.cardState
-    val validation by creationCardViewModel.validation.collectAsState()
-    val deck by creationCardViewModel.listDecksUiState.collectAsState()
-    val selectedDeckForCreatingCard by creationCardViewModel.selectedDeckForCreatingCard
-    val selectedTypeForCreatingCard by creationCardViewModel.selectedTypeForCreatingCard
+    CreationCardScreenContent(
+        navigator = navigator,
+        deckId = deckId,
+        viewModel = hiltViewModel<CreationCardViewModel>(),
+        modifier = modifier,
+    )
+}
+
+@Composable
+fun CreationCardScreenContent(
+    navigator: Navigator,
+    deckId: Int?,
+    viewModel: CreationCardViewModel,
+    modifier: Modifier = Modifier,
+) {
+    val formState by viewModel.formState.collectAsState()
+    val deckState by viewModel.deckSelectionHandler.decksState.collectAsState()
+    val createCardState by viewModel.createCardState.collectAsState()
+    val modalState by viewModel.modalState.collectAsState()
+
+    val context = LocalContext.current
+
+    LaunchedEffect(deckId) {
+        deckId?.let { viewModel.setDeckId(it) }
+    }
 
     LaunchedEffect(Unit) {
-        creationCardViewModel.getAllDecks()
-        if (deckId != null) {
-            creationCardViewModel.getDeckById(deckId)
+        viewModel.navigationEvent.collect { event ->
+            when (event) {
+                is CreationCardNavigationEvent.ShowToast -> {
+                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+                }
+                CreationCardNavigationEvent.ToBack -> { navigator.pop() }
+            }
         }
     }
 
-    CreationCardContent(
-        navigator,
-        deck,
-        validation,
-        cardState,
-        selectedDeckForCreatingCard,
-        selectedTypeForCreatingCard,
-        {
-            creationCardViewModel.selectedDeckForCreatingCard.value = it
+    Scaffold(
+        modifier = modifier,
+        containerColor = MaterialTheme.colorScheme.background,
+        topBar = {
+            AppTopBar(
+                onBackClick = { navigator.pop() },
+                modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.dimen_16)),
+            )
         },
-        {
-            creationCardViewModel.selectedTypeForCreatingCard.value = it
-        },
-        onCardNameSave = {
-            creationCardViewModel.updateCardState { copy(title = it) }
-        },
-        onCardQuestionSave = {
-            creationCardViewModel.updateCardState { copy(question = it) }
-        },
-        onCardAnswerSave = {
-            creationCardViewModel.updateCardState { copy(answer = it) }
-        },
-        onCardTagSave = {
-            creationCardViewModel.updateCardState { copy(tag = it) }
-        },
-        onSaveCard = {
-            if (creationCardViewModel.validateInput()) {
-                selectedDeckForCreatingCard.second?.let {
-                    creationCardViewModel.createCard(
-                        cardName = cardState.title,
-                        cardQuestion = cardState.question,
-                        cardAnswer = cardState.answer,
-                        cardType = selectedDeckForCreatingCard.second.toString(),
-                        cardTag = cardState.tag,
-                        deckId = it,
+        content = { padding ->
+            Column(
+                modifier = Modifier
+                    .padding(padding)
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = dimensionResource(R.dimen.dimen_16))
+                    .navigationBarsPadding(),
+            ) {
+                DeckSelector(
+                    selectedDeckId = formState.selectedDeckId,
+                    deckState = deckState,
+                    onDeckSelectorClick = { viewModel.showDeckModal() },
+                )
+
+                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_8)))
+
+                TypeSelector(
+                    selectedType = formState.selectedType,
+                    onTypeSelectorClick = { viewModel.showTypeModal() },
+                )
+
+                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_12)))
+
+                CardFormInputs(
+                    formState = formState,
+                    onValueChange = { update -> viewModel.updateForm(update) },
+                )
+
+                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_20)))
+
+                CreateCardButton(
+                    buttonText = stringResource(R.string.text_save_card_button),
+                    isValid = formState.isValid(),
+                    isLoading = createCardState is UiState.Loading,
+                    onSaveClick = { viewModel.createCard() },
+                )
+
+                if (createCardState is UiState.Error) {
+                    Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_8)))
+                    Text(
+                        text = (createCardState as UiState.Error).error,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth(),
                     )
                 }
-                navigator.pop()
             }
         },
     )
-}
 
-@Composable
-private fun CreationCardContent(
-    navigator: Navigator,
-    decks: UiState<List<Deck>>,
-    validation: Boolean?,
-    cardState: CardState,
-    selectedDeckForCreatingCard: Pair<String, Int?>,
-    selectedTypeForCreatingCard: Pair<String, Int?>,
-    onSelectedDeckForCreatingCard: (Pair<String, Int>) -> Unit = { },
-    onSelectedTypeForCreatingCard: (Pair<String, Int>) -> Unit = { },
-    onCardNameSave: (String) -> Unit,
-    onCardQuestionSave: (String) -> Unit,
-    onCardAnswerSave: (String) -> Unit,
-    onCardTagSave: (String) -> Unit,
-    onSaveCard: () -> Unit,
-) {
-    val typeDropdownList = dropdownMenuTypeList()
-
-    Scaffold(
-        containerColor = MaterialTheme.colorScheme.background,
-        topBar = {
-            TopBar(onClick = { navigator.pop() })
-        },
-        content = { padding ->
-            Content(
-                padding = padding,
-                deck = decks,
-                typeDropdownList = typeDropdownList,
-                validation = validation,
-                cardState = cardState,
-                selectedDeckForCreatingCard = selectedDeckForCreatingCard,
-                selectedTypeForCreatingCard = selectedTypeForCreatingCard,
-                onSelectedDeckForCreatingCard = onSelectedDeckForCreatingCard,
-                onSelectedTypeForCreatingCard = onSelectedTypeForCreatingCard,
-                onCardNameSave = onCardNameSave,
-                onCardQuestionSave = onCardQuestionSave,
-                onCardAnswerSave = onCardAnswerSave,
-                onCardTagSave = onCardTagSave,
-                onSaveCard = onSaveCard,
+    when (modalState) {
+        is ModalState.DeckSelection -> {
+            DeckSelectionModal(
+                viewModel = viewModel,
+                deckState = deckState,
+                selectedDeckId = formState.selectedDeckId,
             )
-        },
-    )
-}
-
-@Composable
-private fun TopBar(onClick: () -> Unit) {
-    Box(
-        modifier = Modifier
-            .statusBarsPadding()
-            .padding(horizontal = dimenDpResource(R.dimen.padding_medium))
-            .padding(top = dimenDpResource(R.dimen.padding_large)),
-    ) {
-        ActionHandlerButton(
-            iconPainter = painterResource(R.drawable.back_icon),
-            contentDescription = stringResource(R.string.back_screen_icon_button),
-            onClick = onClick,
-            iconTint = MaterialTheme.colorScheme.onPrimary,
-        )
-        Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_large)))
+        }
+        is ModalState.TypeSelection -> {
+            TypeSelectionModal(
+                selectedType = formState.selectedType,
+                onDismiss = { viewModel.hideModal() },
+                onTypeSelected = { cardType ->
+                    viewModel.hideModal()
+                    viewModel.setType(cardType)
+                },
+            )
+        }
+        ModalState.None -> {}
     }
 }
 
 @Composable
-private fun Content(
-    padding: PaddingValues,
-    deck: UiState<List<Deck>>,
-    typeDropdownList: List<Pair<String, Int>>,
-    validation: Boolean?,
-    cardState: CardState,
-    selectedDeckForCreatingCard: Pair<String, Int?>,
-    selectedTypeForCreatingCard: Pair<String, Int?>,
-    onSelectedDeckForCreatingCard: (Pair<String, Int>) -> Unit = { },
-    onSelectedTypeForCreatingCard: (Pair<String, Int>) -> Unit = { },
-    onCardNameSave: (String) -> Unit,
-    onCardQuestionSave: (String) -> Unit,
-    onCardAnswerSave: (String) -> Unit,
-    onCardTagSave: (String) -> Unit,
-    onSaveCard: () -> Unit,
+private fun DeckSelector(
+    selectedDeckId: Int?,
+    deckState: UiState<List<Deck>>,
+    onDeckSelectorClick: () -> Unit,
 ) {
-    Column(
-        modifier = Modifier
-            .padding(padding)
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = dimenDpResource(R.dimen.padding_medium))
-            .navigationBarsPadding(),
+    val selectedDeckName = remember(deckState, selectedDeckId) {
+        selectedDeckId?.let { id ->
+            (deckState as? UiState.Success)?.data?.find { it.deckId == id }?.deckName
+        }
+    }
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
     ) {
-        deck.RenderState(
-            onSuccess = { deckInfo ->
-                DropdownSelector(
-                    "Выберите колоду",
-                    selectedDeckForCreatingCard,
-                    deckInfo.map { Pair<String, Int>(it.deckName, it.deckId) },
-                    onItemClick = onSelectedDeckForCreatingCard,
-                    onClick = {},
-                    textStyle = MaterialTheme.typography.bodyMedium,
+        Text(
+            text = stringResource(R.string.text_deck_dropdown_selector),
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.padding(dimensionResource(R.dimen.dimen_8)),
+        )
+
+        Box(
+            modifier = Modifier
+                .clickable(onClick = onDeckSelectorClick)
+                .background(
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    shape = MaterialTheme.shapes.extraSmall,
                 )
-            },
-            onError = {
-                Text("error")
-            },
-            onLoading = {
-                Text("loading")
-            },
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        DropdownSelector(
-            "Выберите тип",
-            selectedTypeForCreatingCard,
-            typeDropdownList,
-            onItemClick = onSelectedTypeForCreatingCard,
-            onClick = {},
-            textStyle = MaterialTheme.typography.bodyMedium,
-        )
-        Spacer(modifier = Modifier.height(height = dimenDpResource(R.dimen.spacer_medium)))
-        InputFields(
-            validation = validation == true || validation == null,
-            cardState = cardState,
-            onCardNameSave = onCardNameSave,
-            onCardQuestionSave = onCardQuestionSave,
-            onCardAnswerSave = onCardAnswerSave,
-            onCardTagSave = onCardTagSave,
-        )
-        Spacer(modifier = Modifier.height(height = dimenDpResource(R.dimen.spacer_large)))
-        SaveButton(
-            onClick = {
-                onSaveCard()
-            },
-        )
+                .size(
+                    height = dimensionResource(R.dimen.dimen_36),
+                    width = dimensionResource(R.dimen.dimen_200),
+                )
+                .border(
+                    dimensionResource(R.dimen.dimen_0_25),
+                    color = MaterialTheme.colorScheme.outline,
+                    shape = MaterialTheme.shapes.extraSmall,
+                )
+                .wrapContentSize(Alignment.Center),
+        ) {
+            Text(
+                text = selectedDeckName ?: stringResource(R.string.choose_deck_title_dialog),
+                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.bodyMedium.copy(color = text_black),
+            )
+        }
     }
 }
 
 @Composable
-private fun dropdownMenuTypeList(): List<Pair<String, Int>> {
-    return listOf(
-        Pair(stringResource(R.string.text_folder_dropdown_selector_simple), 0),
-        Pair(stringResource(R.string.text_folder_dropdown_selector_simple_with_answer_input), 1),
-    )
+private fun TypeSelector(
+    selectedType: CardType?,
+    onTypeSelectorClick: () -> Unit,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
+    ) {
+        Text(
+            text = stringResource(R.string.text_type_dropdown_selector),
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.padding(dimensionResource(R.dimen.dimen_8)),
+        )
+
+        Box(
+            modifier = Modifier
+                .clickable(onClick = onTypeSelectorClick)
+                .background(
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    shape = MaterialTheme.shapes.extraSmall,
+                )
+                .size(
+                    height = dimensionResource(R.dimen.dimen_36),
+                    width = dimensionResource(R.dimen.dimen_200),
+                )
+                .border(
+                    dimensionResource(R.dimen.dimen_0_25),
+                    color = MaterialTheme.colorScheme.outline,
+                    shape = MaterialTheme.shapes.extraSmall,
+                )
+                .wrapContentSize(Alignment.Center),
+        ) {
+            Text(
+                text = selectedType?.let { cardType ->
+                    when (cardType) {
+                        CardType.SIMPLE -> stringResource(R.string.card_type_simple)
+                        CardType.COMPLEX -> stringResource(R.string.card_type_complex)
+                    }
+                } ?: stringResource(R.string.choose_type_title_dialog),
+                style = MaterialTheme.typography.bodyMedium.copy(color = text_black),
+            )
+        }
+    }
 }
 
 @Composable
-private fun InputFields(
-    validation: Boolean,
-    cardState: CardState,
-    onCardNameSave: (String) -> Unit,
-    onCardQuestionSave: (String) -> Unit,
-    onCardAnswerSave: (String) -> Unit,
-    onCardTagSave: (String) -> Unit,
+private fun CardFormInputs(
+    formState: CreateCardFormState,
+    onValueChange: (CreateCardFormState.() -> CreateCardFormState) -> Unit,
 ) {
-    TitleInputField(
+    CardInputField(
         placeholder = stringResource(R.string.enter_name_for_card),
-        value = cardState.title,
+        value = formState.title,
         singleLine = true,
-        onValueChange = {
-            onCardNameSave(it)
-        },
-        readOnly = false,
+        onValueChange = { onValueChange { copy(title = it) } },
         textStyle = MaterialTheme.typography.bodyMedium,
-        placeholderTextStyle = MaterialTheme.typography.bodyMedium.copy(
-            color = if (cardState.title.isNotBlank() || validation) text_gray else MaterialTheme.colorScheme.error,
-        ),
-        modifier = textInputModifier(
-            backgroundColor = if (cardState.title.isNotBlank() || validation) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onError,
-            size = dimenDpResource(R.dimen.text_input_size_padding),
-        )
+        placeholderTextStyle = MaterialTheme.typography.bodyMedium.copy(text_gray),
+        modifier = Modifier
             .fillMaxWidth()
-            .heightIn(min = dimenDpResource(R.dimen.text_input_min_height))
-            .wrapContentSize(Alignment.CenterStart),
+            .background(
+                color = MaterialTheme.colorScheme.onPrimary,
+                shape = MaterialTheme.shapes.large,
+            )
+            .height(height = dimensionResource(R.dimen.dimen_46))
+            .border(
+                width = dimensionResource(R.dimen.dimen_0_25),
+                color = MaterialTheme.colorScheme.outline,
+                shape = MaterialTheme.shapes.large,
+            )
+            .padding(horizontal = dimensionResource(R.dimen.dimen_10)),
     )
-    Spacer(modifier = Modifier.height(height = dimenDpResource(R.dimen.spacer_medium)))
+
+    Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_12)))
+
     CardInputField(
         placeholder = stringResource(R.string.enter_question_for_card),
-        value = cardState.question,
-        onValueChange = {
-            onCardQuestionSave(it)
-        },
+        value = formState.question,
+        onValueChange = { onValueChange { copy(question = it) } },
         textStyle = MaterialTheme.typography.bodyMedium,
-        placeholderTextStyle = MaterialTheme.typography.bodyMedium.copy(
-            color = if (cardState.question.isNotBlank() || validation) text_gray else MaterialTheme.colorScheme.error,
-        ),
-        modifier = textInputModifier(
-            backgroundColor = if (cardState.question.isNotBlank() || validation) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onError,
-            topStart = dimenDpResource(R.dimen.text_input_topStart_padding),
-            topEnd = dimenDpResource(R.dimen.text_input_topEnd_padding),
-            bottomStart = dimenDpResource(R.dimen.text_input_bottomStart_zero_padding),
-            bottomEnd = dimenDpResource(R.dimen.text_input_bottomEnd_zero_padding),
-        )
-            .fillMaxWidth()
-            .heightIn(
-                min = dimenDpResource(R.dimen.text_input_min_height),
-                max = dimenDpResource(R.dimen.text_input_max_height),
+        placeholderTextStyle = MaterialTheme.typography.bodyMedium.copy(text_gray),
+        modifier = Modifier
+            .background(
+                color = MaterialTheme.colorScheme.onPrimary,
+                shape = RoundedCornerShape(
+                    topStart = dimensionResource(R.dimen.dimen_6),
+                    topEnd = dimensionResource(R.dimen.dimen_6),
+                ),
             )
-            .wrapContentSize(Alignment.CenterStart),
+            .heightIn(
+                min = dimensionResource(R.dimen.dimen_46),
+                max = dimensionResource(R.dimen.dimen_200),
+            )
+            .border(
+                width = dimensionResource(R.dimen.dimen_0_25),
+                color = MaterialTheme.colorScheme.outline,
+                shape = RoundedCornerShape(
+                    topStart = dimensionResource(R.dimen.dimen_6),
+                    topEnd = dimensionResource(R.dimen.dimen_6),
+                ),
+            )
+            .padding(horizontal = dimensionResource(R.dimen.dimen_10)),
     )
+
     CardInputField(
         placeholder = stringResource(R.string.enter_answer_for_card),
-        value = cardState.answer,
-        onValueChange = {
-            onCardAnswerSave(it)
-        },
+        value = formState.answer,
+        onValueChange = { onValueChange { copy(answer = it) } },
         textStyle = MaterialTheme.typography.bodyMedium,
-        placeholderTextStyle = MaterialTheme.typography.bodyMedium.copy(
-            color = if (cardState.answer.isNotBlank() || validation) text_gray else MaterialTheme.colorScheme.error,
-        ),
-        modifier = textInputModifier(
-            backgroundColor = if (cardState.answer.isNotBlank() || validation) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onError,
-            topEnd = dimenDpResource(R.dimen.text_input_topEnd_zero_padding),
-            topStart = dimenDpResource(R.dimen.text_input_topStart_zero_padding),
-            bottomStart = dimenDpResource(R.dimen.text_input_topStart_padding),
-            bottomEnd = dimenDpResource(R.dimen.text_input_topStart_padding),
-        )
-            .fillMaxWidth()
+        placeholderTextStyle = MaterialTheme.typography.bodyMedium.copy(text_gray),
+        modifier = Modifier
+            .background(
+                color = MaterialTheme.colorScheme.onPrimary,
+                shape = RoundedCornerShape(
+                    bottomStart = dimensionResource(R.dimen.dimen_6),
+                    bottomEnd = dimensionResource(R.dimen.dimen_6),
+                ),
+            )
             .heightIn(
-                min = dimenDpResource(R.dimen.text_input_min_height),
-                max = dimenDpResource(R.dimen.text_input_max_height),
+                min = dimensionResource(R.dimen.dimen_46),
+                max = dimensionResource(R.dimen.dimen_200),
             )
-            .wrapContentSize(Alignment.CenterStart),
-
+            .border(
+                width = dimensionResource(R.dimen.dimen_0_25),
+                color = MaterialTheme.colorScheme.outline,
+                shape = RoundedCornerShape(
+                    bottomStart = dimensionResource(R.dimen.dimen_6),
+                    bottomEnd = dimensionResource(R.dimen.dimen_6),
+                ),
+            )
+            .padding(horizontal = dimensionResource(R.dimen.dimen_10)),
     )
-    Spacer(modifier = Modifier.height(height = dimenDpResource(R.dimen.spacer_medium)))
-    TegInputField(
-        titleTextInput = stringResource(R.string.text_tag_input_field),
-        value = cardState.tag,
-        onValueChange = {
-            onCardTagSave(it)
+
+    Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_12)))
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.dimen_16)),
+    ) {
+        Text(
+            text = stringResource(R.string.text_tag_input_field),
+            style = MaterialTheme.typography.bodyMedium,
+        )
+        CardInputField(
+            value = formState.tag,
+            singleLine = true,
+            onValueChange = { onValueChange { copy(tag = it) } },
+            textStyle = MaterialTheme.typography.bodyMedium,
+            placeholderTextStyle = MaterialTheme.typography.bodyMedium.copy(text_gray),
+            modifier = Modifier
+                .background(
+                    MaterialTheme.colorScheme.onPrimary,
+                    MaterialTheme.shapes.large,
+                )
+                .size(
+                    width = dimensionResource(R.dimen.dimen_140),
+                    height = dimensionResource(R.dimen.dimen_46),
+                )
+                .border(
+                    dimensionResource(R.dimen.dimen_0_25),
+                    MaterialTheme.colorScheme.outline,
+                    MaterialTheme.shapes.large,
+                )
+                .padding(horizontal = dimensionResource(R.dimen.dimen_10)),
+        )
+    }
+}
+
+@Composable
+private fun DeckSelectionModal(
+    viewModel: CreationCardViewModel,
+    deckState: UiState<List<Deck>>,
+    selectedDeckId: Int?,
+) {
+    val createDeckState by viewModel.deckSelectionHandler.createDeckState.collectAsState()
+
+    ChooseModalWindow(
+        titleText = stringResource(R.string.choose_deck_title_dialog),
+        chooseObject = (deckState as? UiState.Success)?.data?.map { Pair(it.deckName, it.deckId) },
+        isLoading = createDeckState is UiState.Loading,
+        errorMsg = (createDeckState as? UiState.Error)?.error,
+        onExitClick = { viewModel.hideModal() },
+        onSaveClick = { deckId ->
+            viewModel.hideModal()
+            viewModel.setDeckId(deckId)
         },
-        textStyle = MaterialTheme.typography.bodyMedium,
-        placeholderTextStyle = MaterialTheme.typography.bodyMedium.copy(
-            color = text_gray,
-        ),
-        modifier = textInputModifier(size = dimenDpResource(R.dimen.text_input_size_padding))
-            .size(
-                width = dimenDpResource(R.dimen.tag_text_input_min_weight),
-                height = dimenDpResource(R.dimen.text_input_min_height),
-            )
-            .wrapContentSize(Alignment.CenterStart),
+        selectedId = selectedDeckId,
+        showAddIcon = true,
+        createTitleText = stringResource(R.string.create_item_dialog_text_input_name_deck),
+        createButtonText = stringResource(R.string.save_text),
+        createPlaceholder = stringResource(R.string.rename_item_dialog_text_input_title_deck),
+        onCreateClick = { deckName -> viewModel.createDeck(deckName) },
     )
 }
 
 @Composable
-private fun SaveButton(
-    onClick: () -> Unit,
+private fun TypeSelectionModal(
+    selectedType: CardType?,
+    onDismiss: () -> Unit,
+    onTypeSelected: (CardType) -> Unit,
 ) {
-    Box(
+    val cardTypes = listOf(
+        Pair(stringResource(R.string.card_type_simple), CardType.SIMPLE),
+        Pair(stringResource(R.string.card_type_complex), CardType.COMPLEX),
+    )
+
+    ChooseModalWindow(
+        titleText = stringResource(R.string.choose_type_title_dialog),
+        chooseObject = cardTypes.map { Pair(it.first, it.second.stableId) },
+        isLoading = false,
+        errorMsg = null,
+        selectedId = selectedType?.stableId,
+        onExitClick = onDismiss,
+        onSaveClick = { id -> onTypeSelected(CardType.fromStableId(id)) },
+    )
+}
+
+@Composable
+private fun CreateCardButton(
+    buttonText: String,
+    isValid: Boolean,
+    isLoading: Boolean,
+    onSaveClick: () -> Unit,
+) {
+    val animatedButtonColor by animateColorAsState(
+        targetValue = when {
+            !isValid -> MaterialTheme.colorScheme.secondary
+            else -> MaterialTheme.colorScheme.onSecondary
+        },
+        animationSpec = tween(300),
+        label = "buttonColor",
+    )
+
+    val animatedTextColor by animateColorAsState(
+        targetValue = when {
+            !isValid -> MaterialTheme.colorScheme.outline
+            isLoading -> MaterialTheme.colorScheme.onSecondaryContainer
+            else -> MaterialTheme.colorScheme.scrim
+        },
+        animationSpec = tween(300),
+        label = "textColor",
+    )
+
+    AnimatedContent(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentSize(Alignment.Center),
-    ) {
-        SaveDataButton(
-            text = stringResource(R.string.text_save_card_button),
-            textStyle = MaterialTheme.typography.bodyMedium.copy(
-                color = text_white,
-            ),
-            buttonModifier = Modifier
+        targetState = isLoading,
+    ) { target ->
+        Box(
+            modifier = Modifier
                 .background(
-                    color = MaterialTheme.colorScheme.outlineVariant,
-                    shape = MaterialTheme.shapes.small,
+                    color = animatedButtonColor,
+                    shape = MaterialTheme.shapes.medium,
                 )
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null,
-                ) {
-                    onClick()
-                },
-        )
+                .then(
+                    if (!isValid) {
+                        Modifier
+                    } else {
+                        Modifier.clickable {
+                            onSaveClick()
+                        }
+                    },
+                ),
+        ) {
+            Text(
+                text = if (target) stringResource(R.string.loading_text) else buttonText,
+                style = MaterialTheme.typography.bodyMedium,
+                color = animatedTextColor,
+                modifier = Modifier.padding(
+                    vertical = dimensionResource(R.dimen.dimen_12),
+                    horizontal = dimensionResource(R.dimen.dimen_32),
+                ),
+            )
+        }
     }
 }
-
-@Preview(
-    showBackground = true,
-    backgroundColor = 0xFFE6E6FF,
-)
-@Composable
-private fun CreationCardContentScreenPreview() {
-    val backStack = remember { mutableStateListOf<NavigationRoute>(CreationCardRoute()) }
-    val navigator = remember { StackNavigator(backStack) }
-    val decksState: UiState<List<Deck>> = decksDataMock()
-    val cardState: CardState = CardState("", "", "", "", 1)
-
-    MindeckTheme {
-        CreationCardContent(
-            navigator,
-            decksState,
-            null,
-            cardState,
-            Pair("Выберите колоду", null),
-            Pair("Выберите тип", null),
-            {},
-            {},
-            {},
-            {},
-            {},
-            {},
-            {},
-        )
-    }
-}
-
-@Preview(
-    device = "spec:parent=pixel_5,orientation=landscape",
-    showBackground = true,
-    backgroundColor = 0xFFE6E6FF,
-)
-@Composable
-private fun CreationCardContentScreenPreviewLandscape() {
-    val backStack = remember { mutableStateListOf<NavigationRoute>(CreationCardRoute()) }
-    val navigator = remember { StackNavigator(backStack) }
-    val decksState: UiState<List<Deck>> = decksDataMock()
-    val cardState: CardState = CardState("", "", "", "", 1)
-
-    MindeckTheme {
-        CreationCardContent(
-            navigator,
-            decksState,
-            null,
-            cardState,
-            Pair("Выберите колоду", null),
-            Pair("Выберите тип", null),
-            {},
-            {},
-            {},
-            {},
-            {},
-            {},
-            {},
-        )
-    }
-}
-
-@Composable
-private fun decksDataMock(): UiState<List<Deck>> = UiState.Success(
-    listOf<Deck>(
-        Deck(
-            deckId = 1,
-            deckName = "Kotlin Basics",
-        ),
-        Deck(
-            deckId = 2,
-            deckName = "Jetpack Compose",
-        ),
-        Deck(
-            deckId = 3,
-            deckName = "Architecture Patterns",
-        ),
-        Deck(
-            deckId = 4,
-            deckName = "Coroutines & Flow",
-        ),
-    ),
-)

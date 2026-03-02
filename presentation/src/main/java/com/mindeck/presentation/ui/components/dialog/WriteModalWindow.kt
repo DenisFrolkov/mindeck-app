@@ -39,7 +39,7 @@ import com.mindeck.presentation.ui.components.textfields.CardInputField
 import com.mindeck.presentation.ui.theme.text_gray
 
 @Composable
-fun CustomModalWindow(
+fun WriteModalWindow(
     titleText: String,
     buttonText: String,
     placeholder: String,

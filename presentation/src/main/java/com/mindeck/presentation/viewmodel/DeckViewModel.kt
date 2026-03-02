@@ -32,7 +32,7 @@ constructor(
     private val renameDeckUseCase: RenameDeckUseCase,
     private val deleteDeckUseCase: DeleteDeckUseCase,
 ) : ViewModel() {
-    private val _navigationEvent = Channel<NavigationEvent>()
+    private val _navigationEvent = Channel<DeckNavigationEvent>()
     val navigationEvent = _navigationEvent.receiveAsFlow()
 
     private val _screenUiState = MutableStateFlow<UiState<DeckScreenData>>(UiState.Idle)
@@ -81,7 +81,7 @@ constructor(
 
                 loadDeckWithCards(deckId)
                 _renameDeckState.value = UiState.Success(Unit)
-                _navigationEvent.send(NavigationEvent.CloseRenameWindow)
+                _navigationEvent.send(DeckNavigationEvent.CloseRenameWindow)
             } catch (e: DomainError.NameAlreadyExists) {
                 _renameDeckState.value = UiState.Error("Deck '$newDeckName' already exists")
             } catch (e: DomainError.DatabaseError) {
@@ -106,15 +106,14 @@ constructor(
                 try {
                     deleteDeckUseCase(deck = deck)
 
-                    _navigationEvent.send(NavigationEvent.GoBack)
-                    _navigationEvent.send(NavigationEvent.ShowToast("Deck deleted successfully"))
+                    _navigationEvent.send(DeckNavigationEvent.GoBack)
+                    _navigationEvent.send(DeckNavigationEvent.ShowToast("Deck deleted successfully"))
                 } catch (e: DomainError) {
-                    _navigationEvent.send(NavigationEvent.ShowToast("Failed to delete deck"))
+                    _navigationEvent.send(DeckNavigationEvent.ShowToast("Failed to delete deck"))
                 } finally {
                     deletionJob = null
                 }
             }
-
     }
 }
 
@@ -123,12 +122,12 @@ data class DeckScreenData(
     val cards: List<Card>,
 )
 
-sealed interface NavigationEvent {
-    data object GoBack : NavigationEvent
+sealed interface DeckNavigationEvent {
+    data object GoBack : DeckNavigationEvent
 
-    data object CloseRenameWindow : NavigationEvent
+    data object CloseRenameWindow : DeckNavigationEvent
 
     data class ShowToast(
         val message: String,
-    ) : NavigationEvent
+    ) : DeckNavigationEvent
 }
