@@ -4,7 +4,7 @@ import com.mindeck.domain.models.Deck
 import kotlinx.coroutines.flow.Flow
 
 interface DeckRepository {
-    suspend fun insertDeck(deck: Deck)
+    suspend fun insertDeck(deck: Deck): Int
 
     suspend fun renameDeck(deckId: Int, newName: String)
 

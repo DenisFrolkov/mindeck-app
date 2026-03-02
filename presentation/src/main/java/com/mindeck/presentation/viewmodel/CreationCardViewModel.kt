@@ -1,115 +1,154 @@
 package com.mindeck.presentation.viewmodel
 
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mindeck.domain.exception.DomainError
 import com.mindeck.domain.models.Card
-import com.mindeck.domain.models.Deck
+import com.mindeck.domain.models.CardType
 import com.mindeck.domain.usecases.card.command.CreateCardUseCase
-import com.mindeck.domain.usecases.deck.query.GetAllDecksUseCase
-import com.mindeck.domain.usecases.deck.query.GetDeckByIdUseCase
-import com.mindeck.presentation.state.CardState
+import com.mindeck.presentation.state.CreateCardFormState
+import com.mindeck.presentation.state.ModalState
 import com.mindeck.presentation.state.UiState
+import com.mindeck.presentation.viewmodel.managers.DeckSelectionHandler
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
 import javax.inject.Inject
 
 @HiltViewModel
 class CreationCardViewModel @Inject constructor(
     private val createCardUseCase: CreateCardUseCase,
-    private val getAllDecksUseCase: GetAllDecksUseCase,
-    private val getDeckByIdUseCase: GetDeckByIdUseCase,
+    val deckSelectionHandler: DeckSelectionHandler,
 ) : ViewModel() {
-    private var _cardState = mutableStateOf(
-        CardState("", "", "", "", -1),
-    )
-    val cardState: State<CardState> = _cardState
 
-    private val _validation = MutableStateFlow<Boolean?>(null)
-    val validation: StateFlow<Boolean?> = _validation.asStateFlow()
-
-    val selectedDeckForCreatingCard = mutableStateOf<Pair<String, Int?>>(Pair("Выберите колоду", null))
-    val selectedTypeForCreatingCard = mutableStateOf<Pair<String, Int?>>(Pair("Выберите тип", null))
-
-    private val _listDecksUiState = MutableStateFlow<UiState<List<Deck>>>(UiState.Loading)
-    val listDecksUiState: StateFlow<UiState<List<Deck>>> = _listDecksUiState
-
-    fun getAllDecks() {
-        viewModelScope.launch {
-            getAllDecksUseCase()
-                .map<List<Deck>, UiState<List<Deck>>> {
-                    UiState.Success(it)
-                }
-                .catch { emit(UiState.Error(it.message ?: "")) }
-                .collect { state ->
-                    _listDecksUiState.value = state
-                }
-        }
+    init {
+        deckSelectionHandler.initialize(viewModelScope)
     }
 
-    private val _createCardState = MutableStateFlow<UiState<Unit>>(UiState.Loading)
-    val createCardState: StateFlow<UiState<Unit>> = _createCardState
+    private val _navigationEvent = Channel<CreationCardNavigationEvent>()
+    val navigationEvent = _navigationEvent.receiveAsFlow()
 
-    fun createCard(
-        cardName: String,
-        cardQuestion: String,
-        cardAnswer: String,
-        cardType: String,
-        cardTag: String,
-        deckId: Int,
-    ) {
+    private val _formState = MutableStateFlow(CreateCardFormState())
+    val formState: StateFlow<CreateCardFormState> = _formState.asStateFlow()
+
+    private val _modalState = MutableStateFlow<ModalState>(ModalState.None)
+    val modalState: StateFlow<ModalState> = _modalState.asStateFlow()
+
+    private val _createCardState = MutableStateFlow<UiState<Unit>>(UiState.Idle)
+    val createCardState: StateFlow<UiState<Unit>> = _createCardState.asStateFlow()
+
+    private val createCardMutex = Mutex()
+
+    fun createCard() {
         viewModelScope.launch {
-            _createCardState.value = try {
-                createCardUseCase(
-                    card = Card(
-                        cardName = cardName,
-                        cardQuestion = cardQuestion,
-                        cardAnswer = cardAnswer,
-                        cardType = cardType,
-                        cardTag = cardTag,
-                        deckId = deckId,
-                    ),
-                )
-                UiState.Success(Unit)
-            } catch (e: Exception) {
-                UiState.Error("e")
+            if (!createCardMutex.tryLock()) return@launch
+
+            try {
+                if (!_formState.value.isValid()) return@launch
+
+                _createCardState.update { UiState.Loading }
+
+                val form = _formState.value
+                val selectedType = form.selectedType ?: run {
+                    _createCardState.update { UiState.Error("Card type is required") }
+                    return@launch
+                }
+                val selectedDeckId = form.selectedDeckId ?: run {
+                    _createCardState.update { UiState.Error("Deck selection is required") }
+                    return@launch
+                }
+
+                try {
+                    createCardUseCase(
+                        card = Card(
+                            cardName = form.title,
+                            cardQuestion = form.question,
+                            cardAnswer = form.answer,
+                            cardType = selectedType,
+                            cardTag = form.tag,
+                            deckId = selectedDeckId,
+                        ),
+                    )
+                    _createCardState.update { UiState.Success(Unit) }
+                    clearFormFields()
+                    _navigationEvent.send(CreationCardNavigationEvent.ShowToast("Card created successfully"))
+                } catch (e: DomainError.NameAlreadyExists) {
+                    _createCardState.update { UiState.Error("Card with this name and question already exists") }
+                } catch (e: DomainError.DatabaseError) {
+                    _createCardState.update { UiState.Error("Failed to create card") }
+                } catch (e: DomainError) {
+                    _createCardState.update { UiState.Error("Something went wrong") }
+                }
+            } finally {
+                createCardMutex.unlock()
             }
         }
     }
 
-    private val _deckUiState = MutableStateFlow<UiState<Deck>>(UiState.Loading)
-    val deckUIState: StateFlow<UiState<Deck>> = _deckUiState
-
-    fun getDeckById(deckId: Int) {
+    fun createDeck(deckName: String) {
         viewModelScope.launch {
-            _deckUiState.value = try {
-                val deck = getDeckByIdUseCase(deckId = deckId)
-                selectedDeckForCreatingCard.value = Pair(deck.deckName, deck.deckId)
-                UiState.Success(deck)
-            } catch (e: Exception) {
-                UiState.Error("e")
+            val deckId = deckSelectionHandler.createDeck(deckName)
+            deckId?.let {
+                _formState.update { it.copy(selectedDeckId = deckId) }
+                hideModal()
             }
         }
     }
 
-    fun updateCardState(update: CardState.() -> CardState) {
-        _cardState.value = _cardState.value.update()
+    fun updateForm(update: CreateCardFormState.() -> CreateCardFormState) {
+        _formState.update { it.update() }
+        clearError()
     }
 
-    fun validateInput(): Boolean {
-        val isValid = cardState.value.title.isNotBlank() &&
-            cardState.value.question.isNotBlank() &&
-            cardState.value.answer.isNotBlank() &&
-            selectedDeckForCreatingCard.value.second != null &&
-            selectedTypeForCreatingCard.value.second != null
-
-        _validation.value = isValid
-        return isValid
+    fun setDeckId(deckId: Int) {
+        _formState.update { it.copy(selectedDeckId = deckId) }
     }
+
+    fun setType(type: CardType) {
+        _formState.update { it.copy(selectedType = type) }
+    }
+
+    fun showDeckModal() {
+        _modalState.update { ModalState.DeckSelection }
+        deckSelectionHandler.resetCreateDeckError()
+    }
+
+    fun showTypeModal() {
+        _modalState.update { ModalState.TypeSelection }
+    }
+
+    fun hideModal() {
+        _modalState.update { ModalState.None }
+    }
+
+    private fun clearFormFields() {
+        _formState.update {
+            it.copy(
+                title = "",
+                question = "",
+                answer = "",
+                tag = "",
+            )
+        }
+    }
+
+    private fun clearError() {
+        if (_createCardState.value is UiState.Error) {
+            _createCardState.update { UiState.Idle }
+        }
+    }
+}
+
+sealed interface CreationCardNavigationEvent {
+    data object ToBack : CreationCardNavigationEvent
+
+    data class ShowToast(
+        val message: String,
+    ) : CreationCardNavigationEvent
 }

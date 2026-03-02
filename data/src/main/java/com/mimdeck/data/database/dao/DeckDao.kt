@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface DeckDao {
     @Insert()
-    suspend fun insertDeck(deckEntity: DeckEntity)
+    suspend fun insertDeck(deckEntity: DeckEntity): Long
 
     @Query("UPDATE deck SET deck_name = :newName WHERE deck_id = :deckId")
     suspend fun renameDeck(deckId: Int, newName: String)
