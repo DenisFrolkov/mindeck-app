@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
 
@@ -48,6 +49,7 @@ fun RepeatOptionsButton(
         Text(
             text = textDifficultyOfRepetition,
             style = titleTextStyle,
+            textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth().padding(horizontal = dimenDpResource(R.dimen.padding_extra_small)),
         )
     }

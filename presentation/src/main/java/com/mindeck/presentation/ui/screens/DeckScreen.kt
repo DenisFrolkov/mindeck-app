@@ -1,9 +1,7 @@
 package com.mindeck.presentation.ui.screens
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -11,7 +9,6 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -33,6 +30,8 @@ import com.mindeck.presentation.state.UiState
 import com.mindeck.presentation.ui.components.dataclasses.DisplayItemData
 import com.mindeck.presentation.ui.components.dataclasses.DisplayItemStyle
 import com.mindeck.presentation.ui.components.dialog.WriteModalWindow
+import com.mindeck.presentation.ui.components.dropdown.AppDropdownMenu
+import com.mindeck.presentation.ui.components.dropdown.AppDropdownMenuItem
 import com.mindeck.presentation.ui.components.folder.DisplayItem
 import com.mindeck.presentation.ui.components.topBar.AppTopBar
 import com.mindeck.presentation.ui.components.utils.dimenFloatResource
@@ -113,23 +112,33 @@ internal fun DeckScreenContent(
             }
 
             dataSuccess?.let { data ->
-                DeckDropdownMenu(
+                AppDropdownMenu(
                     padding = padding,
                     isExpanded = isDropdownExpanded,
                     onDismiss = { isDropdownExpanded = false },
-                    onCreateClick = {
-                        isDropdownExpanded = false
-                        navigator.push(CreationCardRoute(data.deck.deckId))
-                    },
-                    onRenameClick = {
-                        isDropdownExpanded = false
-                        renameModalWindow = true
-                    },
-                    onDeleteClick = {
-                        isDropdownExpanded = false
-                        viewModel.deleteDeck(data.deck)
-                    },
-                )
+                ) {
+                    AppDropdownMenuItem(
+                        text = stringResource(R.string.dropdown_menu_data_rename_list),
+                        onClick = {
+                            isDropdownExpanded = false
+                            renameModalWindow = true
+                        },
+                    )
+                    AppDropdownMenuItem(
+                        text = stringResource(R.string.dropdown_menu_data_create_card),
+                        onClick = {
+                            isDropdownExpanded = false
+                            navigator.push(CreationCardRoute(data.deck.deckId))
+                        },
+                    )
+                    AppDropdownMenuItem(
+                        text = stringResource(R.string.dropdown_menu_data_remove_deck),
+                        onClick = {
+                            isDropdownExpanded = false
+                            viewModel.deleteDeck(data.deck)
+                        },
+                    )
+                }
             }
         },
     )
@@ -261,63 +270,5 @@ private fun DeckErrorState(modifier: Modifier = Modifier) {
         MaterialTheme.typography.bodyLarge.copy(
             color = MaterialTheme.colorScheme.error,
         ),
-    )
-}
-
-@Composable
-private fun DeckDropdownMenu(
-    padding: PaddingValues,
-    isExpanded: Boolean,
-    onDismiss: () -> Unit,
-    onRenameClick: () -> Unit,
-    onCreateClick: () -> Unit,
-    onDeleteClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Box(
-        modifier = modifier
-            .padding(horizontal = dimensionResource(R.dimen.dimen_28))
-            .padding(padding)
-            .fillMaxWidth()
-            .wrapContentSize(Alignment.TopEnd),
-    ) {
-        DropdownMenu(
-            expanded = isExpanded,
-            onDismissRequest = onDismiss,
-            containerColor = MaterialTheme.colorScheme.onPrimary,
-            shape = MaterialTheme.shapes.medium,
-        ) {
-            DropdownMenuItem(
-                text = stringResource(R.string.dropdown_menu_data_rename_list),
-                onClick = onRenameClick,
-            )
-            DropdownMenuItem(
-                text = stringResource(R.string.dropdown_menu_data_create_card),
-                onClick = onCreateClick,
-            )
-            DropdownMenuItem(
-                text = stringResource(R.string.dropdown_menu_data_remove_deck),
-                onClick = onDeleteClick,
-            )
-        }
-    }
-}
-
-@Composable
-private fun DropdownMenuItem(
-    text: String,
-    onClick: () -> Unit,
-) {
-    Text(
-        text = text,
-        style = MaterialTheme.typography.bodyMedium,
-        modifier =
-        Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(
-                horizontal = dimensionResource(R.dimen.dimen_20),
-                vertical = dimensionResource(R.dimen.dimen_10),
-            ),
     )
 }
