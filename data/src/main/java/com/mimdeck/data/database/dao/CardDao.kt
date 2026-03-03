@@ -7,6 +7,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
 import com.mimdeck.data.database.entities.CardEntity
+import com.mimdeck.data.database.entities.CardWithDeck
 import com.mindeck.domain.models.ReviewType
 import kotlinx.coroutines.flow.Flow
 
@@ -26,6 +27,10 @@ interface CardDao {
 
     @Query("SELECT * FROM card WHERE card_id = :cardId")
     suspend fun getCardById(cardId: Int): CardEntity
+
+    @Transaction
+    @Query("SELECT * FROM card WHERE card_id = :cardId")
+    suspend fun getCardWithDeckById(cardId: Int): CardWithDeck
 
     @Query("DELETE FROM card WHERE card_id IN (:cardIds) AND deck_id = :deckId")
     suspend fun deleteCardsFromDeck(cardIds: List<Int>, deckId: Int)
