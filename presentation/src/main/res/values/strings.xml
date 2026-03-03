@@ -63,6 +63,7 @@
     <string name="dropdown_menu_data_remove_cards">Удалить карточки</string>
     <string name="dropdown_menu_data_remove_card">Удалить карточку</string>
     <string name="dropdown_menu_data_study_card">Повторить карточку</string>
+    <string name="dropdown_menu_data_previous_card">Предыдущая карточка</string>
 
     //Delete Card Dialog
     <string name="delete_card_dialog_title">Удаление карточки</string>

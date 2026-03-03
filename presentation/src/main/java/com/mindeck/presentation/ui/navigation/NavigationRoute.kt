@@ -20,7 +20,7 @@ data class DeckRoute(val deckId: Int) : NavigationRoute
 data class CardRoute(val cardId: Int) : NavigationRoute
 
 @Serializable
-data class CardStudyRoute(val cardId: Int) : NavigationRoute
+data class CardStudyRoute(val cardId: Int? = null) : NavigationRoute
 
 @Serializable
 data object RepeatCardsRoute : NavigationRoute

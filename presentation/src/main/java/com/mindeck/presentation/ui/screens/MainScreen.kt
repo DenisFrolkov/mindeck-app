@@ -45,6 +45,7 @@ import com.mindeck.presentation.ui.components.dataclasses.DisplayItemData
 import com.mindeck.presentation.ui.components.dataclasses.DisplayItemStyle
 import com.mindeck.presentation.ui.components.folder.DisplayItem
 import com.mindeck.presentation.ui.components.utils.dimenFloatResource
+import com.mindeck.presentation.ui.navigation.CardStudyRoute
 import com.mindeck.presentation.ui.navigation.CreationCardRoute
 import com.mindeck.presentation.ui.navigation.DeckRoute
 import com.mindeck.presentation.ui.navigation.DecksRoute
@@ -87,6 +88,7 @@ internal fun MainScreenContent(
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(dimensionResource(R.dimen.dimen_12)))
                         .background(MaterialTheme.colorScheme.onPrimary)
+                        .clickable { navigator.push(CardStudyRoute()) }
                         .padding(vertical = dimensionResource(R.dimen.dimen_8)),
                     horizontalArrangement = Arrangement.SpaceAround,
                 ) {

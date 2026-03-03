@@ -3,11 +3,9 @@ package com.mindeck.presentation.ui.screens
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,7 +18,6 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -43,6 +40,8 @@ import com.mindeck.presentation.state.ModalState
 import com.mindeck.presentation.state.UiState
 import com.mindeck.presentation.ui.components.common.QuestionAndAnswerElement
 import com.mindeck.presentation.ui.components.dialog.DeleteModalWindow
+import com.mindeck.presentation.ui.components.dropdown.AppDropdownMenu
+import com.mindeck.presentation.ui.components.dropdown.AppDropdownMenuItem
 import com.mindeck.presentation.ui.components.topBar.AppTopBar
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
 import com.mindeck.presentation.ui.navigation.Navigator
@@ -230,15 +229,27 @@ private fun CardScreenContent(
                 DeckSuccessState(cardWithDeckState = cardWithDeckState)
             }
             card?.let {
-                CardDropdownMenu(
+                AppDropdownMenu(
                     padding = padding,
                     isExpanded = modalState is ModalState.DropdownMenu,
                     onDismiss = { cardViewModel.hideModal() },
-                    onDeleteClick = {
-                        cardViewModel.hideModal()
-                        cardViewModel.showDeleteDialog()
-                    },
-                )
+                ) {
+                    AppDropdownMenuItem(
+                        text = stringResource(R.string.dropdown_menu_data_remove_card),
+                        onClick = {
+                            cardViewModel.hideModal()
+                            cardViewModel.showDeleteDialog()
+                        },
+                    )
+                    AppDropdownMenuItem(
+                        text = stringResource(R.string.dropdown_menu_data_edit_card),
+                        onClick = { },
+                    )
+                    AppDropdownMenuItem(
+                        text = stringResource(R.string.dropdown_menu_data_study_card),
+                        onClick = { },
+                    )
+                }
             }
         },
     )
@@ -260,61 +271,6 @@ private fun CardScreenContent(
 
         else -> Unit
     }
-}
-
-@Composable
-private fun CardDropdownMenu(
-    padding: PaddingValues,
-    isExpanded: Boolean,
-    onDismiss: () -> Unit,
-    onDeleteClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Box(
-        modifier = modifier
-            .padding(horizontal = dimensionResource(R.dimen.dimen_28))
-            .padding(padding)
-            .fillMaxWidth()
-            .wrapContentSize(Alignment.TopEnd),
-    ) {
-        DropdownMenu(
-            expanded = isExpanded,
-            onDismissRequest = onDismiss,
-            containerColor = MaterialTheme.colorScheme.onPrimary,
-            shape = MaterialTheme.shapes.medium,
-        ) {
-            DropdownMenuItem(
-                text = stringResource(R.string.dropdown_menu_data_remove_card),
-                onClick = onDeleteClick,
-            )
-            DropdownMenuItem(
-                text = stringResource(R.string.dropdown_menu_data_edit_card),
-                onClick = { },
-            )
-            DropdownMenuItem(
-                text = stringResource(R.string.dropdown_menu_data_study_card),
-                onClick = { },
-            )
-        }
-    }
-}
-
-@Composable
-private fun DropdownMenuItem(
-    text: String,
-    onClick: () -> Unit,
-) {
-    Text(
-        text = text,
-        style = MaterialTheme.typography.bodyMedium,
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(
-                horizontal = dimensionResource(R.dimen.dimen_20),
-                vertical = dimensionResource(R.dimen.dimen_10),
-            ),
-    )
 }
 
 @Composable
@@ -387,7 +343,7 @@ private fun DeckSuccessState(
                                 MaterialTheme.shapes.large,
                             )
                             .padding(horizontal = dimensionResource(R.dimen.dimen_10)),
-                        contentAlignment = Alignment.CenterStart
+                        contentAlignment = Alignment.CenterStart,
                     ) {
                         Text(
                             text = card.cardTag,
