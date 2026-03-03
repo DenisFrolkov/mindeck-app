@@ -1,10 +1,9 @@
 package com.mindeck.presentation.ui.screens
 
-import androidx.compose.foundation.ScrollState
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,347 +16,314 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.CardType
-import com.mindeck.domain.models.Deck
-import com.mindeck.domain.models.ReviewType
+import com.mindeck.domain.models.CardWithDeck
 import com.mindeck.presentation.R
-import com.mindeck.presentation.state.RenderState
+import com.mindeck.presentation.state.ModalState
 import com.mindeck.presentation.state.UiState
-import com.mindeck.presentation.state.getOrNull
-import com.mindeck.presentation.ui.components.buttons.ActionHandlerButton
 import com.mindeck.presentation.ui.components.common.QuestionAndAnswerElement
-import com.mindeck.presentation.ui.components.dataclasses.CardAttributes
-import com.mindeck.presentation.ui.components.dropdown.dropdownMenu.DropdownMenu
-import com.mindeck.presentation.ui.components.dropdown.dropdownMenu.DropdownMenuData
-import com.mindeck.presentation.ui.components.dropdown.dropdownMenu.DropdownMenuState
-import com.mindeck.presentation.ui.components.dropdown.dropdownMenu.animateDropdownMenuHeightIn
+import com.mindeck.presentation.ui.components.dialog.DeleteModalWindow
+import com.mindeck.presentation.ui.components.topBar.AppTopBar
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
-import com.mindeck.presentation.ui.navigation.CardRoute
-import com.mindeck.presentation.ui.navigation.CardStudyRoute
-import com.mindeck.presentation.ui.navigation.NavigationRoute
 import com.mindeck.presentation.ui.navigation.Navigator
-import com.mindeck.presentation.ui.navigation.StackNavigator
-import com.mindeck.presentation.ui.theme.MindeckTheme
+import com.mindeck.presentation.ui.theme.text_black
+import com.mindeck.presentation.viewmodel.CardUiEvent
 import com.mindeck.presentation.viewmodel.CardViewModel
 
 @Composable
 fun CardScreen(
     navigator: Navigator,
     cardId: Int,
-    cardViewModel: CardViewModel = hiltViewModel<CardViewModel>(),
+    modifier: Modifier = Modifier,
 ) {
+    CardScreenContent(
+        navigator = navigator,
+        cardId = cardId,
+        cardViewModel = hiltViewModel<CardViewModel>(),
+        modifier = modifier,
+    )
+}
+
+@Composable
+private fun CardScreenContent(
+    navigator: Navigator,
+    cardId: Int,
+    cardViewModel: CardViewModel,
+    modifier: Modifier = Modifier,
+) {
+    val cardWithDeckState by cardViewModel.cardWithDeck.collectAsState()
+
+    val cardWithDeck = (cardWithDeckState as? UiState.Success)?.data
+    val card = cardWithDeck?.card
+    val deckName = cardWithDeck?.deckName
+
+    val modalState by cardViewModel.modalState.collectAsState()
+
+    val context = LocalContext.current
+
+    val isLoading = cardWithDeckState is UiState.Loading
+
+    val deckDisplayText = when (cardWithDeckState) {
+        is UiState.Success -> deckName ?: "..."
+        else -> "..."
+    }
+
+    val cardTypeDisplayText = when (cardWithDeckState) {
+        is UiState.Success -> card?.cardType?.let {
+            when (it) {
+                CardType.SIMPLE -> stringResource(R.string.card_type_simple)
+                CardType.COMPLEX -> stringResource(R.string.card_type_complex)
+            }
+        } ?: "..."
+
+        else -> "..."
+    }
+
     LaunchedEffect(cardId) {
         cardViewModel.loadCardById(cardId = cardId)
     }
 
-    val card = cardViewModel.cardByCardIdUIState.collectAsState().value
-    val deck = cardViewModel.deckUIState.collectAsState().value
-
-    val dropdownMenuState = remember { DropdownMenuState() }
-
-    val listDropdownMenu = dropdownMenuDataList(
-        navigator = navigator,
-        card = card,
-        dropdownMenuState = dropdownMenuState,
-        cardViewModel = cardViewModel,
-    )
-
-    CardContent(
-        navigator,
-        deck,
-        dropdownMenuState,
-        card,
-        listDropdownMenu,
-    )
-}
-
-@Composable
-private fun CardContent(
-    navigator: Navigator,
-    deck: UiState<Deck>,
-    dropdownMenuState: DropdownMenuState,
-    card: UiState<Card>,
-    listDropdownMenu: List<DropdownMenuData>,
-) {
-    val scrollState = rememberScrollState()
-
-    val nameDeck = deck.getOrNull()?.deckName
-    val cardAttributes = cardAttributesList(card = card, nameDeck)
-
-    val dropdownVisibleAnimation = animateDropdownMenuHeightIn(
-        targetAlpha = dropdownMenuState.dropdownAlpha,
-        animationDuration = dropdownMenuState.animationDuration,
-    )
-
-    Scaffold(
-        containerColor = MaterialTheme.colorScheme.background,
-        topBar = {
-            CardTopBar(navigator = navigator, dropdownMenuState = dropdownMenuState)
-        },
-        content = { padding ->
-            Content(
-                padding = padding,
-                scrollState = scrollState,
-                dropdownVisibleAnimation = dropdownVisibleAnimation,
-                card = card,
-                cardAttributes = cardAttributes,
-                listDropdownMenu = listDropdownMenu,
-                dropdownMenuState = dropdownMenuState,
-            )
-        },
-    )
-}
-
-@Composable
-private fun dropdownMenuDataList(
-    navigator: Navigator,
-    card: UiState<Card>,
-    dropdownMenuState: DropdownMenuState,
-    cardViewModel: CardViewModel,
-): List<DropdownMenuData> {
-    return when (card) {
-        is UiState.Success -> {
-            listOf(
-                DropdownMenuData(
-                    title = stringResource(R.string.dropdown_menu_data_study_card),
-                    titleStyle = MaterialTheme.typography.bodyMedium,
-                    action = {
-                        dropdownMenuState.reset()
-                        navigator.push(CardStudyRoute(card.data.cardId))
-                    },
-                ),
-                DropdownMenuData(
-                    title = stringResource(R.string.dropdown_menu_data_edit_card),
-                    titleStyle = MaterialTheme.typography.bodyMedium,
-                    action = {
-                        dropdownMenuState.reset()
-                    },
-                ),
-                DropdownMenuData(
-                    title = stringResource(R.string.dropdown_menu_data_remove_card),
-                    titleStyle = MaterialTheme.typography.bodyMedium,
-                    action = {
-                        dropdownMenuState.reset()
-                        cardViewModel.deleteDeck(card = card.data)
-                        navigator.pop()
-                    },
-                ),
-            )
-        }
-
-        is UiState.Loading -> {
-            listOf(
-                DropdownMenuData(
-                    title = stringResource(R.string.text_loading),
-                    titleStyle = MaterialTheme.typography.bodyMedium,
-                    action = {},
-                ),
-            )
-        }
-
-        else -> {
-            listOf(
-                DropdownMenuData(
-                    title = stringResource(R.string.text_error_loading),
-                    titleStyle = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.error),
-                    action = {
-                        dropdownMenuState.reset()
-                    },
-                ),
-            )
-        }
-    }
-}
-
-@Composable
-private fun CardTopBar(
-    navigator: Navigator,
-    dropdownMenuState: DropdownMenuState,
-) {
-    Box(
-        modifier = Modifier
-            .padding(horizontal = dimenDpResource(R.dimen.padding_medium))
-            .padding(top = dimenDpResource(R.dimen.padding_medium))
-            .statusBarsPadding(),
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-        ) {
-            ActionHandlerButton(
-                iconPainter = painterResource(R.drawable.back_icon),
-                contentDescription = stringResource(R.string.back_screen_icon_button),
-                iconTint = MaterialTheme.colorScheme.onPrimary,
-                onClick = { navigator.pop() },
-            )
-            ActionHandlerButton(
-                iconPainter = painterResource(R.drawable.menu_icon),
-                contentDescription = stringResource(R.string.back_screen_icon_button),
-                iconTint = MaterialTheme.colorScheme.onPrimary,
-                onClick = { dropdownMenuState.toggle() },
-            )
-        }
-    }
-}
-
-@Composable
-fun cardAttributesList(
-    card: UiState<Card>,
-    deckName: String?,
-): List<CardAttributes> {
-    return when (card) {
-        is UiState.Success -> listOf(
-            CardAttributes(
-                title = stringResource(R.string.text_deck_dropdown_selector),
-                value = deckName,
-            ),
-            CardAttributes(
-                title = stringResource(R.string.text_type_dropdown_selector),
-                value = when (card.data.cardType) {
-                    CardType.SIMPLE -> stringResource(R.string.card_type_simple)
-                    CardType.COMPLEX -> stringResource(R.string.card_type_complex)
-                },
-            ),
-        )
-
-        is UiState.Error -> listOf(
-            CardAttributes(
-                title = stringResource(R.string.text_deck_dropdown_selector),
-                value = stringResource(R.string.text_error_loading),
-            ),
-            CardAttributes(
-                title = stringResource(R.string.text_type_dropdown_selector),
-                value = stringResource(R.string.text_error_loading),
-            ),
-        )
-
-        else -> listOf(
-            CardAttributes(
-                title = stringResource(R.string.text_deck_dropdown_selector),
-                load = true,
-            ),
-            CardAttributes(
-                title = stringResource(R.string.text_type_dropdown_selector),
-                load = true,
-            ),
-        )
-    }
-}
-
-@Composable
-private fun Content(
-    padding: PaddingValues,
-    scrollState: ScrollState,
-    dropdownVisibleAnimation: Float,
-    card: UiState<Card>,
-    cardAttributes: List<CardAttributes>,
-    listDropdownMenu: List<DropdownMenuData>,
-    dropdownMenuState: DropdownMenuState,
-
-) {
-    Column(
-        modifier = Modifier
-            .padding(padding)
-            .verticalScroll(state = scrollState)
-            .padding(horizontal = dimenDpResource(R.dimen.padding_medium))
-            .navigationBarsPadding(),
-    ) {
-        for (attribute in cardAttributes) {
-            CardAttributesList(attribute = attribute)
-        }
-        Spacer(modifier = Modifier.height(height = dimenDpResource(R.dimen.spacer_large)))
-        DeckSuccessState(cardState = card)
-    }
-    if (dropdownMenuState.isExpanded) {
-        CardDropdownMenu(
-            padding = padding,
-            listDropdownMenu = listDropdownMenu,
-            dropdownVisibleAnimation = dropdownVisibleAnimation,
-            dropdownMenuState = dropdownMenuState,
-        )
-    }
-}
-
-@Composable
-private fun CardAttributesList(attribute: CardAttributes) {
-    Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_medium)))
-    Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
-        Text(
-            text = attribute.title,
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier
-                .padding(dimenDpResource(R.dimen.padding_extra_small))
-                .wrapContentSize(Alignment.CenterStart)
-                .width(dimenDpResource(R.dimen.dropdown_min_weight)),
-        )
-        Box(
-            modifier = Modifier
-                .width(220.dp)
-                .background(
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    shape = MaterialTheme.shapes.extraSmall,
-                )
-                .height(height = dimenDpResource(R.dimen.dropdown_menu_item_height))
-                .border(
-                    dimenDpResource(R.dimen.border_width_dot_two_five),
-                    MaterialTheme.colorScheme.outline,
-                    shape = MaterialTheme.shapes.extraSmall,
-                )
-                .wrapContentSize(Alignment.Center),
-
-        ) {
-            if (attribute.load || attribute.value == null) {
-                Box(
-                    modifier = Modifier
-                        .wrapContentSize(Alignment.Center),
-                ) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(dimenDpResource(R.dimen.circular_progress_indicator_size_mini)),
-                        color = MaterialTheme.colorScheme.primary,
-                        strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_two),
-                    )
+    LaunchedEffect(Unit) {
+        cardViewModel.uiEvent.collect { event ->
+            when (event) {
+                is CardUiEvent.DeletionSuccessful -> {
+                    Toast.makeText(
+                        context,
+                        "Card \"${event.cardName}\" deleted successfully",
+                        Toast.LENGTH_SHORT,
+                    ).show()
+                    navigator.pop()
                 }
-            } else {
-                Text(
-                    text = attribute.value,
-                    style = MaterialTheme.typography.bodyMedium,
-                )
             }
         }
     }
+
+    val scrollState = rememberScrollState()
+
+    Scaffold(
+        modifier = modifier,
+        containerColor = MaterialTheme.colorScheme.background,
+        topBar = {
+            AppTopBar(
+                visibleMenuButton = cardWithDeckState is UiState.Success,
+                onBackClick = { navigator.pop() },
+                onMenuClick = { cardViewModel.showDropdownMenu() },
+                modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.padding_medium)),
+            )
+        },
+        content = { padding ->
+            Column(
+                modifier = Modifier
+                    .padding(padding)
+                    .verticalScroll(state = scrollState)
+                    .padding(horizontal = dimenDpResource(R.dimen.padding_medium))
+                    .navigationBarsPadding(),
+            ) {
+                Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_medium)))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    Text(
+                        text = stringResource(R.string.text_deck_dropdown_selector),
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(dimensionResource(R.dimen.dimen_8)),
+                    )
+
+                    Box(
+                        modifier = Modifier
+                            .background(
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                shape = MaterialTheme.shapes.extraSmall,
+                            )
+                            .size(
+                                height = dimensionResource(R.dimen.dimen_36),
+                                width = dimensionResource(R.dimen.dimen_200),
+                            )
+                            .border(
+                                dimensionResource(R.dimen.dimen_0_25),
+                                color = MaterialTheme.colorScheme.outline,
+                                shape = MaterialTheme.shapes.extraSmall,
+                            )
+                            .wrapContentSize(Alignment.Center),
+                    ) {
+                        if (isLoading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(dimensionResource(R.dimen.dimen_20)),
+                                strokeWidth = dimensionResource(R.dimen.dimen_2),
+                            )
+                        } else {
+                            Text(
+                                text = deckDisplayText,
+                                overflow = TextOverflow.Ellipsis,
+                                style = MaterialTheme.typography.bodyMedium.copy(color = text_black),
+                            )
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_medium)))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    Text(
+                        text = stringResource(R.string.text_type_dropdown_selector),
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(dimensionResource(R.dimen.dimen_8)),
+                    )
+
+                    Box(
+                        modifier = Modifier
+                            .background(
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                shape = MaterialTheme.shapes.extraSmall,
+                            )
+                            .size(
+                                height = dimensionResource(R.dimen.dimen_36),
+                                width = dimensionResource(R.dimen.dimen_200),
+                            )
+                            .border(
+                                dimensionResource(R.dimen.dimen_0_25),
+                                color = MaterialTheme.colorScheme.outline,
+                                shape = MaterialTheme.shapes.extraSmall,
+                            )
+                            .wrapContentSize(Alignment.Center),
+                    ) {
+                        if (isLoading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(dimensionResource(R.dimen.dimen_20)),
+                                strokeWidth = dimensionResource(R.dimen.dimen_2),
+                            )
+                        } else {
+                            Text(
+                                text = cardTypeDisplayText,
+                                overflow = TextOverflow.Ellipsis,
+                                style = MaterialTheme.typography.bodyMedium.copy(color = text_black),
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(height = dimenDpResource(R.dimen.spacer_large)))
+                DeckSuccessState(cardWithDeckState = cardWithDeckState)
+            }
+            card?.let {
+                CardDropdownMenu(
+                    padding = padding,
+                    isExpanded = modalState is ModalState.DropdownMenu,
+                    onDismiss = { cardViewModel.hideModal() },
+                    onDeleteClick = {
+                        cardViewModel.hideModal()
+                        cardViewModel.showDeleteDialog()
+                    },
+                )
+            }
+        },
+    )
+
+    when (modalState) {
+        is ModalState.DeleteDialog -> {
+            card?.let {
+                DeleteModalWindow(
+                    titleText = stringResource(R.string.delete_card_dialog_title),
+                    bodyText = stringResource(R.string.delete_card_dialog_body, it.cardName),
+                    deleteButton = {
+                        cardViewModel.hideModal()
+                        cardViewModel.deleteCard(it)
+                    },
+                    onExitClick = { cardViewModel.hideModal() },
+                )
+            }
+        }
+
+        else -> Unit
+    }
+}
+
+@Composable
+private fun CardDropdownMenu(
+    padding: PaddingValues,
+    isExpanded: Boolean,
+    onDismiss: () -> Unit,
+    onDeleteClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Box(
+        modifier = modifier
+            .padding(horizontal = dimensionResource(R.dimen.dimen_28))
+            .padding(padding)
+            .fillMaxWidth()
+            .wrapContentSize(Alignment.TopEnd),
+    ) {
+        DropdownMenu(
+            expanded = isExpanded,
+            onDismissRequest = onDismiss,
+            containerColor = MaterialTheme.colorScheme.onPrimary,
+            shape = MaterialTheme.shapes.medium,
+        ) {
+            DropdownMenuItem(
+                text = stringResource(R.string.dropdown_menu_data_remove_card),
+                onClick = onDeleteClick,
+            )
+            DropdownMenuItem(
+                text = stringResource(R.string.dropdown_menu_data_edit_card),
+                onClick = { },
+            )
+            DropdownMenuItem(
+                text = stringResource(R.string.dropdown_menu_data_study_card),
+                onClick = { },
+            )
+        }
+    }
+}
+
+@Composable
+private fun DropdownMenuItem(
+    text: String,
+    onClick: () -> Unit,
+) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.bodyMedium,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(
+                horizontal = dimensionResource(R.dimen.dimen_20),
+                vertical = dimensionResource(R.dimen.dimen_10),
+            ),
+    )
 }
 
 @Composable
 private fun DeckSuccessState(
-    cardState: UiState<Card>,
+    cardWithDeckState: UiState<CardWithDeck>,
 ) {
-    cardState.RenderState(
-        onSuccess = { card ->
+    when (cardWithDeckState) {
+        is UiState.Success -> {
+            val card = cardWithDeckState.data.card
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier.fillMaxWidth(),
@@ -369,8 +335,7 @@ private fun DeckSuccessState(
             }
             Spacer(modifier = Modifier.height(height = dimenDpResource(R.dimen.spacer_medium)))
             Box(
-                modifier = Modifier
-                    .fillMaxSize(),
+                modifier = Modifier.fillMaxSize(),
             ) {
                 QuestionAndAnswerElement(
                     question = card.cardQuestion,
@@ -383,56 +348,57 @@ private fun DeckSuccessState(
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.onPrimary)
+                        .background(
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            shape = MaterialTheme.shapes.large,
+                        )
                         .border(
-                            dimenDpResource(R.dimen.border_width_dot_five),
-                            MaterialTheme.colorScheme.outline,
-                            MaterialTheme.shapes.extraSmall,
-                        ),
+                            width = dimensionResource(R.dimen.dimen_0_25),
+                            color = MaterialTheme.colorScheme.outline,
+                            shape = MaterialTheme.shapes.large,
+                        )
+                        .padding(horizontal = dimensionResource(R.dimen.dimen_10)),
                 )
             }
 
-            if (card.cardTag.isEmpty()) {
+            if (card.cardTag.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(height = dimenDpResource(R.dimen.spacer_medium)))
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.dimen_16)),
                 ) {
                     Text(
                         text = stringResource(R.string.text_tag_input_field),
                         style = MaterialTheme.typography.bodyMedium,
                     )
-                    Spacer(modifier = Modifier.width(dimenDpResource(R.dimen.spacer_large)))
-                    Column(
+                    Box(
                         modifier = Modifier
-                            .fillMaxWidth(),
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(
-                                    color = MaterialTheme.colorScheme.onPrimary,
-                                    shape = MaterialTheme.shapes.extraSmall,
-                                )
-                                .height(height = dimenDpResource(R.dimen.dropdown_menu_item_height))
-                                .border(
-                                    dimenDpResource(R.dimen.border_width_dot_two_five),
-                                    MaterialTheme.colorScheme.outline,
-                                    shape = MaterialTheme.shapes.extraSmall,
-                                )
-                                .padding(dimenDpResource(R.dimen.padding_extra_small))
-                                .wrapContentSize(Alignment.CenterStart),
-
-                        ) {
-                            Text(
-                                text = card.cardTag,
-                                style = MaterialTheme.typography.bodyMedium,
+                            .background(
+                                MaterialTheme.colorScheme.onPrimary,
+                                MaterialTheme.shapes.large,
                             )
-                        }
+                            .size(
+                                width = dimensionResource(R.dimen.dimen_140),
+                                height = dimensionResource(R.dimen.dimen_46),
+                            )
+                            .border(
+                                dimensionResource(R.dimen.dimen_0_25),
+                                MaterialTheme.colorScheme.outline,
+                                MaterialTheme.shapes.large,
+                            )
+                            .padding(horizontal = dimensionResource(R.dimen.dimen_10)),
+                        contentAlignment = Alignment.CenterStart
+                    ) {
+                        Text(
+                            text = card.cardTag,
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
                     }
                 }
             }
-        },
-        onLoading = {
+        }
+
+        is UiState.Loading -> {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -445,115 +411,17 @@ private fun DeckSuccessState(
                     strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_two),
                 )
             }
-        },
-        onError = {
+        }
+
+        is UiState.Error -> {
             Text(
                 stringResource(R.string.error_get_info_about_deck),
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.error),
             )
-        },
-    )
-}
+        }
 
-@Composable
-private fun CardDropdownMenu(
-    padding: PaddingValues,
-    listDropdownMenu: List<DropdownMenuData>,
-    dropdownVisibleAnimation: Float,
-    dropdownMenuState: DropdownMenuState,
-) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null,
-            ) { dropdownMenuState.toggle() },
-    )
-
-    DropdownMenu(
-        listDropdownMenuItem = listDropdownMenu,
-        dropdownModifier = Modifier
-            .padding(padding)
-            .padding(horizontal = dimenDpResource(R.dimen.padding_medium))
-            .alpha(dropdownVisibleAnimation)
-            .fillMaxWidth()
-            .padding(top = dimenDpResource(R.dimen.spacer_extra_small))
-            .wrapContentSize(Alignment.TopEnd),
-    )
-}
-
-@Preview(
-    showBackground = true,
-    backgroundColor = 0xFFE6E6FF,
-)
-@Composable
-private fun ScreenPreview() {
-    val backStack = remember { mutableStateListOf<NavigationRoute>(CardRoute(1)) }
-    val navigator = remember { StackNavigator(backStack) }
-    val deckState: UiState<Deck> = deckDataMock()
-    val cardState: UiState<Card> = cardDataMock()
-    val dropdownMenuState = DropdownMenuState()
-
-    MindeckTheme {
-        CardContent(
-            navigator,
-            deckState,
-            dropdownMenuState,
-            cardState,
-            emptyList<DropdownMenuData>(),
-        )
+        is UiState.Idle -> Unit
     }
 }
-
-@Preview(
-    device = "spec:parent=pixel_5,orientation=landscape",
-    showBackground = true,
-    backgroundColor = 0xFFE6E6FF,
-)
-@Composable
-private fun ScreenPreviewLandscape() {
-    val backStack = remember { mutableStateListOf<NavigationRoute>(CardRoute(1)) }
-    val navigator = remember { StackNavigator(backStack) }
-    val deckState: UiState<Deck> = deckDataMock()
-    val cardState: UiState<Card> = cardDataMock()
-    val dropdownMenuState = DropdownMenuState()
-
-    MindeckTheme {
-        CardContent(
-            navigator,
-            deckState,
-            dropdownMenuState,
-            cardState,
-            emptyList<DropdownMenuData>(),
-        )
-    }
-}
-
-@Composable
-private fun deckDataMock(): UiState<Deck> = UiState.Success(
-    Deck(
-        deckId = 1,
-        deckName = "Kotlin Basics",
-    ),
-)
-
-@Composable
-private fun cardDataMock(): UiState<Card> = UiState.Success(
-    Card(
-        cardId = 1,
-        cardName = "Basic Kotlin",
-        cardQuestion = "Что такое data class в Kotlin?",
-        cardAnswer = "Это класс, предназначенный для хранения данных. Он автоматически генерирует equals, hashCode и toString.",
-        cardType = CardType.SIMPLE,
-        cardTag = "Kotlin",
-        deckId = 101,
-        firstReviewDate = 1_725_000_000_000,
-        lastReviewDate = 1_725_086_400_000,
-        nextReviewDate = 1_725_172_800_000,
-        repetitionCount = 2,
-        lastReviewType = ReviewType.EASY,
-    ),
-)

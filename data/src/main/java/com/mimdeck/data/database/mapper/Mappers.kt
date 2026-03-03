@@ -4,8 +4,10 @@ import com.mimdeck.data.database.entities.CardEntity
 import com.mimdeck.data.database.entities.DeckEntity
 import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.CardType
+import com.mindeck.domain.models.CardWithDeck
 import com.mindeck.domain.models.Deck
 import com.mindeck.domain.models.ReviewType
+import com.mimdeck.data.database.entities.CardWithDeck as CardWithDeckEntity
 
 object Mappers {
 
@@ -65,5 +67,12 @@ object Mappers {
             "Hard" -> ReviewType.HARD
             else -> ReviewType.REPEAT
         }
+    }
+
+    fun CardWithDeckEntity.toDomain(): CardWithDeck {
+        return CardWithDeck(
+            card = this.card.toDomain(),
+            deckName = this.deck.deckName ?: "Deck ${this.deck.deckId}",
+        )
     }
 }
