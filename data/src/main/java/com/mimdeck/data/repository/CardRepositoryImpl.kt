@@ -6,6 +6,7 @@ import com.mimdeck.data.database.mapper.Mappers.toDomain
 import com.mimdeck.data.repository.util.handleDatabase
 import com.mimdeck.data.repository.util.handleDatabaseSuspend
 import com.mindeck.domain.models.Card
+import com.mindeck.domain.models.CardWithDeck
 import com.mindeck.domain.repository.CardRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -33,5 +34,9 @@ class CardRepositoryImpl @Inject constructor(
 
     override suspend fun getCardById(cardId: Int): Card = handleDatabaseSuspend {
         cardDao.getCardById(cardId = cardId).toDomain()
+    }
+
+    override suspend fun getCardWithDeckById(cardId: Int): CardWithDeck = handleDatabaseSuspend {
+        cardDao.getCardWithDeckById(cardId = cardId).toDomain()
     }
 }

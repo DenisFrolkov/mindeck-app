@@ -16,25 +16,26 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.window.Dialog
 import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.components.buttons.ActionHandlerButton
 import com.mindeck.presentation.ui.components.utils.dimenDpResource
 import com.mindeck.presentation.ui.theme.text_white
 
 @Composable
-fun DeleteItemModalWindow(
+fun DeleteModalWindow(
     titleText: String,
     bodyText: String,
     deleteButton: () -> Unit,
-    exitButton: () -> Unit,
+    onExitClick: () -> Unit,
 ) {
-    Box(
-        contentAlignment = Alignment.Center,
-    ) {
+    Dialog(onDismissRequest = onExitClick) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
@@ -43,27 +44,38 @@ fun DeleteItemModalWindow(
                     shape = MaterialTheme.shapes.small,
                 )
                 .clip(MaterialTheme.shapes.small)
-                .padding(dimenDpResource(R.dimen.card_input_field_item_padding)),
+                .padding(dimensionResource(R.dimen.dimen_8)),
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
                 ActionHandlerButton(
-                    iconPainter = painterResource(R.drawable.back_icon),
+                    iconPainter = painterResource(R.drawable.img_back),
                     contentDescription = stringResource(R.string.back_screen_icon_button),
-                    iconTint = MaterialTheme.colorScheme.onPrimary,
-                    onClick = exitButton,
+                    iconTint = MaterialTheme.colorScheme.outlineVariant,
+                    onClick = {
+                        onExitClick()
+                    },
                 )
                 Text(
                     text = titleText,
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.bodyMedium,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.weight(1f),
+                )
+                ActionHandlerButton(
+                    iconPainter = painterResource(R.drawable.create_deck_img),
+                    contentDescription = stringResource(R.string.add_icon_button),
+                    iconTint = MaterialTheme.colorScheme.outlineVariant,
+                    iconSize = dimensionResource(R.dimen.dimen_24),
+                    onClick = { },
+                    modifier = Modifier.alpha(0f),
                 )
             }
-            Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_large)))
 
             Text(
                 text = bodyText,
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -73,19 +85,17 @@ fun DeleteItemModalWindow(
             Box(
                 modifier = Modifier
                     .background(
-                        color = MaterialTheme.colorScheme.outlineVariant,
-                        shape = MaterialTheme.shapes.medium,
+                        color = MaterialTheme.colorScheme.onSecondary,
+                        shape = MaterialTheme.shapes.small,
                     )
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null,
-                    ) {
+                    .clickable {
                         deleteButton()
                     },
             ) {
                 Text(
-                    text = "Удалить",
-                    style = MaterialTheme.typography.labelLarge.copy(color = text_white),
+                    text = stringResource(R.string.delete_text),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
                     modifier = Modifier.padding(
                         vertical = dimenDpResource(R.dimen.padding_small),
                         horizontal = dimenDpResource(R.dimen.padding_extra_large),

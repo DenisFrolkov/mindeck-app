@@ -275,8 +275,7 @@ private fun DeckDropdownMenu(
     modifier: Modifier = Modifier,
 ) {
     Box(
-        modifier =
-        modifier
+        modifier = modifier
             .padding(horizontal = dimensionResource(R.dimen.dimen_28))
             .padding(padding)
             .fillMaxWidth()
