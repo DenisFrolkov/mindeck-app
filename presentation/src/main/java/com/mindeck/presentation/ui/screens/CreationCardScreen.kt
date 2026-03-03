@@ -174,7 +174,8 @@ fun CreationCardScreenContent(
                 },
             )
         }
-        ModalState.None -> {}
+
+        else -> Unit
     }
 }
 
