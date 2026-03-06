@@ -31,13 +31,18 @@
 
     <string name="fab_menu_data_create_deck">Создать колоду</string>
 
-    <string name="error_get_all_decks">Папки не были загружены</string>
+    <string name="empty_decks_list">У вас нет колод</string>
+    <string name="empty_cards_list">У вас нет карточек</string>
+    <string name="study_session_complete_text">Отличная работа! Вы завершили эту колоду</string>
+    <string name="error_get_all_decks">Колоды не были загружены</string>
     <string name="title_text_all_decks">Все колоды</string>
+    <string name="error_get_card_for_study">Не получилось загрузить карточку</string>
 
     <string name="error_get_decks_by_folder_id">Не получилось загрузить колоды!</string>
-    <string name="error_get_cards_by_deck_id">Не получилось загрузить карточки!</string>
+    <string name="error_get_cards_by_deck_id">Карточки не были загружены</string>
     <string name="error_get_card_by_card_id">Не получилось загрузить карточку!</string>
-    <string name="error_get_info_about_deck">Не получилось загрузить информацию о колоде!</string>
+    <string name="error_get_info_about_deck">Не получилось загрузить информацию о колоде</string>
+    <string name="error_get_info_about_card">Не получилось загрузить информацию о карточке</string>
 
     <string name="text_error_loading">Ошибка загрузки</string>
     <string name="text_loading">Загрузка…</string>
@@ -104,9 +109,27 @@
 
     <string name="new_text">New</string>
     <string name="learning_text">Learning</string>
-    <string name="to_review_text">To Review</string>
+    <string name="to_review_text">Review</string>
 
     <string name="loading_text">Загрузка...</string>
 
-    <string name="card_deleted_success">Card deleted successfully</string>
+    <string name="card_deleted_success">Карточка \"%1$s\" успешно удалена</string>
+
+    //Errors
+    <string name="error_something_went_wrong">Что-то пошло не так</string>
+    <string name="error_database_try_again">Ошибка базы данных, попробуйте снова</string>
+    <string name="error_failed_to_load_card">Не удалось загрузить карточку</string>
+    <string name="error_failed_to_delete_card">Не удалось удалить карточку</string>
+    <string name="error_failed_to_load_deck">Не удалось загрузить колоду</string>
+    <string name="error_deck_name_already_exists">Колода «%1$s» уже существует</string>
+    <string name="error_card_type_required">Выберите тип карточки</string>
+    <string name="error_deck_selection_required">Выберите колоду</string>
+    <string name="error_card_name_already_exists">Карточка с таким названием и вопросом уже существует</string>
+    <string name="error_failed_to_create_card">Не удалось создать карточку</string>
+    <string name="error_failed_to_create_deck">Не удалось создать колоду</string>
+    <string name="error_deck_name_taken">Колода с таким названием уже существует</string>
+
+    //Toast
+    <string name="toast_deck_deleted_successfully">Колода успешно удалена</string>
+    <string name="toast_card_created_successfully">Карточка успешно создана</string>
 </resources>

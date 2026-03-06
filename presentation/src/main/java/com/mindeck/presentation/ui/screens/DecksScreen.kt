@@ -1,39 +1,38 @@
 package com.mindeck.presentation.ui.screens
 
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mindeck.domain.models.Deck
 import com.mindeck.presentation.R
-import com.mindeck.presentation.state.RenderState
 import com.mindeck.presentation.state.UiState
-import com.mindeck.presentation.ui.components.dataclasses.DisplayItemData
-import com.mindeck.presentation.ui.components.dataclasses.DisplayItemStyle
-import com.mindeck.presentation.ui.components.folder.DisplayItem
+import com.mindeck.presentation.ui.components.item.DisplayItem
 import com.mindeck.presentation.ui.components.topBar.AppTopBar
-import com.mindeck.presentation.ui.components.utils.dimenFloatResource
 import com.mindeck.presentation.ui.navigation.DeckRoute
 import com.mindeck.presentation.ui.navigation.Navigator
 import com.mindeck.presentation.viewmodel.DecksViewModel
@@ -43,27 +42,33 @@ fun DecksScreen(
     navigator: Navigator,
     modifier: Modifier = Modifier,
 ) {
+    val viewModel = hiltViewModel<DecksViewModel>()
+    val decksState by viewModel.decksState.collectAsStateWithLifecycle()
+
     DecksScreenContent(
-        navigator = navigator,
-        viewModel = hiltViewModel<DecksViewModel>(),
+        decksState = decksState,
+        actions = DecksScreenActions(
+            onNavigateBack = navigator::pop,
+            onNavigateToDeck = { navigator.push(DeckRoute(it)) },
+        ),
         modifier = modifier,
     )
 }
 
 @Composable
 internal fun DecksScreenContent(
-    navigator: Navigator,
-    viewModel: DecksViewModel,
+    decksState: UiState<List<Deck>>,
+    actions: DecksScreenActions,
     modifier: Modifier = Modifier,
 ) {
-    val decks by viewModel.decksState.collectAsState()
-
     Scaffold(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier
+            .fillMaxSize()
+            .systemBarsPadding(),
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             AppTopBar(
-                onBackClick = { navigator.pop() },
+                onBackClick = actions.onNavigateBack,
                 modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.dimen_16)),
             )
         },
@@ -71,29 +76,32 @@ internal fun DecksScreenContent(
             Column(
                 modifier = Modifier
                     .padding(padding)
-                    .padding(horizontal = dimensionResource(R.dimen.dimen_16))
-                    .navigationBarsPadding(),
+                    .padding(horizontal = dimensionResource(R.dimen.dimen_16)),
             ) {
-                DecksInfo(decks) { deckId -> navigator.push(DeckRoute(deckId)) }
+                DecksList(
+                    decksState = decksState,
+                    onDeckClick = actions.onNavigateToDeck,
+                )
             }
         },
     )
 }
 
 @Composable
-private fun DecksInfo(
+private fun DecksList(
     decksState: UiState<List<Deck>>,
     onDeckClick: (Int) -> Unit,
 ) {
-    decksState.RenderState(
-        onSuccess = { decks ->
-            LazyColumn {
-                item {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .wrapContentSize(Alignment.Center),
-                    ) {
+    when (decksState) {
+        is UiState.Success -> {
+            val decks = decksState.data
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.dimen_6)),
+            ) {
+                if (decks.isNotEmpty()) {
+                    item {
                         Text(
                             text = pluralStringResource(
                                 R.plurals.deck_amount,
@@ -101,10 +109,26 @@ private fun DecksInfo(
                                 decks.size,
                             ),
                             style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_8)))
+                    }
+                }
+
+                if (decks.isEmpty()) {
+                    item {
+                        Text(
+                            text = stringResource(R.string.empty_decks_list),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = dimensionResource(R.dimen.dimen_40)),
+                            textAlign = TextAlign.Center,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
-                    Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_20)))
                 }
+
                 items(
                     items = decks,
                     key = { it.deckId },
@@ -112,45 +136,57 @@ private fun DecksInfo(
                     DisplayItem(
                         modifier = Modifier
                             .fillMaxWidth(),
-                        shape = MaterialTheme.shapes.medium,
-                        showCount = false,
-                        displayItemData = DisplayItemData(
-                            itemIcon = R.drawable.deck_icon,
-                            itemName = deck.deckName,
-                        ),
-                        displayItemStyle = DisplayItemStyle(
-                            backgroundColor = MaterialTheme.colorScheme.secondary.copy(
-                                dimenFloatResource(R.dimen.float_zero_dot_five_significance),
-                            ),
-                            iconColor = MaterialTheme.colorScheme.outlineVariant,
-                            textStyle = MaterialTheme.typography.bodyMedium,
-                        ),
+                        icon = R.drawable.deck_icon,
+                        name = deck.deckName,
                         onClick = { onDeckClick(deck.deckId) },
                     )
-                    Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_6)))
+                }
+                item {
+                    Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_8)))
                 }
             }
-        },
-        onLoading = {
-            Box(
+        }
+
+        UiState.Loading -> {
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = dimensionResource(R.dimen.dimen_24))
                     .wrapContentSize(Alignment.Center),
             ) {
+                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_14)))
                 CircularProgressIndicator(
                     color = MaterialTheme.colorScheme.primary,
-                    strokeWidth = dimensionResource(R.dimen.dimen_4),
+                    strokeWidth = dimensionResource(R.dimen.dimen_2),
                 )
             }
-        },
-        onError = {
-            Text(
-                stringResource(R.string.error_get_all_decks),
+        }
+
+        is UiState.Error -> {
+            Column(
                 modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.error),
-            )
-        },
-    )
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.dimen_16)),
+            ) {
+                Text(
+                    stringResource(R.string.error_get_all_decks),
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.error),
+                )
+                Icon(
+                    painter = painterResource(R.drawable.img_error),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.size(dimensionResource(R.dimen.dimen_36)),
+                )
+            }
+        }
+
+        UiState.Idle -> Unit
+    }
 }
+
+data class DecksScreenActions(
+    val onNavigateBack: () -> Unit,
+    val onNavigateToDeck: (Int) -> Unit,
+)

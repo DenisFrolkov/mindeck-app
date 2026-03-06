@@ -1,4 +1,4 @@
-package com.mindeck.presentation.ui.components.folder
+package com.mindeck.presentation.ui.components.item
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -23,63 +22,59 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import com.mindeck.presentation.R
-import com.mindeck.presentation.ui.components.dataclasses.DisplayItemData
-import com.mindeck.presentation.ui.components.dataclasses.DisplayItemStyle
-import com.mindeck.presentation.ui.components.utils.dimenDpResource
 
 @Composable
 fun DisplayItem(
-    modifier: Modifier = Modifier,
-    shape: CornerBasedShape,
-    showCount: Boolean,
-    displayItemData: DisplayItemData,
-    displayItemStyle: DisplayItemStyle,
+    icon: Int,
+    name: String,
     onClick: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     Row(
-        verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .border(
-                dimensionResource(R.dimen.dimen_0_25),
-                MaterialTheme.colorScheme.outline,
-                shape,
+                width = dimensionResource(R.dimen.dimen_0_25),
+                color = MaterialTheme.colorScheme.outline,
+                shape = MaterialTheme.shapes.small,
             )
-            .clip(shape = shape)
+            .clip(shape = MaterialTheme.shapes.small)
             .height(dimensionResource(R.dimen.dimen_48))
             .clickable(onClick = onClick),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(
             contentAlignment = Alignment.CenterStart,
             modifier = Modifier
                 .weight(1f)
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.onPrimary)
-                .padding(horizontal = dimenDpResource(R.dimen.dimen_8)),
+                .background(MaterialTheme.colorScheme.surface)
+                .padding(horizontal = dimensionResource(R.dimen.dimen_12)),
         ) {
             Text(
-                text = displayItemData.itemName,
-                maxLines = displayItemStyle.textMaxLines,
+                text = name,
+                maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                style = displayItemStyle.textStyle,
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.bodyLarge,
             )
         }
 
         VerticalDivider(
             modifier = Modifier.fillMaxHeight(),
-            thickness = dimenDpResource(R.dimen.dimen_0_25),
+            thickness = dimensionResource(R.dimen.dimen_0_25),
             color = MaterialTheme.colorScheme.outline,
         )
 
         Box(
             modifier = Modifier
-                .size(dimenDpResource(R.dimen.dimen_48))
-                .background(color = displayItemStyle.backgroundColor),
+                .size(dimensionResource(R.dimen.dimen_48))
+                .background(color = MaterialTheme.colorScheme.secondaryContainer),
             contentAlignment = Alignment.Center,
         ) {
             Icon(
-                modifier = Modifier.size(dimenDpResource(R.dimen.dimen_24)),
-                painter = painterResource(displayItemData.itemIcon),
-                tint = displayItemStyle.iconColor,
+                modifier = Modifier.size(dimensionResource(R.dimen.dimen_24)),
+                painter = painterResource(icon),
+                tint = MaterialTheme.colorScheme.primary,
                 contentDescription = null,
             )
         }

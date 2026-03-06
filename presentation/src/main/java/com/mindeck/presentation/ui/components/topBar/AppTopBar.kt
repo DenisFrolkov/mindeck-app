@@ -5,8 +5,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -15,36 +13,36 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.painterResource
 import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.components.buttons.ActionHandlerButton
-import com.mindeck.presentation.ui.components.utils.dimenDpResource
 
 @Composable
 fun AppTopBar(
-    visibleMenuButton: Boolean = false,
+    showMenuButton: Boolean = false,
     onBackClick: () -> Unit,
     onMenuClick: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
-    val animatedAlpha by animateFloatAsState(if (!visibleMenuButton) 0f else 1f, animationSpec = tween(durationMillis = 100))
+    val animatedAlpha by animateFloatAsState(
+        targetValue = if (!showMenuButton) 0f else 1f,
+        animationSpec = tween(durationMillis = DURATION_100),
+    )
 
     Row(
         modifier = modifier
-            .padding(top = dimenDpResource(R.dimen.padding_medium))
-            .fillMaxWidth()
-            .statusBarsPadding(),
+            .fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
         ActionHandlerButton(
-            iconPainter = painterResource(R.drawable.img_back),
+            painter = painterResource(R.drawable.img_back),
             contentDescription = null,
-            iconTint = MaterialTheme.colorScheme.outlineVariant,
+            tint = MaterialTheme.colorScheme.primary,
             onClick = onBackClick,
         )
         ActionHandlerButton(
-            iconPainter = painterResource(R.drawable.img_menu),
+            painter = painterResource(R.drawable.img_menu),
             contentDescription = null,
-            iconTint = MaterialTheme.colorScheme.outlineVariant,
+            tint = MaterialTheme.colorScheme.primary,
             onClick = {
-                if (visibleMenuButton) {
+                if (showMenuButton) {
                     onMenuClick()
                 }
             },
@@ -52,3 +50,5 @@ fun AppTopBar(
         )
     }
 }
+
+const val DURATION_100 = 100

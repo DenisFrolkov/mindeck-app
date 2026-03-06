@@ -4,6 +4,7 @@ import com.mindeck.domain.exception.DomainError
 import com.mindeck.domain.models.Deck
 import com.mindeck.domain.usecases.deck.command.CreateDeckUseCase
 import com.mindeck.domain.usecases.deck.query.GetAllDecksUseCase
+import com.mindeck.presentation.R
 import com.mindeck.presentation.state.UiState
 import com.mindeck.presentation.state.toUiState
 import kotlinx.coroutines.CoroutineScope
@@ -55,20 +56,17 @@ class DeckSelectionHandler @Inject constructor(
 
         try {
             _createDeckState.value = UiState.Loading
-
-            try {
-                val deckId = createDeckUseCase(
-                    deck = Deck(
-                        deckName = deckName,
-                    ),
-                )
-                _createDeckState.value = UiState.Idle
-                return deckId
-            } catch (e: DomainError.DatabaseError) {
-                _createDeckState.value = UiState.Error("Failed to create deck")
-            } catch (e: DomainError) {
-                _createDeckState.value = UiState.Error("Something went wrong")
-            }
+            val deckId = createDeckUseCase(deck = Deck(deckName = deckName))
+            _createDeckState.value = UiState.Idle
+            return deckId
+        } catch (e: DomainError.NameAlreadyExists) {
+            _createDeckState.value = UiState.Error(R.string.error_deck_name_taken)
+        } catch (e: DomainError.DatabaseError) {
+            _createDeckState.value = UiState.Error(R.string.error_failed_to_create_deck)
+        } catch (e: DomainError) {
+            _createDeckState.value = UiState.Error(R.string.error_something_went_wrong)
+        } catch (e: Exception) {
+            _createDeckState.value = UiState.Error(R.string.error_something_went_wrong)
         } finally {
             createDeckMutex.unlock()
         }
