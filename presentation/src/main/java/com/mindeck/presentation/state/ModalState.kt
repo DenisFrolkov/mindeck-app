@@ -5,5 +5,6 @@ sealed interface ModalState {
     data object DeckSelection : ModalState
     data object TypeSelection : ModalState
     data object DropdownMenu : ModalState
+    data object RenameDialog : ModalState
     data object DeleteDialog : ModalState
 }

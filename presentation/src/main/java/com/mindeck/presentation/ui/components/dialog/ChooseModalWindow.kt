@@ -1,14 +1,11 @@
 package com.mindeck.presentation.ui.components.dialog
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -35,32 +32,34 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.window.Dialog
 import com.mindeck.presentation.R
+import com.mindeck.presentation.state.UiState
 import com.mindeck.presentation.ui.components.buttons.ActionHandlerButton
 import com.mindeck.presentation.ui.components.textfields.CardInputField
-import com.mindeck.presentation.ui.theme.text_gray
 
 @Composable
 fun ChooseModalWindow(
     titleText: String,
-    chooseObject: List<Pair<String, Int>>?,
+    items: List<Pair<String, Int>>?,
     selectedId: Int? = null,
-    isLoading: Boolean,
-    errorMsg: String?,
+    actionState: UiState<Unit>,
     showAddIcon: Boolean = false,
-    createTitleText: String = "",
-    createButtonText: String = "",
+    createTitle: String = "",
+    createButtonLabel: String = "",
     createPlaceholder: String = "",
     onExitClick: () -> Unit,
     onSaveClick: (Int) -> Unit,
     onCreateClick: (String) -> Unit = {},
 ) {
+    val isLoading = actionState is UiState.Loading
+    val isError = actionState as? UiState.Error
+    val errorMessage = isError?.let { stringResource(it.messageRes, *it.args.toTypedArray()) }
+
     var isCreateMode by rememberSaveable { mutableStateOf(false) }
     var text by rememberSaveable { mutableStateOf("") }
 
@@ -73,8 +72,8 @@ fun ChooseModalWindow(
 
     val animatedButtonColor by animateColorAsState(
         targetValue = when {
-            !isTextValid -> MaterialTheme.colorScheme.secondary
-            else -> MaterialTheme.colorScheme.onSecondary
+            !isTextValid -> MaterialTheme.colorScheme.surfaceVariant
+            else -> MaterialTheme.colorScheme.primary
         },
         animationSpec = tween(300),
         label = "buttonColor",
@@ -82,9 +81,9 @@ fun ChooseModalWindow(
 
     val animatedTextColor by animateColorAsState(
         targetValue = when {
-            !isTextValid -> MaterialTheme.colorScheme.outline
-            isLoading -> MaterialTheme.colorScheme.onSecondaryContainer
-            else -> MaterialTheme.colorScheme.scrim
+            !isTextValid -> MaterialTheme.colorScheme.onSurfaceVariant
+            isLoading -> MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.6f)
+            else -> MaterialTheme.colorScheme.onPrimary
         },
         animationSpec = tween(300),
         label = "textColor",
@@ -105,9 +104,9 @@ fun ChooseModalWindow(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 ActionHandlerButton(
-                    iconPainter = painterResource(R.drawable.img_back),
+                    painter = painterResource(R.drawable.img_back),
                     contentDescription = stringResource(R.string.back_screen_icon_button),
-                    iconTint = MaterialTheme.colorScheme.outlineVariant,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     onClick = {
                         if (isCreateMode) {
                             isCreateMode = false
@@ -118,17 +117,17 @@ fun ChooseModalWindow(
                     },
                 )
                 Text(
-                    text = if (isCreateMode && createTitleText.isNotEmpty()) createTitleText else titleText,
+                    text = if (isCreateMode && createTitle.isNotEmpty()) createTitle else titleText,
                     style = MaterialTheme.typography.bodyMedium,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.weight(1f),
                 )
                 if (!isCreateMode && showAddIcon) {
                     ActionHandlerButton(
-                        iconPainter = painterResource(R.drawable.create_deck_img),
+                        painter = painterResource(R.drawable.create_deck_img),
                         contentDescription = stringResource(R.string.add_icon_button),
-                        iconTint = MaterialTheme.colorScheme.outlineVariant,
-                        iconSize = dimensionResource(R.dimen.dimen_24),
+                        tint = MaterialTheme.colorScheme.primary,
+                        size = dimensionResource(R.dimen.dimen_24),
                         onClick = {
                             isCreateMode = true
                         },
@@ -151,11 +150,11 @@ fun ChooseModalWindow(
                             text = it
                         },
                         textStyle = MaterialTheme.typography.bodyMedium,
-                        placeholderTextStyle = MaterialTheme.typography.bodyMedium.copy(text_gray),
+                        placeholderTextStyle = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurfaceVariant),
                         modifier = Modifier
                             .fillMaxWidth()
                             .background(
-                                MaterialTheme.colorScheme.onPrimary,
+                                MaterialTheme.colorScheme.surface,
                                 MaterialTheme.shapes.large,
                             )
                             .border(
@@ -166,24 +165,18 @@ fun ChooseModalWindow(
                             .padding(dimensionResource(R.dimen.card_input_field_item_padding)),
                     )
 
-                    AnimatedVisibility(
-                        visible = errorMsg != null,
-                        enter = fadeIn() + expandVertically(),
-                        exit = fadeOut() + shrinkVertically(),
-                    ) {
-                        errorMsg?.let { message ->
-                            Text(
-                                text = message,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(
-                                        top = dimensionResource(R.dimen.spacer_extra_small),
-                                    ),
-                                textAlign = TextAlign.Start,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.error,
-                            )
-                        }
+                    errorMessage?.let { message ->
+                        Text(
+                            text = message,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(
+                                    top = dimensionResource(R.dimen.spacer_extra_small),
+                                ),
+                            textAlign = TextAlign.Start,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error,
+                        )
                     }
 
                     Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacer_large)))
@@ -213,7 +206,7 @@ fun ChooseModalWindow(
                                 ),
                         ) {
                             Text(
-                                text = if (target) stringResource(R.string.loading_text) else createButtonText,
+                                text = if (target) stringResource(R.string.loading_text) else createButtonLabel,
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = animatedTextColor,
                                 modifier = Modifier.padding(
@@ -225,22 +218,22 @@ fun ChooseModalWindow(
                     }
                 }
             } else {
-                chooseObject?.let {
+                items?.let {
                     LazyColumn(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(MaterialTheme.shapes.medium)
-                            .background(Color.White)
+                            .background(MaterialTheme.colorScheme.surface)
                             .heightIn(max = dimensionResource(R.dimen.dimen_200)),
                         verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.dimen_4)),
                     ) {
-                        items(chooseObject) { item ->
+                        items(it) { item ->
                             val isSelected = selectedId == item.second
                             val backgroundColor by animateColorAsState(
                                 targetValue = if (isSelected) {
-                                    MaterialTheme.colorScheme.secondary
+                                    MaterialTheme.colorScheme.primaryContainer
                                 } else {
-                                    MaterialTheme.colorScheme.secondary.copy(alpha = 0.5f)
+                                    MaterialTheme.colorScheme.surfaceVariant
                                 },
                                 animationSpec = tween(300),
                                 label = "background_color",
@@ -265,7 +258,7 @@ fun ChooseModalWindow(
                                     color = if (isSelected) {
                                         MaterialTheme.colorScheme.onPrimaryContainer
                                     } else {
-                                        MaterialTheme.colorScheme.onBackground
+                                        MaterialTheme.colorScheme.onSurfaceVariant
                                     },
                                 )
                             }

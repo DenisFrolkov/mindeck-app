@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 @HiltViewModel
-class DecksViewModel @Inject constructor(
+internal class DecksViewModel @Inject constructor(
     getAllDecksUseCase: GetAllDecksUseCase,
 ) : ViewModel() {
     val decksState: StateFlow<UiState<List<Deck>>> = getAllDecksUseCase()

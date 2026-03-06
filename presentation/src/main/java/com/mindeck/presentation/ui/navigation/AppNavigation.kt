@@ -45,9 +45,6 @@ fun MyApp() {
             entry<CardStudyRoute> {
                 CardStudyScreen(navigator)
             }
-            entry<RepeatCardsRoute> {
-                CardStudyScreen(navigator)
-            }
         },
     )
 }
