@@ -7,6 +7,7 @@ import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.CardWithDeck
 import com.mindeck.domain.usecases.card.command.DeleteCardUseCase
 import com.mindeck.domain.usecases.card.query.GetCardWithDeckByIdUseCase
+import com.mindeck.presentation.R
 import com.mindeck.presentation.state.ModalState
 import com.mindeck.presentation.state.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,7 +22,7 @@ import kotlinx.coroutines.sync.Mutex
 import javax.inject.Inject
 
 @HiltViewModel
-class CardViewModel @Inject constructor(
+internal class CardViewModel @Inject constructor(
     private val getCardWithDeckByIdUseCase: GetCardWithDeckByIdUseCase,
     private val deleteCardUseCase: DeleteCardUseCase,
 ) : ViewModel() {
@@ -41,6 +42,7 @@ class CardViewModel @Inject constructor(
     private val deleteCardMutex = Mutex()
 
     fun loadCardById(cardId: Int) {
+        if (_cardWithDeck.value is UiState.Loading) return
         viewModelScope.launch {
             _cardWithDeck.update { UiState.Loading }
 
@@ -48,11 +50,11 @@ class CardViewModel @Inject constructor(
                 val cardWithDeck = getCardWithDeckByIdUseCase(cardId = cardId)
                 _cardWithDeck.update { UiState.Success(cardWithDeck) }
             } catch (e: DomainError.DatabaseError) {
-                _cardWithDeck.update { UiState.Error("Failed to load card") }
+                _cardWithDeck.update { UiState.Error(R.string.error_failed_to_load_card) }
             } catch (e: DomainError) {
-                _cardWithDeck.update { UiState.Error("Something went wrong") }
+                _cardWithDeck.update { UiState.Error(R.string.error_something_went_wrong) }
             } catch (e: Exception) {
-                _cardWithDeck.update { UiState.Error("Something went wrong") }
+                _cardWithDeck.update { UiState.Error(R.string.error_something_went_wrong) }
             }
         }
     }
@@ -63,16 +65,16 @@ class CardViewModel @Inject constructor(
 
             try {
                 _deleteCardState.update { UiState.Loading }
-
-                try {
-                    deleteCardUseCase(card = card)
-                    _deleteCardState.update { UiState.Success(Unit) }
-                    _uiEvent.send(CardUiEvent.DeletionSuccessful(card.cardName))
-                } catch (e: DomainError.DatabaseError) {
-                    _deleteCardState.update { UiState.Error("Failed to delete card") }
-                } catch (e: DomainError) {
-                    _deleteCardState.update { UiState.Error("Something went wrong") }
-                }
+                deleteCardUseCase(card = card)
+                _deleteCardState.update { UiState.Success(Unit) }
+                hideModal()
+                _uiEvent.send(CardUiEvent.DeletionSuccessful(card.cardName))
+            } catch (e: DomainError.DatabaseError) {
+                _deleteCardState.update { UiState.Error(R.string.error_failed_to_delete_card) }
+            } catch (e: DomainError) {
+                _deleteCardState.update { UiState.Error(R.string.error_something_went_wrong) }
+            } catch (e: Exception) {
+                _deleteCardState.update { UiState.Error(R.string.error_something_went_wrong) }
             } finally {
                 deleteCardMutex.unlock()
             }
@@ -84,6 +86,7 @@ class CardViewModel @Inject constructor(
     }
 
     fun showDeleteDialog() {
+        _deleteCardState.update { UiState.Idle }
         _modalState.update { ModalState.DeleteDialog }
     }
 

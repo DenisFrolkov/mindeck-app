@@ -1,40 +1,44 @@
 package com.mindeck.presentation.ui.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.mindeck.domain.models.Deck
 import com.mindeck.presentation.R
+import com.mindeck.presentation.state.ModalState
 import com.mindeck.presentation.state.UiState
-import com.mindeck.presentation.ui.components.dataclasses.DisplayItemData
-import com.mindeck.presentation.ui.components.dataclasses.DisplayItemStyle
 import com.mindeck.presentation.ui.components.dialog.WriteModalWindow
 import com.mindeck.presentation.ui.components.dropdown.AppDropdownMenu
 import com.mindeck.presentation.ui.components.dropdown.AppDropdownMenuItem
-import com.mindeck.presentation.ui.components.folder.DisplayItem
+import com.mindeck.presentation.ui.components.item.DisplayItem
 import com.mindeck.presentation.ui.components.topBar.AppTopBar
-import com.mindeck.presentation.ui.components.utils.dimenFloatResource
 import com.mindeck.presentation.ui.navigation.CardRoute
 import com.mindeck.presentation.ui.navigation.CreationCardRoute
 import com.mindeck.presentation.ui.navigation.Navigator
@@ -48,27 +52,12 @@ fun DeckScreen(
     deckId: Int,
     modifier: Modifier = Modifier,
 ) {
-    DeckScreenContent(
-        navigator = navigator,
-        deckId = deckId,
-        viewModel = hiltViewModel<DeckViewModel>(),
-        modifier = modifier,
-    )
-}
+    val context = LocalContext.current
+    val viewModel = hiltViewModel<DeckViewModel>()
 
-@Composable
-internal fun DeckScreenContent(
-    navigator: Navigator,
-    deckId: Int,
-    viewModel: DeckViewModel,
-    modifier: Modifier = Modifier,
-) {
-    val screenUiState by viewModel.screenUiState.collectAsState()
-    val renameDeckState by viewModel.renameDeckState.collectAsState()
-
-    var renameModalWindow by remember { mutableStateOf(false) }
-    var isDropdownExpanded by remember { mutableStateOf(false) }
-    val dataSuccess = (screenUiState as? UiState.Success<DeckScreenData>)?.data
+    val screenUiState by viewModel.screenUiState.collectAsStateWithLifecycle()
+    val renameDeckState by viewModel.renameDeckState.collectAsStateWithLifecycle()
+    val modalState by viewModel.modalState.collectAsStateWithLifecycle()
 
     LaunchedEffect(deckId) {
         viewModel.loadDeckWithCards(deckId)
@@ -77,65 +66,95 @@ internal fun DeckScreenContent(
     LaunchedEffect(Unit) {
         viewModel.navigationEvent.collect { event ->
             when (event) {
-                DeckNavigationEvent.GoBack -> {
-                    navigator.pop()
+                DeckNavigationEvent.GoBack -> navigator.pop()
+                is DeckNavigationEvent.ShowToast -> {
+                    Toast.makeText(
+                        context,
+                        context.getString(event.messageRes),
+                        Toast.LENGTH_SHORT,
+                    ).show()
                 }
-
-                DeckNavigationEvent.CloseRenameWindow -> {
-                    renameModalWindow = false
-                }
-
-                is DeckNavigationEvent.ShowToast -> Unit
             }
         }
     }
 
+    DeckScreenContent(
+        screenUiState = screenUiState,
+        renameDeckState = renameDeckState,
+        modalState = modalState,
+        actions = DeckScreenActions(
+            onMenuClick = viewModel::showDropdownMenu,
+            onDismissModal = viewModel::hideModal,
+            onShowRenameDialog = viewModel::showRenameDialog,
+            onDeleteDeck = viewModel::deleteDeck,
+            onRenameDeck = { id, name -> viewModel.renameDeck(id, name) },
+            onNavigateBack = navigator::pop,
+            onNavigateToCard = { navigator.push(CardRoute(it)) },
+            onNavigateToCreateCard = { navigator.push(CreationCardRoute(it)) },
+        ),
+        modifier = modifier,
+    )
+}
+
+@Composable
+internal fun DeckScreenContent(
+    screenUiState: UiState<DeckScreenData>,
+    renameDeckState: UiState<Unit>,
+    modalState: ModalState,
+    actions: DeckScreenActions,
+    modifier: Modifier = Modifier,
+) {
+    val dataSuccess = (screenUiState as? UiState.Success<DeckScreenData>)?.data
+
     Scaffold(
         modifier = modifier
-            .fillMaxSize(),
+            .fillMaxSize()
+            .systemBarsPadding(),
         topBar = {
             AppTopBar(
-                visibleMenuButton = screenUiState is UiState.Success,
-                onBackClick = { navigator.pop() },
-                onMenuClick = { isDropdownExpanded = true },
+                showMenuButton = screenUiState is UiState.Success,
+                onBackClick = actions.onNavigateBack,
+                onMenuClick = actions.onMenuClick,
                 modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.padding_medium)),
             )
         },
         content = { padding ->
-            DeckCardList(
-                screenUiState = screenUiState,
+            Column(
                 modifier = Modifier
                     .padding(padding)
-                    .padding(horizontal = dimensionResource(R.dimen.padding_medium)),
-            ) { cardId ->
-                navigator.push(CardRoute(cardId))
+                    .padding(horizontal = dimensionResource(R.dimen.dimen_16)),
+            ) {
+                DeckContent(
+                    screenUiState = screenUiState,
+                    onNavigateToCard = actions.onNavigateToCard,
+                )
             }
 
             dataSuccess?.let { data ->
                 AppDropdownMenu(
                     padding = padding,
-                    isExpanded = isDropdownExpanded,
-                    onDismiss = { isDropdownExpanded = false },
+                    isExpanded = modalState is ModalState.DropdownMenu,
+                    onDismiss = actions.onDismissModal,
                 ) {
                     AppDropdownMenuItem(
                         text = stringResource(R.string.dropdown_menu_data_rename_list),
                         onClick = {
-                            isDropdownExpanded = false
-                            renameModalWindow = true
+                            actions.onDismissModal()
+                            actions.onShowRenameDialog()
                         },
                     )
                     AppDropdownMenuItem(
                         text = stringResource(R.string.dropdown_menu_data_create_card),
                         onClick = {
-                            isDropdownExpanded = false
-                            navigator.push(CreationCardRoute(data.deck.deckId))
+                            actions.onDismissModal()
+                            actions.onNavigateToCreateCard(data.deck.deckId)
                         },
                     )
                     AppDropdownMenuItem(
                         text = stringResource(R.string.dropdown_menu_data_remove_deck),
                         onClick = {
-                            isDropdownExpanded = false
-                            viewModel.deleteDeck(data.deck)
+                            actions.onDismissModal()
+                            actions.onDeleteDeck(data.deck)
                         },
                     )
                 }
@@ -143,132 +162,125 @@ internal fun DeckScreenContent(
         },
     )
 
-    if (renameModalWindow) {
-        WriteModalWindow(
-            titleText = stringResource(R.string.rename_title_item_dialog),
-            buttonText = stringResource(R.string.save_text),
-            placeholder = stringResource(R.string.rename_item_dialog_text_input_title_deck),
-            isLoading = renameDeckState is UiState.Loading,
-            errorMsg = (renameDeckState as? UiState.Error)?.error,
-            onExitClick = {
-                renameModalWindow = false
-                viewModel.resetRenameDeckState()
-            },
-            onSaveClick = {
-                dataSuccess?.let { data ->
-                    viewModel.renameDeck(data.deck.deckId, it)
-                }
-            },
-        )
-    }
-}
-
-@Composable
-private fun DeckCardList(
-    screenUiState: UiState<DeckScreenData>,
-    modifier: Modifier = Modifier,
-    navigatorToCard: (Int) -> Unit,
-) {
-    when (screenUiState) {
-        is UiState.Error -> {
-            DeckErrorState(
-                modifier = modifier,
-            )
-        }
-
-        is UiState.Success -> {
-            DeckSuccessState(
-                data = screenUiState.data,
-                modifier = modifier,
-                navigatorToCard = navigatorToCard,
-            )
-        }
-
-        is UiState.Loading -> {
-            DeckLoadingState(
-                modifier = modifier,
-            )
-        }
-
-        is UiState.Idle -> Unit
-    }
-}
-
-@Composable
-private fun DeckSuccessState(
-    data: DeckScreenData,
-    modifier: Modifier = Modifier,
-    navigatorToCard: (Int) -> Unit,
-) {
-    val cardItemStyle =
-        DisplayItemStyle(
-            backgroundColor =
-            MaterialTheme.colorScheme.secondary.copy(
-                dimenFloatResource(R.dimen.float_zero_dot_five_significance),
-            ),
-            iconColor = MaterialTheme.colorScheme.outlineVariant,
-            textStyle = MaterialTheme.typography.bodyMedium,
-        )
-
-    LazyColumn(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.dimen_6)),
-    ) {
-        item {
-            Text(
-                text = data.deck.deckName,
-                style = MaterialTheme.typography.titleMedium,
-                modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .wrapContentSize(Alignment.Center)
-                    .padding(dimensionResource(R.dimen.dimen_6)),
-            )
-        }
-        items(items = data.cards, key = { it.cardId }) { card ->
-            DisplayItem(
-                modifier = Modifier.fillMaxWidth(),
-                shape = MaterialTheme.shapes.extraSmall,
-                showCount = false,
-                displayItemData =
-                DisplayItemData(
-                    itemIcon = R.drawable.card_icon,
-                    itemName = card.cardName,
-                ),
-                displayItemStyle = cardItemStyle,
-                onClick = {
-                    navigatorToCard(card.cardId)
+    when (modalState) {
+        is ModalState.RenameDialog -> {
+            WriteModalWindow(
+                titleText = stringResource(R.string.rename_title_item_dialog),
+                buttonText = stringResource(R.string.save_text),
+                placeholder = stringResource(R.string.rename_item_dialog_text_input_title_deck),
+                actionState = renameDeckState,
+                onExitClick = actions.onDismissModal,
+                onSaveClick = { name ->
+                    dataSuccess?.let { data ->
+                        actions.onRenameDeck(data.deck.deckId, name)
+                    }
                 },
             )
         }
+
+        else -> Unit
     }
 }
 
 @Composable
-private fun DeckLoadingState(modifier: Modifier = Modifier) {
-    Box(
-        modifier =
-        modifier
-            .fillMaxWidth()
-            .padding(top = dimensionResource(R.dimen.padding_large)),
-        contentAlignment = Alignment.Center,
-    ) {
-        CircularProgressIndicator(
-            color = MaterialTheme.colorScheme.primary,
-            strokeWidth = dimensionResource(R.dimen.circular_progress_indicator_weight_one),
-        )
+private fun DeckContent(
+    screenUiState: UiState<DeckScreenData>,
+    onNavigateToCard: (Int) -> Unit,
+) {
+    when (screenUiState) {
+        is UiState.Success -> {
+            val screenData = screenUiState.data
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.dimen_6)),
+            ) {
+                if (screenData.cards.isNotEmpty()) {
+                    item {
+                        Text(
+                            text = screenData.deck.deckName,
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_8)))
+                    }
+                }
+
+                if (screenData.cards.isEmpty()) {
+                    item {
+                        Text(
+                            text = stringResource(R.string.empty_cards_list),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = dimensionResource(R.dimen.dimen_40)),
+                            textAlign = TextAlign.Center,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
+
+                items(
+                    items = screenData.cards,
+                    key = { it.cardId },
+                ) { card ->
+                    DisplayItem(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        icon = R.drawable.card_icon,
+                        name = card.cardName,
+                        onClick = { onNavigateToCard(card.cardId) },
+                    )
+                }
+            }
+        }
+
+        UiState.Loading -> {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentSize(Alignment.Center),
+            ) {
+                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_14)))
+                CircularProgressIndicator(
+                    color = MaterialTheme.colorScheme.primary,
+                    strokeWidth = dimensionResource(R.dimen.dimen_2),
+                )
+            }
+        }
+
+        is UiState.Error -> {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.dimen_16)),
+            ) {
+                Text(
+                    stringResource(R.string.error_get_cards_by_deck_id),
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.error),
+                )
+                Icon(
+                    painter = painterResource(R.drawable.img_error),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.size(dimensionResource(R.dimen.dimen_36)),
+                )
+            }
+        }
+
+        UiState.Idle -> Unit
     }
 }
 
-@Composable
-private fun DeckErrorState(modifier: Modifier = Modifier) {
-    Text(
-        text = stringResource(R.string.error_get_cards_by_deck_id),
-        modifier = modifier.fillMaxWidth(),
-        textAlign = TextAlign.Center,
-        style =
-        MaterialTheme.typography.bodyLarge.copy(
-            color = MaterialTheme.colorScheme.error,
-        ),
-    )
-}
+data class DeckScreenActions(
+    val onMenuClick: () -> Unit,
+    val onDismissModal: () -> Unit,
+    val onShowRenameDialog: () -> Unit,
+    val onDeleteDeck: (Deck) -> Unit,
+    val onRenameDeck: (Int, String) -> Unit,
+    val onNavigateBack: () -> Unit,
+    val onNavigateToCard: (Int) -> Unit,
+    val onNavigateToCreateCard: (Int) -> Unit,
+)

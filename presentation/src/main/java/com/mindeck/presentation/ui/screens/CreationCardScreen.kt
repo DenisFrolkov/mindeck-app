@@ -1,24 +1,22 @@
 package com.mindeck.presentation.ui.screens
 
 import android.widget.Toast
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -27,7 +25,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -36,20 +33,20 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mindeck.domain.models.CardType
 import com.mindeck.domain.models.Deck
 import com.mindeck.presentation.R
 import com.mindeck.presentation.state.CreateCardFormState
 import com.mindeck.presentation.state.ModalState
 import com.mindeck.presentation.state.UiState
+import com.mindeck.presentation.ui.components.buttons.CustomButton
 import com.mindeck.presentation.ui.components.dialog.ChooseModalWindow
+import com.mindeck.presentation.ui.components.selector.SelectorRow
 import com.mindeck.presentation.ui.components.textfields.CardInputField
 import com.mindeck.presentation.ui.components.topBar.AppTopBar
 import com.mindeck.presentation.ui.navigation.Navigator
-import com.mindeck.presentation.ui.theme.text_black
-import com.mindeck.presentation.ui.theme.text_gray
 import com.mindeck.presentation.viewmodel.CreationCardNavigationEvent
 import com.mindeck.presentation.viewmodel.CreationCardViewModel
 
@@ -59,27 +56,13 @@ fun CreationCardScreen(
     deckId: Int?,
     modifier: Modifier = Modifier,
 ) {
-    CreationCardScreenContent(
-        navigator = navigator,
-        deckId = deckId,
-        viewModel = hiltViewModel<CreationCardViewModel>(),
-        modifier = modifier,
-    )
-}
-
-@Composable
-fun CreationCardScreenContent(
-    navigator: Navigator,
-    deckId: Int?,
-    viewModel: CreationCardViewModel,
-    modifier: Modifier = Modifier,
-) {
-    val formState by viewModel.formState.collectAsState()
-    val deckState by viewModel.deckSelectionHandler.decksState.collectAsState()
-    val createCardState by viewModel.createCardState.collectAsState()
-    val modalState by viewModel.modalState.collectAsState()
-
     val context = LocalContext.current
+    val viewModel = hiltViewModel<CreationCardViewModel>()
+    val formState by viewModel.formState.collectAsStateWithLifecycle()
+    val deckState by viewModel.deckSelectionHandler.decksState.collectAsStateWithLifecycle()
+    val createDeckState by viewModel.deckSelectionHandler.createDeckState.collectAsStateWithLifecycle()
+    val createCardState by viewModel.createCardState.collectAsStateWithLifecycle()
+    val modalState by viewModel.modalState.collectAsStateWithLifecycle()
 
     LaunchedEffect(deckId) {
         deckId?.let { viewModel.setDeckId(it) }
@@ -89,19 +72,69 @@ fun CreationCardScreenContent(
         viewModel.navigationEvent.collect { event ->
             when (event) {
                 is CreationCardNavigationEvent.ShowToast -> {
-                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, context.getString(event.messageRes), Toast.LENGTH_SHORT).show()
                 }
-                CreationCardNavigationEvent.ToBack -> { navigator.pop() }
             }
         }
     }
 
-    Scaffold(
+    CreationCardScreenContent(
+        formState = formState,
+        deckState = deckState,
+        createDeckState = createDeckState,
+        createCardState = createCardState,
+        modalState = modalState,
+        actions = CreationCardScreenActions(
+            onNavigateBack = navigator::pop,
+            onShowDeckModal = viewModel::showDeckModal,
+            onShowTypeModal = viewModel::showTypeModal,
+            onUpdateForm = viewModel::updateForm,
+            onCreateCard = viewModel::createCard,
+            onHideModal = viewModel::hideModal,
+            onSetDeckId = viewModel::setDeckId,
+            onSetType = viewModel::setType,
+            onCreateDeck = viewModel::createDeck,
+        ),
         modifier = modifier,
+    )
+}
+
+@Composable
+internal fun CreationCardScreenContent(
+    formState: CreateCardFormState,
+    deckState: UiState<List<Deck>>,
+    createDeckState: UiState<Unit>,
+    createCardState: UiState<Unit>,
+    modalState: ModalState,
+    actions: CreationCardScreenActions,
+    modifier: Modifier = Modifier,
+) {
+    val cardTypes = listOf(
+        Pair(stringResource(R.string.card_type_simple), CardType.SIMPLE),
+        Pair(stringResource(R.string.card_type_complex), CardType.COMPLEX),
+    )
+
+    val selectedDeckName = remember(deckState, formState.selectedDeckId) {
+        formState.selectedDeckId?.let { id ->
+            (deckState as? UiState.Success)?.data?.find { it.deckId == id }?.deckName
+        }
+    }
+
+    val selectedTypeName = formState.selectedType?.let { cardType ->
+        when (cardType) {
+            CardType.SIMPLE -> stringResource(R.string.card_type_simple)
+            CardType.COMPLEX -> stringResource(R.string.card_type_complex)
+        }
+    } ?: stringResource(R.string.choose_type_title_dialog)
+
+    Scaffold(
+        modifier = modifier
+            .fillMaxSize()
+            .systemBarsPadding(),
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             AppTopBar(
-                onBackClick = { navigator.pop() },
+                onBackClick = actions.onNavigateBack,
                 modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.dimen_16)),
             )
         },
@@ -110,46 +143,38 @@ fun CreationCardScreenContent(
                 modifier = Modifier
                     .padding(padding)
                     .verticalScroll(rememberScrollState())
-                    .padding(horizontal = dimensionResource(R.dimen.dimen_16))
-                    .navigationBarsPadding(),
+                    .padding(horizontal = dimensionResource(R.dimen.dimen_16)),
             ) {
-                DeckSelector(
-                    selectedDeckId = formState.selectedDeckId,
-                    deckState = deckState,
-                    onDeckSelectorClick = { viewModel.showDeckModal() },
+                SelectorRow(
+                    label = stringResource(R.string.text_deck_dropdown_selector),
+                    selectedText = selectedDeckName
+                        ?: stringResource(R.string.choose_deck_title_dialog),
+                    onClick = actions.onShowDeckModal,
                 )
 
                 Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_8)))
 
-                TypeSelector(
-                    selectedType = formState.selectedType,
-                    onTypeSelectorClick = { viewModel.showTypeModal() },
+                SelectorRow(
+                    label = stringResource(R.string.text_type_dropdown_selector),
+                    selectedText = selectedTypeName,
+                    onClick = actions.onShowTypeModal,
                 )
 
                 Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_12)))
 
                 CardFormInputs(
                     formState = formState,
-                    onValueChange = { update -> viewModel.updateForm(update) },
+                    onValueChange = actions.onUpdateForm,
                 )
 
                 Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_20)))
 
-                CreateCardButton(
-                    buttonText = stringResource(R.string.text_save_card_button),
-                    isValid = formState.isValid(),
-                    isLoading = createCardState is UiState.Loading,
-                    onSaveClick = { viewModel.createCard() },
-                )
-
-                if (createCardState is UiState.Error) {
-                    Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_8)))
-                    Text(
-                        text = (createCardState as UiState.Error).error,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth(),
+                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                    CreateCardButton(
+                        text = stringResource(R.string.save_text),
+                        isValid = formState.isValid(),
+                        actionState = createCardState,
+                        onSaveClick = actions.onCreateCard,
                     )
                 }
             }
@@ -158,121 +183,38 @@ fun CreationCardScreenContent(
 
     when (modalState) {
         is ModalState.DeckSelection -> {
-            DeckSelectionModal(
-                viewModel = viewModel,
-                deckState = deckState,
-                selectedDeckId = formState.selectedDeckId,
+            ChooseModalWindow(
+                titleText = stringResource(R.string.choose_deck_title_dialog),
+                items = (deckState as? UiState.Success)?.data?.map {
+                    Pair(
+                        it.deckName,
+                        it.deckId,
+                    )
+                },
+                actionState = createDeckState,
+                onExitClick = actions.onHideModal,
+                onSaveClick = actions.onSetDeckId,
+                selectedId = formState.selectedDeckId,
+                showAddIcon = true,
+                createTitle = stringResource(R.string.create_item_dialog_text_input_name_deck),
+                createButtonLabel = stringResource(R.string.save_text),
+                createPlaceholder = stringResource(R.string.rename_item_dialog_text_input_title_deck),
+                onCreateClick = actions.onCreateDeck,
             )
         }
+
         is ModalState.TypeSelection -> {
-            TypeSelectionModal(
-                selectedType = formState.selectedType,
-                onDismiss = { viewModel.hideModal() },
-                onTypeSelected = { cardType ->
-                    viewModel.hideModal()
-                    viewModel.setType(cardType)
-                },
+            ChooseModalWindow(
+                titleText = stringResource(R.string.choose_type_title_dialog),
+                items = cardTypes.map { Pair(it.first, it.second.stableId) },
+                actionState = UiState.Idle,
+                selectedId = formState.selectedType?.stableId,
+                onExitClick = actions.onHideModal,
+                onSaveClick = { id -> actions.onSetType(CardType.fromStableId(id)) },
             )
         }
 
         else -> Unit
-    }
-}
-
-@Composable
-private fun DeckSelector(
-    selectedDeckId: Int?,
-    deckState: UiState<List<Deck>>,
-    onDeckSelectorClick: () -> Unit,
-) {
-    val selectedDeckName = remember(deckState, selectedDeckId) {
-        selectedDeckId?.let { id ->
-            (deckState as? UiState.Success)?.data?.find { it.deckId == id }?.deckName
-        }
-    }
-
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween,
-    ) {
-        Text(
-            text = stringResource(R.string.text_deck_dropdown_selector),
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.padding(dimensionResource(R.dimen.dimen_8)),
-        )
-
-        Box(
-            modifier = Modifier
-                .clickable(onClick = onDeckSelectorClick)
-                .background(
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    shape = MaterialTheme.shapes.extraSmall,
-                )
-                .size(
-                    height = dimensionResource(R.dimen.dimen_36),
-                    width = dimensionResource(R.dimen.dimen_200),
-                )
-                .border(
-                    dimensionResource(R.dimen.dimen_0_25),
-                    color = MaterialTheme.colorScheme.outline,
-                    shape = MaterialTheme.shapes.extraSmall,
-                )
-                .wrapContentSize(Alignment.Center),
-        ) {
-            Text(
-                text = selectedDeckName ?: stringResource(R.string.choose_deck_title_dialog),
-                overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.typography.bodyMedium.copy(color = text_black),
-            )
-        }
-    }
-}
-
-@Composable
-private fun TypeSelector(
-    selectedType: CardType?,
-    onTypeSelectorClick: () -> Unit,
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween,
-    ) {
-        Text(
-            text = stringResource(R.string.text_type_dropdown_selector),
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.padding(dimensionResource(R.dimen.dimen_8)),
-        )
-
-        Box(
-            modifier = Modifier
-                .clickable(onClick = onTypeSelectorClick)
-                .background(
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    shape = MaterialTheme.shapes.extraSmall,
-                )
-                .size(
-                    height = dimensionResource(R.dimen.dimen_36),
-                    width = dimensionResource(R.dimen.dimen_200),
-                )
-                .border(
-                    dimensionResource(R.dimen.dimen_0_25),
-                    color = MaterialTheme.colorScheme.outline,
-                    shape = MaterialTheme.shapes.extraSmall,
-                )
-                .wrapContentSize(Alignment.Center),
-        ) {
-            Text(
-                text = selectedType?.let { cardType ->
-                    when (cardType) {
-                        CardType.SIMPLE -> stringResource(R.string.card_type_simple)
-                        CardType.COMPLEX -> stringResource(R.string.card_type_complex)
-                    }
-                } ?: stringResource(R.string.choose_type_title_dialog),
-                style = MaterialTheme.typography.bodyMedium.copy(color = text_black),
-            )
-        }
     }
 }
 
@@ -287,11 +229,11 @@ private fun CardFormInputs(
         singleLine = true,
         onValueChange = { onValueChange { copy(title = it) } },
         textStyle = MaterialTheme.typography.bodyMedium,
-        placeholderTextStyle = MaterialTheme.typography.bodyMedium.copy(text_gray),
+        placeholderTextStyle = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurfaceVariant),
         modifier = Modifier
             .fillMaxWidth()
             .background(
-                color = MaterialTheme.colorScheme.onPrimary,
+                color = MaterialTheme.colorScheme.surface,
                 shape = MaterialTheme.shapes.large,
             )
             .height(height = dimensionResource(R.dimen.dimen_46))
@@ -310,10 +252,10 @@ private fun CardFormInputs(
         value = formState.question,
         onValueChange = { onValueChange { copy(question = it) } },
         textStyle = MaterialTheme.typography.bodyMedium,
-        placeholderTextStyle = MaterialTheme.typography.bodyMedium.copy(text_gray),
+        placeholderTextStyle = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurfaceVariant),
         modifier = Modifier
             .background(
-                color = MaterialTheme.colorScheme.onPrimary,
+                color = MaterialTheme.colorScheme.surface,
                 shape = RoundedCornerShape(
                     topStart = dimensionResource(R.dimen.dimen_6),
                     topEnd = dimensionResource(R.dimen.dimen_6),
@@ -339,10 +281,10 @@ private fun CardFormInputs(
         value = formState.answer,
         onValueChange = { onValueChange { copy(answer = it) } },
         textStyle = MaterialTheme.typography.bodyMedium,
-        placeholderTextStyle = MaterialTheme.typography.bodyMedium.copy(text_gray),
+        placeholderTextStyle = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurfaceVariant),
         modifier = Modifier
             .background(
-                color = MaterialTheme.colorScheme.onPrimary,
+                color = MaterialTheme.colorScheme.surface,
                 shape = RoundedCornerShape(
                     bottomStart = dimensionResource(R.dimen.dimen_6),
                     bottomEnd = dimensionResource(R.dimen.dimen_6),
@@ -378,10 +320,10 @@ private fun CardFormInputs(
             singleLine = true,
             onValueChange = { onValueChange { copy(tag = it) } },
             textStyle = MaterialTheme.typography.bodyMedium,
-            placeholderTextStyle = MaterialTheme.typography.bodyMedium.copy(text_gray),
+            placeholderTextStyle = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurfaceVariant),
             modifier = Modifier
                 .background(
-                    MaterialTheme.colorScheme.onPrimary,
+                    MaterialTheme.colorScheme.surface,
                     MaterialTheme.shapes.large,
                 )
                 .size(
@@ -399,111 +341,70 @@ private fun CardFormInputs(
 }
 
 @Composable
-private fun DeckSelectionModal(
-    viewModel: CreationCardViewModel,
-    deckState: UiState<List<Deck>>,
-    selectedDeckId: Int?,
-) {
-    val createDeckState by viewModel.deckSelectionHandler.createDeckState.collectAsState()
-
-    ChooseModalWindow(
-        titleText = stringResource(R.string.choose_deck_title_dialog),
-        chooseObject = (deckState as? UiState.Success)?.data?.map { Pair(it.deckName, it.deckId) },
-        isLoading = createDeckState is UiState.Loading,
-        errorMsg = (createDeckState as? UiState.Error)?.error,
-        onExitClick = { viewModel.hideModal() },
-        onSaveClick = { deckId ->
-            viewModel.hideModal()
-            viewModel.setDeckId(deckId)
-        },
-        selectedId = selectedDeckId,
-        showAddIcon = true,
-        createTitleText = stringResource(R.string.create_item_dialog_text_input_name_deck),
-        createButtonText = stringResource(R.string.save_text),
-        createPlaceholder = stringResource(R.string.rename_item_dialog_text_input_title_deck),
-        onCreateClick = { deckName -> viewModel.createDeck(deckName) },
-    )
-}
-
-@Composable
-private fun TypeSelectionModal(
-    selectedType: CardType?,
-    onDismiss: () -> Unit,
-    onTypeSelected: (CardType) -> Unit,
-) {
-    val cardTypes = listOf(
-        Pair(stringResource(R.string.card_type_simple), CardType.SIMPLE),
-        Pair(stringResource(R.string.card_type_complex), CardType.COMPLEX),
-    )
-
-    ChooseModalWindow(
-        titleText = stringResource(R.string.choose_type_title_dialog),
-        chooseObject = cardTypes.map { Pair(it.first, it.second.stableId) },
-        isLoading = false,
-        errorMsg = null,
-        selectedId = selectedType?.stableId,
-        onExitClick = onDismiss,
-        onSaveClick = { id -> onTypeSelected(CardType.fromStableId(id)) },
-    )
-}
-
-@Composable
 private fun CreateCardButton(
-    buttonText: String,
+    text: String,
     isValid: Boolean,
-    isLoading: Boolean,
+    actionState: UiState<Unit>,
     onSaveClick: () -> Unit,
 ) {
+    val isLoading = actionState is UiState.Loading
+    val errorState = actionState as? UiState.Error
+
     val animatedButtonColor by animateColorAsState(
         targetValue = when {
-            !isValid -> MaterialTheme.colorScheme.secondary
-            else -> MaterialTheme.colorScheme.onSecondary
+            !isValid -> MaterialTheme.colorScheme.surfaceVariant
+            else -> MaterialTheme.colorScheme.primary
         },
-        animationSpec = tween(300),
+        animationSpec = tween(DURATION_300),
         label = "buttonColor",
     )
 
     val animatedTextColor by animateColorAsState(
         targetValue = when {
-            !isValid -> MaterialTheme.colorScheme.outline
-            isLoading -> MaterialTheme.colorScheme.onSecondaryContainer
-            else -> MaterialTheme.colorScheme.scrim
+            !isValid -> MaterialTheme.colorScheme.onSurfaceVariant
+            isLoading -> MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.6f)
+            else -> MaterialTheme.colorScheme.onPrimary
         },
-        animationSpec = tween(300),
+        animationSpec = tween(DURATION_300),
         label = "textColor",
     )
 
-    AnimatedContent(
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentSize(Alignment.Center),
-        targetState = isLoading,
-    ) { target ->
-        Box(
+    CustomButton(
+        text = if (isLoading) stringResource(R.string.loading_text) else text,
+        color = animatedButtonColor,
+        textColor = animatedTextColor,
+        onClick = { if (!isLoading && isValid) onSaveClick() },
+        modifier = Modifier.size(
+            height = dimensionResource(R.dimen.dimen_42),
+            width = dimensionResource(R.dimen.dimen_140),
+        ),
+    )
+
+    errorState?.let { error ->
+        Text(
+            text = stringResource(error.messageRes, *error.args.toTypedArray()),
             modifier = Modifier
-                .background(
-                    color = animatedButtonColor,
-                    shape = MaterialTheme.shapes.medium,
-                )
-                .then(
-                    if (!isValid) {
-                        Modifier
-                    } else {
-                        Modifier.clickable {
-                            onSaveClick()
-                        }
-                    },
+                .fillMaxWidth()
+                .padding(
+                    top = dimensionResource(R.dimen.dimen_4),
                 ),
-        ) {
-            Text(
-                text = if (target) stringResource(R.string.loading_text) else buttonText,
-                style = MaterialTheme.typography.bodyMedium,
-                color = animatedTextColor,
-                modifier = Modifier.padding(
-                    vertical = dimensionResource(R.dimen.dimen_12),
-                    horizontal = dimensionResource(R.dimen.dimen_32),
-                ),
-            )
-        }
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.error,
+        )
     }
 }
+
+const val DURATION_300 = 300
+
+data class CreationCardScreenActions(
+    val onNavigateBack: () -> Unit,
+    val onShowDeckModal: () -> Unit,
+    val onShowTypeModal: () -> Unit,
+    val onUpdateForm: (CreateCardFormState.() -> CreateCardFormState) -> Unit,
+    val onCreateCard: () -> Unit,
+    val onHideModal: () -> Unit,
+    val onSetDeckId: (Int) -> Unit,
+    val onSetType: (CardType) -> Unit,
+    val onCreateDeck: (String) -> Unit,
+)

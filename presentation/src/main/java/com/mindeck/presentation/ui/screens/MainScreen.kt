@@ -3,7 +3,6 @@ package com.mindeck.presentation.ui.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -17,8 +16,6 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
@@ -27,24 +24,22 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mindeck.domain.models.Deck
 import com.mindeck.presentation.R
-import com.mindeck.presentation.state.RenderState
 import com.mindeck.presentation.state.UiState
-import com.mindeck.presentation.ui.components.dataclasses.DisplayItemData
-import com.mindeck.presentation.ui.components.dataclasses.DisplayItemStyle
-import com.mindeck.presentation.ui.components.folder.DisplayItem
-import com.mindeck.presentation.ui.components.utils.dimenFloatResource
+import com.mindeck.presentation.ui.components.buttons.CustomButton
+import com.mindeck.presentation.ui.components.item.DisplayItem
 import com.mindeck.presentation.ui.navigation.CardStudyRoute
 import com.mindeck.presentation.ui.navigation.CreationCardRoute
 import com.mindeck.presentation.ui.navigation.DeckRoute
@@ -57,67 +52,72 @@ fun MainScreen(
     navigator: Navigator,
     modifier: Modifier = Modifier,
 ) {
+    val viewModel = hiltViewModel<MainViewModel>()
+    val decksState by viewModel.decksState.collectAsStateWithLifecycle()
+
     MainScreenContent(
-        navigator = navigator,
-        viewModel = hiltViewModel<MainViewModel>(),
+        decksState = decksState,
+        actions = MainScreenActions(
+            onNavigateToStudy = { navigator.push(CardStudyRoute()) },
+            onNavigateToDeck = { navigator.push(DeckRoute(it)) },
+            onNavigateToDecks = { navigator.push(DecksRoute) },
+            onNavigateToCreateCard = { navigator.push(CreationCardRoute()) },
+        ),
         modifier = modifier,
     )
 }
 
 @Composable
 internal fun MainScreenContent(
-    navigator: Navigator,
-    viewModel: MainViewModel,
+    decksState: UiState<List<Deck>>,
+    actions: MainScreenActions,
     modifier: Modifier = Modifier,
 ) {
-    val decksState by viewModel.decksState.collectAsState()
-
     Scaffold(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier
+            .fillMaxSize()
+            .systemBarsPadding(),
         containerColor = MaterialTheme.colorScheme.background,
-        content = { paddingValues ->
+        content = { padding ->
             Column(
                 modifier = Modifier
-                    .padding(paddingValues)
-                    .padding(horizontal = dimensionResource(R.dimen.padding_medium))
-                    .systemBarsPadding(),
+                    .padding(padding)
+                    .padding(horizontal = dimensionResource(R.dimen.dimen_16)),
                 verticalArrangement = Arrangement.Center,
             ) {
+                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_12)))
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(dimensionResource(R.dimen.dimen_12)))
-                        .background(MaterialTheme.colorScheme.onPrimary)
-                        .clickable { navigator.push(CardStudyRoute()) }
+                        .background(MaterialTheme.colorScheme.surface)
+                        .clickable { actions.onNavigateToStudy() }
                         .padding(vertical = dimensionResource(R.dimen.dimen_8)),
                     horizontalArrangement = Arrangement.SpaceAround,
                 ) {
                     RepeatCountItem(
-                        14,
-                        stringResource(R.string.new_text),
-                        color = Color.Green,
-                        Modifier,
+                        count = "14",
+                        label = stringResource(R.string.new_text),
+                        color = MaterialTheme.colorScheme.tertiary,
                     )
 
                     RepeatCountItem(
-                        6,
-                        stringResource(R.string.learning_text),
-                        color = Color.Red,
-                        Modifier,
+                        count = "6",
+                        label = stringResource(R.string.learning_text),
+                        color = MaterialTheme.colorScheme.error,
                     )
 
                     RepeatCountItem(
-                        10,
-                        stringResource(R.string.to_review_text),
-                        color = Color.Blue,
-                        Modifier,
+                        count = "10",
+                        label = stringResource(R.string.to_review_text),
+                        color = MaterialTheme.colorScheme.primary,
                     )
                 }
-                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacer_large)))
-                ListDecks(
+                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_20)))
+                DeckList(
                     decksState = decksState,
-                    navigatorToDeck = { deckId -> navigator.push(DeckRoute(deckId)) },
-                    navigatorToDecks = { navigator.push(DecksRoute) },
+                    onDeckClick = actions.onNavigateToDeck,
+                    onAllDecksClick = actions.onNavigateToDecks,
                 )
             }
         },
@@ -128,15 +128,14 @@ internal fun MainScreenContent(
                     defaultElevation = dimensionResource(R.dimen.dimen_0),
                 ),
                 shape = RoundedCornerShape(dimensionResource(R.dimen.dimen_20)),
-                containerColor = MaterialTheme.colorScheme.onSecondary,
-                onClick = {
-                    navigator.push(CreationCardRoute())
-                },
+                containerColor = MaterialTheme.colorScheme.primary,
+                onClick = actions.onNavigateToCreateCard,
             ) {
                 Icon(
-                    imageVector = Icons.Filled.Add,
+                    painter = painterResource(R.drawable.img_add),
                     contentDescription = null,
-                    modifier = Modifier.size(dimensionResource(R.dimen.dimen_24)),
+                    tint = MaterialTheme.colorScheme.onPrimary,
+                    modifier = Modifier.size(dimensionResource(R.dimen.dimen_22)),
                 )
             }
         },
@@ -145,136 +144,128 @@ internal fun MainScreenContent(
 
 @Composable
 private fun RepeatCountItem(
-    count: Int,
+    count: String,
     label: String,
     color: Color,
     modifier: Modifier = Modifier,
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.dimen_2)),
+        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.dimen_1)),
         modifier = modifier,
     ) {
         Text(
-            text = count.toString(),
+            text = count,
             style = MaterialTheme.typography.bodyLarge,
             color = color,
         )
         Text(
             text = label,
-            style = MaterialTheme.typography.labelMedium,
+            style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurface,
         )
     }
 }
 
 @Composable
-private fun ListDecks(
+private fun DeckList(
     decksState: UiState<List<Deck>>,
-    navigatorToDeck: (Int) -> Unit,
-    navigatorToDecks: () -> Unit,
+    onDeckClick: (Int) -> Unit,
+    onAllDecksClick: () -> Unit,
 ) {
-    decksState.RenderState(
-        onSuccess = { decks ->
+    when (decksState) {
+        is UiState.Success -> {
+            val decks = decksState.data
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.dimen_8)),
+                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.dimen_12)),
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                items(
-                    items = decks.take(5),
-                    key = { it.deckId },
-                ) { deck ->
-                    DeckItem(deck = deck, navigatorToDeck = navigatorToDeck)
-                    Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacer_small)))
+                if (decks.isEmpty()) {
+                    item {
+                        Text(
+                            text = stringResource(R.string.empty_decks_list),
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Center,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
                 }
 
-                if (decks.size > 5) {
+                items(
+                    items = decks.take(MAX_DECK_COUNT),
+                    key = { it.deckId },
+                ) { deck ->
+                    DisplayItem(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        icon = R.drawable.deck_icon,
+                        name = deck.deckName,
+                        onClick = { onDeckClick(deck.deckId) },
+                    )
+                }
+
+                if (decks.size > MAX_DECK_COUNT) {
                     item {
-                        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_8)))
-                        ButtonAllDecks(navigatorToDecks = navigatorToDecks)
+                        CustomButton(
+                            text = stringResource(R.string.title_text_all_decks),
+                            onClick = onAllDecksClick,
+                            modifier = Modifier.size(
+                                height = dimensionResource(R.dimen.dimen_42),
+                                width = dimensionResource(R.dimen.dimen_140),
+                            ),
+                        )
                     }
                 }
             }
-        },
-        onLoading = {
-            Box(
+        }
+
+        UiState.Loading -> {
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentSize(Alignment.Center),
             ) {
+                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_14)))
                 CircularProgressIndicator(
                     color = MaterialTheme.colorScheme.primary,
-                    strokeWidth = dimensionResource(R.dimen.circular_progress_indicator_weight_one),
+                    strokeWidth = dimensionResource(R.dimen.dimen_2),
                 )
             }
-        },
-        onError = {
-            Text(
-                stringResource(R.string.error_get_all_decks),
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.error),
-            )
-        },
-    )
-}
-
-@Composable
-private fun DeckItem(
-    deck: Deck,
-    navigatorToDeck: (Int) -> Unit,
-) {
-    DisplayItem(
-        modifier = Modifier
-            .fillMaxWidth(),
-        shape = MaterialTheme.shapes.small,
-        showCount = false,
-        displayItemData = DisplayItemData(
-            itemIcon = R.drawable.deck_icon,
-            itemName = deck.deckName,
-        ),
-        displayItemStyle = DisplayItemStyle(
-            backgroundColor = MaterialTheme.colorScheme.secondary.copy(
-                dimenFloatResource(R.dimen.float_zero_dot_five_significance),
-            ),
-            iconColor = MaterialTheme.colorScheme.outlineVariant,
-            textStyle = MaterialTheme.typography.bodyMedium,
-        ),
-        onClick = {
-            navigatorToDeck(deck.deckId)
-        },
-    )
-}
-
-@Composable
-private fun ButtonAllDecks(
-    navigatorToDecks: () -> Unit,
-) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentSize(Alignment.Center),
-    ) {
-        Box(
-            modifier = Modifier
-                .background(
-                    color = MaterialTheme.colorScheme.outlineVariant,
-                    shape = MaterialTheme.shapes.medium,
-                )
-                .clickable {
-                    navigatorToDecks()
-                },
-        ) {
-            Text(
-                text = stringResource(R.string.title_text_all_decks),
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    color = MaterialTheme.colorScheme.onPrimary,
-                ),
-                modifier = Modifier.padding(
-                    vertical = dimensionResource(R.dimen.padding_small),
-                    horizontal = dimensionResource(R.dimen.padding_large),
-                ),
-            )
         }
+
+        is UiState.Error -> {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.dimen_16)),
+            ) {
+                Text(
+                    text = stringResource(R.string.error_get_all_decks),
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.error,
+                )
+                Icon(
+                    painter = painterResource(R.drawable.img_error),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.size(dimensionResource(R.dimen.dimen_36)),
+                )
+            }
+        }
+
+        UiState.Idle -> Unit
     }
 }
+
+const val MAX_DECK_COUNT = 5
+
+data class MainScreenActions(
+    val onNavigateToStudy: () -> Unit,
+    val onNavigateToDeck: (Int) -> Unit,
+    val onNavigateToDecks: () -> Unit,
+    val onNavigateToCreateCard: () -> Unit,
+)

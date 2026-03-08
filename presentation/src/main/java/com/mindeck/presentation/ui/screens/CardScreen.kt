@@ -11,28 +11,32 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.CardType
 import com.mindeck.domain.models.CardWithDeck
 import com.mindeck.presentation.R
@@ -43,9 +47,8 @@ import com.mindeck.presentation.ui.components.dialog.DeleteModalWindow
 import com.mindeck.presentation.ui.components.dropdown.AppDropdownMenu
 import com.mindeck.presentation.ui.components.dropdown.AppDropdownMenuItem
 import com.mindeck.presentation.ui.components.topBar.AppTopBar
-import com.mindeck.presentation.ui.components.utils.dimenDpResource
+import com.mindeck.presentation.ui.navigation.CardStudyRoute
 import com.mindeck.presentation.ui.navigation.Navigator
-import com.mindeck.presentation.ui.theme.text_black
 import com.mindeck.presentation.viewmodel.CardUiEvent
 import com.mindeck.presentation.viewmodel.CardViewModel
 
@@ -55,60 +58,24 @@ fun CardScreen(
     cardId: Int,
     modifier: Modifier = Modifier,
 ) {
-    CardScreenContent(
-        navigator = navigator,
-        cardId = cardId,
-        cardViewModel = hiltViewModel<CardViewModel>(),
-        modifier = modifier,
-    )
-}
-
-@Composable
-private fun CardScreenContent(
-    navigator: Navigator,
-    cardId: Int,
-    cardViewModel: CardViewModel,
-    modifier: Modifier = Modifier,
-) {
-    val cardWithDeckState by cardViewModel.cardWithDeck.collectAsState()
-
-    val cardWithDeck = (cardWithDeckState as? UiState.Success)?.data
-    val card = cardWithDeck?.card
-    val deckName = cardWithDeck?.deckName
-
-    val modalState by cardViewModel.modalState.collectAsState()
+    val viewModel = hiltViewModel<CardViewModel>()
 
     val context = LocalContext.current
-
-    val isLoading = cardWithDeckState is UiState.Loading
-
-    val deckDisplayText = when (cardWithDeckState) {
-        is UiState.Success -> deckName ?: "..."
-        else -> "..."
-    }
-
-    val cardTypeDisplayText = when (cardWithDeckState) {
-        is UiState.Success -> card?.cardType?.let {
-            when (it) {
-                CardType.SIMPLE -> stringResource(R.string.card_type_simple)
-                CardType.COMPLEX -> stringResource(R.string.card_type_complex)
-            }
-        } ?: "..."
-
-        else -> "..."
-    }
+    val cardWithDeckState by viewModel.cardWithDeck.collectAsStateWithLifecycle()
+    val deleteCardState by viewModel.deleteCardState.collectAsStateWithLifecycle()
+    val modalState by viewModel.modalState.collectAsStateWithLifecycle()
 
     LaunchedEffect(cardId) {
-        cardViewModel.loadCardById(cardId = cardId)
+        viewModel.loadCardById(cardId = cardId)
     }
 
     LaunchedEffect(Unit) {
-        cardViewModel.uiEvent.collect { event ->
+        viewModel.uiEvent.collect { event ->
             when (event) {
                 is CardUiEvent.DeletionSuccessful -> {
                     Toast.makeText(
                         context,
-                        "Card \"${event.cardName}\" deleted successfully",
+                        context.getString(R.string.card_deleted_success, event.cardName),
                         Toast.LENGTH_SHORT,
                     ).show()
                     navigator.pop()
@@ -117,128 +84,66 @@ private fun CardScreenContent(
         }
     }
 
-    val scrollState = rememberScrollState()
+    CardScreenContent(
+        cardWithDeckState = cardWithDeckState,
+        deleteCardState = deleteCardState,
+        modalState = modalState,
+        actions = CardScreenActions(
+            onBack = navigator::pop,
+            onMenuClick = viewModel::showDropdownMenu,
+            onDismissModal = viewModel::hideModal,
+            onShowDeleteDialog = viewModel::showDeleteDialog,
+            onDeleteCard = viewModel::deleteCard,
+            onStudyCard = { navigator.push(CardStudyRoute(it)) },
+        ),
+        modifier = modifier,
+    )
+}
+
+@Composable
+private fun CardScreenContent(
+    cardWithDeckState: UiState<CardWithDeck>,
+    deleteCardState: UiState<Unit>,
+    modalState: ModalState,
+    actions: CardScreenActions,
+    modifier: Modifier = Modifier,
+) {
+    val cardWithDeck = (cardWithDeckState as? UiState.Success)?.data
 
     Scaffold(
-        modifier = modifier,
+        modifier = modifier
+            .fillMaxSize()
+            .systemBarsPadding(),
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             AppTopBar(
-                visibleMenuButton = cardWithDeckState is UiState.Success,
-                onBackClick = { navigator.pop() },
-                onMenuClick = { cardViewModel.showDropdownMenu() },
-                modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.padding_medium)),
+                showMenuButton = cardWithDeckState is UiState.Success,
+                onBackClick = actions.onBack,
+                onMenuClick = actions.onMenuClick,
+                modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.dimen_16)),
             )
         },
         content = { padding ->
             Column(
                 modifier = Modifier
                     .padding(padding)
-                    .verticalScroll(state = scrollState)
-                    .padding(horizontal = dimenDpResource(R.dimen.padding_medium))
-                    .navigationBarsPadding(),
+                    .verticalScroll(state = rememberScrollState())
+                    .padding(horizontal = dimensionResource(R.dimen.dimen_16)),
             ) {
-                Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_medium)))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                ) {
-                    Text(
-                        text = stringResource(R.string.text_deck_dropdown_selector),
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(dimensionResource(R.dimen.dimen_8)),
-                    )
-
-                    Box(
-                        modifier = Modifier
-                            .background(
-                                color = MaterialTheme.colorScheme.onPrimary,
-                                shape = MaterialTheme.shapes.extraSmall,
-                            )
-                            .size(
-                                height = dimensionResource(R.dimen.dimen_36),
-                                width = dimensionResource(R.dimen.dimen_200),
-                            )
-                            .border(
-                                dimensionResource(R.dimen.dimen_0_25),
-                                color = MaterialTheme.colorScheme.outline,
-                                shape = MaterialTheme.shapes.extraSmall,
-                            )
-                            .wrapContentSize(Alignment.Center),
-                    ) {
-                        if (isLoading) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(dimensionResource(R.dimen.dimen_20)),
-                                strokeWidth = dimensionResource(R.dimen.dimen_2),
-                            )
-                        } else {
-                            Text(
-                                text = deckDisplayText,
-                                overflow = TextOverflow.Ellipsis,
-                                style = MaterialTheme.typography.bodyMedium.copy(color = text_black),
-                            )
-                        }
-                    }
-                }
-                Spacer(modifier = Modifier.height(dimenDpResource(R.dimen.spacer_medium)))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                ) {
-                    Text(
-                        text = stringResource(R.string.text_type_dropdown_selector),
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(dimensionResource(R.dimen.dimen_8)),
-                    )
-
-                    Box(
-                        modifier = Modifier
-                            .background(
-                                color = MaterialTheme.colorScheme.onPrimary,
-                                shape = MaterialTheme.shapes.extraSmall,
-                            )
-                            .size(
-                                height = dimensionResource(R.dimen.dimen_36),
-                                width = dimensionResource(R.dimen.dimen_200),
-                            )
-                            .border(
-                                dimensionResource(R.dimen.dimen_0_25),
-                                color = MaterialTheme.colorScheme.outline,
-                                shape = MaterialTheme.shapes.extraSmall,
-                            )
-                            .wrapContentSize(Alignment.Center),
-                    ) {
-                        if (isLoading) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(dimensionResource(R.dimen.dimen_20)),
-                                strokeWidth = dimensionResource(R.dimen.dimen_2),
-                            )
-                        } else {
-                            Text(
-                                text = cardTypeDisplayText,
-                                overflow = TextOverflow.Ellipsis,
-                                style = MaterialTheme.typography.bodyMedium.copy(color = text_black),
-                            )
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(height = dimenDpResource(R.dimen.spacer_large)))
-                DeckSuccessState(cardWithDeckState = cardWithDeckState)
+                CardContent(cardWithDeckState = cardWithDeckState)
             }
-            card?.let {
+
+            cardWithDeck?.card?.let {
                 AppDropdownMenu(
                     padding = padding,
                     isExpanded = modalState is ModalState.DropdownMenu,
-                    onDismiss = { cardViewModel.hideModal() },
+                    onDismiss = actions.onDismissModal,
                 ) {
                     AppDropdownMenuItem(
                         text = stringResource(R.string.dropdown_menu_data_remove_card),
                         onClick = {
-                            cardViewModel.hideModal()
-                            cardViewModel.showDeleteDialog()
+                            actions.onDismissModal()
+                            actions.onShowDeleteDialog()
                         },
                     )
                     AppDropdownMenuItem(
@@ -247,7 +152,10 @@ private fun CardScreenContent(
                     )
                     AppDropdownMenuItem(
                         text = stringResource(R.string.dropdown_menu_data_study_card),
-                        onClick = { },
+                        onClick = {
+                            actions.onDismissModal()
+                            actions.onStudyCard(it.cardId)
+                        },
                     )
                 }
             }
@@ -256,15 +164,15 @@ private fun CardScreenContent(
 
     when (modalState) {
         is ModalState.DeleteDialog -> {
-            card?.let {
+            cardWithDeck?.card?.let {
                 DeleteModalWindow(
                     titleText = stringResource(R.string.delete_card_dialog_title),
                     bodyText = stringResource(R.string.delete_card_dialog_body, it.cardName),
-                    deleteButton = {
-                        cardViewModel.hideModal()
-                        cardViewModel.deleteCard(it)
+                    actionState = deleteCardState,
+                    onDeleteClick = {
+                        actions.onDeleteCard(it)
                     },
-                    onExitClick = { cardViewModel.hideModal() },
+                    onExitClick = actions.onDismissModal,
                 )
             }
         }
@@ -274,51 +182,54 @@ private fun CardScreenContent(
 }
 
 @Composable
-private fun DeckSuccessState(
+private fun CardContent(
     cardWithDeckState: UiState<CardWithDeck>,
 ) {
     when (cardWithDeckState) {
         is UiState.Success -> {
-            val card = cardWithDeckState.data.card
-            Box(
-                contentAlignment = Alignment.Center,
+            val cardWithDeck = cardWithDeckState.data
+            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_12)))
+            CardInfoItem(
+                label = stringResource(R.string.text_deck_dropdown_selector),
+                value = cardWithDeck.deckName,
+            )
+            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_12)))
+            CardInfoItem(
+                label = stringResource(R.string.text_type_dropdown_selector),
+                value = when (cardWithDeck.card.cardType) {
+                    CardType.SIMPLE -> stringResource(R.string.card_type_simple)
+                    CardType.COMPLEX -> stringResource(R.string.card_type_complex)
+                },
+            )
+            Spacer(modifier = Modifier.height(height = dimensionResource(R.dimen.dimen_20)))
+            Text(
+                text = cardWithDeck.card.cardName,
+                style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.fillMaxWidth(),
-            ) {
-                Text(
-                    text = card.cardName,
-                    style = MaterialTheme.typography.bodyLarge,
-                )
-            }
-            Spacer(modifier = Modifier.height(height = dimenDpResource(R.dimen.spacer_medium)))
-            Box(
-                modifier = Modifier.fillMaxSize(),
-            ) {
-                QuestionAndAnswerElement(
-                    question = card.cardQuestion,
-                    answer = card.cardAnswer,
-                    questionStyle = MaterialTheme.typography.bodyMedium.copy(
-                        textAlign = TextAlign.Start,
-                    ),
-                    answerStyle = MaterialTheme.typography.bodyMedium.copy(
-                        textAlign = TextAlign.Start,
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(
-                            color = MaterialTheme.colorScheme.onPrimary,
-                            shape = MaterialTheme.shapes.large,
-                        )
-                        .border(
-                            width = dimensionResource(R.dimen.dimen_0_25),
-                            color = MaterialTheme.colorScheme.outline,
-                            shape = MaterialTheme.shapes.large,
-                        )
-                        .padding(horizontal = dimensionResource(R.dimen.dimen_10)),
-                )
-            }
+                textAlign = TextAlign.Center,
+            )
+            Spacer(modifier = Modifier.height(height = dimensionResource(R.dimen.dimen_12)))
+            QuestionAndAnswerElement(
+                question = cardWithDeck.card.cardQuestion,
+                answer = cardWithDeck.card.cardAnswer,
+                questionStyle = MaterialTheme.typography.bodyMedium,
+                answerStyle = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        color = MaterialTheme.colorScheme.surface,
+                        shape = MaterialTheme.shapes.large,
+                    )
+                    .border(
+                        width = dimensionResource(R.dimen.dimen_0_25),
+                        color = MaterialTheme.colorScheme.outline,
+                        shape = MaterialTheme.shapes.large,
+                    )
+                    .padding(horizontal = dimensionResource(R.dimen.dimen_10)),
+            )
 
-            if (card.cardTag.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(height = dimenDpResource(R.dimen.spacer_medium)))
+            if (cardWithDeck.card.cardTag.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(height = dimensionResource(R.dimen.dimen_12)))
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.dimen_16)),
@@ -327,11 +238,12 @@ private fun DeckSuccessState(
                         text = stringResource(R.string.text_tag_input_field),
                         style = MaterialTheme.typography.bodyMedium,
                     )
-                    Box(
+
+                    LazyRow(
                         modifier = Modifier
                             .background(
-                                MaterialTheme.colorScheme.onPrimary,
-                                MaterialTheme.shapes.large,
+                                color = MaterialTheme.colorScheme.surface,
+                                shape = MaterialTheme.shapes.large,
                             )
                             .size(
                                 width = dimensionResource(R.dimen.dimen_140),
@@ -343,41 +255,105 @@ private fun DeckSuccessState(
                                 MaterialTheme.shapes.large,
                             )
                             .padding(horizontal = dimensionResource(R.dimen.dimen_10)),
-                        contentAlignment = Alignment.CenterStart,
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Text(
-                            text = card.cardTag,
-                            style = MaterialTheme.typography.bodyMedium,
-                        )
+                        item {
+                            Text(
+                                text = cardWithDeck.card.cardTag,
+                                maxLines = 1,
+                                style = MaterialTheme.typography.bodyMedium,
+                            )
+                        }
                     }
                 }
             }
         }
 
-        is UiState.Loading -> {
-            Box(
+        UiState.Loading -> {
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = dimenDpResource(R.dimen.padding_large))
                     .wrapContentSize(Alignment.Center),
             ) {
+                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_14)))
                 CircularProgressIndicator(
-                    modifier = Modifier.size(dimenDpResource(R.dimen.circular_progress_indicator_size)),
                     color = MaterialTheme.colorScheme.primary,
-                    strokeWidth = dimenDpResource(R.dimen.circular_progress_indicator_weight_two),
+                    strokeWidth = dimensionResource(R.dimen.dimen_2),
                 )
             }
         }
 
         is UiState.Error -> {
-            Text(
-                stringResource(R.string.error_get_info_about_deck),
+            Column(
                 modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.error),
-            )
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.dimen_16)),
+            ) {
+                Text(
+                    stringResource(R.string.error_get_info_about_card),
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.error),
+                )
+                Icon(
+                    painter = painterResource(R.drawable.img_error),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.size(dimensionResource(R.dimen.dimen_36)),
+                )
+            }
         }
 
-        is UiState.Idle -> Unit
+        UiState.Idle -> Unit
     }
 }
+
+@Composable
+private fun CardInfoItem(
+    label: String,
+    value: String,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.padding(dimensionResource(R.dimen.dimen_8)),
+        )
+        Box(
+            modifier = Modifier
+                .background(
+                    color = MaterialTheme.colorScheme.surface,
+                    shape = MaterialTheme.shapes.extraSmall,
+                )
+                .size(
+                    height = dimensionResource(R.dimen.dimen_36),
+                    width = dimensionResource(R.dimen.dimen_200),
+                )
+                .border(
+                    dimensionResource(R.dimen.dimen_0_25),
+                    color = MaterialTheme.colorScheme.outline,
+                    shape = MaterialTheme.shapes.extraSmall,
+                )
+                .wrapContentSize(Alignment.Center),
+        ) {
+            Text(
+                text = value,
+                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.bodyMedium,
+            )
+        }
+    }
+}
+
+data class CardScreenActions(
+    val onBack: () -> Unit,
+    val onMenuClick: () -> Unit,
+    val onDismissModal: () -> Unit,
+    val onShowDeleteDialog: () -> Unit,
+    val onDeleteCard: (card: Card) -> Unit,
+    val onStudyCard: (cardId: Int) -> Unit,
+)

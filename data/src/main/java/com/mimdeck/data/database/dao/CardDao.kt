@@ -41,7 +41,6 @@ interface CardDao {
     @Transaction
     suspend fun moveCardsBetweenDeck(cardIds: List<Int>, sourceDeckId: Int, targetDeckId: Int) {
         addCardsToDeck(cardIds, targetDeckId)
-//        deleteCardsFromDeck(cardIds, sourceDeckId)
     }
 
     @Query("SELECT * FROM card WHERE next_review_date IS NULL OR next_review_date <= :currentTime")

@@ -18,9 +18,9 @@ import com.mindeck.presentation.R
 
 @Composable
 fun ActionHandlerButton(
-    iconPainter: Painter,
-    iconTint: Color,
-    iconSize: Dp = dimensionResource(R.dimen.dimen_18),
+    painter: Painter,
+    tint: Color,
+    size: Dp = dimensionResource(R.dimen.dimen_18),
     contentDescription: String? = null,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -34,12 +34,12 @@ fun ActionHandlerButton(
             },
     ) {
         Icon(
-            painter = iconPainter,
-            tint = iconTint,
+            painter = painter,
+            tint = tint,
             contentDescription = contentDescription,
             modifier = Modifier
                 .padding(dimensionResource(R.dimen.action_handler_icon_padding))
-                .size(iconSize),
+                .size(size),
         )
     }
 }

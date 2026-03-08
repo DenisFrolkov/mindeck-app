@@ -1,5 +1,6 @@
 package com.mindeck.presentation.viewmodel
 
+import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mindeck.domain.exception.DomainError
@@ -9,9 +10,10 @@ import com.mindeck.domain.usecases.card.query.GetAllCardsUseCase
 import com.mindeck.domain.usecases.deck.command.DeleteDeckUseCase
 import com.mindeck.domain.usecases.deck.command.RenameDeckUseCase
 import com.mindeck.domain.usecases.deck.query.GetDeckByIdUseCase
+import com.mindeck.presentation.R
+import com.mindeck.presentation.state.ModalState
 import com.mindeck.presentation.state.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
@@ -20,11 +22,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
 import javax.inject.Inject
 
 @HiltViewModel
-class DeckViewModel
+internal class DeckViewModel
 @Inject
 constructor(
     private val getCardsUseCase: GetAllCardsUseCase,
@@ -37,6 +41,9 @@ constructor(
 
     private val _screenUiState = MutableStateFlow<UiState<DeckScreenData>>(UiState.Idle)
     val screenUiState: StateFlow<UiState<DeckScreenData>> = _screenUiState.asStateFlow()
+
+    private val _modalState = MutableStateFlow<ModalState>(ModalState.None)
+    val modalState: StateFlow<ModalState> = _modalState.asStateFlow()
 
     fun loadDeckWithCards(deckId: Int) {
         if (_screenUiState.value is UiState.Loading) return
@@ -57,9 +64,11 @@ constructor(
                         DeckScreenData(deck = deck, cards = cards),
                     )
             } catch (e: DomainError.DatabaseError) {
-                _screenUiState.value = UiState.Error("Failed to load deck")
+                _screenUiState.value = UiState.Error(R.string.error_failed_to_load_deck)
             } catch (e: DomainError) {
-                _screenUiState.value = UiState.Error("Something went wrong")
+                _screenUiState.value = UiState.Error(R.string.error_something_went_wrong)
+            } catch (e: Exception) {
+                _screenUiState.value = UiState.Error(R.string.error_something_went_wrong)
             }
         }
     }
@@ -81,13 +90,15 @@ constructor(
 
                 loadDeckWithCards(deckId)
                 _renameDeckState.value = UiState.Success(Unit)
-                _navigationEvent.send(DeckNavigationEvent.CloseRenameWindow)
+                hideModal()
             } catch (e: DomainError.NameAlreadyExists) {
-                _renameDeckState.value = UiState.Error("Deck '$newDeckName' already exists")
+                _renameDeckState.value = UiState.Error(R.string.error_deck_name_already_exists, listOf(newDeckName))
             } catch (e: DomainError.DatabaseError) {
-                _renameDeckState.value = UiState.Error("Database error, try again")
-            } catch (e: DomainError.UnknownError) {
-                _renameDeckState.value = UiState.Error("Something went wrong")
+                _renameDeckState.value = UiState.Error(R.string.error_database_try_again)
+            } catch (e: DomainError) {
+                _renameDeckState.value = UiState.Error(R.string.error_something_went_wrong)
+            } catch (e: Exception) {
+                _renameDeckState.value = UiState.Error(R.string.error_something_went_wrong)
             }
         }
     }
@@ -96,24 +107,38 @@ constructor(
         _renameDeckState.value = UiState.Idle
     }
 
-    private var deletionJob: Job? = null
+    private val deleteDeckMutex = Mutex()
 
     fun deleteDeck(deck: Deck) {
-        if (deletionJob?.isActive == true) return
+        viewModelScope.launch {
+            if (!deleteDeckMutex.tryLock()) return@launch
 
-        deletionJob =
-            viewModelScope.launch {
-                try {
-                    deleteDeckUseCase(deck = deck)
-
-                    _navigationEvent.send(DeckNavigationEvent.GoBack)
-                    _navigationEvent.send(DeckNavigationEvent.ShowToast("Deck deleted successfully"))
-                } catch (e: DomainError) {
-                    _navigationEvent.send(DeckNavigationEvent.ShowToast("Failed to delete deck"))
-                } finally {
-                    deletionJob = null
-                }
+            try {
+                deleteDeckUseCase(deck = deck)
+                _navigationEvent.send(DeckNavigationEvent.GoBack)
+                _navigationEvent.send(DeckNavigationEvent.ShowToast(R.string.toast_deck_deleted_successfully))
+                hideModal()
+            } catch (e: DomainError) {
+                _navigationEvent.send(DeckNavigationEvent.ShowToast(R.string.toast_message_impossible_delete_deck))
+            } catch (e: Exception) {
+                _navigationEvent.send(DeckNavigationEvent.ShowToast(R.string.error_something_went_wrong))
+            } finally {
+                deleteDeckMutex.unlock()
             }
+        }
+    }
+
+    fun showDropdownMenu() {
+        _modalState.update { ModalState.DropdownMenu }
+    }
+
+    fun showRenameDialog() {
+        resetRenameDeckState()
+        _modalState.update { ModalState.RenameDialog }
+    }
+
+    fun hideModal() {
+        _modalState.update { ModalState.None }
     }
 }
 
@@ -125,9 +150,7 @@ data class DeckScreenData(
 sealed interface DeckNavigationEvent {
     data object GoBack : DeckNavigationEvent
 
-    data object CloseRenameWindow : DeckNavigationEvent
-
     data class ShowToast(
-        val message: String,
+        @StringRes val messageRes: Int,
     ) : DeckNavigationEvent
 }
