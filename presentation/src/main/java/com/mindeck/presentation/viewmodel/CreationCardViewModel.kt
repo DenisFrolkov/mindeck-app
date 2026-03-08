@@ -1,11 +1,13 @@
 package com.mindeck.presentation.viewmodel
 
+import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mindeck.domain.exception.DomainError
 import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.CardType
 import com.mindeck.domain.usecases.card.command.CreateCardUseCase
+import com.mindeck.presentation.R
 import com.mindeck.presentation.state.CreateCardFormState
 import com.mindeck.presentation.state.ModalState
 import com.mindeck.presentation.state.UiState
@@ -22,7 +24,7 @@ import kotlinx.coroutines.sync.Mutex
 import javax.inject.Inject
 
 @HiltViewModel
-class CreationCardViewModel @Inject constructor(
+internal class CreationCardViewModel @Inject constructor(
     private val createCardUseCase: CreateCardUseCase,
     val deckSelectionHandler: DeckSelectionHandler,
 ) : ViewModel() {
@@ -56,35 +58,35 @@ class CreationCardViewModel @Inject constructor(
 
                 val form = _formState.value
                 val selectedType = form.selectedType ?: run {
-                    _createCardState.update { UiState.Error("Card type is required") }
+                    _createCardState.update { UiState.Error(R.string.error_card_type_required) }
                     return@launch
                 }
                 val selectedDeckId = form.selectedDeckId ?: run {
-                    _createCardState.update { UiState.Error("Deck selection is required") }
+                    _createCardState.update { UiState.Error(R.string.error_deck_selection_required) }
                     return@launch
                 }
 
-                try {
-                    createCardUseCase(
-                        card = Card(
-                            cardName = form.title,
-                            cardQuestion = form.question,
-                            cardAnswer = form.answer,
-                            cardType = selectedType,
-                            cardTag = form.tag,
-                            deckId = selectedDeckId,
-                        ),
-                    )
-                    _createCardState.update { UiState.Success(Unit) }
-                    clearFormFields()
-                    _navigationEvent.send(CreationCardNavigationEvent.ShowToast("Card created successfully"))
-                } catch (e: DomainError.NameAlreadyExists) {
-                    _createCardState.update { UiState.Error("Card with this name and question already exists") }
-                } catch (e: DomainError.DatabaseError) {
-                    _createCardState.update { UiState.Error("Failed to create card") }
-                } catch (e: DomainError) {
-                    _createCardState.update { UiState.Error("Something went wrong") }
-                }
+                createCardUseCase(
+                    card = Card(
+                        cardName = form.title,
+                        cardQuestion = form.question,
+                        cardAnswer = form.answer,
+                        cardType = selectedType,
+                        cardTag = form.tag,
+                        deckId = selectedDeckId,
+                    ),
+                )
+                _createCardState.update { UiState.Success(Unit) }
+                clearFormFields()
+                _navigationEvent.send(CreationCardNavigationEvent.ShowToast(R.string.toast_card_created_successfully))
+            } catch (e: DomainError.NameAlreadyExists) {
+                _createCardState.update { UiState.Error(R.string.error_card_name_already_exists) }
+            } catch (e: DomainError.DatabaseError) {
+                _createCardState.update { UiState.Error(R.string.error_failed_to_create_card) }
+            } catch (e: DomainError) {
+                _createCardState.update { UiState.Error(R.string.error_something_went_wrong) }
+            } catch (e: Exception) {
+                _createCardState.update { UiState.Error(R.string.error_something_went_wrong) }
             } finally {
                 createCardMutex.unlock()
             }
@@ -107,10 +109,12 @@ class CreationCardViewModel @Inject constructor(
     }
 
     fun setDeckId(deckId: Int) {
+        hideModal()
         _formState.update { it.copy(selectedDeckId = deckId) }
     }
 
     fun setType(type: CardType) {
+        hideModal()
         _formState.update { it.copy(selectedType = type) }
     }
 
@@ -146,9 +150,7 @@ class CreationCardViewModel @Inject constructor(
 }
 
 sealed interface CreationCardNavigationEvent {
-    data object ToBack : CreationCardNavigationEvent
-
     data class ShowToast(
-        val message: String,
+        @StringRes val messageRes: Int,
     ) : CreationCardNavigationEvent
 }

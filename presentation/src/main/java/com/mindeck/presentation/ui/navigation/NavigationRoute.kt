@@ -21,6 +21,3 @@ data class CardRoute(val cardId: Int) : NavigationRoute
 
 @Serializable
 data class CardStudyRoute(val cardId: Int? = null) : NavigationRoute
-
-@Serializable
-data object RepeatCardsRoute : NavigationRoute
