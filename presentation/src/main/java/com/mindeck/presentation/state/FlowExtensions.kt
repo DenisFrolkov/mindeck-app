@@ -9,8 +9,7 @@ import kotlinx.coroutines.flow.flow
 @StringRes
 fun DomainError.toUserMessage(): Int = when (this) {
     is DomainError.DatabaseError -> R.string.error_database_try_again
-    is DomainError.NameAlreadyExists -> R.string.error_something_went_wrong
-    is DomainError.UnknownError -> R.string.error_something_went_wrong
+    is DomainError.NameAlreadyExists -> R.string.error_name_already_exists
 }
 
 fun <T> Flow<T>.toUiState(): Flow<UiState<T>> = flow {

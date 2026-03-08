@@ -3,8 +3,10 @@ package com.mimdeck.data.di
 import android.content.Context
 import androidx.room.Room
 import com.mimdeck.data.database.AppDatabase
+import com.mimdeck.data.database.AppDatabase.Companion.DATABASE_NAME
 import com.mimdeck.data.database.dao.CardDao
 import com.mimdeck.data.database.dao.DeckDao
+import com.mimdeck.data.database.migrations.ALL_MIGRATIONS
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -14,16 +16,17 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-class DatabaseModule {
+object DatabaseModule {
 
     @Provides
     @Singleton
     fun provideDatabase(@ApplicationContext context: Context): AppDatabase {
         return Room.databaseBuilder(
-            context,
-            AppDatabase::class.java,
-            "mindeck_app_database",
+            context = context,
+            klass = AppDatabase::class.java,
+            name = DATABASE_NAME,
         )
+            .addMigrations(*ALL_MIGRATIONS)
             .build()
     }
 
