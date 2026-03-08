@@ -1,10 +1,8 @@
 package com.mimdeck.data.di
 
-import com.mimdeck.data.repository.CardDeckOperationsImpl
 import com.mimdeck.data.repository.CardRepetitionRepositoryImpl
 import com.mimdeck.data.repository.CardRepositoryImpl
 import com.mimdeck.data.repository.DeckRepositoryImpl
-import com.mindeck.domain.repository.CardDeckOperations
 import com.mindeck.domain.repository.CardRepetitionRepository
 import com.mindeck.domain.repository.CardRepository
 import com.mindeck.domain.repository.DeckRepository
@@ -21,11 +19,6 @@ abstract class RepositoryModule {
     abstract fun bindCardRepository(
         impl: CardRepositoryImpl,
     ): CardRepository
-
-    @Binds
-    abstract fun bindCardDeckOperations(
-        impl: CardDeckOperationsImpl,
-    ): CardDeckOperations
 
     @Binds
     abstract fun bindCardRepetitionRepository(
