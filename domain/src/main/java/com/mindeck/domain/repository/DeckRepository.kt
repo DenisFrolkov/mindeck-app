@@ -8,9 +8,9 @@ interface DeckRepository {
 
     suspend fun renameDeck(deckId: Int, newName: String)
 
-    suspend fun deleteDeck(deck: Deck)
+    suspend fun deleteDeck(deckId: Int)
 
     fun getAllDecks(): Flow<List<Deck>>
 
-    suspend fun getDeckById(deckId: Int): Deck
+    fun getDeckById(deckId: Int): Flow<Deck?>
 }

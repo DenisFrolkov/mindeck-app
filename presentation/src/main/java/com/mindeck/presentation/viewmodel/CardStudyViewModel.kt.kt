@@ -15,6 +15,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -35,13 +36,21 @@ internal class CardStudyViewModel @Inject constructor(
         if (_cardsState.value is UiState.Loading) return
         viewModelScope.launch {
             _cardsState.value = UiState.Loading
-            _cardsState.value = try {
-                UiState.Success(listOf(getCardByIdUseCase(cardId = cardId)))
-            } catch (e: DomainError) {
-                UiState.Error(e.toUserMessage())
-            } catch (e: Exception) {
-                UiState.Error(R.string.error_something_went_wrong)
-            }
+            getCardByIdUseCase(cardId = cardId)
+                .catch { e ->
+                    _cardsState.value = if (e is DomainError) {
+                        UiState.Error(e.toUserMessage())
+                    } else {
+                        UiState.Error(R.string.error_something_went_wrong)
+                    }
+                }
+                .collect { card ->
+                    _cardsState.value = if (card != null) {
+                        UiState.Success(listOf(card))
+                    } else {
+                        UiState.Error(R.string.error_something_went_wrong)
+                    }
+                }
         }
     }
 

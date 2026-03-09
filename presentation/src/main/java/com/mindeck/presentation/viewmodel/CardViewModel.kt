@@ -11,16 +11,24 @@ import com.mindeck.presentation.R
 import com.mindeck.presentation.state.ModalState
 import com.mindeck.presentation.state.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import javax.inject.Inject
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 internal class CardViewModel @Inject constructor(
     private val getCardWithDeckByIdUseCase: GetCardWithDeckByIdUseCase,
@@ -30,8 +38,31 @@ internal class CardViewModel @Inject constructor(
     private val _uiEvent = Channel<CardUiEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
 
-    private val _cardWithDeck = MutableStateFlow<UiState<CardWithDeck>>(UiState.Idle)
-    val cardWithDeck: StateFlow<UiState<CardWithDeck>> = _cardWithDeck.asStateFlow()
+    private val _cardId = MutableSharedFlow<Int>(replay = 1)
+
+    val cardWithDeck: StateFlow<UiState<CardWithDeck>> =
+        _cardId
+            .flatMapLatest { id ->
+                getCardWithDeckByIdUseCase(cardId = id)
+                    .map { cardWithDeck ->
+                        if (cardWithDeck != null) {
+                            UiState.Success(cardWithDeck)
+                        } else {
+                            UiState.Error(R.string.error_failed_to_load_card)
+                        }
+                    }
+                    .catch { e ->
+                        when (e) {
+                            is DomainError.DatabaseError -> emit(UiState.Error(R.string.error_failed_to_load_card))
+                            else -> emit(UiState.Error(R.string.error_something_went_wrong))
+                        }
+                    }
+            }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), UiState.Loading)
+
+    fun loadCardById(cardId: Int) {
+        _cardId.tryEmit(cardId)
+    }
 
     private val _deleteCardState = MutableStateFlow<UiState<Unit>>(UiState.Idle)
     val deleteCardState: StateFlow<UiState<Unit>> = _deleteCardState.asStateFlow()
@@ -41,31 +72,13 @@ internal class CardViewModel @Inject constructor(
 
     private val deleteCardMutex = Mutex()
 
-    fun loadCardById(cardId: Int) {
-        if (_cardWithDeck.value is UiState.Loading) return
-        viewModelScope.launch {
-            _cardWithDeck.update { UiState.Loading }
-
-            try {
-                val cardWithDeck = getCardWithDeckByIdUseCase(cardId = cardId)
-                _cardWithDeck.update { UiState.Success(cardWithDeck) }
-            } catch (e: DomainError.DatabaseError) {
-                _cardWithDeck.update { UiState.Error(R.string.error_failed_to_load_card) }
-            } catch (e: DomainError) {
-                _cardWithDeck.update { UiState.Error(R.string.error_something_went_wrong) }
-            } catch (e: Exception) {
-                _cardWithDeck.update { UiState.Error(R.string.error_something_went_wrong) }
-            }
-        }
-    }
-
     fun deleteCard(card: Card) {
         viewModelScope.launch {
             if (!deleteCardMutex.tryLock()) return@launch
 
             try {
                 _deleteCardState.update { UiState.Loading }
-                deleteCardUseCase(card = card)
+                deleteCardUseCase(cardId = card.cardId)
                 _deleteCardState.update { UiState.Success(Unit) }
                 hideModal()
                 _uiEvent.send(CardUiEvent.DeletionSuccessful(card.cardName))

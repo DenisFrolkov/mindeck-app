@@ -30,7 +30,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.mindeck.domain.models.Deck
 import com.mindeck.presentation.R
 import com.mindeck.presentation.state.ModalState
 import com.mindeck.presentation.state.UiState
@@ -154,7 +153,7 @@ internal fun DeckScreenContent(
                         text = stringResource(R.string.dropdown_menu_data_remove_deck),
                         onClick = {
                             actions.onDismissModal()
-                            actions.onDeleteDeck(data.deck)
+                            actions.onDeleteDeck(data.deck.deckId)
                         },
                     )
                 }
@@ -278,7 +277,7 @@ data class DeckScreenActions(
     val onMenuClick: () -> Unit,
     val onDismissModal: () -> Unit,
     val onShowRenameDialog: () -> Unit,
-    val onDeleteDeck: (Deck) -> Unit,
+    val onDeleteDeck: (Int) -> Unit,
     val onRenameDeck: (Int, String) -> Unit,
     val onNavigateBack: () -> Unit,
     val onNavigateToCard: (Int) -> Unit,

@@ -14,19 +14,24 @@ import com.mindeck.presentation.R
 import com.mindeck.presentation.state.ModalState
 import com.mindeck.presentation.state.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.async
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import javax.inject.Inject
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 internal class DeckViewModel
 @Inject
@@ -39,39 +44,35 @@ constructor(
     private val _navigationEvent = Channel<DeckNavigationEvent>()
     val navigationEvent = _navigationEvent.receiveAsFlow()
 
-    private val _screenUiState = MutableStateFlow<UiState<DeckScreenData>>(UiState.Idle)
-    val screenUiState: StateFlow<UiState<DeckScreenData>> = _screenUiState.asStateFlow()
+    private val _deckId = MutableSharedFlow<Int>(replay = 1)
+
+    val screenUiState: StateFlow<UiState<DeckScreenData>> =
+        _deckId
+            .flatMapLatest { id ->
+                combine(
+                    getDeckByIdUseCase(id),
+                    getCardsUseCase(id),
+                ) { deck, cards ->
+                    if (deck != null) {
+                        UiState.Success(DeckScreenData(deck = deck, cards = cards))
+                    } else {
+                        UiState.Error(R.string.error_failed_to_load_deck)
+                    }
+                }.catch { e ->
+                    when (e) {
+                        is DomainError.DatabaseError -> emit(UiState.Error(R.string.error_failed_to_load_deck))
+                        else -> emit(UiState.Error(R.string.error_something_went_wrong))
+                    }
+                }
+            }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), UiState.Loading)
+
+    fun loadDeckWithCards(deckId: Int) {
+        _deckId.tryEmit(deckId)
+    }
 
     private val _modalState = MutableStateFlow<ModalState>(ModalState.None)
     val modalState: StateFlow<ModalState> = _modalState.asStateFlow()
-
-    fun loadDeckWithCards(deckId: Int) {
-        if (_screenUiState.value is UiState.Loading) return
-
-        viewModelScope.launch {
-            _screenUiState.value = UiState.Loading
-
-            try {
-                val (deck, cards) =
-                    coroutineScope {
-                        val deferredDeck = async { getDeckByIdUseCase(deckId) }
-                        val deferredCards = async { getCardsUseCase(deckId).first() }
-                        deferredDeck.await() to deferredCards.await()
-                    }
-
-                _screenUiState.value =
-                    UiState.Success(
-                        DeckScreenData(deck = deck, cards = cards),
-                    )
-            } catch (e: DomainError.DatabaseError) {
-                _screenUiState.value = UiState.Error(R.string.error_failed_to_load_deck)
-            } catch (e: DomainError) {
-                _screenUiState.value = UiState.Error(R.string.error_something_went_wrong)
-            } catch (e: Exception) {
-                _screenUiState.value = UiState.Error(R.string.error_something_went_wrong)
-            }
-        }
-    }
 
     private val _renameDeckState = MutableStateFlow<UiState<Unit>>(UiState.Idle)
     val renameDeckState: StateFlow<UiState<Unit>> = _renameDeckState.asStateFlow()
@@ -87,8 +88,6 @@ constructor(
 
             try {
                 renameDeckUseCase(deckId = deckId, newName = newDeckName)
-
-                loadDeckWithCards(deckId)
                 _renameDeckState.value = UiState.Success(Unit)
                 hideModal()
             } catch (e: DomainError.NameAlreadyExists) {
@@ -109,12 +108,12 @@ constructor(
 
     private val deleteDeckMutex = Mutex()
 
-    fun deleteDeck(deck: Deck) {
+    fun deleteDeck(deckId: Int) {
         viewModelScope.launch {
             if (!deleteDeckMutex.tryLock()) return@launch
 
             try {
-                deleteDeckUseCase(deck = deck)
+                deleteDeckUseCase(deckId = deckId)
                 _navigationEvent.send(DeckNavigationEvent.GoBack)
                 _navigationEvent.send(DeckNavigationEvent.ShowToast(R.string.toast_deck_deleted_successfully))
                 hideModal()
