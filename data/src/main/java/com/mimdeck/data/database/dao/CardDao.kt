@@ -30,26 +30,47 @@ interface CardDao {
     @Query("SELECT * FROM card WHERE card_id = :cardId")
     fun getCardWithDeckById(cardId: Int): Flow<CardWithDeckEntity?>
 
-    @Query("SELECT * FROM card WHERE next_review_date IS NULL OR next_review_date <= :currentTime")
-    fun getCardsRepetition(currentTime: Long): Flow<List<CardEntity>>
+    // Возвращает карточки для формирования сессии:
+    // - все NEW (нужны для выдачи до дневного лимита)
+    // - просроченные LEARNING/LAPSE/REVIEW (nextReviewDate <= currentTime)
+    // - первый раз показанные сегодня (firstReviewDate >= todayStart, для подсчёта лимита)
+    @Query(
+        """
+        SELECT * FROM card
+        WHERE card_state = 'NEW'
+           OR next_review_date <= :currentTime
+           OR (first_review_date IS NOT NULL AND first_review_date >= :todayStart)
+        ORDER BY card_id ASC
+        """,
+    )
+    fun getCardsRepetition(currentTime: Long, todayStart: Long): Flow<List<CardEntity>>
 
+    // Обновляет все поля SM-2 после оценки пользователем
     @Query(
         """
         UPDATE card
-        SET first_review_date = :firstReviewDate,
-            last_review_date = :lastReviewDate,
-            next_review_date = :newReviewDate,
-            repetition_count = :newRepetitionCount,
-            last_review_type = :lastReviewType
+        SET card_state = :cardState,
+            ease_factor = :easeFactor,
+            interval = :interval,
+            learning_step = :learningStep,
+            next_review_date = :nextReviewDate,
+            repetition_count = :repetitionCount,
+            lapse_count = :lapseCount,
+            first_review_date = :firstReviewDate,
+            last_review_date = :lastReviewDate
         WHERE card_id = :cardId
-    """,
+        """,
     )
     suspend fun updateReview(
         cardId: Int,
+        cardState: String,
+        easeFactor: Float,
+        interval: Float,
+        learningStep: Int,
+        nextReviewDate: Long,
+        repetitionCount: Int,
+        lapseCount: Int,
         firstReviewDate: Long,
         lastReviewDate: Long,
-        newReviewDate: Long,
-        newRepetitionCount: Int,
-        lastReviewType: String,
     )
 }
