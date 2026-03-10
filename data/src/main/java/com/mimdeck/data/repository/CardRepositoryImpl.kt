@@ -22,9 +22,9 @@ class CardRepositoryImpl @Inject constructor(
     } catch (e: CancellationException) {
         throw e
     } catch (e: SQLiteConstraintException) {
-        throw DomainError.NameAlreadyExists
+        throw DomainError.NameAlreadyExists()
     } catch (e: Exception) {
-        throw DomainError.DatabaseError
+        throw DomainError.DatabaseError()
     }
 
     override suspend fun updateCard(card: Card) = try {
@@ -32,9 +32,9 @@ class CardRepositoryImpl @Inject constructor(
     } catch (e: CancellationException) {
         throw e
     } catch (e: SQLiteConstraintException) {
-        throw DomainError.NameAlreadyExists
+        throw DomainError.NameAlreadyExists()
     } catch (e: Exception) {
-        throw DomainError.DatabaseError
+        throw DomainError.DatabaseError()
     }
 
     override suspend fun deleteCard(cardId: Int) = try {
@@ -42,7 +42,7 @@ class CardRepositoryImpl @Inject constructor(
     } catch (e: CancellationException) {
         throw e
     } catch (e: Exception) {
-        throw DomainError.DatabaseError
+        throw DomainError.DatabaseError()
     }
 
     override fun getAllCardsByDeckId(deckId: Int): Flow<List<Card>> =
@@ -50,7 +50,7 @@ class CardRepositoryImpl @Inject constructor(
             .map { list -> list.map { it.toDomain() } }
             .catch {
                 if (it is CancellationException) throw it
-                throw DomainError.DatabaseError
+                throw DomainError.DatabaseError()
             }
 
     override fun getCardById(cardId: Int): Flow<Card?> =
@@ -58,7 +58,7 @@ class CardRepositoryImpl @Inject constructor(
             .map { it?.toDomain() }
             .catch {
                 if (it is CancellationException) throw it
-                throw DomainError.DatabaseError
+                throw DomainError.DatabaseError()
             }
 
     override fun getCardWithDeckById(cardId: Int): Flow<CardWithDeck?> =
@@ -66,6 +66,6 @@ class CardRepositoryImpl @Inject constructor(
             .map { it?.toDomain() }
             .catch {
                 if (it is CancellationException) throw it
-                throw DomainError.DatabaseError
+                throw DomainError.DatabaseError()
             }
 }

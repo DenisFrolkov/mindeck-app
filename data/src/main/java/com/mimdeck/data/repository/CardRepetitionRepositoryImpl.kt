@@ -20,7 +20,7 @@ class CardRepetitionRepositoryImpl @Inject constructor(
             .map { cardsEntityList -> cardsEntityList.map { it.toDomain() } }
             .catch { e ->
                 if (e is CancellationException) throw e
-                throw DomainError.DatabaseError
+                throw DomainError.DatabaseError()
             }
 
     override suspend fun updateReview(
@@ -42,6 +42,6 @@ class CardRepetitionRepositoryImpl @Inject constructor(
     } catch (e: CancellationException) {
         throw e
     } catch (e: Exception) {
-        throw DomainError.DatabaseError
+        throw DomainError.DatabaseError()
     }
 }

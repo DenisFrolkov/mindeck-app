@@ -2,19 +2,21 @@ package com.mindeck.domain.usecases.card.command
 
 import com.mindeck.domain.models.ReviewType
 import com.mindeck.domain.repository.CardRepetitionRepository
-import java.time.ZoneId
-import java.time.ZonedDateTime
+import com.mindeck.domain.repository.ClockRepository
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
-class UpdateCardReviewUseCase @Inject constructor(private val cardRepetitionRepository: CardRepetitionRepository) {
+class UpdateCardReviewUseCase @Inject constructor(
+    private val cardRepetitionRepository: CardRepetitionRepository,
+    private val clock: ClockRepository,
+) {
     suspend operator fun invoke(
         cardId: Int,
         firstReviewDate: Long?,
         newRepetitionCount: Int,
         lastReviewType: ReviewType,
     ) {
-        val now = ZonedDateTime.now(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        val now = clock.now()
         val firstReview = firstReviewDate ?: now
         val nextReview = calculateNextReviewDate(firstReview, now, newRepetitionCount, lastReviewType)
 

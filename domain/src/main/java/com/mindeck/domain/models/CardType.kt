@@ -7,6 +7,6 @@ enum class CardType(val stableId: Int) {
 
     companion object {
         fun fromStableId(id: Int): CardType =
-            entries.find { it.stableId == id } ?: SIMPLE
+            entries.find { it.stableId == id } ?: throw IllegalArgumentException("Unknown CardType stableId: $id")
     }
 }

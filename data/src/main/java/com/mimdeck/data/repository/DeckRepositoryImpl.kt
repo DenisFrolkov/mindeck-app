@@ -21,9 +21,9 @@ class DeckRepositoryImpl @Inject constructor(
     } catch (e: CancellationException) {
         throw e
     } catch (e: SQLiteConstraintException) {
-        throw DomainError.NameAlreadyExists
+        throw DomainError.NameAlreadyExists()
     } catch (e: Exception) {
-        throw DomainError.DatabaseError
+        throw DomainError.DatabaseError()
     }
 
     override suspend fun renameDeck(deckId: Int, newName: String) = try {
@@ -31,9 +31,9 @@ class DeckRepositoryImpl @Inject constructor(
     } catch (e: CancellationException) {
         throw e
     } catch (e: SQLiteConstraintException) {
-        throw DomainError.NameAlreadyExists
+        throw DomainError.NameAlreadyExists()
     } catch (e: Exception) {
-        throw DomainError.DatabaseError
+        throw DomainError.DatabaseError()
     }
 
     override suspend fun deleteDeck(deckId: Int) = try {
@@ -41,7 +41,7 @@ class DeckRepositoryImpl @Inject constructor(
     } catch (e: CancellationException) {
         throw e
     } catch (e: Exception) {
-        throw DomainError.DatabaseError
+        throw DomainError.DatabaseError()
     }
 
     override fun getAllDecks(): Flow<List<Deck>> =
@@ -49,7 +49,7 @@ class DeckRepositoryImpl @Inject constructor(
             .map { list -> list.map { it.toDomain() } }
             .catch {
                 if (it is CancellationException) throw it
-                throw DomainError.DatabaseError
+                throw DomainError.DatabaseError()
             }
 
     override fun getDeckById(deckId: Int): Flow<Deck?> =
@@ -57,6 +57,6 @@ class DeckRepositoryImpl @Inject constructor(
             .map { it?.toDomain() }
             .catch {
                 if (it is CancellationException) throw it
-                throw DomainError.DatabaseError
+                throw DomainError.DatabaseError()
             }
 }
