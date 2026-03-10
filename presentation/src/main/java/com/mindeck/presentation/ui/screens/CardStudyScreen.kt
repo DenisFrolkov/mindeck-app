@@ -68,8 +68,7 @@ fun CardStudyScreen(
         if (cardId != null) {
             viewModel.loadCardById(cardId)
         } else {
-            val currentTime = System.currentTimeMillis()
-            viewModel.loadCardRepetition(currentTime)
+            viewModel.loadCardRepetition()
         }
     }
 
