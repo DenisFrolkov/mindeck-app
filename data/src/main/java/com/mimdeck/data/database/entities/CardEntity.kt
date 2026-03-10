@@ -13,7 +13,8 @@ import androidx.room.PrimaryKey
         Index(
             value = ["card_name", "card_question"],
             unique = true,
-        ), Index(value = ["deck_id"]),
+        ),
+        Index(value = ["deck_id"]),
     ],
     foreignKeys = [
         ForeignKey(
@@ -34,9 +35,33 @@ data class CardEntity(
     @ColumnInfo(name = "card_type") val cardType: Int,
     @ColumnInfo(name = "card_tag") val cardTag: String,
     @ColumnInfo(name = "deck_id") val deckId: Int,
-    @ColumnInfo(name = "first_review_date") val firstReviewDate: Long?,
-    @ColumnInfo(name = "last_review_date") val lastReviewDate: Long?,
-    @ColumnInfo(name = "next_review_date") val nextReviewDate: Long?,
+
+    // --- Поля системы интервального повторения (SM-2) ---
+
+    // Состояние карточки: NEW / LEARNING / REVIEW / LAPSE (хранится как строка — имя enum)
+    @ColumnInfo(name = "card_state", defaultValue = "NEW") val cardState: String = "NEW",
+
+    // Коэффициент лёгкости, начало: 2.5, минимум: 1.3
+    @ColumnInfo(name = "ease_factor", defaultValue = "2.5") val easeFactor: Float = 2.5f,
+
+    // Текущий интервал в днях (Float — сохраняет дробную часть для корректного роста при умножении)
+    @ColumnInfo(name = "interval", defaultValue = "0") val interval: Float = 0f,
+
+    // Текущий шаг в фазе LEARNING/LAPSE: 0 = 1 мин, 1 = 10 мин
+    @ColumnInfo(name = "learning_step", defaultValue = "0") val learningStep: Int = 0,
+
+    // Unix timestamp следующего показа
+    @ColumnInfo(name = "next_review_date") val nextReviewDate: Long? = null,
+
+    // Общее количество повторений
     @ColumnInfo(name = "repetition_count", defaultValue = "0") val repetitionCount: Int = 0,
-    @ColumnInfo(name = "last_review_type") val lastReviewType: String? = null,
+
+    // Сколько раз карточка падала из REVIEW обратно в LEARNING
+    @ColumnInfo(name = "lapse_count", defaultValue = "0") val lapseCount: Int = 0,
+
+    // Дата первого показа (для подсчёта дневного лимита)
+    @ColumnInfo(name = "first_review_date") val firstReviewDate: Long? = null,
+
+    // Дата последнего показа (для статистики)
+    @ColumnInfo(name = "last_review_date") val lastReviewDate: Long? = null,
 )
