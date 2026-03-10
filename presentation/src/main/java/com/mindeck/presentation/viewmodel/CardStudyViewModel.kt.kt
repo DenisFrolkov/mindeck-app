@@ -54,11 +54,11 @@ internal class CardStudyViewModel @Inject constructor(
         }
     }
 
-    fun loadCardRepetition(currentTime: Long) {
+    fun loadCardRepetition() {
         if (_cardsState.value is UiState.Loading) return
         viewModelScope.launch {
             _cardsState.value = UiState.Loading
-            getCardsRepetitionUseCase(currentTime = currentTime)
+            getCardsRepetitionUseCase()
                 .toUiState()
                 .collect { _cardsState.value = it }
         }

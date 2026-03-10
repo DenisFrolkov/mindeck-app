@@ -13,4 +13,10 @@ data class Card(
     val nextReviewDate: Long? = null,
     val repetitionCount: Int = 0,
     val lastReviewType: ReviewType? = null,
-)
+) {
+    init {
+        require(cardName.isNotBlank()) { "Card name must not be blank" }
+        require(cardQuestion.isNotBlank()) { "Card question must not be blank" }
+        require(cardAnswer.isNotBlank()) { "Card answer must not be blank" }
+    }
+}

@@ -1,7 +1,7 @@
 package com.mindeck.domain.exception
 
 sealed class DomainError : Exception() {
-    object DatabaseError : DomainError()
+    class DatabaseError : DomainError()
 
-    object NameAlreadyExists : DomainError()
+    class NameAlreadyExists : DomainError()
 }

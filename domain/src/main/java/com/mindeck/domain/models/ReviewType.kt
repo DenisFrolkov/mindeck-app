@@ -5,6 +5,6 @@ enum class ReviewType {
 
     companion object {
         fun fromString(value: String): ReviewType =
-            values().firstOrNull { it.name == value } ?: REPEAT
+            entries.firstOrNull { it.name == value } ?: throw IllegalArgumentException("Unknown ReviewType value: $value")
     }
 }
