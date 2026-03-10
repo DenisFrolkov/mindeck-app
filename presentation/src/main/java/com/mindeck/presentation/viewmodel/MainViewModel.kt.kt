@@ -31,12 +31,12 @@ internal class MainViewModel @Inject constructor(
     val cardsForRepetitionState = _cardsForRepetitionState.asStateFlow()
 
     // В будущем буду применять, а пока оставлю тут
-    fun loadCardRepetition(currentTime: Long) {
+    fun loadCardRepetition() {
         if (_cardsForRepetitionState.value is UiState.Loading) return
 
         viewModelScope.launch {
             _cardsForRepetitionState.value = UiState.Loading
-            getCardsRepetitionUseCase(currentTime = currentTime)
+            getCardsRepetitionUseCase()
                 .toUiState()
                 .collect { _cardsForRepetitionState.value = it }
         }
