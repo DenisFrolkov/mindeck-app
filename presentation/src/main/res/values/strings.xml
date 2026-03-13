@@ -84,9 +84,9 @@
     <string name="toast_message_impossible_delete_deck">Невозможно выполнить удаление колоды.</string>
 
     //Repeat Option Text
-    <string name="repeat_option_title_repeat_text">Снова</string>
+    <string name="repeat_option_title_again_text">Снова</string>
     <string name="repeat_option_title_easy_text">Легко</string>
-    <string name="repeat_option_title_medium_text">Средне</string>
+    <string name="repeat_option_title_good_text">Хорошо</string>
     <string name="repeat_option_title_hard_text">Тяжело</string>
     <string name="repeat_option_time_one_minute_text">1 минута</string>
     <string name="repeat_option_time_five_day_text">5 дней</string>

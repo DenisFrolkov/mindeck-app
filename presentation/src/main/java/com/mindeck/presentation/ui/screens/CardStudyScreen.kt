@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -23,9 +24,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,6 +33,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mindeck.domain.models.Card
+import com.mindeck.domain.models.CardState
+import com.mindeck.domain.models.ReviewButton
 import com.mindeck.presentation.R
 import com.mindeck.presentation.state.ModalState
 import com.mindeck.presentation.state.UiState
@@ -79,6 +79,8 @@ fun CardStudyScreen(
             onNavigateBack = navigator::pop,
             onShowDropdownMenu = viewModel::showDropdownMenu,
             onHideModal = viewModel::hideModal,
+            onReviewCard = viewModel::reviewCard,
+            onGetNextReviewLabel = viewModel::previewNextReviewLabel,
         ),
         modifier = modifier,
     )
@@ -92,7 +94,6 @@ internal fun CardStudyScreenContent(
     modifier: Modifier = Modifier,
 ) {
     val isDark = isSystemInDarkTheme()
-    var currentIndex by remember { mutableIntStateOf(0) }
     val scrollState = rememberScrollState()
 
     Scaffold(
@@ -112,10 +113,9 @@ internal fun CardStudyScreenContent(
             when (cardsForRepetitionState) {
                 is UiState.Success -> {
                     val cards = cardsForRepetitionState.data
-                    val learnCard = {
-                        currentIndex++
-                    }
-                    LaunchedEffect(currentIndex) { scrollState.scrollTo(0) }
+                    val currentCard = cards.firstOrNull()
+
+                    LaunchedEffect(currentCard?.cardId) { scrollState.scrollTo(0) }
 
                     Column(
                         modifier = Modifier
@@ -125,21 +125,19 @@ internal fun CardStudyScreenContent(
                             .verticalScroll(state = scrollState),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
-                        if (cards.isEmpty() || currentIndex >= cards.size) {
+                        if (currentCard == null) {
+                            // Все карточки в сессии пройдены
                             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_30)))
                             Text(
                                 text = stringResource(R.string.study_session_complete_text),
                                 style = MaterialTheme.typography.titleLarge,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 textAlign = TextAlign.Center,
-                                modifier = Modifier,
                             )
                         } else {
-                            val card = cards[currentIndex]
                             Text(
-                                card.cardQuestion,
+                                currentCard.cardQuestion,
                                 style = MaterialTheme.typography.titleLarge,
-                                modifier = Modifier,
                             )
                             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_10)))
                             Box(
@@ -152,34 +150,44 @@ internal fun CardStudyScreenContent(
                             )
                             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_10)))
                             Text(
-                                card.cardAnswer,
+                                currentCard.cardAnswer,
                                 style = MaterialTheme.typography.titleLarge,
-                                modifier = Modifier,
                             )
                         }
                     }
-                    if (cards.isEmpty() || currentIndex >= cards.size) {
+
+                    // Кнопки оценки показываются только пока есть карточки в сессии
+                    if (currentCard != null) {
+                        // AGAIN скрыт пока карточка не прошла хотя бы один шаг обучения:
+                        // на шаге 0 (NEW или LEARNING step 0) AGAIN и HARD дают одинаковый интервал
+                        val showAgain = currentCard.cardState == CardState.LAPSE ||
+                            currentCard.cardState == CardState.REVIEW ||
+                            (currentCard.cardState == CardState.LEARNING && currentCard.learningStep > 0)
                         RepeatButtons(
-                            options = listOf(
-                                RepeatOptionData(
-                                    title = stringResource(R.string.repeat_option_title_repeat_text),
+                            options = listOfNotNull(
+                                if (showAgain) RepeatOptionData(
+                                    title = stringResource(R.string.repeat_option_title_again_text),
+                                    time = actions.onGetNextReviewLabel(currentCard, ReviewButton.AGAIN),
                                     color = if (isDark) repeat_option_again_dark else repeat_option_again_light,
-                                    onClick = { learnCard() },
+                                    onClick = { actions.onReviewCard(currentCard, ReviewButton.AGAIN) },
+                                ) else null,
+                                RepeatOptionData(
+                                    title = stringResource(R.string.repeat_option_title_hard_text),
+                                    time = actions.onGetNextReviewLabel(currentCard, ReviewButton.HARD),
+                                    color = if (isDark) repeat_option_hard_dark else repeat_option_hard_light,
+                                    onClick = { actions.onReviewCard(currentCard, ReviewButton.HARD) },
+                                ),
+                                RepeatOptionData(
+                                    title = stringResource(R.string.repeat_option_title_good_text),
+                                    time = actions.onGetNextReviewLabel(currentCard, ReviewButton.GOOD),
+                                    color = if (isDark) repeat_option_medium_dark else repeat_option_medium_light,
+                                    onClick = { actions.onReviewCard(currentCard, ReviewButton.GOOD) },
                                 ),
                                 RepeatOptionData(
                                     title = stringResource(R.string.repeat_option_title_easy_text),
+                                    time = actions.onGetNextReviewLabel(currentCard, ReviewButton.EASY),
                                     color = if (isDark) repeat_option_easy_dark else repeat_option_easy_light,
-                                    onClick = { learnCard() },
-                                ),
-                                RepeatOptionData(
-                                    title = stringResource(R.string.repeat_option_title_medium_text),
-                                    color = if (isDark) repeat_option_medium_dark else repeat_option_medium_light,
-                                    onClick = { learnCard() },
-                                ),
-                                RepeatOptionData(
-                                    title = stringResource(R.string.repeat_option_title_hard_text),
-                                    color = if (isDark) repeat_option_hard_dark else repeat_option_hard_light,
-                                    onClick = { learnCard() },
+                                    onClick = { actions.onReviewCard(currentCard, ReviewButton.EASY) },
                                 ),
                             ),
                         )
@@ -194,9 +202,6 @@ internal fun CardStudyScreenContent(
                             text = stringResource(R.string.dropdown_menu_data_previous_card),
                             onClick = {
                                 actions.onHideModal()
-                                if (currentIndex > 0) {
-                                    currentIndex--
-                                }
                             },
                         )
                     }
@@ -246,16 +251,16 @@ private fun RepeatButtons(
         horizontalArrangement = Arrangement.SpaceAround,
         verticalAlignment = Alignment.Bottom,
         modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = dimensionResource(R.dimen.dimen_16))
-            .padding(bottom = dimensionResource(R.dimen.dimen_16)),
+            .fillMaxSize(),
     ) {
         options.forEach {
             RepeatOptionsButton(
                 buttonColor = it.color,
                 label = it.title,
+                time = it.time,
                 onClick = it.onClick,
                 textStyle = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.weight(1f)
             )
         }
     }
@@ -265,4 +270,6 @@ data class CardStudyScreenActions(
     val onNavigateBack: () -> Unit,
     val onShowDropdownMenu: () -> Unit,
     val onHideModal: () -> Unit,
+    val onReviewCard: (Card, ReviewButton) -> Unit,
+    val onGetNextReviewLabel: (Card, ReviewButton) -> String,
 )
