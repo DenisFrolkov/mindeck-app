@@ -37,6 +37,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mindeck.domain.models.Deck
 import com.mindeck.presentation.R
+import com.mindeck.presentation.state.SessionSummary
 import com.mindeck.presentation.state.UiState
 import com.mindeck.presentation.ui.components.buttons.CustomButton
 import com.mindeck.presentation.ui.components.item.DisplayItem
@@ -54,9 +55,11 @@ fun MainScreen(
 ) {
     val viewModel = hiltViewModel<MainViewModel>()
     val decksState by viewModel.decksState.collectAsStateWithLifecycle()
+    val sessionSummaryState by viewModel.sessionSummaryState.collectAsStateWithLifecycle()
 
     MainScreenContent(
         decksState = decksState,
+        sessionSummaryState = sessionSummaryState,
         actions = MainScreenActions(
             onNavigateToStudy = { navigator.push(CardStudyRoute()) },
             onNavigateToDeck = { navigator.push(DeckRoute(it)) },
@@ -70,9 +73,14 @@ fun MainScreen(
 @Composable
 internal fun MainScreenContent(
     decksState: UiState<List<Deck>>,
+    sessionSummaryState: UiState<SessionSummary>,
     actions: MainScreenActions,
     modifier: Modifier = Modifier,
 ) {
+    // Есть ли карточки для изучения — блокируем переход если нечего учить
+    val hasCardsToStudy = sessionSummaryState is UiState.Success &&
+        sessionSummaryState.data.totalCount > 0
+
     Scaffold(
         modifier = modifier
             .fillMaxSize()
@@ -86,33 +94,11 @@ internal fun MainScreenContent(
                 verticalArrangement = Arrangement.Center,
             ) {
                 Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_12)))
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(dimensionResource(R.dimen.dimen_12)))
-                        .background(MaterialTheme.colorScheme.surface)
-                        .clickable { actions.onNavigateToStudy() }
-                        .padding(vertical = dimensionResource(R.dimen.dimen_8)),
-                    horizontalArrangement = Arrangement.SpaceAround,
-                ) {
-                    RepeatCountItem(
-                        count = "14",
-                        label = stringResource(R.string.new_text),
-                        color = MaterialTheme.colorScheme.tertiary,
-                    )
-
-                    RepeatCountItem(
-                        count = "6",
-                        label = stringResource(R.string.learning_text),
-                        color = MaterialTheme.colorScheme.error,
-                    )
-
-                    RepeatCountItem(
-                        count = "10",
-                        label = stringResource(R.string.to_review_text),
-                        color = MaterialTheme.colorScheme.primary,
-                    )
-                }
+                SessionSummaryRow(
+                    sessionSummaryState = sessionSummaryState,
+                    enabled = hasCardsToStudy,
+                    onClick = actions.onNavigateToStudy,
+                )
                 Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_20)))
                 DeckList(
                     decksState = decksState,
@@ -140,6 +126,59 @@ internal fun MainScreenContent(
             }
         },
     )
+}
+
+// Строка с реальными счётчиками сессии. Нажатие ведёт на экран изучения.
+// Заблокирована если карточек для изучения нет.
+@Composable
+private fun SessionSummaryRow(
+    sessionSummaryState: UiState<SessionSummary>,
+    enabled: Boolean,
+    onClick: () -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(dimensionResource(R.dimen.dimen_12)))
+            .background(MaterialTheme.colorScheme.surface)
+            .then(if (enabled) Modifier.clickable { onClick() } else Modifier)
+            .padding(vertical = dimensionResource(R.dimen.dimen_8)),
+        horizontalArrangement = Arrangement.SpaceAround,
+    ) {
+        when (sessionSummaryState) {
+            is UiState.Success -> {
+                val summary = sessionSummaryState.data
+                RepeatCountItem(
+                    count = summary.newCount.toString(),
+                    label = stringResource(R.string.new_text),
+                    color = MaterialTheme.colorScheme.tertiary,
+                )
+                RepeatCountItem(
+                    count = summary.learningCount.toString(),
+                    label = stringResource(R.string.learning_text),
+                    color = MaterialTheme.colorScheme.error,
+                )
+                RepeatCountItem(
+                    count = summary.reviewCount.toString(),
+                    label = stringResource(R.string.to_review_text),
+                    color = MaterialTheme.colorScheme.primary,
+                )
+            }
+
+            // Показываем прочерки пока данные загружаются — не сдвигаем layout
+            UiState.Loading, UiState.Idle -> {
+                RepeatCountItem(count = "—", label = stringResource(R.string.new_text), color = MaterialTheme.colorScheme.tertiary)
+                RepeatCountItem(count = "—", label = stringResource(R.string.learning_text), color = MaterialTheme.colorScheme.error)
+                RepeatCountItem(count = "—", label = stringResource(R.string.to_review_text), color = MaterialTheme.colorScheme.primary)
+            }
+
+            is UiState.Error -> {
+                RepeatCountItem(count = "—", label = stringResource(R.string.new_text), color = MaterialTheme.colorScheme.tertiary)
+                RepeatCountItem(count = "—", label = stringResource(R.string.learning_text), color = MaterialTheme.colorScheme.error)
+                RepeatCountItem(count = "—", label = stringResource(R.string.to_review_text), color = MaterialTheme.colorScheme.primary)
+            }
+        }
+    }
 }
 
 @Composable
@@ -198,8 +237,7 @@ private fun DeckList(
                     key = { it.deckId },
                 ) { deck ->
                     DisplayItem(
-                        modifier = Modifier
-                            .fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth(),
                         icon = R.drawable.deck_icon,
                         name = deck.deckName,
                         onClick = { onDeckClick(deck.deckId) },
