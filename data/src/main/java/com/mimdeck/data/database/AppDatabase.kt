@@ -9,7 +9,7 @@ import com.mimdeck.data.database.entities.DeckEntity
 
 @Database(
     entities = [DeckEntity::class, CardEntity::class],
-    version = 4,
+    version = 5,
     exportSchema = true,
 )
 abstract class AppDatabase : RoomDatabase() {

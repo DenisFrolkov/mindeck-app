@@ -15,6 +15,9 @@ import androidx.room.PrimaryKey
             unique = true,
         ),
         Index(value = ["deck_id"]),
+        Index(value = ["card_state"]),
+        Index(value = ["next_review_date"]),
+        Index(value = ["first_review_date"]),
     ],
     foreignKeys = [
         ForeignKey(

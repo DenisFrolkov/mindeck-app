@@ -1,0 +1,220 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 5,
+    "identityHash": "dd955f12d404ec9b831b0427057e6b67",
+    "entities": [
+      {
+        "tableName": "deck",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`deck_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `deck_name` TEXT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "deckId",
+            "columnName": "deck_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "deckName",
+            "columnName": "deck_name",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "deck_id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_deck_deck_name",
+            "unique": true,
+            "columnNames": [
+              "deck_name"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_deck_deck_name` ON `${TABLE_NAME}` (`deck_name`)"
+          }
+        ]
+      },
+      {
+        "tableName": "card",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`card_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `card_name` TEXT NOT NULL, `card_question` TEXT NOT NULL, `card_answer` TEXT NOT NULL, `card_type` INTEGER NOT NULL, `card_tag` TEXT NOT NULL, `deck_id` INTEGER NOT NULL, `card_state` TEXT NOT NULL DEFAULT 'NEW', `ease_factor` REAL NOT NULL DEFAULT 2.5, `interval` REAL NOT NULL DEFAULT 0, `learning_step` INTEGER NOT NULL DEFAULT 0, `next_review_date` INTEGER, `repetition_count` INTEGER NOT NULL DEFAULT 0, `lapse_count` INTEGER NOT NULL DEFAULT 0, `first_review_date` INTEGER, `last_review_date` INTEGER, FOREIGN KEY(`deck_id`) REFERENCES `deck`(`deck_id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "cardId",
+            "columnName": "card_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cardName",
+            "columnName": "card_name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cardQuestion",
+            "columnName": "card_question",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cardAnswer",
+            "columnName": "card_answer",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cardType",
+            "columnName": "card_type",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cardTag",
+            "columnName": "card_tag",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "deckId",
+            "columnName": "deck_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cardState",
+            "columnName": "card_state",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "'NEW'"
+          },
+          {
+            "fieldPath": "easeFactor",
+            "columnName": "ease_factor",
+            "affinity": "REAL",
+            "notNull": true,
+            "defaultValue": "2.5"
+          },
+          {
+            "fieldPath": "interval",
+            "columnName": "interval",
+            "affinity": "REAL",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "learningStep",
+            "columnName": "learning_step",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "nextReviewDate",
+            "columnName": "next_review_date",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "repetitionCount",
+            "columnName": "repetition_count",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "lapseCount",
+            "columnName": "lapse_count",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "firstReviewDate",
+            "columnName": "first_review_date",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "lastReviewDate",
+            "columnName": "last_review_date",
+            "affinity": "INTEGER"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "card_id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_card_card_name_card_question",
+            "unique": true,
+            "columnNames": [
+              "card_name",
+              "card_question"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_card_card_name_card_question` ON `${TABLE_NAME}` (`card_name`, `card_question`)"
+          },
+          {
+            "name": "index_card_deck_id",
+            "unique": false,
+            "columnNames": [
+              "deck_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_card_deck_id` ON `${TABLE_NAME}` (`deck_id`)"
+          },
+          {
+            "name": "index_card_card_state",
+            "unique": false,
+            "columnNames": [
+              "card_state"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_card_card_state` ON `${TABLE_NAME}` (`card_state`)"
+          },
+          {
+            "name": "index_card_next_review_date",
+            "unique": false,
+            "columnNames": [
+              "next_review_date"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_card_next_review_date` ON `${TABLE_NAME}` (`next_review_date`)"
+          },
+          {
+            "name": "index_card_first_review_date",
+            "unique": false,
+            "columnNames": [
+              "first_review_date"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_card_first_review_date` ON `${TABLE_NAME}` (`first_review_date`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "deck",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "deck_id"
+            ],
+            "referencedColumns": [
+              "deck_id"
+            ]
+          }
+        ]
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'dd955f12d404ec9b831b0427057e6b67')"
+    ]
+  }
+}

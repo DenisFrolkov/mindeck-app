@@ -92,6 +92,7 @@ fun WriteModalWindow(
                 Text(
                     text = titleText,
                     style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onBackground,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.weight(1f),
                 )
@@ -115,7 +116,6 @@ fun WriteModalWindow(
                 placeholder = placeholder,
                 singleLine = true,
                 enabled = !isLoading,
-                textStyle = MaterialTheme.typography.bodyMedium,
                 placeholderTextStyle = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurfaceVariant),
                 modifier = Modifier
                     .fillMaxWidth()

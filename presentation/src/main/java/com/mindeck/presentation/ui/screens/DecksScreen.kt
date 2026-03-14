@@ -167,6 +167,7 @@ private fun DecksList(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.dimen_16)),
             ) {
+                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_40)))
                 Text(
                     stringResource(R.string.error_get_all_decks),
                     modifier = Modifier.fillMaxWidth(),

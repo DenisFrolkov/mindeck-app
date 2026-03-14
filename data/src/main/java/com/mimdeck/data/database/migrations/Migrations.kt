@@ -168,4 +168,13 @@ val MIGRATION_3_4 = object : Migration(3, 4) {
     }
 }
 
-val ALL_MIGRATIONS = arrayOf<Migration>(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+// Миграция v4 → v5: добавляем индексы для ускорения getCardsRepetition.
+val MIGRATION_4_5 = object : Migration(4, 5) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_card_card_state` ON `card` (`card_state`)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_card_next_review_date` ON `card` (`next_review_date`)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_card_first_review_date` ON `card` (`first_review_date`)")
+    }
+}
+
+val ALL_MIGRATIONS = arrayOf<Migration>(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)

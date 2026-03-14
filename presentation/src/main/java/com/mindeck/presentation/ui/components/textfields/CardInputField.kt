@@ -3,10 +3,12 @@ package com.mindeck.presentation.ui.components.textfields
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.TextStyle
 
 @Composable
@@ -15,7 +17,6 @@ fun CardInputField(
     value: String,
     singleLine: Boolean = false,
     enabled: Boolean = true,
-    textStyle: TextStyle,
     placeholderTextStyle: TextStyle,
     onValueChange: (String) -> Unit,
     modifier: Modifier,
@@ -24,7 +25,8 @@ fun CardInputField(
         value = value,
         onValueChange = { onValueChange(it) },
         enabled = enabled,
-        textStyle = textStyle,
+        textStyle = MaterialTheme.typography.bodyMedium.copy(MaterialTheme.colorScheme.onBackground),
+        cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
         singleLine = singleLine,
         decorationBox = { innerTextField ->
             Box(

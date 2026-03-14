@@ -228,18 +228,17 @@ private fun CardFormInputs(
         value = formState.title,
         singleLine = true,
         onValueChange = { onValueChange { copy(title = it) } },
-        textStyle = MaterialTheme.typography.bodyMedium,
         placeholderTextStyle = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurfaceVariant),
         modifier = Modifier
             .fillMaxWidth()
             .background(
-                color = MaterialTheme.colorScheme.surface,
+                color = MaterialTheme.colorScheme.surfaceVariant,
                 shape = MaterialTheme.shapes.large,
             )
             .height(height = dimensionResource(R.dimen.dimen_46))
             .border(
                 width = dimensionResource(R.dimen.dimen_0_25),
-                color = MaterialTheme.colorScheme.outline,
+                color = MaterialTheme.colorScheme.outlineVariant,
                 shape = MaterialTheme.shapes.large,
             )
             .padding(horizontal = dimensionResource(R.dimen.dimen_10)),
@@ -251,11 +250,10 @@ private fun CardFormInputs(
         placeholder = stringResource(R.string.enter_question_for_card),
         value = formState.question,
         onValueChange = { onValueChange { copy(question = it) } },
-        textStyle = MaterialTheme.typography.bodyMedium,
         placeholderTextStyle = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurfaceVariant),
         modifier = Modifier
             .background(
-                color = MaterialTheme.colorScheme.surface,
+                color = MaterialTheme.colorScheme.surfaceVariant,
                 shape = RoundedCornerShape(
                     topStart = dimensionResource(R.dimen.dimen_6),
                     topEnd = dimensionResource(R.dimen.dimen_6),
@@ -267,7 +265,7 @@ private fun CardFormInputs(
             )
             .border(
                 width = dimensionResource(R.dimen.dimen_0_25),
-                color = MaterialTheme.colorScheme.outline,
+                color = MaterialTheme.colorScheme.outlineVariant,
                 shape = RoundedCornerShape(
                     topStart = dimensionResource(R.dimen.dimen_6),
                     topEnd = dimensionResource(R.dimen.dimen_6),
@@ -280,11 +278,10 @@ private fun CardFormInputs(
         placeholder = stringResource(R.string.enter_answer_for_card),
         value = formState.answer,
         onValueChange = { onValueChange { copy(answer = it) } },
-        textStyle = MaterialTheme.typography.bodyMedium,
         placeholderTextStyle = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurfaceVariant),
         modifier = Modifier
             .background(
-                color = MaterialTheme.colorScheme.surface,
+                color = MaterialTheme.colorScheme.surfaceVariant,
                 shape = RoundedCornerShape(
                     bottomStart = dimensionResource(R.dimen.dimen_6),
                     bottomEnd = dimensionResource(R.dimen.dimen_6),
@@ -296,7 +293,7 @@ private fun CardFormInputs(
             )
             .border(
                 width = dimensionResource(R.dimen.dimen_0_25),
-                color = MaterialTheme.colorScheme.outline,
+                color = MaterialTheme.colorScheme.outlineVariant,
                 shape = RoundedCornerShape(
                     bottomStart = dimensionResource(R.dimen.dimen_6),
                     bottomEnd = dimensionResource(R.dimen.dimen_6),
@@ -319,11 +316,10 @@ private fun CardFormInputs(
             value = formState.tag,
             singleLine = true,
             onValueChange = { onValueChange { copy(tag = it) } },
-            textStyle = MaterialTheme.typography.bodyMedium,
             placeholderTextStyle = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurfaceVariant),
             modifier = Modifier
                 .background(
-                    MaterialTheme.colorScheme.surface,
+                    MaterialTheme.colorScheme.surfaceVariant,
                     MaterialTheme.shapes.large,
                 )
                 .size(
@@ -332,7 +328,7 @@ private fun CardFormInputs(
                 )
                 .border(
                     dimensionResource(R.dimen.dimen_0_25),
-                    MaterialTheme.colorScheme.outline,
+                    MaterialTheme.colorScheme.outlineVariant,
                     MaterialTheme.shapes.large,
                 )
                 .padding(horizontal = dimensionResource(R.dimen.dimen_10)),

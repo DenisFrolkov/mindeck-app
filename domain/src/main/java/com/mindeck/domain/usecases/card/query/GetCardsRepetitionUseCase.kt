@@ -25,7 +25,6 @@ class GetCardsRepetitionUseCase @Inject constructor(
     // 2. REVIEW с истёкшим nextReviewDate          (всегда показываются полностью)
     // 3. NEW — до дневного лимита (DAILY_NEW_LIMIT)
     private fun buildSession(cards: List<Card>, now: Long, todayStart: Long): List<Card> {
-
         val learning = cards.filter { card ->
             (card.cardState == CardState.LEARNING || card.cardState == CardState.LAPSE) &&
                 (card.nextReviewDate == null || card.nextReviewDate <= now)

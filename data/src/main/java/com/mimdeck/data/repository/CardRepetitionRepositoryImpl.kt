@@ -2,9 +2,9 @@ package com.mimdeck.data.repository
 
 import com.mimdeck.data.database.dao.CardDao
 import com.mimdeck.data.database.mapper.Mappers.toDomain
+import com.mimdeck.data.database.mapper.Mappers.toEntity
 import com.mindeck.domain.exception.DomainError
 import com.mindeck.domain.models.Card
-import com.mindeck.domain.models.CardState
 import com.mindeck.domain.repository.CardRepetitionRepository
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
@@ -23,30 +23,8 @@ class CardRepetitionRepositoryImpl @Inject constructor(
                 throw DomainError.DatabaseError()
             }
 
-    override suspend fun updateReview(
-        cardId: Int,
-        cardState: CardState,
-        easeFactor: Float,
-        interval: Float,
-        learningStep: Int,
-        nextReviewDate: Long,
-        repetitionCount: Int,
-        lapseCount: Int,
-        firstReviewDate: Long,
-        lastReviewDate: Long,
-    ) = try {
-        cardDao.updateReview(
-            cardId = cardId,
-            cardState = cardState.name,
-            easeFactor = easeFactor,
-            interval = interval,
-            learningStep = learningStep,
-            nextReviewDate = nextReviewDate,
-            repetitionCount = repetitionCount,
-            lapseCount = lapseCount,
-            firstReviewDate = firstReviewDate,
-            lastReviewDate = lastReviewDate,
-        )
+    override suspend fun updateReview(card: Card) = try {
+        cardDao.updateCard(card.toEntity())
     } catch (e: CancellationException) {
         throw e
     } catch (e: Exception) {
