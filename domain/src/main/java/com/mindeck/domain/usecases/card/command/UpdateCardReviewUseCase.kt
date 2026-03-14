@@ -17,24 +17,12 @@ class UpdateCardReviewUseCase @Inject constructor(
     // обновления in-memory очереди сессии (иначе очередь хранила бы устаревшее состояние)
     suspend operator fun invoke(card: Card, button: ReviewButton): Card {
         val now = clock.now()
-        val firstReview = card.firstReviewDate ?: now
-        val updated = applyReview(card, button, now)
-
-        cardRepetitionRepository.updateReview(
-            cardId = card.cardId,
-            cardState = updated.cardState,
-            easeFactor = updated.easeFactor,
-            interval = updated.interval,
-            learningStep = updated.learningStep,
-            nextReviewDate = updated.nextReviewDate!!,
-            repetitionCount = updated.repetitionCount,
-            lapseCount = updated.lapseCount,
-            firstReviewDate = firstReview,
+        val finalCard = applyReview(card, button, now).copy(
+            firstReviewDate = card.firstReviewDate ?: now,
             lastReviewDate = now,
         )
-
-        // Возвращаем итоговый объект с полными датами для переиспользования в очереди
-        return updated.copy(firstReviewDate = firstReview, lastReviewDate = now)
+        cardRepetitionRepository.updateReview(finalCard)
+        return finalCard
     }
 
     // Основная точка входа: выбирает ветку обработки по текущему состоянию карточки
@@ -42,7 +30,8 @@ class UpdateCardReviewUseCase @Inject constructor(
         return when (card.cardState) {
             CardState.NEW,
             CardState.LEARNING,
-            CardState.LAPSE -> applyLearning(card, button, now)
+            CardState.LAPSE,
+            -> applyLearning(card, button, now)
             CardState.REVIEW -> applyReviewPhase(card, button, now)
         }
     }
@@ -191,6 +180,7 @@ class UpdateCardReviewUseCase @Inject constructor(
         // Минимально допустимое значение Ease Factor по спецификации SM-2
         private const val MIN_EASE_FACTOR = 1.3f
         private const val MAX_EASE_FACTOR = 3.5f
+
         // Доля предыдущего интервала, применяемая при выпуске из LAPSE (аналог Anki)
         private const val LAPSE_INTERVAL_MULTIPLIER = 0.7f
     }

@@ -60,7 +60,7 @@ fun ChooseModalWindow(
     val isError = actionState as? UiState.Error
     val errorMessage = isError?.let { stringResource(it.messageRes, *it.args.toTypedArray()) }
 
-    var isCreateMode by rememberSaveable { mutableStateOf(false) }
+    var isCreateMode by rememberSaveable { mutableStateOf(items?.isEmpty() == true) }
     var text by rememberSaveable { mutableStateOf("") }
 
     val isTextValid = text.trim().isNotEmpty()
@@ -119,6 +119,7 @@ fun ChooseModalWindow(
                 Text(
                     text = if (isCreateMode && createTitle.isNotEmpty()) createTitle else titleText,
                     style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onBackground,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.weight(1f),
                 )
@@ -149,7 +150,6 @@ fun ChooseModalWindow(
                         onValueChange = {
                             text = it
                         },
-                        textStyle = MaterialTheme.typography.bodyMedium,
                         placeholderTextStyle = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurfaceVariant),
                         modifier = Modifier
                             .fillMaxWidth()

@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.systemBarsPadding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -63,6 +62,7 @@ fun CardStudyScreen(
     val viewModel = hiltViewModel<CardStudyViewModel>()
     val modalState by viewModel.modalState.collectAsStateWithLifecycle()
     val cardsState by viewModel.cardsState.collectAsStateWithLifecycle()
+    val reviewLabels by viewModel.reviewLabels.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         if (cardId != null) {
@@ -75,12 +75,12 @@ fun CardStudyScreen(
     CardStudyScreenContent(
         modalState = modalState,
         cardsForRepetitionState = cardsState,
+        reviewLabels = reviewLabels,
         actions = CardStudyScreenActions(
             onNavigateBack = navigator::pop,
             onShowDropdownMenu = viewModel::showDropdownMenu,
             onHideModal = viewModel::hideModal,
             onReviewCard = viewModel::reviewCard,
-            onGetNextReviewLabel = viewModel::previewNextReviewLabel,
         ),
         modifier = modifier,
     )
@@ -90,6 +90,7 @@ fun CardStudyScreen(
 internal fun CardStudyScreenContent(
     modalState: ModalState,
     cardsForRepetitionState: UiState<List<Card>>,
+    reviewLabels: Map<ReviewButton, String>,
     actions: CardStudyScreenActions,
     modifier: Modifier = Modifier,
 ) {
@@ -165,27 +166,31 @@ internal fun CardStudyScreenContent(
                             (currentCard.cardState == CardState.LEARNING && currentCard.learningStep > 0)
                         RepeatButtons(
                             options = listOfNotNull(
-                                if (showAgain) RepeatOptionData(
-                                    title = stringResource(R.string.repeat_option_title_again_text),
-                                    time = actions.onGetNextReviewLabel(currentCard, ReviewButton.AGAIN),
-                                    color = if (isDark) repeat_option_again_dark else repeat_option_again_light,
-                                    onClick = { actions.onReviewCard(currentCard, ReviewButton.AGAIN) },
-                                ) else null,
+                                if (showAgain) {
+                                    RepeatOptionData(
+                                        title = stringResource(R.string.repeat_option_title_again_text),
+                                        time = reviewLabels[ReviewButton.AGAIN].orEmpty(),
+                                        color = if (isDark) repeat_option_again_dark else repeat_option_again_light,
+                                        onClick = { actions.onReviewCard(currentCard, ReviewButton.AGAIN) },
+                                    )
+                                } else {
+                                    null
+                                },
                                 RepeatOptionData(
                                     title = stringResource(R.string.repeat_option_title_hard_text),
-                                    time = actions.onGetNextReviewLabel(currentCard, ReviewButton.HARD),
+                                    time = reviewLabels[ReviewButton.HARD].orEmpty(),
                                     color = if (isDark) repeat_option_hard_dark else repeat_option_hard_light,
                                     onClick = { actions.onReviewCard(currentCard, ReviewButton.HARD) },
                                 ),
                                 RepeatOptionData(
                                     title = stringResource(R.string.repeat_option_title_good_text),
-                                    time = actions.onGetNextReviewLabel(currentCard, ReviewButton.GOOD),
+                                    time = reviewLabels[ReviewButton.GOOD].orEmpty(),
                                     color = if (isDark) repeat_option_medium_dark else repeat_option_medium_light,
                                     onClick = { actions.onReviewCard(currentCard, ReviewButton.GOOD) },
                                 ),
                                 RepeatOptionData(
                                     title = stringResource(R.string.repeat_option_title_easy_text),
-                                    time = actions.onGetNextReviewLabel(currentCard, ReviewButton.EASY),
+                                    time = reviewLabels[ReviewButton.EASY].orEmpty(),
                                     color = if (isDark) repeat_option_easy_dark else repeat_option_easy_light,
                                     onClick = { actions.onReviewCard(currentCard, ReviewButton.EASY) },
                                 ),
@@ -227,6 +232,7 @@ internal fun CardStudyScreenContent(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.dimen_16)),
                     ) {
+                        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_80)))
                         Text(
                             stringResource(R.string.error_get_card_for_study),
                             modifier = Modifier.fillMaxWidth(),
@@ -260,7 +266,7 @@ private fun RepeatButtons(
                 time = it.time,
                 onClick = it.onClick,
                 textStyle = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
             )
         }
     }
@@ -271,5 +277,4 @@ data class CardStudyScreenActions(
     val onShowDropdownMenu: () -> Unit,
     val onHideModal: () -> Unit,
     val onReviewCard: (Card, ReviewButton) -> Unit,
-    val onGetNextReviewLabel: (Card, ReviewButton) -> String,
 )

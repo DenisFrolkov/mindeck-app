@@ -68,7 +68,9 @@ constructor(
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), UiState.Loading)
 
     fun loadDeckWithCards(deckId: Int) {
-        _deckId.tryEmit(deckId)
+        viewModelScope.launch {
+            _deckId.emit(deckId)
+        }
     }
 
     private val _modalState = MutableStateFlow<ModalState>(ModalState.None)
@@ -77,33 +79,36 @@ constructor(
     private val _renameDeckState = MutableStateFlow<UiState<Unit>>(UiState.Idle)
     val renameDeckState: StateFlow<UiState<Unit>> = _renameDeckState.asStateFlow()
 
+    private val renameDeckMutex = Mutex()
+
     fun renameDeck(
         deckId: Int,
         newDeckName: String,
     ) {
-        if (_renameDeckState.value is UiState.Loading) return
-
         viewModelScope.launch {
-            _renameDeckState.value = UiState.Loading
+            if (!renameDeckMutex.tryLock()) return@launch
+            _renameDeckState.update { UiState.Loading }
 
             try {
                 renameDeckUseCase(deckId = deckId, newName = newDeckName)
-                _renameDeckState.value = UiState.Success(Unit)
+                _renameDeckState.update { UiState.Success(Unit) }
                 hideModal()
             } catch (e: DomainError.NameAlreadyExists) {
-                _renameDeckState.value = UiState.Error(R.string.error_deck_name_already_exists, listOf(newDeckName))
+                _renameDeckState.update { UiState.Error(R.string.error_deck_name_already_exists, listOf(newDeckName)) }
             } catch (e: DomainError.DatabaseError) {
-                _renameDeckState.value = UiState.Error(R.string.error_database_try_again)
+                _renameDeckState.update { UiState.Error(R.string.error_database_try_again) }
             } catch (e: DomainError) {
-                _renameDeckState.value = UiState.Error(R.string.error_something_went_wrong)
+                _renameDeckState.update { UiState.Error(R.string.error_something_went_wrong) }
             } catch (e: Exception) {
-                _renameDeckState.value = UiState.Error(R.string.error_something_went_wrong)
+                _renameDeckState.update { UiState.Error(R.string.error_something_went_wrong) }
+            } finally {
+                renameDeckMutex.unlock()
             }
         }
     }
 
     fun resetRenameDeckState() {
-        _renameDeckState.value = UiState.Idle
+        _renameDeckState.update { UiState.Idle }
     }
 
     private val deleteDeckMutex = Mutex()
