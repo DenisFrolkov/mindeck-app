@@ -65,7 +65,6 @@ dependencies {
     // Core
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.core)
-    api(libs.accompanistController)
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation(libs.compose.ui.test.junit)
