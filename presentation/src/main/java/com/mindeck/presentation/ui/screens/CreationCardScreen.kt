@@ -33,6 +33,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mindeck.domain.models.CardType
@@ -47,6 +48,7 @@ import com.mindeck.presentation.ui.components.selector.SelectorRow
 import com.mindeck.presentation.ui.components.textfields.CardInputField
 import com.mindeck.presentation.ui.components.topBar.AppTopBar
 import com.mindeck.presentation.ui.navigation.Navigator
+import com.mindeck.presentation.ui.theme.MindeckTheme
 import com.mindeck.presentation.viewmodel.CreationCardNavigationEvent
 import com.mindeck.presentation.viewmodel.CreationCardViewModel
 
@@ -403,4 +405,59 @@ data class CreationCardScreenActions(
     val onSetDeckId: (Int) -> Unit,
     val onSetType: (CardType) -> Unit,
     val onCreateDeck: (String) -> Unit,
+)
+
+@Preview(showSystemUi = true)
+@Composable
+private fun CreationCardScreenContentEmptyPreview() {
+    MindeckTheme {
+        CreationCardScreenContent(
+            formState = CreateCardFormState(),
+            deckState = UiState.Success(
+                listOf(
+                    Deck(deckId = 1, deckName = "Английский язык"),
+                    Deck(deckId = 2, deckName = "Математика"),
+                ),
+            ),
+            createDeckState = UiState.Idle,
+            createCardState = UiState.Idle,
+            modalState = ModalState.None,
+            actions = previewActions,
+        )
+    }
+}
+
+@Preview(showSystemUi = true)
+@Composable
+private fun CreationCardScreenContentFilledPreview() {
+    MindeckTheme {
+        CreationCardScreenContent(
+            formState = CreateCardFormState(
+                title = "Kotlin корутины",
+                question = "Что такое coroutine?",
+                answer = "Лёгковесная сопрограмма для асинхронного кода",
+                selectedDeckId = 1,
+                selectedType = CardType.SIMPLE,
+            ),
+            deckState = UiState.Success(
+                listOf(Deck(deckId = 1, deckName = "Английский язык")),
+            ),
+            createDeckState = UiState.Idle,
+            createCardState = UiState.Idle,
+            modalState = ModalState.None,
+            actions = previewActions,
+        )
+    }
+}
+
+private val previewActions = CreationCardScreenActions(
+    onNavigateBack = {},
+    onShowDeckModal = {},
+    onShowTypeModal = {},
+    onUpdateForm = {},
+    onCreateCard = {},
+    onHideModal = {},
+    onSetDeckId = {},
+    onSetType = {},
+    onCreateDeck = {},
 )
