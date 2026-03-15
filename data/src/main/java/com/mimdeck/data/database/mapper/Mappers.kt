@@ -71,6 +71,7 @@ object Mappers {
     fun CardWithDeckEntity.toDomain(): CardWithDeck {
         return CardWithDeck(
             card = this.card.toDomain(),
+            deckId = this.deck.deckId,
             deckName = this.deck.deckName,
         )
     }

@@ -44,33 +44,4 @@ interface CardDao {
         """,
     )
     fun getCardsRepetition(currentTime: Long, todayStart: Long): Flow<List<CardEntity>>
-
-    // Обновляет все поля SM-2 после оценки пользователем
-    @Query(
-        """
-        UPDATE card
-        SET card_state = :cardState,
-            ease_factor = :easeFactor,
-            interval = :interval,
-            learning_step = :learningStep,
-            next_review_date = :nextReviewDate,
-            repetition_count = :repetitionCount,
-            lapse_count = :lapseCount,
-            first_review_date = :firstReviewDate,
-            last_review_date = :lastReviewDate
-        WHERE card_id = :cardId
-        """,
-    )
-    suspend fun updateReview(
-        cardId: Int,
-        cardState: String,
-        easeFactor: Float,
-        interval: Float,
-        learningStep: Int,
-        nextReviewDate: Long,
-        repetitionCount: Int,
-        lapseCount: Int,
-        firstReviewDate: Long,
-        lastReviewDate: Long,
-    )
 }
