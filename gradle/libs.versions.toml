@@ -52,6 +52,7 @@ compose-bom = { module = "androidx.compose:compose-bom", version.ref = "bomCompo
 compose-ui = { module = "androidx.compose.ui:ui" }
 compose-ui-graphics = { module = "androidx.compose.ui:ui-graphics" }
 compose-ui-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
+compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
 compose-material3 = { module = "androidx.compose.material3:material3-android" }
 compose-ui-test-junit = { module = "androidx.compose.ui:ui-test-junit4" }
 compose-material-icons = { module = "androidx.compose.material:material-icons-extended" }

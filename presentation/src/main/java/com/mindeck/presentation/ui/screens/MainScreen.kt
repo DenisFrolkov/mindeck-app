@@ -33,6 +33,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mindeck.domain.models.Deck
@@ -46,6 +47,7 @@ import com.mindeck.presentation.ui.navigation.CreationCardRoute
 import com.mindeck.presentation.ui.navigation.DeckRoute
 import com.mindeck.presentation.ui.navigation.DecksRoute
 import com.mindeck.presentation.ui.navigation.Navigator
+import com.mindeck.presentation.ui.theme.MindeckTheme
 import com.mindeck.presentation.viewmodel.MainViewModel
 
 @Composable
@@ -307,3 +309,53 @@ data class MainScreenActions(
     val onNavigateToDecks: () -> Unit,
     val onNavigateToCreateCard: () -> Unit,
 )
+
+private val previewActions = MainScreenActions(
+    onNavigateToStudy = {},
+    onNavigateToDeck = {},
+    onNavigateToDecks = {},
+    onNavigateToCreateCard = {},
+)
+
+@Preview(showSystemUi = true)
+@Composable
+private fun MainScreenContentPreview() {
+    MindeckTheme {
+        MainScreenContent(
+            decksState = UiState.Success(
+                listOf(
+                    Deck(deckId = 1, deckName = "Английский язык"),
+                    Deck(deckId = 2, deckName = "Математика"),
+                ),
+            ),
+            sessionSummaryState = UiState.Success(
+                SessionSummary(newCount = 5, learningCount = 3, reviewCount = 12),
+            ),
+            actions = previewActions,
+        )
+    }
+}
+
+@Preview(showSystemUi = true)
+@Composable
+private fun MainScreenContentLoadingPreview() {
+    MindeckTheme {
+        MainScreenContent(
+            decksState = UiState.Loading,
+            sessionSummaryState = UiState.Loading,
+            actions = previewActions,
+        )
+    }
+}
+
+@Preview(showSystemUi = true)
+@Composable
+private fun MainScreenContentErrorPreview() {
+    MindeckTheme {
+        MainScreenContent(
+            decksState = UiState.Error(R.string.error_get_all_decks),
+            sessionSummaryState = UiState.Loading,
+            actions = previewActions,
+        )
+    }
+}
