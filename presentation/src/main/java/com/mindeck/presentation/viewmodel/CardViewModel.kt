@@ -61,7 +61,9 @@ internal class CardViewModel @Inject constructor(
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), UiState.Loading)
 
     fun loadCardById(cardId: Int) {
-        _cardId.tryEmit(cardId)
+        viewModelScope.launch {
+            _cardId.emit(cardId)
+        }
     }
 
     private val _deleteCardState = MutableStateFlow<UiState<Unit>>(UiState.Idle)

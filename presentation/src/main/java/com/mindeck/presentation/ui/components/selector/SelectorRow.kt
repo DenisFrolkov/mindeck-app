@@ -41,7 +41,7 @@ fun SelectorRow(
             modifier = Modifier
                 .clickable(onClick = onClick)
                 .background(
-                    color = MaterialTheme.colorScheme.surface,
+                    color = MaterialTheme.colorScheme.surfaceVariant,
                     shape = MaterialTheme.shapes.extraSmall,
                 )
                 .size(
@@ -50,7 +50,7 @@ fun SelectorRow(
                 )
                 .border(
                     width = dimensionResource(R.dimen.dimen_0_25),
-                    color = MaterialTheme.colorScheme.outline,
+                    color = MaterialTheme.colorScheme.outlineVariant,
                     shape = MaterialTheme.shapes.extraSmall,
                 )
                 .wrapContentSize(Alignment.Center),

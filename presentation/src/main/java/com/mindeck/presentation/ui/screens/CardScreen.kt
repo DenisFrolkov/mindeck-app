@@ -217,12 +217,12 @@ private fun CardContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(
-                        color = MaterialTheme.colorScheme.surface,
+                        color = MaterialTheme.colorScheme.surfaceVariant,
                         shape = MaterialTheme.shapes.large,
                     )
                     .border(
                         width = dimensionResource(R.dimen.dimen_0_25),
-                        color = MaterialTheme.colorScheme.outline,
+                        color = MaterialTheme.colorScheme.outlineVariant,
                         shape = MaterialTheme.shapes.large,
                     )
                     .padding(horizontal = dimensionResource(R.dimen.dimen_10)),
@@ -242,7 +242,7 @@ private fun CardContent(
                     LazyRow(
                         modifier = Modifier
                             .background(
-                                color = MaterialTheme.colorScheme.surface,
+                                color = MaterialTheme.colorScheme.surfaceVariant,
                                 shape = MaterialTheme.shapes.large,
                             )
                             .size(
@@ -251,7 +251,7 @@ private fun CardContent(
                             )
                             .border(
                                 dimensionResource(R.dimen.dimen_0_25),
-                                MaterialTheme.colorScheme.outline,
+                                MaterialTheme.colorScheme.outlineVariant,
                                 MaterialTheme.shapes.large,
                             )
                             .padding(horizontal = dimensionResource(R.dimen.dimen_10)),
@@ -289,6 +289,7 @@ private fun CardContent(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.dimen_16)),
             ) {
+                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_40)))
                 Text(
                     stringResource(R.string.error_get_info_about_card),
                     modifier = Modifier.fillMaxWidth(),
@@ -326,7 +327,7 @@ private fun CardInfoItem(
         Box(
             modifier = Modifier
                 .background(
-                    color = MaterialTheme.colorScheme.surface,
+                    color = MaterialTheme.colorScheme.surfaceVariant,
                     shape = MaterialTheme.shapes.extraSmall,
                 )
                 .size(
@@ -335,7 +336,7 @@ private fun CardInfoItem(
                 )
                 .border(
                     dimensionResource(R.dimen.dimen_0_25),
-                    color = MaterialTheme.colorScheme.outline,
+                    color = MaterialTheme.colorScheme.outlineVariant,
                     shape = MaterialTheme.shapes.extraSmall,
                 )
                 .wrapContentSize(Alignment.Center),

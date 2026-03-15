@@ -72,6 +72,7 @@ fun DeleteModalWindow(
                 Text(
                     text = titleText,
                     style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onBackground,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.weight(1f),
                 )

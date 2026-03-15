@@ -7,6 +7,8 @@ import com.mindeck.domain.exception.DomainError
 import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.CardType
 import com.mindeck.domain.usecases.card.command.CreateCardUseCase
+import com.mindeck.domain.usecases.deck.command.CreateDeckUseCase
+import com.mindeck.domain.usecases.deck.query.GetAllDecksUseCase
 import com.mindeck.presentation.R
 import com.mindeck.presentation.state.CreateCardFormState
 import com.mindeck.presentation.state.ModalState
@@ -26,12 +28,11 @@ import javax.inject.Inject
 @HiltViewModel
 internal class CreationCardViewModel @Inject constructor(
     private val createCardUseCase: CreateCardUseCase,
-    val deckSelectionHandler: DeckSelectionHandler,
+    getAllDecksUseCase: GetAllDecksUseCase,
+    createDeckUseCase: CreateDeckUseCase,
 ) : ViewModel() {
 
-    init {
-        deckSelectionHandler.initialize(viewModelScope)
-    }
+    val deckSelectionHandler = DeckSelectionHandler(getAllDecksUseCase, createDeckUseCase, viewModelScope)
 
     private val _navigationEvent = Channel<CreationCardNavigationEvent>()
     val navigationEvent = _navigationEvent.receiveAsFlow()
