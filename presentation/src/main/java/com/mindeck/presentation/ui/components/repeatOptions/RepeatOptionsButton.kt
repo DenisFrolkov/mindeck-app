@@ -15,7 +15,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.tooling.preview.Preview
 import com.mindeck.presentation.R
+import com.mindeck.presentation.ui.theme.MindeckTheme
 
 @Composable
 fun RepeatOptionsButton(
@@ -50,6 +52,20 @@ fun RepeatOptionsButton(
             text = time,
             style = MaterialTheme.typography.bodySmall,
             modifier = Modifier,
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun RepeatOptionsButtonPreview() {
+    MindeckTheme {
+        RepeatOptionsButton(
+            buttonColor = Color(0xFFB5EAD7),
+            label = "Хорошо",
+            time = "1 д",
+            textStyle = MaterialTheme.typography.bodyMedium,
+            onClick = {},
         )
     }
 }

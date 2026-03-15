@@ -21,7 +21,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import com.mindeck.presentation.R
+import com.mindeck.presentation.ui.theme.MindeckTheme
 
 @Composable
 fun DisplayItem(
@@ -78,5 +80,18 @@ fun DisplayItem(
                 contentDescription = null,
             )
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun DisplayItemPreview() {
+    MindeckTheme {
+        DisplayItem(
+            modifier = Modifier.padding(dimensionResource(R.dimen.dimen_16)),
+            icon = R.drawable.card_icon,
+            name = "Английский язык — базовый курс",
+            onClick = {},
+        )
     }
 }

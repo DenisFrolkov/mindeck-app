@@ -26,6 +26,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mindeck.domain.models.Deck
@@ -35,6 +36,7 @@ import com.mindeck.presentation.ui.components.item.DisplayItem
 import com.mindeck.presentation.ui.components.topBar.AppTopBar
 import com.mindeck.presentation.ui.navigation.DeckRoute
 import com.mindeck.presentation.ui.navigation.Navigator
+import com.mindeck.presentation.ui.theme.MindeckTheme
 import com.mindeck.presentation.viewmodel.DecksViewModel
 
 @Composable
@@ -190,4 +192,59 @@ private fun DecksList(
 data class DecksScreenActions(
     val onNavigateBack: () -> Unit,
     val onNavigateToDeck: (Int) -> Unit,
+)
+
+@Preview(showSystemUi = true)
+@Composable
+private fun DecksScreenContentPreview() {
+    MindeckTheme {
+        DecksScreenContent(
+            decksState = UiState.Success(
+                listOf(
+                    Deck(deckId = 1, deckName = "Английский язык"),
+                    Deck(deckId = 2, deckName = "Математика"),
+                    Deck(deckId = 3, deckName = "История"),
+                ),
+            ),
+            actions = previewActions,
+        )
+    }
+}
+
+@Preview(showSystemUi = true)
+@Composable
+private fun DecksScreenContentLoadingPreview() {
+    MindeckTheme {
+        DecksScreenContent(
+            decksState = UiState.Loading,
+            actions = previewActions,
+        )
+    }
+}
+
+@Preview(showSystemUi = true)
+@Composable
+private fun DecksScreenContentEmptyPreview() {
+    MindeckTheme {
+        DecksScreenContent(
+            decksState = UiState.Success(emptyList()),
+            actions = previewActions,
+        )
+    }
+}
+
+@Preview(showSystemUi = true)
+@Composable
+private fun DecksScreenContentErrorPreview() {
+    MindeckTheme {
+        DecksScreenContent(
+            decksState = UiState.Error(R.string.error_get_all_decks),
+            actions = previewActions,
+        )
+    }
+}
+
+private val previewActions = DecksScreenActions(
+    onNavigateBack = {},
+    onNavigateToDeck = {},
 )
