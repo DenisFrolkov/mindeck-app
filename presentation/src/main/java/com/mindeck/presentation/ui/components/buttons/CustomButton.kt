@@ -3,6 +3,7 @@ package com.mindeck.presentation.ui.components.buttons
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -10,6 +11,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.tooling.preview.Preview
+import com.mindeck.presentation.R
+import com.mindeck.presentation.ui.theme.MindeckTheme
 
 @Composable
 fun CustomButton(
@@ -35,6 +40,22 @@ fun CustomButton(
             text = text,
             style = MaterialTheme.typography.titleMedium,
             color = textColor,
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun CustomButtonPreview() {
+    MindeckTheme {
+        CustomButton(
+            text = "Сохранить",
+            color = MaterialTheme.colorScheme.primary,
+            onClick = {},
+            modifier = Modifier.size(
+                height = dimensionResource(R.dimen.dimen_42),
+                width = dimensionResource(R.dimen.dimen_140),
+            ),
         )
     }
 }

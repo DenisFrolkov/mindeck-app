@@ -65,6 +65,7 @@ dependencies {
     // Core
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.core)
+    debugImplementation(libs.compose.ui.tooling)
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation(libs.compose.ui.test.junit)
