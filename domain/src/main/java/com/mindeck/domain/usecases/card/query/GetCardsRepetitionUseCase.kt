@@ -20,10 +20,6 @@ class GetCardsRepetitionUseCase @Inject constructor(
             .map { cards -> buildSession(cards, now, todayStart) }
     }
 
-    // Формирует список карточек для текущей сессии в порядке SM-2:
-    // 1. LEARNING + LAPSE с истёкшим nextReviewDate (всегда показываются полностью)
-    // 2. REVIEW с истёкшим nextReviewDate          (всегда показываются полностью)
-    // 3. NEW — до дневного лимита (DAILY_NEW_LIMIT)
     private fun buildSession(cards: List<Card>, now: Long, todayStart: Long): List<Card> {
         val learning = cards.filter { card ->
             (card.cardState == CardState.LEARNING || card.cardState == CardState.LAPSE) &&
@@ -35,7 +31,6 @@ class GetCardsRepetitionUseCase @Inject constructor(
                 card.nextReviewDate != null && card.nextReviewDate <= now
         }
 
-        // Считаем сколько новых карточек уже показано сегодня
         val newShownToday = cards.count { card ->
             card.cardState != CardState.NEW &&
                 card.firstReviewDate != null && card.firstReviewDate >= todayStart
@@ -49,14 +44,12 @@ class GetCardsRepetitionUseCase @Inject constructor(
         return learning + review + new
     }
 
-    // Начало текущего дня в миллисекундах (UTC полночь)
     private fun getTodayStartMillis(now: Long): Long {
         val millisInDay = TimeUnit.DAYS.toMillis(1)
         return (now / millisInDay) * millisInDay
     }
 
     companion object {
-        // Максимальное количество новых карточек в день (в будущем выносится в настройки)
         private const val DAILY_NEW_LIMIT = 20
     }
 }

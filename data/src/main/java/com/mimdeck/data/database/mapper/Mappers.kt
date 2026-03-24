@@ -55,7 +55,6 @@ object Mappers {
             cardType = CardType.fromStableId(this.cardType),
             cardTag = this.cardTag,
             deckId = this.deckId,
-            // Если значение из БД неизвестно — безопасно возвращаем NEW
             cardState = CardState.entries.firstOrNull { it.name == this.cardState } ?: CardState.NEW,
             easeFactor = this.easeFactor,
             interval = this.interval,

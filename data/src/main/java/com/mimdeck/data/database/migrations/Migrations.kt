@@ -5,7 +5,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 
 val MIGRATION_1_2 = object : Migration(1, 2) {
     override fun migrate(db: SupportSQLiteDatabase) {
-        // Пересоздаём таблицу deck: deck_name TEXT → TEXT NOT NULL, убираем index_deck_deck_id
+        // Recreate deck table: deck_name TEXT → TEXT NOT NULL, remove index_deck_deck_id
         db.execSQL(
             """
             CREATE TABLE IF NOT EXISTS `deck_new` (
@@ -26,7 +26,7 @@ val MIGRATION_1_2 = object : Migration(1, 2) {
         db.execSQL("ALTER TABLE `deck_new` RENAME TO `deck`")
         db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_deck_deck_name` ON `deck` (`deck_name`)")
 
-        // Пересоздаём таблицу card: card_name/card_question NOT NULL, card_type TEXT → INTEGER
+        // Recreate card table: card_name/card_question NOT NULL, card_type TEXT → INTEGER
         db.execSQL(
             """
             CREATE TABLE IF NOT EXISTS `card_new` (
@@ -71,9 +71,9 @@ val MIGRATION_1_2 = object : Migration(1, 2) {
     }
 }
 
-// Миграция v2 → v3: добавляем поля SM-2, убираем last_review_type
-// Пересоздаём таблицу card, так как SQLite не поддерживает удаление колонок напрямую.
-// Существующим карточкам присваиваем состояние NEW — история повторений не сохраняется.
+// Migration v2 → v3: add SM-2 fields, remove last_review_type.
+// Recreate card table because SQLite does not support dropping columns directly.
+// Existing cards are assigned state NEW — review history is not preserved.
 val MIGRATION_2_3 = object : Migration(2, 3) {
     override fun migrate(db: SupportSQLiteDatabase) {
         db.execSQL(
@@ -123,8 +123,8 @@ val MIGRATION_2_3 = object : Migration(2, 3) {
     }
 }
 
-// Миграция v3 → v4: interval INTEGER → REAL (Float) для сохранения дробной части.
-// Дробный интервал исключает застревание алгоритма на малых значениях при умножении.
+// Migration v3 → v4: interval INTEGER → REAL (Float) to preserve fractional part.
+// Fractional interval prevents the algorithm from stalling on small values when multiplied.
 val MIGRATION_3_4 = object : Migration(3, 4) {
     override fun migrate(db: SupportSQLiteDatabase) {
         db.execSQL(
@@ -168,7 +168,7 @@ val MIGRATION_3_4 = object : Migration(3, 4) {
     }
 }
 
-// Миграция v4 → v5: добавляем индексы для ускорения getCardsRepetition.
+// Migration v4 → v5: add indexes to speed up getCardsRepetition.
 val MIGRATION_4_5 = object : Migration(4, 5) {
     override fun migrate(db: SupportSQLiteDatabase) {
         db.execSQL("CREATE INDEX IF NOT EXISTS `index_card_card_state` ON `card` (`card_state`)")

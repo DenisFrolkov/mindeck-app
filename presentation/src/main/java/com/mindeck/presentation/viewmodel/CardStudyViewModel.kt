@@ -38,21 +38,13 @@ internal class CardStudyViewModel @Inject constructor(
     private val _cardsState = MutableStateFlow<UiState<List<Card>>>(UiState.Idle)
     val cardsState: StateFlow<UiState<List<Card>>> = _cardsState.asStateFlow()
 
-    // Кешированные метки кнопок оценки для текущей карточки.
-    // Обновляются при смене карточки, а не при каждой рекомпозиции.
     private val _reviewLabels = MutableStateFlow<Map<ReviewButton, String>>(emptyMap())
     val reviewLabels: StateFlow<Map<ReviewButton, String>> = _reviewLabels.asStateFlow()
 
-    // Внутренняя очередь сессии. Берётся снимок карточек один раз при загрузке.
-    // Дальнейшее управление очередью происходит в памяти, а не через реактивный поток,
-    // чтобы изменения в БД не сбрасывали текущую сессию.
     private val sessionQueue = ArrayDeque<Card>()
     private val reviewMutex = Mutex()
-
-    // Кешируем список кнопок, чтобы не обращаться к entries (reflection) при каждой смене карточки.
     private val reviewButtonEntries = ReviewButton.entries
 
-    // Загружает сессию повторения из алгоритма SM-2 (LEARNING → REVIEW → NEW до лимита)
     fun loadCardRepetition() {
         viewModelScope.launch {
             _cardsState.update { UiState.Loading }
@@ -74,7 +66,6 @@ internal class CardStudyViewModel @Inject constructor(
         }
     }
 
-    // Загружает одну конкретную карточку для изучения (например, из экрана карточки)
     fun loadCardById(cardId: Int) {
         viewModelScope.launch {
             _cardsState.update { UiState.Loading }
@@ -96,17 +87,10 @@ internal class CardStudyViewModel @Inject constructor(
         }
     }
 
-    // Обрабатывает оценку карточки пользователем.
-    // Карточка остаётся в сессии только пока она в фазе обучения (LEARNING / LAPSE).
-    // Как только переходит в REVIEW — убирается из сессии до следующего дня.
-    // Проверяем состояние ПОСЛЕ нажатия, а не саму кнопку — это корректнее:
-    // HARD на REVIEW → остаётся REVIEW → уходит из сессии
-    // AGAIN на REVIEW → переходит в LAPSE → остаётся в сессии
     fun reviewCard(card: Card, button: ReviewButton) {
         viewModelScope.launch {
             reviewMutex.withLock {
                 try {
-                    // use case возвращает актуальное состояние карточки после применения алгоритма
                     val updatedCard = updateCardReviewUseCase(card, button)
 
                     sessionQueue.removeFirstOrNull()
@@ -139,8 +123,6 @@ internal class CardStudyViewModel @Inject constructor(
     private fun formatInterval(millis: Long): String = when {
         millis < TimeUnit.MINUTES.toMillis(1) -> "${TimeUnit.MILLISECONDS.toSeconds(millis)} сек"
         millis < TimeUnit.HOURS.toMillis(1) -> "${TimeUnit.MILLISECONDS.toMinutes(millis)} мин"
-        // Часы не показываем: REVIEW карточки снаплены к UTC-дню, поэтому
-        // "9 ч" означает "завтра" — честнее показать "1 д"
         else -> "${ceil(millis.toDouble() / TimeUnit.DAYS.toMillis(1)).toInt()} д"
     }
 
