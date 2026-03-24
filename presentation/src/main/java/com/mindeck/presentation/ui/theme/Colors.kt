@@ -2,7 +2,6 @@ package com.mindeck.presentation.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// ── Light theme (Material Theme Builder, seed #3D8FF7) ───────────────────────
 val md_light_primary = Color(0xFF3F5F90)
 val md_light_onPrimary = Color(0xFFFFFFFF)
 val md_light_primaryContainer = Color(0xFFD5E3FF)
@@ -34,7 +33,6 @@ val md_light_outline = Color(0xFF74777F)
 val md_light_outlineVariant = Color(0xFFC4C6CF)
 val md_light_scrim = Color(0xFF000000)
 
-// ── Dark theme (Material Theme Builder, seed #3D8FF7) ────────────────────────
 val md_dark_primary = Color(0xFFA8C8FF)
 val md_dark_onPrimary = Color(0xFF06305F)
 val md_dark_primaryContainer = Color(0xFF254777)
@@ -66,14 +64,12 @@ val md_dark_outline = Color(0xFF8E9099)
 val md_dark_outlineVariant = Color(0xFF43474E)
 val md_dark_scrim = Color(0xFF000000)
 
-// ── Repeat option button colors (custom, не в MD3 схеме) ─────────────────────
-// Используются только в CardStudyScreen — не трогать из других мест
-val repeat_option_again_light = Color(0xFFD9E3F8) // = secondaryContainer light
+val repeat_option_again_light = Color(0xFFD9E3F8)
 val repeat_option_easy_light = Color(0xFFCEF0DA)
 val repeat_option_medium_light = Color(0xFFFFF8C6)
-val repeat_option_hard_light = Color(0xFFFFDAD6) // = errorContainer light
+val repeat_option_hard_light = Color(0xFFFFDAD6)
 
-val repeat_option_again_dark = Color(0xFF3E4758) // = secondaryContainer dark
+val repeat_option_again_dark = Color(0xFF3E4758)
 val repeat_option_easy_dark = Color(0xFF003920)
 val repeat_option_medium_dark = Color(0xFF362B00)
-val repeat_option_hard_dark = Color(0xFF93000A) // = errorContainer dark
+val repeat_option_hard_dark = Color(0xFF93000A)
