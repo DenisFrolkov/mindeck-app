@@ -60,6 +60,10 @@ dependencies {
     testImplementation(libs.androidx.room.testing)
 
     implementation(libs.androidx.core)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
+    testImplementation(libs.mockk)
+    testImplementation(libs.turbine)
+    testImplementation(libs.coroutines.test)
 }

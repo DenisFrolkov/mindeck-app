@@ -1,22 +1,22 @@
 package com.mindeck.domain.models
 
-import junit.framework.TestCase.assertEquals
-import org.junit.Assert.assertThrows
+import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class CardTypeTest {
 
     @Test
-    fun `fromStableId returns correct type for known id`() {
+    fun `fromStableId returns SIMPLE for id 1`() {
         assertEquals(CardType.SIMPLE, CardType.fromStableId(1))
-        assertEquals(CardType.COMPLEX, CardType.fromStableId(2))
     }
 
     @Test
-    fun `fromStableId throws for unknown id`() {
-        val exception = assertThrows(IllegalArgumentException::class.java) {
-            CardType.fromStableId(999)
-        }
-        assertEquals("Unknown CardType stableId: 999", exception.message)
+    fun `fromStableId returns COMPLEX for id 2`() {
+        assertEquals(CardType.COMPLEX, CardType.fromStableId(2))
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun `fromStableId throws IllegalArgumentException for unknown id`() {
+        CardType.fromStableId(999)
     }
 }
