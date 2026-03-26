@@ -35,6 +35,7 @@ junit = "4.13.2"
 junitExt = "1.3.0"
 mockk = "1.14.2"
 turbine = "1.2.0"
+androidxTestRunner = "1.6.2"
 
 [libraries]
 # For classpath plugins
@@ -85,6 +86,7 @@ androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "j
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
 turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
 coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutines" }
+androidx-test-runner = { group = "androidx.test", name = "runner", version.ref = "androidxTestRunner" }
 
 [bundles]
 hilt = ["hilt", "android-hilt-nav-compose"]
