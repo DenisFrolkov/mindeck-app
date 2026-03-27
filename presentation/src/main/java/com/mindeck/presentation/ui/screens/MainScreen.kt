@@ -79,7 +79,6 @@ internal fun MainScreenContent(
     actions: MainScreenActions,
     modifier: Modifier = Modifier,
 ) {
-    // Есть ли карточки для изучения — блокируем переход если нечего учить
     val hasCardsToStudy = sessionSummaryState is UiState.Success &&
         sessionSummaryState.data.totalCount > 0
 
@@ -130,8 +129,6 @@ internal fun MainScreenContent(
     )
 }
 
-// Строка с реальными счётчиками сессии. Нажатие ведёт на экран изучения.
-// Заблокирована если карточек для изучения нет.
 @Composable
 private fun SessionSummaryRow(
     sessionSummaryState: UiState<SessionSummary>,
@@ -167,7 +164,6 @@ private fun SessionSummaryRow(
                 )
             }
 
-            // Показываем прочерки пока данные загружаются — не сдвигаем layout
             UiState.Loading, UiState.Idle -> {
                 RepeatCountItem(count = "—", label = stringResource(R.string.new_text), color = MaterialTheme.colorScheme.tertiary)
                 RepeatCountItem(count = "—", label = stringResource(R.string.learning_text), color = MaterialTheme.colorScheme.error)

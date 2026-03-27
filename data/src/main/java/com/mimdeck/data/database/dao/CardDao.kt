@@ -30,10 +30,6 @@ interface CardDao {
     @Query("SELECT * FROM card WHERE card_id = :cardId")
     fun getCardWithDeckById(cardId: Int): Flow<CardWithDeckEntity?>
 
-    // Возвращает карточки для формирования сессии:
-    // - все NEW (нужны для выдачи до дневного лимита)
-    // - просроченные LEARNING/LAPSE/REVIEW (nextReviewDate <= currentTime)
-    // - первый раз показанные сегодня (firstReviewDate >= todayStart, для подсчёта лимита)
     @Query(
         """
         SELECT * FROM card

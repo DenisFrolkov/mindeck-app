@@ -26,12 +26,10 @@ internal class MainViewModel @Inject constructor(
         .toUiState()
         .stateIn(viewModelScope, started = SharingStarted.WhileSubscribed(5000), UiState.Loading)
 
-    // Реактивные счётчики сессии: обновляются автоматически при изменении БД
     val sessionSummaryState: StateFlow<UiState<SessionSummary>> = getCardsRepetitionUseCase()
         .map { cards ->
             SessionSummary(
                 newCount = cards.count { it.cardState == CardState.NEW },
-                // LEARNING и LAPSE объединяем — пользователю это одна фаза
                 learningCount = cards.count {
                     it.cardState == CardState.LEARNING || it.cardState == CardState.LAPSE
                 },

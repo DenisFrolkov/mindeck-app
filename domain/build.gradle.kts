@@ -14,7 +14,11 @@ kotlin {
 
 dependencies {
     implementation(libs.javax)
-
-    // Coroutines
     implementation(libs.coroutines)
+
+    // Тесты
+    testImplementation(libs.junit)
+    testImplementation(libs.mockk)
+    testImplementation(libs.turbine)
+    testImplementation(libs.coroutines.test)
 }

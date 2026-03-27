@@ -130,7 +130,6 @@ internal fun CardStudyScreenContent(
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         if (currentCard == null) {
-                            // Все карточки в сессии пройдены
                             Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_30)))
                             Text(
                                 text = stringResource(R.string.study_session_complete_text),
@@ -160,10 +159,7 @@ internal fun CardStudyScreenContent(
                         }
                     }
 
-                    // Кнопки оценки показываются только пока есть карточки в сессии
                     if (currentCard != null) {
-                        // AGAIN скрыт пока карточка не прошла хотя бы один шаг обучения:
-                        // на шаге 0 (NEW или LEARNING step 0) AGAIN и HARD дают одинаковый интервал
                         val showAgain = currentCard.cardState == CardState.LAPSE ||
                             currentCard.cardState == CardState.REVIEW ||
                             (currentCard.cardState == CardState.LEARNING && currentCard.learningStep > 0)
