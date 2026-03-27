@@ -1,19 +1,19 @@
 package com.mimdeck.data.dao
 
+import android.database.sqlite.SQLiteConstraintException
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import app.cash.turbine.test
 import com.mimdeck.data.database.AppDatabase
 import com.mimdeck.data.database.dao.DeckDao
 import com.mimdeck.data.database.entities.DeckEntity
 import kotlinx.coroutines.test.runTest
 import org.junit.After
-import android.database.sqlite.SQLiteConstraintException
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import androidx.test.ext.junit.runners.AndroidJUnit4
 
 @RunWith(AndroidJUnit4::class)
 class DeckDaoTest {

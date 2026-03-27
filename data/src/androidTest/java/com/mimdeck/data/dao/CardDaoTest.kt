@@ -9,7 +9,6 @@ import com.mimdeck.data.database.dao.CardDao
 import com.mimdeck.data.database.dao.DeckDao
 import com.mimdeck.data.database.entities.CardEntity
 import com.mimdeck.data.database.entities.DeckEntity
-import com.mindeck.domain.models.CardState
 import com.mindeck.domain.models.CardType
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -28,7 +27,6 @@ class CardDaoTest {
     private val DAY_MS = 86_400_000L
     private val now = DAY_MS * 10 + DAY_MS / 2
     private val todayStart = DAY_MS * 10
-
 
     @Before
     fun setup() {
@@ -336,7 +334,6 @@ class CardDaoTest {
         )
         cardDao.insertCard(card3)
 
-
         cardDao.getAllCardsByDeckId(1).test {
             val result = awaitItem()
             assertEquals(listOf<CardEntity>(card1, card2), result)
@@ -370,5 +367,4 @@ class CardDaoTest {
             cancelAndIgnoreRemainingEvents()
         }
     }
-
 }
