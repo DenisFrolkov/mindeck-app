@@ -41,3 +41,6 @@ captures/
 
 !gradle/wrapper/gradle-wrapper.jar
 /temp/
+
+*.jks
+*.keystore
