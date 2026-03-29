@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Min SDK](https://img.shields.io/badge/Min%20SDK-26-green.svg)](https://developer.android.com/about/versions/oreo)
-[![Kotlin](https://img.shields.io/badge/Kotlin-2.2.20-purple.svg)](https://kotlinlang.org)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.3.0-purple.svg)](https://kotlinlang.org)
 
 A clean, minimalist Android flashcard app built with Jetpack Compose and powered by the **SM-2 spaced repetition algorithm**. Cards surface at the right moment — often enough to remember, rarely enough to stay efficient.
 
@@ -35,13 +35,13 @@ Full algorithm details: [`docs/spaced-repetition.md`](docs/spaced-repetition.md)
 
 | Layer | Technology |
 |---|---|
-| Language | Kotlin 2.2.20 |
+| Language | Kotlin 2.3.0 |
 | UI | Jetpack Compose + Material3 |
 | Navigation | Navigation3 1.0.0 (alpha) |
 | DI | Hilt 2.57.2 |
 | Database | Room 2.7.0 |
 | Async | Coroutines 1.10.2 + StateFlow |
-| Build | AGP 8.13.0, KSP 2.2.20 |
+| Build | AGP 9.1.0, KSP 2.2.20 |
 | Min SDK | 26 (Android 8.0) |
 
 ---
