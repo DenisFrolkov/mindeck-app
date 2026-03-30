@@ -46,15 +46,16 @@ import com.mindeck.presentation.ui.navigation.CardStudyRoute
 import com.mindeck.presentation.ui.navigation.CreationCardRoute
 import com.mindeck.presentation.ui.navigation.DeckRoute
 import com.mindeck.presentation.ui.navigation.DecksRoute
-import com.mindeck.presentation.ui.navigation.Navigator
+import com.mindeck.presentation.ui.navigation.LocalNavigator
 import com.mindeck.presentation.ui.theme.MindeckTheme
 import com.mindeck.presentation.viewmodel.MainViewModel
 
 @Composable
 fun MainScreen(
-    navigator: Navigator,
     modifier: Modifier = Modifier,
 ) {
+    val navigator = LocalNavigator.current
+
     val viewModel = hiltViewModel<MainViewModel>()
     val decksState by viewModel.decksState.collectAsStateWithLifecycle()
     val sessionSummaryState by viewModel.sessionSummaryState.collectAsStateWithLifecycle()

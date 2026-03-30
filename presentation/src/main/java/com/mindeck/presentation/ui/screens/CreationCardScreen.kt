@@ -47,17 +47,18 @@ import com.mindeck.presentation.ui.components.dialog.ChooseModalWindow
 import com.mindeck.presentation.ui.components.selector.SelectorRow
 import com.mindeck.presentation.ui.components.textfields.CardInputField
 import com.mindeck.presentation.ui.components.topBar.AppTopBar
-import com.mindeck.presentation.ui.navigation.Navigator
+import com.mindeck.presentation.ui.navigation.LocalNavigator
 import com.mindeck.presentation.ui.theme.MindeckTheme
 import com.mindeck.presentation.viewmodel.CreationCardNavigationEvent
 import com.mindeck.presentation.viewmodel.CreationCardViewModel
 
 @Composable
 fun CreationCardScreen(
-    navigator: Navigator,
     deckId: Int?,
     modifier: Modifier = Modifier,
 ) {
+    val navigator = LocalNavigator.current
+
     val context = LocalContext.current
     val viewModel = hiltViewModel<CreationCardViewModel>()
     val formState by viewModel.formState.collectAsStateWithLifecycle()

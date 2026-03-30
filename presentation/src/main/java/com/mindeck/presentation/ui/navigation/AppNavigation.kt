@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -33,39 +34,43 @@ fun MyApp() {
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background),
     ) {
-        NavDisplay(
-            backStack = backStack,
-            onBack = {
-                if (backStack.size <= 1) {
-                    activity?.finish()
-                } else {
-                    navigator.pop()
-                }
-            },
-            entryDecorators = listOf(
-                rememberSaveableStateHolderNavEntryDecorator(),
-                rememberViewModelStoreNavEntryDecorator(),
-            ),
-            entryProvider = entryProvider {
-                entry<MainRoute> {
-                    MainScreen(navigator)
-                }
-                entry<CreationCardRoute> { route ->
-                    CreationCardScreen(navigator, route.deckId)
-                }
-                entry<DecksRoute> {
-                    DecksScreen(navigator)
-                }
-                entry<DeckRoute> { route ->
-                    DeckScreen(navigator, route.deckId)
-                }
-                entry<CardRoute> { route ->
-                    CardScreen(navigator, route.cardId)
-                }
-                entry<CardStudyRoute> {
-                    CardStudyScreen(navigator)
-                }
-            },
-        )
+        CompositionLocalProvider(LocalNavigator provides navigator) {
+            val nav = LocalNavigator.current
+
+            NavDisplay(
+                backStack = backStack,
+                onBack = {
+                    if (backStack.size <= 1) {
+                        activity?.finish()
+                    } else {
+                        nav.pop()
+                    }
+                },
+                entryDecorators = listOf(
+                    rememberSaveableStateHolderNavEntryDecorator(),
+                    rememberViewModelStoreNavEntryDecorator(),
+                ),
+                entryProvider = entryProvider {
+                    entry<MainRoute> {
+                        MainScreen()
+                    }
+                    entry<CreationCardRoute> { route ->
+                        CreationCardScreen(route.deckId)
+                    }
+                    entry<DecksRoute> {
+                        DecksScreen()
+                    }
+                    entry<DeckRoute> { route ->
+                        DeckScreen(route.deckId)
+                    }
+                    entry<CardRoute> { route ->
+                        CardScreen(route.cardId)
+                    }
+                    entry<CardStudyRoute> {
+                        CardStudyScreen()
+                    }
+                },
+            )
+        }
     }
 }

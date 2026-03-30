@@ -44,7 +44,7 @@ import com.mindeck.presentation.ui.components.item.DisplayItem
 import com.mindeck.presentation.ui.components.topBar.AppTopBar
 import com.mindeck.presentation.ui.navigation.CardRoute
 import com.mindeck.presentation.ui.navigation.CreationCardRoute
-import com.mindeck.presentation.ui.navigation.Navigator
+import com.mindeck.presentation.ui.navigation.LocalNavigator
 import com.mindeck.presentation.ui.theme.MindeckTheme
 import com.mindeck.presentation.viewmodel.DeckNavigationEvent
 import com.mindeck.presentation.viewmodel.DeckScreenData
@@ -52,10 +52,11 @@ import com.mindeck.presentation.viewmodel.DeckViewModel
 
 @Composable
 fun DeckScreen(
-    navigator: Navigator,
     deckId: Int,
     modifier: Modifier = Modifier,
 ) {
+    val navigator = LocalNavigator.current
+
     val context = LocalContext.current
     val viewModel = hiltViewModel<DeckViewModel>()
 

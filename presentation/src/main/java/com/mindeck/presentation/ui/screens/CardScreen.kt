@@ -49,17 +49,18 @@ import com.mindeck.presentation.ui.components.dropdown.AppDropdownMenu
 import com.mindeck.presentation.ui.components.dropdown.AppDropdownMenuItem
 import com.mindeck.presentation.ui.components.topBar.AppTopBar
 import com.mindeck.presentation.ui.navigation.CardStudyRoute
-import com.mindeck.presentation.ui.navigation.Navigator
+import com.mindeck.presentation.ui.navigation.LocalNavigator
 import com.mindeck.presentation.ui.theme.MindeckTheme
 import com.mindeck.presentation.viewmodel.CardUiEvent
 import com.mindeck.presentation.viewmodel.CardViewModel
 
 @Composable
 fun CardScreen(
-    navigator: Navigator,
     cardId: Int,
     modifier: Modifier = Modifier,
 ) {
+    val navigator = LocalNavigator.current
+
     val viewModel = hiltViewModel<CardViewModel>()
 
     val context = LocalContext.current

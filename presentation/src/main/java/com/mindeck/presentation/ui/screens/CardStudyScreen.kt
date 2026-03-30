@@ -44,7 +44,7 @@ import com.mindeck.presentation.ui.components.dropdown.AppDropdownMenuItem
 import com.mindeck.presentation.ui.components.repeatOptions.RepeatOptionData
 import com.mindeck.presentation.ui.components.repeatOptions.RepeatOptionsButton
 import com.mindeck.presentation.ui.components.topBar.AppTopBar
-import com.mindeck.presentation.ui.navigation.Navigator
+import com.mindeck.presentation.ui.navigation.LocalNavigator
 import com.mindeck.presentation.ui.theme.MindeckTheme
 import com.mindeck.presentation.ui.theme.repeat_option_again_dark
 import com.mindeck.presentation.ui.theme.repeat_option_again_light
@@ -58,10 +58,11 @@ import com.mindeck.presentation.viewmodel.CardStudyViewModel
 
 @Composable
 fun CardStudyScreen(
-    navigator: Navigator,
     cardId: Int? = null,
     modifier: Modifier = Modifier,
 ) {
+    val navigator = LocalNavigator.current
+
     val viewModel = hiltViewModel<CardStudyViewModel>()
     val modalState by viewModel.modalState.collectAsStateWithLifecycle()
     val cardsState by viewModel.cardsState.collectAsStateWithLifecycle()

@@ -35,15 +35,16 @@ import com.mindeck.presentation.state.UiState
 import com.mindeck.presentation.ui.components.item.DisplayItem
 import com.mindeck.presentation.ui.components.topBar.AppTopBar
 import com.mindeck.presentation.ui.navigation.DeckRoute
-import com.mindeck.presentation.ui.navigation.Navigator
+import com.mindeck.presentation.ui.navigation.LocalNavigator
 import com.mindeck.presentation.ui.theme.MindeckTheme
 import com.mindeck.presentation.viewmodel.DecksViewModel
 
 @Composable
 fun DecksScreen(
-    navigator: Navigator,
     modifier: Modifier = Modifier,
 ) {
+    val navigator = LocalNavigator.current
+
     val viewModel = hiltViewModel<DecksViewModel>()
     val decksState by viewModel.decksState.collectAsStateWithLifecycle()
 
