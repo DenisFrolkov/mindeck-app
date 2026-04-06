@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
@@ -29,7 +28,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -92,16 +90,16 @@ internal fun MainScreenContent(
             Column(
                 modifier = Modifier
                     .padding(padding)
-                    .padding(horizontal = dimensionResource(R.dimen.dimen_16)),
+                    .padding(horizontal = MindeckTheme.dimensions.paddingMd),
                 verticalArrangement = Arrangement.Center,
             ) {
-                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_12)))
+                Spacer(modifier = Modifier.height(MindeckTheme.dimensions.paddingSm))
                 SessionSummaryRow(
                     sessionSummaryState = sessionSummaryState,
                     enabled = hasCardsToStudy,
                     onClick = actions.onNavigateToStudy,
                 )
-                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_20)))
+                Spacer(modifier = Modifier.height(MindeckTheme.dimensions.spacerLg))
                 DeckList(
                     decksState = decksState,
                     onDeckClick = actions.onNavigateToDeck,
@@ -113,9 +111,9 @@ internal fun MainScreenContent(
             FloatingActionButton(
                 modifier = Modifier,
                 elevation = FloatingActionButtonDefaults.elevation(
-                    defaultElevation = dimensionResource(R.dimen.dimen_0),
+                    defaultElevation = MindeckTheme.dimensions.dp0,
                 ),
-                shape = RoundedCornerShape(dimensionResource(R.dimen.dimen_20)),
+                shape = MindeckTheme.shapes.shapeXl,
                 containerColor = MaterialTheme.colorScheme.primary,
                 onClick = actions.onNavigateToCreateCard,
             ) {
@@ -123,7 +121,7 @@ internal fun MainScreenContent(
                     painter = painterResource(R.drawable.img_add),
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onPrimary,
-                    modifier = Modifier.size(dimensionResource(R.dimen.dimen_22)),
+                    modifier = Modifier.size(MindeckTheme.dimensions.iconMd),
                 )
             }
         },
@@ -139,10 +137,10 @@ private fun SessionSummaryRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(dimensionResource(R.dimen.dimen_12)))
+            .clip(MindeckTheme.shapes.shapeLg)
             .background(MaterialTheme.colorScheme.surface)
             .then(if (enabled) Modifier.clickable { onClick() } else Modifier)
-            .padding(vertical = dimensionResource(R.dimen.dimen_8)),
+            .padding(vertical = MindeckTheme.dimensions.paddingXs),
         horizontalArrangement = Arrangement.SpaceAround,
     ) {
         when (sessionSummaryState) {
@@ -189,7 +187,7 @@ private fun RepeatCountItem(
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.dimen_1)),
+        verticalArrangement = Arrangement.spacedBy(MindeckTheme.dimensions.dp1),
         modifier = modifier,
     ) {
         Text(
@@ -216,7 +214,7 @@ private fun DeckList(
             val decks = decksState.data
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.dimen_12)),
+                verticalArrangement = Arrangement.spacedBy(MindeckTheme.dimensions.spacerMd),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 if (decks.isEmpty()) {
@@ -249,8 +247,8 @@ private fun DeckList(
                             text = stringResource(R.string.title_text_all_decks),
                             onClick = onAllDecksClick,
                             modifier = Modifier.size(
-                                height = dimensionResource(R.dimen.dimen_42),
-                                width = dimensionResource(R.dimen.dimen_140),
+                                height = MindeckTheme.dimensions.dp42,
+                                width = MindeckTheme.dimensions.dp140,
                             ),
                         )
                     }
@@ -264,10 +262,10 @@ private fun DeckList(
                     .fillMaxWidth()
                     .wrapContentSize(Alignment.Center),
             ) {
-                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_14)))
+                Spacer(modifier = Modifier.height(MindeckTheme.dimensions.spacerMd))
                 CircularProgressIndicator(
                     color = MaterialTheme.colorScheme.primary,
-                    strokeWidth = dimensionResource(R.dimen.dimen_2),
+                    strokeWidth = MindeckTheme.dimensions.dp2,
                 )
             }
         }
@@ -276,7 +274,7 @@ private fun DeckList(
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.dimen_16)),
+                verticalArrangement = Arrangement.spacedBy(MindeckTheme.dimensions.dp16),
             ) {
                 Text(
                     text = stringResource(R.string.error_get_all_decks),
@@ -289,7 +287,7 @@ private fun DeckList(
                     painter = painterResource(R.drawable.img_error),
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.size(dimensionResource(R.dimen.dimen_36)),
+                    modifier = Modifier.size(MindeckTheme.dimensions.iconLg),
                 )
             }
         }

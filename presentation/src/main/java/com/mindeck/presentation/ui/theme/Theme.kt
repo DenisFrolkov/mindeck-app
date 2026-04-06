@@ -8,6 +8,7 @@ import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
@@ -131,13 +132,23 @@ private val AppTypography = Typography(
     ),
 )
 
-private val AppShapes = Shapes(
+private val AppShapesOld = Shapes(
     extraSmall = RoundedCornerShape(4.dp),
     small = RoundedCornerShape(6.dp),
     medium = RoundedCornerShape(10.dp),
     large = RoundedCornerShape(12.dp),
     extraLarge = RoundedCornerShape(28.dp),
 )
+
+object MindeckTheme {
+    val dimensions: AppDimensions
+        @Composable
+        get() = LocalDimensions.current
+
+    val shapes: AppShapes
+        @Composable
+        get() = LocalShapes.current
+}
 
 @Composable
 fun MindeckTheme(
@@ -147,7 +158,13 @@ fun MindeckTheme(
     MaterialTheme(
         colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme,
         typography = AppTypography,
-        shapes = AppShapes,
-        content = content,
-    )
+        shapes = AppShapesOld,
+    ) {
+        CompositionLocalProvider(
+            LocalDimensions provides AppDimensions(),
+            LocalShapes provides AppShapes()
+        ) {
+            content()
+        }
+    }
 }
