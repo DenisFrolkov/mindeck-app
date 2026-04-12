@@ -18,7 +18,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -60,7 +59,7 @@ fun DeleteModalWindow(
                     shape = MaterialTheme.shapes.small,
                 )
                 .clip(MaterialTheme.shapes.small)
-                .padding(dimensionResource(R.dimen.dimen_8)),
+                .padding(MindeckTheme.dimensions.paddingXs),
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -82,7 +81,7 @@ fun DeleteModalWindow(
                     painter = painterResource(R.drawable.img_menu),
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary,
-                    size = dimensionResource(R.dimen.dimen_24),
+                    size = MindeckTheme.dimensions.iconMd,
                     onClick = { },
                     modifier = Modifier.alpha(0f),
                 )
@@ -94,9 +93,9 @@ fun DeleteModalWindow(
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = dimensionResource(R.dimen.padding_medium)),
+                    .padding(horizontal = MindeckTheme.dimensions.paddingMd),
             )
-            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacer_large)))
+            Spacer(modifier = Modifier.height(MindeckTheme.dimensions.spacerLg))
 
             CustomButton(
                 text = if (isLoading) stringResource(R.string.loading_text) else stringResource(R.string.delete_text),
@@ -104,8 +103,8 @@ fun DeleteModalWindow(
                 textColor = animatedTextColor,
                 onClick = { if (!isLoading) onDeleteClick() },
                 modifier = Modifier.size(
-                    height = dimensionResource(R.dimen.dimen_42),
-                    width = dimensionResource(R.dimen.dimen_140),
+                    height = MindeckTheme.dimensions.dp42,
+                    width = MindeckTheme.dimensions.dp140,
                 ),
             )
 
@@ -115,7 +114,7 @@ fun DeleteModalWindow(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(
-                            top = dimensionResource(R.dimen.dimen_4),
+                            top = MindeckTheme.dimensions.dp4,
                         ),
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.bodyMedium,

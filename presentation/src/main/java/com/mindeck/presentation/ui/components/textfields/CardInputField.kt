@@ -12,10 +12,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
-import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.theme.MindeckTheme
 
 @Composable
@@ -69,11 +67,11 @@ private fun CardInputFieldEmptyPreview() {
                     MaterialTheme.shapes.large,
                 )
                 .border(
-                    dimensionResource(R.dimen.border_width_dot_two_five),
+                    MindeckTheme.dimensions.dp0_25,
                     MaterialTheme.colorScheme.outline,
                     MaterialTheme.shapes.large,
                 )
-                .padding(dimensionResource(R.dimen.card_input_field_item_padding)),
+                .padding(MindeckTheme.dimensions.paddingSm),
         )
     }
 }
@@ -93,11 +91,11 @@ private fun CardInputFieldFilledPreview() {
                     MaterialTheme.shapes.large,
                 )
                 .border(
-                    dimensionResource(R.dimen.border_width_dot_two_five),
+                    MindeckTheme.dimensions.dp0_25,
                     MaterialTheme.colorScheme.outline,
                     MaterialTheme.shapes.large,
                 )
-                .padding(dimensionResource(R.dimen.card_input_field_item_padding)),
+                .padding(MindeckTheme.dimensions.paddingSm),
         )
     }
 }

@@ -22,7 +22,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -80,7 +79,7 @@ fun WriteModalWindow(
                     shape = MaterialTheme.shapes.small,
                 )
                 .clip(MaterialTheme.shapes.small)
-                .padding(dimensionResource(R.dimen.dimen_8)),
+                .padding(MindeckTheme.dimensions.paddingXs),
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -102,13 +101,13 @@ fun WriteModalWindow(
                     painter = painterResource(R.drawable.img_menu),
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary,
-                    size = dimensionResource(R.dimen.dimen_24),
+                    size = MindeckTheme.dimensions.iconMd,
                     onClick = { },
                     modifier = Modifier.alpha(0f),
                 )
             }
 
-            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_10)))
+            Spacer(modifier = Modifier.height(MindeckTheme.dimensions.spacerMd))
 
             CardInputField(
                 value = text,
@@ -125,16 +124,16 @@ fun WriteModalWindow(
                         MaterialTheme.colorScheme.surface,
                         MaterialTheme.shapes.large,
                     )
-                    .height(height = dimensionResource(R.dimen.dimen_46))
+                    .height(height = MindeckTheme.dimensions.dp46)
                     .border(
-                        dimensionResource(R.dimen.dimen_0_25),
+                        MindeckTheme.dimensions.dp0_25,
                         MaterialTheme.colorScheme.outline,
                         MaterialTheme.shapes.large,
                     )
-                    .padding(dimensionResource(R.dimen.dimen_10)),
+                    .padding(MindeckTheme.dimensions.paddingSm),
             )
 
-            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_20)))
+            Spacer(modifier = Modifier.height(MindeckTheme.dimensions.spacerLg))
 
             CustomButton(
                 text = if (isLoading) stringResource(R.string.loading_text) else buttonText,
@@ -142,8 +141,8 @@ fun WriteModalWindow(
                 textColor = animatedTextColor,
                 onClick = { if (!isLoading && isTextValid) onSaveClick(text) },
                 modifier = Modifier.size(
-                    height = dimensionResource(R.dimen.dimen_42),
-                    width = dimensionResource(R.dimen.dimen_140),
+                    height = MindeckTheme.dimensions.dp42,
+                    width = MindeckTheme.dimensions.dp140,
                 ),
             )
 
@@ -153,7 +152,7 @@ fun WriteModalWindow(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(
-                            top = dimensionResource(R.dimen.dimen_4),
+                            top = MindeckTheme.dimensions.dp4,
                         ),
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.bodyMedium,

@@ -10,11 +10,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.theme.MindeckTheme
 
 @Composable
@@ -34,12 +32,12 @@ fun QuestionAndAnswerElement(
             textAlign = TextAlign.Start,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(dimensionResource(R.dimen.padding_small))
+                .padding(MindeckTheme.dimensions.paddingSm)
                 .wrapContentSize(Alignment.CenterStart),
         )
         HorizontalDivider(
             modifier = Modifier.fillMaxWidth(),
-            thickness = dimensionResource(R.dimen.horizontal_divider_dot_two_five_height),
+            thickness = MindeckTheme.dimensions.dp0_25,
             color = MaterialTheme.colorScheme.outline,
         )
         Text(
@@ -48,7 +46,7 @@ fun QuestionAndAnswerElement(
             textAlign = TextAlign.Start,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(dimensionResource(R.dimen.padding_small))
+                .padding(MindeckTheme.dimensions.paddingSm)
                 .wrapContentSize(Alignment.CenterStart),
         )
     }
@@ -63,7 +61,7 @@ private fun QuestionAndAnswerElementPreview() {
             answer = "Лёгковесная сопрограмма для асинхронного кода",
             questionStyle = MaterialTheme.typography.bodyMedium,
             answerStyle = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.fillMaxWidth().padding(dimensionResource(R.dimen.dimen_16)),
+            modifier = Modifier.fillMaxWidth().padding(MindeckTheme.dimensions.paddingMd),
         )
     }
 }

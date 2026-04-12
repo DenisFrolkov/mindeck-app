@@ -30,7 +30,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -47,17 +46,18 @@ import com.mindeck.presentation.ui.components.dialog.ChooseModalWindow
 import com.mindeck.presentation.ui.components.selector.SelectorRow
 import com.mindeck.presentation.ui.components.textfields.CardInputField
 import com.mindeck.presentation.ui.components.topBar.AppTopBar
-import com.mindeck.presentation.ui.navigation.Navigator
+import com.mindeck.presentation.ui.navigation.LocalNavigator
 import com.mindeck.presentation.ui.theme.MindeckTheme
 import com.mindeck.presentation.viewmodel.CreationCardNavigationEvent
 import com.mindeck.presentation.viewmodel.CreationCardViewModel
 
 @Composable
 fun CreationCardScreen(
-    navigator: Navigator,
     deckId: Int?,
     modifier: Modifier = Modifier,
 ) {
+    val navigator = LocalNavigator.current
+
     val context = LocalContext.current
     val viewModel = hiltViewModel<CreationCardViewModel>()
     val formState by viewModel.formState.collectAsStateWithLifecycle()
@@ -137,7 +137,7 @@ internal fun CreationCardScreenContent(
         topBar = {
             AppTopBar(
                 onBackClick = actions.onNavigateBack,
-                modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.dimen_16)),
+                modifier = Modifier.padding(horizontal = MindeckTheme.dimensions.paddingMd),
             )
         },
         content = { padding ->
@@ -145,7 +145,7 @@ internal fun CreationCardScreenContent(
                 modifier = Modifier
                     .padding(padding)
                     .verticalScroll(rememberScrollState())
-                    .padding(horizontal = dimensionResource(R.dimen.dimen_16)),
+                    .padding(horizontal = MindeckTheme.dimensions.paddingMd),
             ) {
                 SelectorRow(
                     label = stringResource(R.string.text_deck_dropdown_selector),
@@ -154,7 +154,7 @@ internal fun CreationCardScreenContent(
                     onClick = actions.onShowDeckModal,
                 )
 
-                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_8)))
+                Spacer(modifier = Modifier.height(MindeckTheme.dimensions.spacerSm))
 
                 SelectorRow(
                     label = stringResource(R.string.text_type_dropdown_selector),
@@ -162,14 +162,14 @@ internal fun CreationCardScreenContent(
                     onClick = actions.onShowTypeModal,
                 )
 
-                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_12)))
+                Spacer(modifier = Modifier.height(MindeckTheme.dimensions.spacerSm))
 
                 CardFormInputs(
                     formState = formState,
                     onValueChange = actions.onUpdateForm,
                 )
 
-                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_20)))
+                Spacer(modifier = Modifier.height(MindeckTheme.dimensions.spacerLg))
 
                 Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                     CreateCardButton(
@@ -237,16 +237,16 @@ private fun CardFormInputs(
                 color = MaterialTheme.colorScheme.surfaceVariant,
                 shape = MaterialTheme.shapes.large,
             )
-            .height(height = dimensionResource(R.dimen.dimen_46))
+            .height(height = MindeckTheme.dimensions.dp46)
             .border(
-                width = dimensionResource(R.dimen.dimen_0_25),
+                width = MindeckTheme.dimensions.dp0_25,
                 color = MaterialTheme.colorScheme.outlineVariant,
                 shape = MaterialTheme.shapes.large,
             )
-            .padding(horizontal = dimensionResource(R.dimen.dimen_10)),
+            .padding(horizontal = MindeckTheme.dimensions.paddingSm),
     )
 
-    Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_12)))
+    Spacer(modifier = Modifier.height(MindeckTheme.dimensions.spacerMd))
 
     CardInputField(
         placeholder = stringResource(R.string.enter_question_for_card),
@@ -257,23 +257,23 @@ private fun CardFormInputs(
             .background(
                 color = MaterialTheme.colorScheme.surfaceVariant,
                 shape = RoundedCornerShape(
-                    topStart = dimensionResource(R.dimen.dimen_6),
-                    topEnd = dimensionResource(R.dimen.dimen_6),
+                    topStart = MindeckTheme.dimensions.dp6,
+                    topEnd = MindeckTheme.dimensions.dp6,
                 ),
             )
             .heightIn(
-                min = dimensionResource(R.dimen.dimen_46),
-                max = dimensionResource(R.dimen.dimen_200),
+                min = MindeckTheme.dimensions.dp46,
+                max = MindeckTheme.dimensions.dp200,
             )
             .border(
-                width = dimensionResource(R.dimen.dimen_0_25),
+                width = MindeckTheme.dimensions.dp0_25,
                 color = MaterialTheme.colorScheme.outlineVariant,
                 shape = RoundedCornerShape(
-                    topStart = dimensionResource(R.dimen.dimen_6),
-                    topEnd = dimensionResource(R.dimen.dimen_6),
+                    topStart = MindeckTheme.dimensions.dp6,
+                    topEnd = MindeckTheme.dimensions.dp6,
                 ),
             )
-            .padding(horizontal = dimensionResource(R.dimen.dimen_10)),
+            .padding(horizontal = MindeckTheme.dimensions.paddingSm),
     )
 
     CardInputField(
@@ -285,30 +285,30 @@ private fun CardFormInputs(
             .background(
                 color = MaterialTheme.colorScheme.surfaceVariant,
                 shape = RoundedCornerShape(
-                    bottomStart = dimensionResource(R.dimen.dimen_6),
-                    bottomEnd = dimensionResource(R.dimen.dimen_6),
+                    bottomStart = MindeckTheme.dimensions.dp6,
+                    bottomEnd = MindeckTheme.dimensions.dp6,
                 ),
             )
             .heightIn(
-                min = dimensionResource(R.dimen.dimen_46),
-                max = dimensionResource(R.dimen.dimen_200),
+                min = MindeckTheme.dimensions.dp46,
+                max = MindeckTheme.dimensions.dp200,
             )
             .border(
-                width = dimensionResource(R.dimen.dimen_0_25),
+                width = MindeckTheme.dimensions.dp0_25,
                 color = MaterialTheme.colorScheme.outlineVariant,
                 shape = RoundedCornerShape(
-                    bottomStart = dimensionResource(R.dimen.dimen_6),
-                    bottomEnd = dimensionResource(R.dimen.dimen_6),
+                    bottomStart = MindeckTheme.dimensions.dp6,
+                    bottomEnd = MindeckTheme.dimensions.dp6,
                 ),
             )
-            .padding(horizontal = dimensionResource(R.dimen.dimen_10)),
+            .padding(horizontal = MindeckTheme.dimensions.paddingSm),
     )
 
-    Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_12)))
+    Spacer(modifier = Modifier.height(MindeckTheme.dimensions.spacerMd))
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.dimen_16)),
+        horizontalArrangement = Arrangement.spacedBy(MindeckTheme.dimensions.dp16),
     ) {
         Text(
             text = stringResource(R.string.text_tag_input_field),
@@ -325,15 +325,15 @@ private fun CardFormInputs(
                     MaterialTheme.shapes.large,
                 )
                 .size(
-                    width = dimensionResource(R.dimen.dimen_140),
-                    height = dimensionResource(R.dimen.dimen_46),
+                    width = MindeckTheme.dimensions.dp140,
+                    height = MindeckTheme.dimensions.dp46,
                 )
                 .border(
-                    dimensionResource(R.dimen.dimen_0_25),
+                    MindeckTheme.dimensions.dp0_25,
                     MaterialTheme.colorScheme.outlineVariant,
                     MaterialTheme.shapes.large,
                 )
-                .padding(horizontal = dimensionResource(R.dimen.dimen_10)),
+                .padding(horizontal = MindeckTheme.dimensions.paddingSm),
         )
     }
 }
@@ -373,8 +373,8 @@ private fun CreateCardButton(
         textColor = animatedTextColor,
         onClick = { if (!isLoading && isValid) onSaveClick() },
         modifier = Modifier.size(
-            height = dimensionResource(R.dimen.dimen_42),
-            width = dimensionResource(R.dimen.dimen_140),
+            height = MindeckTheme.dimensions.dp42,
+            width = MindeckTheme.dimensions.dp140,
         ),
     )
 
@@ -384,7 +384,7 @@ private fun CreateCardButton(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
-                    top = dimensionResource(R.dimen.dimen_4),
+                    top = MindeckTheme.dimensions.dp4,
                 ),
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.bodyMedium,

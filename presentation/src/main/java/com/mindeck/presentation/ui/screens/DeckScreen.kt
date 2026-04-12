@@ -24,7 +24,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -44,7 +43,7 @@ import com.mindeck.presentation.ui.components.item.DisplayItem
 import com.mindeck.presentation.ui.components.topBar.AppTopBar
 import com.mindeck.presentation.ui.navigation.CardRoute
 import com.mindeck.presentation.ui.navigation.CreationCardRoute
-import com.mindeck.presentation.ui.navigation.Navigator
+import com.mindeck.presentation.ui.navigation.LocalNavigator
 import com.mindeck.presentation.ui.theme.MindeckTheme
 import com.mindeck.presentation.viewmodel.DeckNavigationEvent
 import com.mindeck.presentation.viewmodel.DeckScreenData
@@ -52,10 +51,11 @@ import com.mindeck.presentation.viewmodel.DeckViewModel
 
 @Composable
 fun DeckScreen(
-    navigator: Navigator,
     deckId: Int,
     modifier: Modifier = Modifier,
 ) {
+    val navigator = LocalNavigator.current
+
     val context = LocalContext.current
     val viewModel = hiltViewModel<DeckViewModel>()
 
@@ -119,14 +119,14 @@ internal fun DeckScreenContent(
                 showMenuButton = screenUiState is UiState.Success,
                 onBackClick = actions.onNavigateBack,
                 onMenuClick = actions.onMenuClick,
-                modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.padding_medium)),
+                modifier = Modifier.padding(horizontal = MindeckTheme.dimensions.paddingMd),
             )
         },
         content = { padding ->
             Column(
                 modifier = Modifier
                     .padding(padding)
-                    .padding(horizontal = dimensionResource(R.dimen.dimen_16)),
+                    .padding(horizontal = MindeckTheme.dimensions.paddingMd),
             ) {
                 DeckContent(
                     screenUiState = screenUiState,
@@ -197,7 +197,7 @@ private fun DeckContent(
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.dimen_6)),
+                verticalArrangement = Arrangement.spacedBy(MindeckTheme.dimensions.spacerSm),
             ) {
                 if (screenData.cards.isNotEmpty()) {
                     item {
@@ -206,7 +206,7 @@ private fun DeckContent(
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
-                        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_8)))
+                        Spacer(modifier = Modifier.height(MindeckTheme.dimensions.spacerSm))
                     }
                 }
 
@@ -216,7 +216,7 @@ private fun DeckContent(
                             text = stringResource(R.string.empty_cards_list),
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(top = dimensionResource(R.dimen.dimen_40)),
+                                .padding(top = MindeckTheme.dimensions.dp40),
                             textAlign = TextAlign.Center,
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -245,10 +245,10 @@ private fun DeckContent(
                     .fillMaxWidth()
                     .wrapContentSize(Alignment.Center),
             ) {
-                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_14)))
+                Spacer(modifier = Modifier.height(MindeckTheme.dimensions.spacerMd))
                 CircularProgressIndicator(
                     color = MaterialTheme.colorScheme.primary,
-                    strokeWidth = dimensionResource(R.dimen.dimen_2),
+                    strokeWidth = MindeckTheme.dimensions.dp2,
                 )
             }
         }
@@ -257,9 +257,9 @@ private fun DeckContent(
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.dimen_16)),
+                verticalArrangement = Arrangement.spacedBy(MindeckTheme.dimensions.paddingMd),
             ) {
-                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_40)))
+                Spacer(modifier = Modifier.height(MindeckTheme.dimensions.dp40))
                 Text(
                     stringResource(R.string.error_get_cards_by_deck_id),
                     modifier = Modifier.fillMaxWidth(),
@@ -270,7 +270,7 @@ private fun DeckContent(
                     painter = painterResource(R.drawable.img_error),
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.size(dimensionResource(R.dimen.dimen_36)),
+                    modifier = Modifier.size(MindeckTheme.dimensions.iconLg),
                 )
             }
         }
