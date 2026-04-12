@@ -18,7 +18,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -35,12 +34,12 @@ fun DisplayItem(
     Row(
         modifier = modifier
             .border(
-                width = dimensionResource(R.dimen.dimen_0_25),
+                width = MindeckTheme.dimensions.dp0_25,
                 color = MaterialTheme.colorScheme.outline,
                 shape = MaterialTheme.shapes.small,
             )
             .clip(shape = MaterialTheme.shapes.small)
-            .height(dimensionResource(R.dimen.dimen_48))
+            .height(MindeckTheme.dimensions.dp48)
             .clickable(onClick = onClick),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -50,7 +49,7 @@ fun DisplayItem(
                 .weight(1f)
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.surface)
-                .padding(horizontal = dimensionResource(R.dimen.dimen_12)),
+                .padding(horizontal = MindeckTheme.dimensions.dp12),
         ) {
             Text(
                 text = name,
@@ -63,18 +62,18 @@ fun DisplayItem(
 
         VerticalDivider(
             modifier = Modifier.fillMaxHeight(),
-            thickness = dimensionResource(R.dimen.dimen_0_25),
+            thickness = MindeckTheme.dimensions.dp0_25,
             color = MaterialTheme.colorScheme.outline,
         )
 
         Box(
             modifier = Modifier
-                .size(dimensionResource(R.dimen.dimen_48))
+                .size(MindeckTheme.dimensions.dp48)
                 .background(color = MaterialTheme.colorScheme.secondaryContainer),
             contentAlignment = Alignment.Center,
         ) {
             Icon(
-                modifier = Modifier.size(dimensionResource(R.dimen.dimen_24)),
+                modifier = Modifier.size(MindeckTheme.dimensions.iconMd),
                 painter = painterResource(icon),
                 tint = MaterialTheme.colorScheme.primary,
                 contentDescription = null,
@@ -88,7 +87,7 @@ fun DisplayItem(
 private fun DisplayItemPreview() {
     MindeckTheme {
         DisplayItem(
-            modifier = Modifier.padding(dimensionResource(R.dimen.dimen_16)),
+            modifier = Modifier.padding(MindeckTheme.dimensions.paddingMd),
             icon = R.drawable.card_icon,
             name = "Английский язык — базовый курс",
             onClick = {},

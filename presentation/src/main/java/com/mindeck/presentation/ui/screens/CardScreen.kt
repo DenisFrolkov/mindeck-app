@@ -29,7 +29,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -123,7 +122,7 @@ private fun CardScreenContent(
                 showMenuButton = cardWithDeckState is UiState.Success,
                 onBackClick = actions.onBack,
                 onMenuClick = actions.onMenuClick,
-                modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.dimen_16)),
+                modifier = Modifier.padding(horizontal = MindeckTheme.dimensions.paddingMd),
             )
         },
         content = { padding ->
@@ -131,7 +130,7 @@ private fun CardScreenContent(
                 modifier = Modifier
                     .padding(padding)
                     .verticalScroll(state = rememberScrollState())
-                    .padding(horizontal = dimensionResource(R.dimen.dimen_16)),
+                    .padding(horizontal = MindeckTheme.dimensions.paddingMd),
             ) {
                 CardContent(cardWithDeckState = cardWithDeckState)
             }
@@ -191,12 +190,12 @@ private fun CardContent(
     when (cardWithDeckState) {
         is UiState.Success -> {
             val cardWithDeck = cardWithDeckState.data
-            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_12)))
+            Spacer(modifier = Modifier.height(MindeckTheme.dimensions.spacerMd))
             CardInfoItem(
                 label = stringResource(R.string.text_deck_dropdown_selector),
                 value = cardWithDeck.deckName,
             )
-            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_12)))
+            Spacer(modifier = Modifier.height(MindeckTheme.dimensions.spacerMd))
             CardInfoItem(
                 label = stringResource(R.string.text_type_dropdown_selector),
                 value = when (cardWithDeck.card.cardType) {
@@ -204,14 +203,14 @@ private fun CardContent(
                     CardType.COMPLEX -> stringResource(R.string.card_type_complex)
                 },
             )
-            Spacer(modifier = Modifier.height(height = dimensionResource(R.dimen.dimen_20)))
+            Spacer(modifier = Modifier.height(height = MindeckTheme.dimensions.dp20))
             Text(
                 text = cardWithDeck.card.cardName,
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
             )
-            Spacer(modifier = Modifier.height(height = dimensionResource(R.dimen.dimen_12)))
+            Spacer(modifier = Modifier.height(height = MindeckTheme.dimensions.spacerMd))
             QuestionAndAnswerElement(
                 question = cardWithDeck.card.cardQuestion,
                 answer = cardWithDeck.card.cardAnswer,
@@ -224,18 +223,18 @@ private fun CardContent(
                         shape = MaterialTheme.shapes.large,
                     )
                     .border(
-                        width = dimensionResource(R.dimen.dimen_0_25),
+                        width = MindeckTheme.dimensions.dp0_25,
                         color = MaterialTheme.colorScheme.outlineVariant,
                         shape = MaterialTheme.shapes.large,
                     )
-                    .padding(horizontal = dimensionResource(R.dimen.dimen_10)),
+                    .padding(horizontal = MindeckTheme.dimensions.paddingSm),
             )
 
             if (cardWithDeck.card.cardTag.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(height = dimensionResource(R.dimen.dimen_12)))
+                Spacer(modifier = Modifier.height(height = MindeckTheme.dimensions.spacerMd))
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.dimen_16)),
+                    horizontalArrangement = Arrangement.spacedBy(MindeckTheme.dimensions.dp16),
                 ) {
                     Text(
                         text = stringResource(R.string.text_tag_input_field),
@@ -249,15 +248,15 @@ private fun CardContent(
                                 shape = MaterialTheme.shapes.large,
                             )
                             .size(
-                                width = dimensionResource(R.dimen.dimen_140),
-                                height = dimensionResource(R.dimen.dimen_46),
+                                width = MindeckTheme.dimensions.dp140,
+                                height = MindeckTheme.dimensions.dp46,
                             )
                             .border(
-                                dimensionResource(R.dimen.dimen_0_25),
+                                MindeckTheme.dimensions.dp0_25,
                                 MaterialTheme.colorScheme.outlineVariant,
                                 MaterialTheme.shapes.large,
                             )
-                            .padding(horizontal = dimensionResource(R.dimen.dimen_10)),
+                            .padding(horizontal = MindeckTheme.dimensions.paddingSm),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         item {
@@ -278,10 +277,10 @@ private fun CardContent(
                     .fillMaxWidth()
                     .wrapContentSize(Alignment.Center),
             ) {
-                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_14)))
+                Spacer(modifier = Modifier.height(MindeckTheme.dimensions.spacerMd))
                 CircularProgressIndicator(
                     color = MaterialTheme.colorScheme.primary,
-                    strokeWidth = dimensionResource(R.dimen.dimen_2),
+                    strokeWidth = MindeckTheme.dimensions.dp2,
                 )
             }
         }
@@ -290,9 +289,9 @@ private fun CardContent(
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.dimen_16)),
+                verticalArrangement = Arrangement.spacedBy(MindeckTheme.dimensions.dp16),
             ) {
-                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_40)))
+                Spacer(modifier = Modifier.height(MindeckTheme.dimensions.dp40))
                 Text(
                     stringResource(R.string.error_get_info_about_card),
                     modifier = Modifier.fillMaxWidth(),
@@ -303,7 +302,7 @@ private fun CardContent(
                     painter = painterResource(R.drawable.img_error),
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.size(dimensionResource(R.dimen.dimen_36)),
+                    modifier = Modifier.size(MindeckTheme.dimensions.iconLg),
                 )
             }
         }
@@ -325,7 +324,7 @@ private fun CardInfoItem(
         Text(
             text = label,
             style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.padding(dimensionResource(R.dimen.dimen_8)),
+            modifier = Modifier.padding(MindeckTheme.dimensions.paddingXs),
         )
         Box(
             modifier = Modifier
@@ -334,11 +333,11 @@ private fun CardInfoItem(
                     shape = MaterialTheme.shapes.extraSmall,
                 )
                 .size(
-                    height = dimensionResource(R.dimen.dimen_36),
-                    width = dimensionResource(R.dimen.dimen_200),
+                    height = MindeckTheme.dimensions.dp36,
+                    width = MindeckTheme.dimensions.dp200,
                 )
                 .border(
-                    dimensionResource(R.dimen.dimen_0_25),
+                    MindeckTheme.dimensions.dp0_25,
                     color = MaterialTheme.colorScheme.outlineVariant,
                     shape = MaterialTheme.shapes.extraSmall,
                 )

@@ -7,8 +7,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.dimensionResource
-import com.mindeck.presentation.R
+import com.mindeck.presentation.ui.theme.MindeckTheme
 
 @Composable
 fun AppDropdownMenuItem(
@@ -22,8 +21,8 @@ fun AppDropdownMenuItem(
             .fillMaxWidth()
             .clickable(onClick = onClick)
             .padding(
-                horizontal = dimensionResource(R.dimen.dimen_20),
-                vertical = dimensionResource(R.dimen.dimen_10),
+                horizontal = MindeckTheme.dimensions.dp20,
+                vertical = MindeckTheme.dimensions.dp10,
             ),
     )
 }

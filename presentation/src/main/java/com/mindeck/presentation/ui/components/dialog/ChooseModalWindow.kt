@@ -32,7 +32,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -100,7 +99,7 @@ fun ChooseModalWindow(
                     shape = MaterialTheme.shapes.small,
                 )
                 .clip(MaterialTheme.shapes.small)
-                .padding(dimensionResource(R.dimen.dimen_8)),
+                .padding(MindeckTheme.dimensions.paddingXs),
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -130,7 +129,7 @@ fun ChooseModalWindow(
                         painter = painterResource(R.drawable.create_deck_img),
                         contentDescription = stringResource(R.string.add_icon_button),
                         tint = MaterialTheme.colorScheme.primary,
-                        size = dimensionResource(R.dimen.dimen_24),
+                        size = MindeckTheme.dimensions.iconMd,
                         onClick = {
                             isCreateMode = true
                         },
@@ -160,11 +159,11 @@ fun ChooseModalWindow(
                                 MaterialTheme.shapes.large,
                             )
                             .border(
-                                dimensionResource(R.dimen.border_width_dot_two_five),
+                                MindeckTheme.dimensions.dp0_25,
                                 MaterialTheme.colorScheme.outline,
                                 MaterialTheme.shapes.large,
                             )
-                            .padding(dimensionResource(R.dimen.card_input_field_item_padding)),
+                            .padding(MindeckTheme.dimensions.paddingSm),
                     )
 
                     errorMessage?.let { message ->
@@ -173,7 +172,7 @@ fun ChooseModalWindow(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(
-                                    top = dimensionResource(R.dimen.spacer_extra_small),
+                                    top = MindeckTheme.dimensions.dp4,
                                 ),
                             textAlign = TextAlign.Start,
                             style = MaterialTheme.typography.bodySmall,
@@ -181,7 +180,7 @@ fun ChooseModalWindow(
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacer_large)))
+                    Spacer(modifier = Modifier.height(MindeckTheme.dimensions.spacerLg))
 
                     AnimatedContent(
                         targetState = isLoading,
@@ -212,8 +211,8 @@ fun ChooseModalWindow(
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = animatedTextColor,
                                 modifier = Modifier.padding(
-                                    vertical = dimensionResource(R.dimen.padding_small),
-                                    horizontal = dimensionResource(R.dimen.padding_extra_large),
+                                    vertical = MindeckTheme.dimensions.paddingSm,
+                                    horizontal = MindeckTheme.dimensions.paddingXl,
                                 ),
                             )
                         }
@@ -226,8 +225,8 @@ fun ChooseModalWindow(
                             .fillMaxWidth()
                             .clip(MaterialTheme.shapes.medium)
                             .background(MaterialTheme.colorScheme.surface)
-                            .heightIn(max = dimensionResource(R.dimen.dimen_200)),
-                        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.dimen_4)),
+                            .heightIn(max = MindeckTheme.dimensions.dp200),
+                        verticalArrangement = Arrangement.spacedBy(MindeckTheme.dimensions.dp4),
                     ) {
                         items(it) { item ->
                             val isSelected = selectedId == item.second
@@ -252,7 +251,7 @@ fun ChooseModalWindow(
                                     .clickable {
                                         onSaveClick(item.second)
                                     }
-                                    .padding(dimensionResource(R.dimen.dimen_12)),
+                                    .padding(MindeckTheme.dimensions.paddingSm),
                             ) {
                                 Text(
                                     text = item.first,

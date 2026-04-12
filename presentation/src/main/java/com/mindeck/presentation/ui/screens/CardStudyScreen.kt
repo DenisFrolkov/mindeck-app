@@ -26,7 +26,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -111,7 +110,7 @@ internal fun CardStudyScreenContent(
                 showMenuButton = cardsForRepetitionState is UiState.Success,
                 onBackClick = actions.onNavigateBack,
                 onMenuClick = actions.onShowDropdownMenu,
-                modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.padding_medium)),
+                modifier = Modifier.padding(horizontal = MindeckTheme.dimensions.paddingMd),
             )
         },
         content = { padding ->
@@ -125,13 +124,13 @@ internal fun CardStudyScreenContent(
                     Column(
                         modifier = Modifier
                             .padding(padding)
-                            .padding(horizontal = dimensionResource(R.dimen.dimen_16))
+                            .padding(horizontal = MindeckTheme.dimensions.paddingMd)
                             .statusBarsPadding()
                             .verticalScroll(state = scrollState),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         if (currentCard == null) {
-                            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_30)))
+                            Spacer(modifier = Modifier.height(MindeckTheme.dimensions.dp30))
                             Text(
                                 text = stringResource(R.string.study_session_complete_text),
                                 style = MaterialTheme.typography.titleLarge,
@@ -143,16 +142,16 @@ internal fun CardStudyScreenContent(
                                 currentCard.cardQuestion,
                                 style = MaterialTheme.typography.titleLarge,
                             )
-                            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_10)))
+                            Spacer(modifier = Modifier.height(MindeckTheme.dimensions.spacerSm))
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clip(MaterialTheme.shapes.large)
                                     .background(MaterialTheme.colorScheme.primary)
-                                    .height(dimensionResource(R.dimen.dimen_1))
-                                    .padding(horizontal = dimensionResource(R.dimen.dimen_16)),
+                                    .height(MindeckTheme.dimensions.dp1)
+                                    .padding(horizontal = MindeckTheme.dimensions.paddingMd),
                             )
-                            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_10)))
+                            Spacer(modifier = Modifier.height(MindeckTheme.dimensions.spacerSm))
                             Text(
                                 currentCard.cardAnswer,
                                 style = MaterialTheme.typography.titleLarge,
@@ -218,10 +217,10 @@ internal fun CardStudyScreenContent(
                             .fillMaxWidth()
                             .wrapContentSize(Alignment.Center),
                     ) {
-                        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_14)))
+                        Spacer(modifier = Modifier.height(MindeckTheme.dimensions.spacerMd))
                         CircularProgressIndicator(
                             color = MaterialTheme.colorScheme.primary,
-                            strokeWidth = dimensionResource(R.dimen.dimen_2),
+                            strokeWidth = MindeckTheme.dimensions.dp2,
                         )
                     }
                 }
@@ -230,9 +229,9 @@ internal fun CardStudyScreenContent(
                     Column(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.dimen_16)),
+                        verticalArrangement = Arrangement.spacedBy(MindeckTheme.dimensions.dp16),
                     ) {
-                        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_80)))
+                        Spacer(modifier = Modifier.height(MindeckTheme.dimensions.dp80))
                         Text(
                             stringResource(R.string.error_get_card_for_study),
                             modifier = Modifier.fillMaxWidth(),

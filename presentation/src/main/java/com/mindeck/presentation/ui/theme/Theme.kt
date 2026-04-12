@@ -15,7 +15,6 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mindeck.presentation.R
 
@@ -133,11 +132,11 @@ private val AppTypography = Typography(
 )
 
 private val AppShapesOld = Shapes(
-    extraSmall = RoundedCornerShape(4.dp),
-    small = RoundedCornerShape(6.dp),
-    medium = RoundedCornerShape(10.dp),
-    large = RoundedCornerShape(12.dp),
-    extraLarge = RoundedCornerShape(28.dp),
+    extraSmall = RoundedCornerShape(AppDimensions().dp4),
+    small = RoundedCornerShape(AppDimensions().dp6),
+    medium = RoundedCornerShape(AppDimensions().dp10),
+    large = RoundedCornerShape(AppDimensions().dp12),
+    extraLarge = RoundedCornerShape(AppDimensions().dp28),
 )
 
 object MindeckTheme {
@@ -162,7 +161,7 @@ fun MindeckTheme(
     ) {
         CompositionLocalProvider(
             LocalDimensions provides AppDimensions(),
-            LocalShapes provides AppShapes()
+            LocalShapes provides AppShapes(),
         ) {
             content()
         }

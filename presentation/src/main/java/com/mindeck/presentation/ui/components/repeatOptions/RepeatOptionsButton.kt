@@ -13,10 +13,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
-import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.theme.MindeckTheme
 
 @Composable
@@ -32,15 +30,15 @@ fun RepeatOptionsButton(
         modifier = modifier
             .background(color = buttonColor)
             .border(
-                width = dimensionResource(R.dimen.dimen_0_25),
+                width = MindeckTheme.dimensions.dp0_25,
                 color = MaterialTheme.colorScheme.outline,
             )
             .clickable {
                 onClick()
             }
-            .padding(vertical = dimensionResource(R.dimen.dimen_4))
+            .padding(vertical = MindeckTheme.dimensions.dp4)
             .wrapContentSize(Alignment.Center),
-        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.dimen_4)),
+        verticalArrangement = Arrangement.spacedBy(MindeckTheme.dimensions.dp4),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(

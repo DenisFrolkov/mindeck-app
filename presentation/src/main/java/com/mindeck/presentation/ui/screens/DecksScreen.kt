@@ -21,7 +21,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -72,14 +71,14 @@ internal fun DecksScreenContent(
         topBar = {
             AppTopBar(
                 onBackClick = actions.onNavigateBack,
-                modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.dimen_16)),
+                modifier = Modifier.padding(horizontal = MindeckTheme.dimensions.paddingMd),
             )
         },
         content = { padding ->
             Column(
                 modifier = Modifier
                     .padding(padding)
-                    .padding(horizontal = dimensionResource(R.dimen.dimen_16)),
+                    .padding(horizontal = MindeckTheme.dimensions.paddingMd),
             ) {
                 DecksList(
                     decksState = decksState,
@@ -101,7 +100,7 @@ private fun DecksList(
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.dimen_6)),
+                verticalArrangement = Arrangement.spacedBy(MindeckTheme.dimensions.spacerMd),
             ) {
                 if (decks.isNotEmpty()) {
                     item {
@@ -114,7 +113,7 @@ private fun DecksList(
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
-                        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_8)))
+                        Spacer(modifier = Modifier.height(MindeckTheme.dimensions.spacerSm))
                     }
                 }
 
@@ -124,7 +123,7 @@ private fun DecksList(
                             text = stringResource(R.string.empty_decks_list),
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(top = dimensionResource(R.dimen.dimen_40)),
+                                .padding(top = MindeckTheme.dimensions.dp40),
                             textAlign = TextAlign.Center,
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -145,7 +144,7 @@ private fun DecksList(
                     )
                 }
                 item {
-                    Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_8)))
+                    Spacer(modifier = Modifier.height(MindeckTheme.dimensions.spacerSm))
                 }
             }
         }
@@ -156,10 +155,10 @@ private fun DecksList(
                     .fillMaxWidth()
                     .wrapContentSize(Alignment.Center),
             ) {
-                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_14)))
+                Spacer(modifier = Modifier.height(MindeckTheme.dimensions.spacerMd))
                 CircularProgressIndicator(
                     color = MaterialTheme.colorScheme.primary,
-                    strokeWidth = dimensionResource(R.dimen.dimen_2),
+                    strokeWidth = MindeckTheme.dimensions.dp2,
                 )
             }
         }
@@ -168,9 +167,9 @@ private fun DecksList(
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.dimen_16)),
+                verticalArrangement = Arrangement.spacedBy(MindeckTheme.dimensions.paddingMd),
             ) {
-                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.dimen_40)))
+                Spacer(modifier = Modifier.height(MindeckTheme.dimensions.dp40))
                 Text(
                     stringResource(R.string.error_get_all_decks),
                     modifier = Modifier.fillMaxWidth(),
@@ -181,7 +180,7 @@ private fun DecksList(
                     painter = painterResource(R.drawable.img_error),
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.size(dimensionResource(R.dimen.dimen_36)),
+                    modifier = Modifier.size(MindeckTheme.dimensions.iconLg),
                 )
             }
         }

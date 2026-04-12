@@ -15,10 +15,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.theme.MindeckTheme
 
 @Composable
@@ -36,7 +34,7 @@ fun SelectorRow(
         Text(
             text = label,
             style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.padding(dimensionResource(R.dimen.dimen_8)),
+            modifier = Modifier.padding(MindeckTheme.dimensions.paddingXs),
         )
 
         Box(
@@ -47,11 +45,11 @@ fun SelectorRow(
                     shape = MaterialTheme.shapes.extraSmall,
                 )
                 .size(
-                    height = dimensionResource(R.dimen.dimen_36),
-                    width = dimensionResource(R.dimen.dimen_200),
+                    height = MindeckTheme.dimensions.dp36,
+                    width = MindeckTheme.dimensions.dp200,
                 )
                 .border(
-                    width = dimensionResource(R.dimen.dimen_0_25),
+                    width = MindeckTheme.dimensions.dp0_25,
                     color = MaterialTheme.colorScheme.outlineVariant,
                     shape = MaterialTheme.shapes.extraSmall,
                 )
@@ -72,7 +70,7 @@ fun SelectorRow(
 private fun SelectorRowPreview() {
     MindeckTheme {
         SelectorRow(
-            modifier = Modifier.padding(dimensionResource(R.dimen.dimen_16)),
+            modifier = Modifier.padding(MindeckTheme.dimensions.paddingMd),
             label = "Колода",
             selectedText = "Английский",
             onClick = {},

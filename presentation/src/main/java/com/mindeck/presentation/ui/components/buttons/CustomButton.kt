@@ -11,9 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
-import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.theme.MindeckTheme
 
 @Composable
@@ -53,8 +51,8 @@ private fun CustomButtonPreview() {
             color = MaterialTheme.colorScheme.primary,
             onClick = {},
             modifier = Modifier.size(
-                height = dimensionResource(R.dimen.dimen_42),
-                width = dimensionResource(R.dimen.dimen_140),
+                height = MindeckTheme.dimensions.dp42,
+                width = MindeckTheme.dimensions.dp140,
             ),
         )
     }
