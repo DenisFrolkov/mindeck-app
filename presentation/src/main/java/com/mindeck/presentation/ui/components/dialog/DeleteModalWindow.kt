@@ -21,7 +21,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.Dialog
 import com.mindeck.presentation.R
 import com.mindeck.presentation.state.UiState
@@ -126,31 +125,3 @@ fun DeleteModalWindow(
 }
 
 const val DURATION_300 = 300
-
-@Preview
-@Composable
-private fun DeleteModalWindowPreview() {
-    MindeckTheme {
-        DeleteModalWindow(
-            titleText = "Удалить карточку",
-            bodyText = "Вы уверены, что хотите удалить карточку \"Kotlin корутины\"?",
-            actionState = UiState.Idle,
-            onDeleteClick = {},
-            onExitClick = {},
-        )
-    }
-}
-
-@Preview
-@Composable
-private fun DeleteModalWindowLoadingPreview() {
-    MindeckTheme {
-        DeleteModalWindow(
-            titleText = "Удалить карточку",
-            bodyText = "Вы уверены, что хотите удалить карточку \"Kotlin корутины\"?",
-            actionState = UiState.Loading,
-            onDeleteClick = {},
-            onExitClick = {},
-        )
-    }
-}

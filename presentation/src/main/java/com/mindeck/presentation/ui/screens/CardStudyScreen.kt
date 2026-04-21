@@ -28,21 +28,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.CardState
-import com.mindeck.domain.models.CardType
 import com.mindeck.domain.models.ReviewButton
 import com.mindeck.presentation.R
 import com.mindeck.presentation.state.ModalState
 import com.mindeck.presentation.state.UiState
 import com.mindeck.presentation.ui.components.dropdown.AppDropdownMenu
 import com.mindeck.presentation.ui.components.dropdown.AppDropdownMenuItem
-import com.mindeck.presentation.ui.components.repeatOptions.RepeatOptionData
 import com.mindeck.presentation.ui.components.repeatOptions.RepeatOptionsButton
 import com.mindeck.presentation.ui.components.topBar.AppTopBar
+import com.mindeck.presentation.ui.model.RepeatOptionData
 import com.mindeck.presentation.ui.navigation.LocalNavigator
 import com.mindeck.presentation.ui.theme.MindeckTheme
 import com.mindeck.presentation.ui.theme.repeat_option_again_dark
@@ -276,65 +274,4 @@ data class CardStudyScreenActions(
     val onShowDropdownMenu: () -> Unit,
     val onHideModal: () -> Unit,
     val onReviewCard: (Card, ReviewButton) -> Unit,
-)
-
-@Preview(showSystemUi = true)
-@Composable
-private fun CardStudyScreenContentPreview() {
-    MindeckTheme {
-        CardStudyScreenContent(
-            modalState = ModalState.None,
-            cardsForRepetitionState = UiState.Success(listOf(previewCard)),
-            reviewLabels = mapOf(
-                ReviewButton.AGAIN to "10 мин",
-                ReviewButton.HARD to "1 д",
-                ReviewButton.GOOD to "3 д",
-                ReviewButton.EASY to "7 д",
-            ),
-            actions = previewActions,
-        )
-    }
-}
-
-@Preview(showSystemUi = true)
-@Composable
-private fun CardStudyScreenContentLoadingPreview() {
-    MindeckTheme {
-        CardStudyScreenContent(
-            modalState = ModalState.None,
-            cardsForRepetitionState = UiState.Loading,
-            reviewLabels = emptyMap(),
-            actions = previewActions,
-        )
-    }
-}
-
-@Preview(showSystemUi = true)
-@Composable
-private fun CardStudyScreenContentErrorPreview() {
-    MindeckTheme {
-        CardStudyScreenContent(
-            modalState = ModalState.None,
-            cardsForRepetitionState = UiState.Error(R.string.error_get_card_for_study),
-            reviewLabels = emptyMap(),
-            actions = previewActions,
-        )
-    }
-}
-
-private val previewActions = CardStudyScreenActions(
-    onNavigateBack = {},
-    onShowDropdownMenu = {},
-    onHideModal = {},
-    onReviewCard = { _, _ -> },
-)
-
-private val previewCard = Card(
-    cardName = "Kotlin корутины",
-    cardQuestion = "Что такое coroutine?",
-    cardAnswer = "Лёгковесная сопрограмма для асинхронного кода",
-    cardType = CardType.SIMPLE,
-    cardTag = "",
-    deckId = 1,
-    cardState = CardState.REVIEW,
 )

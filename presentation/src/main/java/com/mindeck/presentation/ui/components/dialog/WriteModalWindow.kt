@@ -25,7 +25,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.Dialog
 import com.mindeck.presentation.R
 import com.mindeck.presentation.state.UiState
@@ -160,35 +159,5 @@ fun WriteModalWindow(
                 )
             }
         }
-    }
-}
-
-@Preview
-@Composable
-private fun WriteModalWindowPreview() {
-    MindeckTheme {
-        WriteModalWindow(
-            titleText = "Переименовать",
-            buttonText = "Сохранить",
-            placeholder = "Введите новое название...",
-            actionState = UiState.Idle,
-            onExitClick = {},
-            onSaveClick = {},
-        )
-    }
-}
-
-@Preview
-@Composable
-private fun WriteModalWindowErrorPreview() {
-    MindeckTheme {
-        WriteModalWindow(
-            titleText = "Переименовать",
-            buttonText = "Сохранить",
-            placeholder = "Введите новое название...",
-            actionState = UiState.Error(R.string.error_deck_name_taken),
-            onExitClick = {},
-            onSaveClick = {},
-        )
     }
 }

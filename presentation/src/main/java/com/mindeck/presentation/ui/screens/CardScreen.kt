@@ -33,7 +33,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mindeck.domain.models.Card
@@ -103,7 +102,7 @@ fun CardScreen(
 }
 
 @Composable
-private fun CardScreenContent(
+internal fun CardScreenContent(
     cardWithDeckState: UiState<CardWithDeck>,
     deleteCardState: UiState<Unit>,
     modalState: ModalState,
@@ -359,63 +358,4 @@ data class CardScreenActions(
     val onShowDeleteDialog: () -> Unit,
     val onDeleteCard: (card: Card) -> Unit,
     val onStudyCard: (cardId: Int) -> Unit,
-)
-
-@Preview(showSystemUi = true)
-@Composable
-private fun CardScreenContentPreview() {
-    MindeckTheme {
-        CardScreenContent(
-            cardWithDeckState = UiState.Success(
-                CardWithDeck(card = previewCard, deckId = 1, deckName = "Английский язык"),
-            ),
-            deleteCardState = UiState.Idle,
-            modalState = ModalState.None,
-            actions = previewActions,
-        )
-    }
-}
-
-@Preview(showSystemUi = true)
-@Composable
-private fun CardScreenContentLoadingPreview() {
-    MindeckTheme {
-        CardScreenContent(
-            cardWithDeckState = UiState.Loading,
-            deleteCardState = UiState.Idle,
-            modalState = ModalState.None,
-            actions = previewActions,
-        )
-    }
-}
-
-@Preview(showSystemUi = true)
-@Composable
-private fun CardScreenContentErrorPreview() {
-    MindeckTheme {
-        CardScreenContent(
-            cardWithDeckState = UiState.Error(R.string.error_get_info_about_card),
-            deleteCardState = UiState.Idle,
-            modalState = ModalState.None,
-            actions = previewActions,
-        )
-    }
-}
-
-private val previewActions = CardScreenActions(
-    onBack = {},
-    onMenuClick = {},
-    onDismissModal = {},
-    onShowDeleteDialog = {},
-    onDeleteCard = {},
-    onStudyCard = {},
-)
-
-private val previewCard = Card(
-    cardName = "Kotlin корутины",
-    cardQuestion = "Что такое coroutine?",
-    cardAnswer = "Лёгковесная сопрограмма для асинхронного кода в Kotlin",
-    cardType = CardType.SIMPLE,
-    cardTag = "kotlin",
-    deckId = 1,
 )

@@ -12,10 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
-import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.theme.MindeckTheme
 
 @Composable
@@ -42,18 +39,6 @@ fun ActionHandlerButton(
             modifier = Modifier
                 .padding(MindeckTheme.dimensions.paddingSm)
                 .size(size),
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun ActionHandlerButtonPreview() {
-    MindeckTheme {
-        ActionHandlerButton(
-            painter = painterResource(R.drawable.img_back),
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            onClick = {},
         )
     }
 }
