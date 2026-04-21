@@ -37,9 +37,14 @@ android {
     }
 
     buildTypes {
+        debug {
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-debug"
+        }
         release {
             signingConfig = signingConfigs.getByName("release")
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
@@ -64,26 +69,17 @@ kotlin {
 dependencies {
     // Modules
     implementation(projects.presentation)
-    implementation(projects.domain)
     implementation(projects.data)
 
     // Splash screen
     implementation(libs.androidx.splashscreen)
 
-    // Core
-    implementation(libs.androidx.core)
-
-    // Coroutines
-    implementation(libs.coroutines)
-
     // Hilt
     implementation(libs.bundles.hilt)
     ksp(libs.bundles.hilt.compiler)
 
-    // Room
-    implementation(libs.androidx.room.runtime)
-    ksp(libs.androidx.room.compiler)
-    implementation(libs.androidx.room.ktx)
+    // Debug tools
+    debugImplementation(libs.leakcanary)
 
     // Tests
     testImplementation(libs.junit)
