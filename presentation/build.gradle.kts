@@ -18,16 +18,6 @@ android {
         consumerProguardFiles("consumer-rules.pro")
     }
 
-    buildTypes {
-        release {
-            isMinifyEnabled = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro",
-            )
-        }
-    }
-
     compileOptions {
         sourceCompatibility = rootProject.extra["javaVersion"] as JavaVersion
         targetCompatibility = rootProject.extra["javaVersion"] as JavaVersion

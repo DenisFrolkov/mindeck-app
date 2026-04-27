@@ -11,10 +11,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import com.mindeck.presentation.R
 import com.mindeck.presentation.ui.components.buttons.ActionHandlerButton
-import com.mindeck.presentation.ui.theme.MindeckTheme
 
 @Composable
 fun AppTopBar(
@@ -54,25 +52,3 @@ fun AppTopBar(
 }
 
 const val DURATION_100 = 100
-
-@Preview(showBackground = true)
-@Composable
-private fun AppTopBarWithMenuPreview() {
-    MindeckTheme {
-        AppTopBar(
-            showMenuButton = true,
-            onBackClick = {},
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun AppTopBarWithoutMenuPreview() {
-    MindeckTheme {
-        AppTopBar(
-            showMenuButton = false,
-            onBackClick = {},
-        )
-    }
-}

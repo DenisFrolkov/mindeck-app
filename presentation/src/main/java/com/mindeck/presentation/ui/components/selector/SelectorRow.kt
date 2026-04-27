@@ -16,7 +16,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import com.mindeck.presentation.ui.theme.MindeckTheme
 
 @Composable
@@ -62,18 +61,5 @@ fun SelectorRow(
                 style = MaterialTheme.typography.bodyMedium,
             )
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun SelectorRowPreview() {
-    MindeckTheme {
-        SelectorRow(
-            modifier = Modifier.padding(MindeckTheme.dimensions.paddingMd),
-            label = "Колода",
-            selectedText = "Английский",
-            onClick = {},
-        )
     }
 }
