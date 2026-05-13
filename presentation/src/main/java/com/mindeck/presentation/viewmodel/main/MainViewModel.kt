@@ -1,4 +1,4 @@
-package com.mindeck.presentation.viewmodel
+package com.mindeck.presentation.viewmodel.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -24,7 +24,7 @@ internal class MainViewModel @Inject constructor(
 
     val decksState: StateFlow<UiState<List<Deck>>> = getAllDecksUseCase()
         .toUiState()
-        .stateIn(viewModelScope, started = SharingStarted.WhileSubscribed(5000), UiState.Loading)
+        .stateIn(viewModelScope, started = SharingStarted.Companion.WhileSubscribed(5000), UiState.Loading)
 
     val sessionSummaryState: StateFlow<UiState<SessionSummary>> = getCardsRepetitionUseCase()
         .map { cards ->
@@ -37,5 +37,5 @@ internal class MainViewModel @Inject constructor(
             )
         }
         .toUiState()
-        .stateIn(viewModelScope, started = SharingStarted.WhileSubscribed(5000), UiState.Loading)
+        .stateIn(viewModelScope, started = SharingStarted.Companion.WhileSubscribed(5000), UiState.Loading)
 }

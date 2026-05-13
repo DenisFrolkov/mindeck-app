@@ -9,7 +9,7 @@ import com.mindeck.presentation.R
 import com.mindeck.presentation.state.ModalState
 import com.mindeck.presentation.state.UiState
 import com.mindeck.presentation.ui.theme.MindeckTheme
-import com.mindeck.presentation.viewmodel.DeckScreenData
+import com.mindeck.presentation.viewmodel.deck.DeckScreenData
 
 @Preview(showSystemUi = true)
 @Composable

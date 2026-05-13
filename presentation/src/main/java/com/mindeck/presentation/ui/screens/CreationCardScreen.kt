@@ -47,8 +47,8 @@ import com.mindeck.presentation.ui.components.textfields.CardInputField
 import com.mindeck.presentation.ui.components.topBar.AppTopBar
 import com.mindeck.presentation.ui.navigation.LocalNavigator
 import com.mindeck.presentation.ui.theme.MindeckTheme
-import com.mindeck.presentation.viewmodel.CreationCardNavigationEvent
-import com.mindeck.presentation.viewmodel.CreationCardViewModel
+import com.mindeck.presentation.viewmodel.card.CreationCardNavigationEvent
+import com.mindeck.presentation.viewmodel.card.CreationCardViewModel
 
 @Composable
 fun CreationCardScreen(

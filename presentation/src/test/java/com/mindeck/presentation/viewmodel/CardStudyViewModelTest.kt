@@ -11,6 +11,7 @@ import com.mindeck.domain.usecases.card.query.GetCardsRepetitionUseCase
 import com.mindeck.presentation.R
 import com.mindeck.presentation.state.UiState
 import com.mindeck.presentation.util.MainDispatcherRule
+import com.mindeck.presentation.viewmodel.card.CardStudyViewModel
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk

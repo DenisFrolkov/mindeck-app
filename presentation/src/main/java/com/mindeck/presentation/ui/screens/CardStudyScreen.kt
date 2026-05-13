@@ -51,7 +51,7 @@ import com.mindeck.presentation.ui.theme.repeat_option_hard_dark
 import com.mindeck.presentation.ui.theme.repeat_option_hard_light
 import com.mindeck.presentation.ui.theme.repeat_option_medium_dark
 import com.mindeck.presentation.ui.theme.repeat_option_medium_light
-import com.mindeck.presentation.viewmodel.CardStudyViewModel
+import com.mindeck.presentation.viewmodel.card.CardStudyViewModel
 
 @Composable
 fun CardStudyScreen(

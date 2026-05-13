@@ -1,4 +1,4 @@
-package com.mindeck.presentation.viewmodel
+package com.mindeck.presentation.viewmodel.deck
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

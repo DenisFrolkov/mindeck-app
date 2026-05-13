@@ -11,6 +11,8 @@ import com.mindeck.presentation.state.CreateCardFormState
 import com.mindeck.presentation.state.ModalState
 import com.mindeck.presentation.state.UiState
 import com.mindeck.presentation.util.MainDispatcherRule
+import com.mindeck.presentation.viewmodel.card.CreationCardNavigationEvent
+import com.mindeck.presentation.viewmodel.card.CreationCardViewModel
 import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.every
