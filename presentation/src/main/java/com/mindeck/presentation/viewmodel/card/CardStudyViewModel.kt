@@ -42,7 +42,7 @@ internal class CardStudyViewModel @Inject constructor(
     val reviewLabels: StateFlow<Map<ReviewButton, String>> = _reviewLabels.asStateFlow()
 
     private val sessionQueue = ArrayDeque<Card>()
-    private val reviewMutex = Mutex()
+    private val sessionMutex = Mutex()
     private val reviewButtonEntries = ReviewButton.entries
 
     fun loadCardRepetition() {
@@ -54,10 +54,12 @@ internal class CardStudyViewModel @Inject constructor(
                     _cardsState.update { UiState.Error(R.string.error_get_card_for_study) }
                     return@launch
                 }
-                sessionQueue.clear()
-                sessionQueue.addAll(cards)
-                _cardsState.update { UiState.Success(sessionQueue.toList()) }
-                updateReviewLabels(sessionQueue.firstOrNull())
+                sessionMutex.withLock {
+                    sessionQueue.clear()
+                    sessionQueue.addAll(cards)
+                    _cardsState.update { UiState.Success(sessionQueue.toList()) }
+                    updateReviewLabels(sessionQueue.firstOrNull())
+                }
             } catch (e: DomainError.DatabaseError) {
                 _cardsState.update { UiState.Error(R.string.error_get_card_for_study) }
             } catch (e: Exception) {
@@ -71,13 +73,15 @@ internal class CardStudyViewModel @Inject constructor(
             _cardsState.update { UiState.Loading }
             try {
                 val card = getCardByIdUseCase(cardId = cardId).firstOrNull()
-                sessionQueue.clear()
-                if (card != null) {
-                    sessionQueue.add(card)
-                    _cardsState.update { UiState.Success(sessionQueue.toList()) }
-                    updateReviewLabels(card)
-                } else {
-                    _cardsState.update { UiState.Error(R.string.error_failed_to_load_card) }
+                sessionMutex.withLock {
+                    sessionQueue.clear()
+                    if (card != null) {
+                        sessionQueue.add(card)
+                        _cardsState.update { UiState.Success(sessionQueue.toList()) }
+                        updateReviewLabels(card)
+                    } else {
+                        _cardsState.update { UiState.Error(R.string.error_failed_to_load_card) }
+                    }
                 }
             } catch (e: DomainError.DatabaseError) {
                 _cardsState.update { UiState.Error(R.string.error_failed_to_load_card) }
@@ -89,7 +93,7 @@ internal class CardStudyViewModel @Inject constructor(
 
     fun reviewCard(card: Card, button: ReviewButton) {
         viewModelScope.launch {
-            reviewMutex.withLock {
+            sessionMutex.withLock {
                 try {
                     val updatedCard = updateCardReviewUseCase(card, button)
 
