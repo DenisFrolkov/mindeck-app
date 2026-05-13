@@ -60,8 +60,8 @@ fun CreationCardScreen(
     val context = LocalContext.current
     val viewModel = hiltViewModel<CreationCardViewModel>()
     val formState by viewModel.formState.collectAsStateWithLifecycle()
-    val deckState by viewModel.deckSelectionHandler.decksState.collectAsStateWithLifecycle()
-    val createDeckState by viewModel.deckSelectionHandler.createDeckState.collectAsStateWithLifecycle()
+    val deckState by viewModel.decksState.collectAsStateWithLifecycle()
+    val createDeckState by viewModel.createDeckState.collectAsStateWithLifecycle()
     val createCardState by viewModel.createCardState.collectAsStateWithLifecycle()
     val modalState by viewModel.modalState.collectAsStateWithLifecycle()
 

@@ -31,7 +31,10 @@ internal class CreationCardViewModel @Inject constructor(
     createDeckUseCase: CreateDeckUseCase,
 ) : ViewModel() {
 
-    val deckSelectionHandler = DeckSelectionHandler(getAllDecksUseCase, createDeckUseCase, viewModelScope)
+    private val deckSelectionHandler = DeckSelectionHandler(getAllDecksUseCase, createDeckUseCase, viewModelScope)
+
+    val decksState = deckSelectionHandler.decksState
+    val createDeckState = deckSelectionHandler.createDeckState
 
     private val _navigationEvent = Channel<CreationCardNavigationEvent>()
     val navigationEvent = _navigationEvent.receiveAsFlow()
