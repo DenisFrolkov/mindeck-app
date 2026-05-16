@@ -49,8 +49,8 @@ import com.mindeck.presentation.ui.components.topBar.AppTopBar
 import com.mindeck.presentation.ui.navigation.CardStudyRoute
 import com.mindeck.presentation.ui.navigation.LocalNavigator
 import com.mindeck.presentation.ui.theme.MindeckTheme
-import com.mindeck.presentation.viewmodel.CardUiEvent
-import com.mindeck.presentation.viewmodel.CardViewModel
+import com.mindeck.presentation.viewmodel.card.CardUiEvent
+import com.mindeck.presentation.viewmodel.card.CardViewModel
 
 @Composable
 fun CardScreen(

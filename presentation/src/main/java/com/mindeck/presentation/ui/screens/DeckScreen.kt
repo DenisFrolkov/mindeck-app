@@ -41,9 +41,9 @@ import com.mindeck.presentation.ui.navigation.CardRoute
 import com.mindeck.presentation.ui.navigation.CreationCardRoute
 import com.mindeck.presentation.ui.navigation.LocalNavigator
 import com.mindeck.presentation.ui.theme.MindeckTheme
-import com.mindeck.presentation.viewmodel.DeckNavigationEvent
-import com.mindeck.presentation.viewmodel.DeckScreenData
-import com.mindeck.presentation.viewmodel.DeckViewModel
+import com.mindeck.presentation.viewmodel.deck.DeckNavigationEvent
+import com.mindeck.presentation.viewmodel.deck.DeckScreenData
+import com.mindeck.presentation.viewmodel.deck.DeckViewModel
 
 @Composable
 fun DeckScreen(

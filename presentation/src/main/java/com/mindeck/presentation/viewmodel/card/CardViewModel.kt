@@ -1,4 +1,4 @@
-package com.mindeck.presentation.viewmodel
+package com.mindeck.presentation.viewmodel.card
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -108,10 +108,4 @@ internal class CardViewModel @Inject constructor(
     fun hideModal() {
         _modalState.update { ModalState.None }
     }
-}
-
-sealed interface CardUiEvent {
-    data class DeletionSuccessful(
-        val cardName: String,
-    ) : CardUiEvent
 }

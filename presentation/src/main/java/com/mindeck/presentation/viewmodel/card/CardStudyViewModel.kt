@@ -1,4 +1,4 @@
-package com.mindeck.presentation.viewmodel
+package com.mindeck.presentation.viewmodel.card
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -21,9 +21,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
-import kotlin.math.ceil
 
 @HiltViewModel
 internal class CardStudyViewModel @Inject constructor(
@@ -38,11 +36,11 @@ internal class CardStudyViewModel @Inject constructor(
     private val _cardsState = MutableStateFlow<UiState<List<Card>>>(UiState.Idle)
     val cardsState: StateFlow<UiState<List<Card>>> = _cardsState.asStateFlow()
 
-    private val _reviewLabels = MutableStateFlow<Map<ReviewButton, String>>(emptyMap())
-    val reviewLabels: StateFlow<Map<ReviewButton, String>> = _reviewLabels.asStateFlow()
+    private val _reviewLabels = MutableStateFlow<Map<ReviewButton, Long>>(emptyMap())
+    val reviewLabels: StateFlow<Map<ReviewButton, Long>> = _reviewLabels.asStateFlow()
 
     private val sessionQueue = ArrayDeque<Card>()
-    private val reviewMutex = Mutex()
+    private val sessionMutex = Mutex()
     private val reviewButtonEntries = ReviewButton.entries
 
     fun loadCardRepetition() {
@@ -54,10 +52,12 @@ internal class CardStudyViewModel @Inject constructor(
                     _cardsState.update { UiState.Error(R.string.error_get_card_for_study) }
                     return@launch
                 }
-                sessionQueue.clear()
-                sessionQueue.addAll(cards)
-                _cardsState.update { UiState.Success(sessionQueue.toList()) }
-                updateReviewLabels(sessionQueue.firstOrNull())
+                sessionMutex.withLock {
+                    sessionQueue.clear()
+                    sessionQueue.addAll(cards)
+                    _cardsState.update { UiState.Success(sessionQueue.toList()) }
+                    updateReviewLabels(sessionQueue.firstOrNull())
+                }
             } catch (e: DomainError.DatabaseError) {
                 _cardsState.update { UiState.Error(R.string.error_get_card_for_study) }
             } catch (e: Exception) {
@@ -71,13 +71,15 @@ internal class CardStudyViewModel @Inject constructor(
             _cardsState.update { UiState.Loading }
             try {
                 val card = getCardByIdUseCase(cardId = cardId).firstOrNull()
-                sessionQueue.clear()
-                if (card != null) {
-                    sessionQueue.add(card)
-                    _cardsState.update { UiState.Success(sessionQueue.toList()) }
-                    updateReviewLabels(card)
-                } else {
-                    _cardsState.update { UiState.Error(R.string.error_failed_to_load_card) }
+                sessionMutex.withLock {
+                    sessionQueue.clear()
+                    if (card != null) {
+                        sessionQueue.add(card)
+                        _cardsState.update { UiState.Success(sessionQueue.toList()) }
+                        updateReviewLabels(card)
+                    } else {
+                        _cardsState.update { UiState.Error(R.string.error_failed_to_load_card) }
+                    }
                 }
             } catch (e: DomainError.DatabaseError) {
                 _cardsState.update { UiState.Error(R.string.error_failed_to_load_card) }
@@ -89,7 +91,7 @@ internal class CardStudyViewModel @Inject constructor(
 
     fun reviewCard(card: Card, button: ReviewButton) {
         viewModelScope.launch {
-            reviewMutex.withLock {
+            sessionMutex.withLock {
                 try {
                     val updatedCard = updateCardReviewUseCase(card, button)
 
@@ -115,15 +117,9 @@ internal class CardStudyViewModel @Inject constructor(
         }
         _reviewLabels.update {
             reviewButtonEntries.associateWith { button ->
-                formatInterval(updateCardReviewUseCase.previewNextInterval(card, button))
+                updateCardReviewUseCase.previewNextInterval(card, button)
             }
         }
-    }
-
-    private fun formatInterval(millis: Long): String = when {
-        millis < TimeUnit.MINUTES.toMillis(1) -> "${TimeUnit.MILLISECONDS.toSeconds(millis)} сек"
-        millis < TimeUnit.HOURS.toMillis(1) -> "${TimeUnit.MILLISECONDS.toMinutes(millis)} мин"
-        else -> "${ceil(millis.toDouble() / TimeUnit.DAYS.toMillis(1)).toInt()} д"
     }
 
     fun showDropdownMenu() {

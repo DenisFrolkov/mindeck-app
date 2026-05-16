@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.sync.Mutex
 
-class DeckSelectionHandler(
+internal class DeckSelectionHandler(
     getAllDecksUseCase: GetAllDecksUseCase,
     private val createDeckUseCase: CreateDeckUseCase,
     scope: CoroutineScope,

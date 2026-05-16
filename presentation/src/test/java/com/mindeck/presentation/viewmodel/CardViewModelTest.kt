@@ -12,6 +12,8 @@ import com.mindeck.presentation.R
 import com.mindeck.presentation.state.ModalState
 import com.mindeck.presentation.state.UiState
 import com.mindeck.presentation.util.MainDispatcherRule
+import com.mindeck.presentation.viewmodel.card.CardUiEvent
+import com.mindeck.presentation.viewmodel.card.CardViewModel
 import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.every

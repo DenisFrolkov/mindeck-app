@@ -35,7 +35,7 @@ import com.mindeck.presentation.ui.components.topBar.AppTopBar
 import com.mindeck.presentation.ui.navigation.DeckRoute
 import com.mindeck.presentation.ui.navigation.LocalNavigator
 import com.mindeck.presentation.ui.theme.MindeckTheme
-import com.mindeck.presentation.viewmodel.DecksViewModel
+import com.mindeck.presentation.viewmodel.deck.DecksViewModel
 
 @Composable
 fun DecksScreen(

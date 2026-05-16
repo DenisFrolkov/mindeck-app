@@ -19,10 +19,10 @@ private fun CardStudyScreenContentPreview() {
             modalState = ModalState.None,
             cardsForRepetitionState = UiState.Success(listOf(previewCard)),
             reviewLabels = mapOf(
-                ReviewButton.AGAIN to "10 мин",
-                ReviewButton.HARD to "1 д",
-                ReviewButton.GOOD to "3 д",
-                ReviewButton.EASY to "7 д",
+                ReviewButton.AGAIN to 600_000L,
+                ReviewButton.HARD to 86_400_000L,
+                ReviewButton.GOOD to 259_200_000L,
+                ReviewButton.EASY to 604_800_000L,
             ),
             actions = previewActions,
         )

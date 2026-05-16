@@ -93,6 +93,10 @@
     <string name="repeat_option_time_two_day_text">2 дней</string>
     <string name="repeat_option_time_one_day_text">1 дней</string>
 
+    <string name="review_interval_seconds">%d сек</string>
+    <string name="review_interval_minutes">%d мин</string>
+    <string name="review_interval_days">%d д</string>
+
     //Animated
     <string name="label_animated_dropdown_selector_height_in">Animated Dropdown Selector HeightIn</string>
     <string name="label_animated_dropdown_selector_offset_y">Animated Dropdown Selector OffsetY</string>

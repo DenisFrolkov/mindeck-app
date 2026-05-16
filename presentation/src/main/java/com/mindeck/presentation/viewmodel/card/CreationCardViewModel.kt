@@ -1,6 +1,5 @@
-package com.mindeck.presentation.viewmodel
+package com.mindeck.presentation.viewmodel.card
 
-import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mindeck.domain.exception.DomainError
@@ -32,7 +31,10 @@ internal class CreationCardViewModel @Inject constructor(
     createDeckUseCase: CreateDeckUseCase,
 ) : ViewModel() {
 
-    val deckSelectionHandler = DeckSelectionHandler(getAllDecksUseCase, createDeckUseCase, viewModelScope)
+    private val deckSelectionHandler = DeckSelectionHandler(getAllDecksUseCase, createDeckUseCase, viewModelScope)
+
+    val decksState = deckSelectionHandler.decksState
+    val createDeckState = deckSelectionHandler.createDeckState
 
     private val _navigationEvent = Channel<CreationCardNavigationEvent>()
     val navigationEvent = _navigationEvent.receiveAsFlow()
@@ -148,10 +150,4 @@ internal class CreationCardViewModel @Inject constructor(
             _createCardState.update { UiState.Idle }
         }
     }
-}
-
-sealed interface CreationCardNavigationEvent {
-    data class ShowToast(
-        @StringRes val messageRes: Int,
-    ) : CreationCardNavigationEvent
 }

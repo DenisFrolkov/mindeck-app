@@ -1,11 +1,8 @@
-package com.mindeck.presentation.viewmodel
+package com.mindeck.presentation.viewmodel.deck
 
-import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mindeck.domain.exception.DomainError
-import com.mindeck.domain.models.Card
-import com.mindeck.domain.models.Deck
 import com.mindeck.domain.usecases.card.query.GetAllCardsUseCase
 import com.mindeck.domain.usecases.deck.command.DeleteDeckUseCase
 import com.mindeck.domain.usecases.deck.command.RenameDeckUseCase
@@ -65,7 +62,7 @@ constructor(
                     }
                 }
             }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), UiState.Loading)
+            .stateIn(viewModelScope, SharingStarted.Companion.WhileSubscribed(5000), UiState.Loading)
 
     fun loadDeckWithCards(deckId: Int) {
         viewModelScope.launch {
@@ -144,17 +141,4 @@ constructor(
     fun hideModal() {
         _modalState.update { ModalState.None }
     }
-}
-
-data class DeckScreenData(
-    val deck: Deck,
-    val cards: List<Card>,
-)
-
-sealed interface DeckNavigationEvent {
-    data object GoBack : DeckNavigationEvent
-
-    data class ShowToast(
-        @StringRes val messageRes: Int,
-    ) : DeckNavigationEvent
 }

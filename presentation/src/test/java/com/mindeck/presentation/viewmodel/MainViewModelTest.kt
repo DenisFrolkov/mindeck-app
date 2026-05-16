@@ -8,6 +8,7 @@ import com.mindeck.domain.usecases.deck.query.GetAllDecksUseCase
 import com.mindeck.presentation.state.SessionSummary
 import com.mindeck.presentation.state.UiState
 import com.mindeck.presentation.util.MainDispatcherRule
+import com.mindeck.presentation.viewmodel.main.MainViewModel
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi

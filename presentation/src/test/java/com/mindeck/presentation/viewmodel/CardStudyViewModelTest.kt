@@ -11,6 +11,7 @@ import com.mindeck.domain.usecases.card.query.GetCardsRepetitionUseCase
 import com.mindeck.presentation.R
 import com.mindeck.presentation.state.UiState
 import com.mindeck.presentation.util.MainDispatcherRule
+import com.mindeck.presentation.viewmodel.card.CardStudyViewModel
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -164,7 +165,7 @@ class CardStudyViewModelTest {
     }
 
     @Test
-    fun reviewLabels_showsSeconds_whenIntervalLessThanOneMinute() = runTest {
+    fun reviewLabels_containsInterval_whenIntervalLessThanOneMinute() = runTest {
         every { getCardsRepetitionUseCase() } returns flowOf(listOf(card()))
         every { updateCardReviewUseCase.previewNextInterval(any(), any()) } returns 30_000L
         val viewModel = createViewModel()
@@ -172,11 +173,11 @@ class CardStudyViewModelTest {
         viewModel.loadCardRepetition()
         advanceUntilIdle()
 
-        assertEquals("30 сек", viewModel.reviewLabels.value[ReviewButton.AGAIN])
+        assertEquals(30_000L, viewModel.reviewLabels.value[ReviewButton.AGAIN])
     }
 
     @Test
-    fun reviewLabels_showsMinutes_whenIntervalLessThanOneHour() = runTest {
+    fun reviewLabels_containsInterval_whenIntervalLessThanOneHour() = runTest {
         every { getCardsRepetitionUseCase() } returns flowOf(listOf(card()))
         every { updateCardReviewUseCase.previewNextInterval(any(), any()) } returns 600_000L
         val viewModel = createViewModel()
@@ -184,11 +185,11 @@ class CardStudyViewModelTest {
         viewModel.loadCardRepetition()
         advanceUntilIdle()
 
-        assertEquals("10 мин", viewModel.reviewLabels.value[ReviewButton.AGAIN])
+        assertEquals(600_000L, viewModel.reviewLabels.value[ReviewButton.AGAIN])
     }
 
     @Test
-    fun reviewLabels_showsDays_whenIntervalOneHourOrMore() = runTest {
+    fun reviewLabels_containsInterval_whenIntervalOneHourOrMore() = runTest {
         every { getCardsRepetitionUseCase() } returns flowOf(listOf(card()))
         every { updateCardReviewUseCase.previewNextInterval(any(), any()) } returns 86_400_000L
         val viewModel = createViewModel()
@@ -196,6 +197,6 @@ class CardStudyViewModelTest {
         viewModel.loadCardRepetition()
         advanceUntilIdle()
 
-        assertEquals("1 д", viewModel.reviewLabels.value[ReviewButton.AGAIN])
+        assertEquals(86_400_000L, viewModel.reviewLabels.value[ReviewButton.AGAIN])
     }
 }

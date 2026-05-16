@@ -45,7 +45,7 @@ import com.mindeck.presentation.ui.navigation.DeckRoute
 import com.mindeck.presentation.ui.navigation.DecksRoute
 import com.mindeck.presentation.ui.navigation.LocalNavigator
 import com.mindeck.presentation.ui.theme.MindeckTheme
-import com.mindeck.presentation.viewmodel.MainViewModel
+import com.mindeck.presentation.viewmodel.main.MainViewModel
 
 @Composable
 fun MainScreen(
