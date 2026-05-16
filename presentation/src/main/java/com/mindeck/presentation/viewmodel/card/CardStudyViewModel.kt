@@ -21,9 +21,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
-import kotlin.math.ceil
 
 @HiltViewModel
 internal class CardStudyViewModel @Inject constructor(
@@ -38,8 +36,8 @@ internal class CardStudyViewModel @Inject constructor(
     private val _cardsState = MutableStateFlow<UiState<List<Card>>>(UiState.Idle)
     val cardsState: StateFlow<UiState<List<Card>>> = _cardsState.asStateFlow()
 
-    private val _reviewLabels = MutableStateFlow<Map<ReviewButton, String>>(emptyMap())
-    val reviewLabels: StateFlow<Map<ReviewButton, String>> = _reviewLabels.asStateFlow()
+    private val _reviewLabels = MutableStateFlow<Map<ReviewButton, Long>>(emptyMap())
+    val reviewLabels: StateFlow<Map<ReviewButton, Long>> = _reviewLabels.asStateFlow()
 
     private val sessionQueue = ArrayDeque<Card>()
     private val sessionMutex = Mutex()
@@ -119,15 +117,9 @@ internal class CardStudyViewModel @Inject constructor(
         }
         _reviewLabels.update {
             reviewButtonEntries.associateWith { button ->
-                formatInterval(updateCardReviewUseCase.previewNextInterval(card, button))
+                updateCardReviewUseCase.previewNextInterval(card, button)
             }
         }
-    }
-
-    private fun formatInterval(millis: Long): String = when {
-        millis < TimeUnit.MINUTES.toMillis(1) -> "${TimeUnit.MILLISECONDS.toSeconds(millis)} сек"
-        millis < TimeUnit.HOURS.toMillis(1) -> "${TimeUnit.MILLISECONDS.toMinutes(millis)} мин"
-        else -> "${ceil(millis.toDouble() / TimeUnit.DAYS.toMillis(1)).toInt()} д"
     }
 
     fun showDropdownMenu() {

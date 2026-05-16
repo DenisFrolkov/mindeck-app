@@ -88,10 +88,24 @@ fun CardStudyScreen(
 }
 
 @Composable
+private fun formatInterval(millis: Long): String {
+    val minutes = java.util.concurrent.TimeUnit.MILLISECONDS.toMinutes(millis)
+    val hours = java.util.concurrent.TimeUnit.MILLISECONDS.toHours(millis)
+    return when {
+        millis < java.util.concurrent.TimeUnit.MINUTES.toMillis(1) ->
+            stringResource(R.string.review_interval_seconds, java.util.concurrent.TimeUnit.MILLISECONDS.toSeconds(millis))
+        hours < 1 ->
+            stringResource(R.string.review_interval_minutes, minutes)
+        else ->
+            stringResource(R.string.review_interval_days, kotlin.math.ceil(millis.toDouble() / java.util.concurrent.TimeUnit.DAYS.toMillis(1)).toInt())
+    }
+}
+
+@Composable
 internal fun CardStudyScreenContent(
     modalState: ModalState,
     cardsForRepetitionState: UiState<List<Card>>,
-    reviewLabels: Map<ReviewButton, String>,
+    reviewLabels: Map<ReviewButton, Long>,
     actions: CardStudyScreenActions,
     modifier: Modifier = Modifier,
 ) {
@@ -166,7 +180,7 @@ internal fun CardStudyScreenContent(
                                 if (showAgain) {
                                     RepeatOptionData(
                                         title = stringResource(R.string.repeat_option_title_again_text),
-                                        time = reviewLabels[ReviewButton.AGAIN].orEmpty(),
+                                        time = reviewLabels[ReviewButton.AGAIN]?.let { formatInterval(it) }.orEmpty(),
                                         color = if (isDark) repeat_option_again_dark else repeat_option_again_light,
                                         onClick = { actions.onReviewCard(currentCard, ReviewButton.AGAIN) },
                                     )
@@ -175,19 +189,19 @@ internal fun CardStudyScreenContent(
                                 },
                                 RepeatOptionData(
                                     title = stringResource(R.string.repeat_option_title_hard_text),
-                                    time = reviewLabels[ReviewButton.HARD].orEmpty(),
+                                    time = reviewLabels[ReviewButton.HARD]?.let { formatInterval(it) }.orEmpty(),
                                     color = if (isDark) repeat_option_hard_dark else repeat_option_hard_light,
                                     onClick = { actions.onReviewCard(currentCard, ReviewButton.HARD) },
                                 ),
                                 RepeatOptionData(
                                     title = stringResource(R.string.repeat_option_title_good_text),
-                                    time = reviewLabels[ReviewButton.GOOD].orEmpty(),
+                                    time = reviewLabels[ReviewButton.GOOD]?.let { formatInterval(it) }.orEmpty(),
                                     color = if (isDark) repeat_option_medium_dark else repeat_option_medium_light,
                                     onClick = { actions.onReviewCard(currentCard, ReviewButton.GOOD) },
                                 ),
                                 RepeatOptionData(
                                     title = stringResource(R.string.repeat_option_title_easy_text),
-                                    time = reviewLabels[ReviewButton.EASY].orEmpty(),
+                                    time = reviewLabels[ReviewButton.EASY]?.let { formatInterval(it) }.orEmpty(),
                                     color = if (isDark) repeat_option_easy_dark else repeat_option_easy_light,
                                     onClick = { actions.onReviewCard(currentCard, ReviewButton.EASY) },
                                 ),
