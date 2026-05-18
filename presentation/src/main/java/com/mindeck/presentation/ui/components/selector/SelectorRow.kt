@@ -33,7 +33,6 @@ fun SelectorRow(
         Text(
             text = label,
             style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.padding(MindeckTheme.dimensions.paddingXs),
         )
 
         Box(

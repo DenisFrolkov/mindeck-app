@@ -50,7 +50,7 @@ internal class CreationCardViewModel @Inject constructor(
 
     private val createCardMutex = Mutex()
 
-    fun createCard() {
+    fun createCard(question: String, answer: String) {
         viewModelScope.launch {
             if (!createCardMutex.tryLock()) return@launch
 
@@ -72,8 +72,8 @@ internal class CreationCardViewModel @Inject constructor(
                 createCardUseCase(
                     card = Card(
                         cardName = form.title,
-                        cardQuestion = form.question,
-                        cardAnswer = form.answer,
+                        cardQuestion = question,
+                        cardAnswer = answer,
                         cardType = selectedType,
                         cardTag = form.tag,
                         deckId = selectedDeckId,
@@ -135,14 +135,7 @@ internal class CreationCardViewModel @Inject constructor(
     }
 
     private fun clearFormFields() {
-        _formState.update {
-            it.copy(
-                title = "",
-                question = "",
-                answer = "",
-                tag = "",
-            )
-        }
+        _formState.update { it.copy(title = "", tag = "") }
     }
 
     private fun clearError() {

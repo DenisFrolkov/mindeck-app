@@ -52,6 +52,9 @@ import com.mindeck.presentation.ui.theme.repeat_option_hard_light
 import com.mindeck.presentation.ui.theme.repeat_option_medium_dark
 import com.mindeck.presentation.ui.theme.repeat_option_medium_light
 import com.mindeck.presentation.viewmodel.card.CardStudyViewModel
+import com.mohamedrejeb.richeditor.annotation.ExperimentalRichTextApi
+import com.mohamedrejeb.richeditor.model.rememberRichTextState
+import com.mohamedrejeb.richeditor.ui.material3.RichText
 
 @Composable
 fun CardStudyScreen(
@@ -101,6 +104,7 @@ private fun formatInterval(millis: Long): String {
     }
 }
 
+@OptIn(ExperimentalRichTextApi::class)
 @Composable
 internal fun CardStudyScreenContent(
     modalState: ModalState,
@@ -111,6 +115,9 @@ internal fun CardStudyScreenContent(
 ) {
     val isDark = isSystemInDarkTheme()
     val scrollState = rememberScrollState()
+
+    val questionState = rememberRichTextState()
+    val answerState = rememberRichTextState()
 
     Scaffold(
         modifier = modifier
@@ -133,6 +140,14 @@ internal fun CardStudyScreenContent(
 
                     LaunchedEffect(currentCard?.cardId) { scrollState.scrollTo(0) }
 
+                    LaunchedEffect(currentCard?.cardQuestion) {
+                        currentCard?.cardQuestion?.let { questionState.setHtml(it) }
+                    }
+
+                    LaunchedEffect(currentCard?.cardAnswer) {
+                        currentCard?.cardAnswer?.let { answerState.setHtml(it) }
+                    }
+
                     Column(
                         modifier = Modifier
                             .padding(padding)
@@ -150,8 +165,8 @@ internal fun CardStudyScreenContent(
                                 textAlign = TextAlign.Center,
                             )
                         } else {
-                            Text(
-                                currentCard.cardQuestion,
+                            RichText(
+                                state = questionState,
                                 style = MaterialTheme.typography.titleLarge,
                             )
                             Spacer(modifier = Modifier.height(MindeckTheme.dimensions.spacerSm))
@@ -164,8 +179,8 @@ internal fun CardStudyScreenContent(
                                     .padding(horizontal = MindeckTheme.dimensions.paddingMd),
                             )
                             Spacer(modifier = Modifier.height(MindeckTheme.dimensions.spacerSm))
-                            Text(
-                                currentCard.cardAnswer,
+                            RichText(
+                                state = answerState,
                                 style = MaterialTheme.typography.titleLarge,
                             )
                         }

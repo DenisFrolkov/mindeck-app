@@ -47,8 +47,6 @@ class CreationCardViewModelTest {
 
     private fun validForm() = CreateCardFormState(
         title = "Title",
-        question = "Question?",
-        answer = "Answer",
         tag = "",
         selectedDeckId = 1,
         selectedType = CardType.SIMPLE,
@@ -56,8 +54,6 @@ class CreationCardViewModelTest {
 
     private fun invalidForm() = CreateCardFormState(
         title = "",
-        question = "",
-        answer = "",
         tag = "",
         selectedDeckId = 1,
         selectedType = CardType.SIMPLE,
@@ -100,7 +96,7 @@ class CreationCardViewModelTest {
         val viewModel = createViewModel()
         viewModel.updateForm { invalidForm() }
 
-        viewModel.createCard()
+        viewModel.createCard("Question?", "Answer")
         advanceUntilIdle()
 
         assertEquals(UiState.Idle, viewModel.createCardState.value)
@@ -108,7 +104,7 @@ class CreationCardViewModelTest {
         viewModel.updateForm { validForm() }
 
         viewModel.navigationEvent.test {
-            viewModel.createCard()
+            viewModel.createCard("Question?", "Answer")
             advanceUntilIdle()
 
             assertEquals(UiState.Success(Unit), viewModel.createCardState.value)
@@ -127,7 +123,7 @@ class CreationCardViewModelTest {
         viewModel.updateForm { validForm() }
 
         viewModel.navigationEvent.test {
-            viewModel.createCard()
+            viewModel.createCard("Question?", "Answer")
             advanceUntilIdle()
 
             assertEquals(UiState.Success(Unit), viewModel.createCardState.value)
@@ -147,7 +143,7 @@ class CreationCardViewModelTest {
     fun createCard_invalidForm_stateRemainsIdle() = runTest {
         val viewModel = createViewModel()
 
-        viewModel.createCard()
+        viewModel.createCard("Question?", "Answer")
         advanceUntilIdle()
 
         assertEquals(UiState.Idle, viewModel.createCardState.value)
@@ -159,7 +155,7 @@ class CreationCardViewModelTest {
         val viewModel = createViewModel()
         viewModel.updateForm { validForm() }
 
-        viewModel.createCard()
+        viewModel.createCard("Question?", "Answer")
         advanceUntilIdle()
 
         assertEquals(
@@ -176,7 +172,7 @@ class CreationCardViewModelTest {
         val viewModel = createViewModel()
         viewModel.updateForm { validForm() }
 
-        viewModel.createCard()
+        viewModel.createCard("Question?", "Answer")
         advanceUntilIdle()
 
         assertEquals(
