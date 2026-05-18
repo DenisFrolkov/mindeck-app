@@ -25,7 +25,7 @@ fun CardInputField(
         value = value,
         onValueChange = { onValueChange(it) },
         enabled = enabled,
-        textStyle = MaterialTheme.typography.bodyMedium.copy(MaterialTheme.colorScheme.onBackground),
+        textStyle = MaterialTheme.typography.bodyLarge.copy(MaterialTheme.colorScheme.onBackground),
         cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
         singleLine = singleLine,
         decorationBox = { innerTextField ->

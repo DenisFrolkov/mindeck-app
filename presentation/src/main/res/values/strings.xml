@@ -13,7 +13,9 @@
     <string name="enter_name_for_card">Введите название для карточки</string>
     <string name="enter_question_for_card">Введите вопрос для карточки</string>
     <string name="enter_answer_for_card">Введите ответ для карточки</string>
-    <string name="text_tag_input_field">Тег:</string>
+    <string name="text_tag_input_field">Тег</string>
+    <string name="text_question_input_field">Вопрос</string>
+    <string name="text_answer_input_field">Ответ</string>
     <string name="text_save_card_button">Сохранить карточку</string>
     <string name="text_is_necessary_to_repeat">Необходимо повторить</string>
     <string name="fab_menu_data_setting_list">Настройки</string>
@@ -72,7 +74,7 @@
 
     //Delete Card Dialog
     <string name="delete_card_dialog_title">Удаление карточки</string>
-    <string name="delete_card_dialog_body">Вы действительно хотите удалить карточку \"%1$s\"?</string>
+    Быекштп тфьу=Эвудуеу_сфкв_вшфдщп_ищвнЭЮВы ltqcndbntkmyj [jnbnt elfkbnm rfhnjxre ёЭ:1%ыёЭ?Б/ыекштпЮ
 
     //Toast
     <string name="toast_message_impossible_change_the_name">Невозможно изменить название.</string>

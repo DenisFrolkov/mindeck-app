@@ -52,6 +52,9 @@ dependencies {
     api(libs.bundles.compose)
     implementation(libs.compose.material.icons)
 
+    // Rich editor
+    implementation(libs.richeditor.compose)
+
     // Core
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.core)

@@ -36,8 +36,6 @@ private fun CreationCardScreenContentFilledPreview() {
         CreationCardScreenContent(
             formState = CreateCardFormState(
                 title = "Kotlin корутины",
-                question = "Что такое coroutine?",
-                answer = "Лёгковесная сопрограмма для асинхронного кода",
                 selectedDeckId = 1,
                 selectedType = CardType.SIMPLE,
             ),
@@ -57,7 +55,7 @@ private val previewActions = CreationCardScreenActions(
     onShowDeckModal = {},
     onShowTypeModal = {},
     onUpdateForm = {},
-    onCreateCard = {},
+    onCreateCard = { _, _ -> },
     onHideModal = {},
     onSetDeckId = {},
     onSetType = {},

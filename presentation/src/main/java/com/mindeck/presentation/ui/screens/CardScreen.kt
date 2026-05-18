@@ -51,6 +51,7 @@ import com.mindeck.presentation.ui.navigation.LocalNavigator
 import com.mindeck.presentation.ui.theme.MindeckTheme
 import com.mindeck.presentation.viewmodel.card.CardUiEvent
 import com.mindeck.presentation.viewmodel.card.CardViewModel
+import com.mohamedrejeb.richeditor.model.rememberRichTextState
 
 @Composable
 fun CardScreen(
@@ -186,6 +187,9 @@ internal fun CardScreenContent(
 private fun CardContent(
     cardWithDeckState: UiState<CardWithDeck>,
 ) {
+    val questionState = rememberRichTextState()
+    val answerState = rememberRichTextState()
+
     when (cardWithDeckState) {
         is UiState.Success -> {
             val cardWithDeck = cardWithDeckState.data
@@ -210,7 +214,10 @@ private fun CardContent(
                 textAlign = TextAlign.Center,
             )
             Spacer(modifier = Modifier.height(height = MindeckTheme.dimensions.spacerMd))
+
             QuestionAndAnswerElement(
+                questionState = questionState,
+                answerState = answerState,
                 question = cardWithDeck.card.cardQuestion,
                 answer = cardWithDeck.card.cardAnswer,
                 questionStyle = MaterialTheme.typography.bodyMedium,

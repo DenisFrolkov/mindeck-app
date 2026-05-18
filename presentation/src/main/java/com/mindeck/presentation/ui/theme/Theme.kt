@@ -91,6 +91,11 @@ private val Nunito = FontFamily(
         weight = FontWeight.SemiBold,
         variationSettings = FontVariation.Settings(FontVariation.weight(600)),
     ),
+    Font(
+        resId = R.font.nunito_variable,
+        weight = FontWeight.Bold,
+        variationSettings = FontVariation.Settings(FontVariation.weight(700)),
+    ),
 )
 
 private val AppTypography = Typography(
