@@ -10,14 +10,14 @@ ksp = "2.3.8"
 
 # AndroidX
 androidx-activityCompose = "1.12.0"
-androidx-core = "1.15.0"
+androidx-core = "1.18.0"
 androidx-splashscreen = "1.2.0"
 
 # Compose
 bomCompose = "2026.02.00"
 
 # Navigation
-nav3Core = "1.0.0"
+nav3Core = "1.1.1"
 lifecycleViewmodelNav3 = "2.10.0"
 kotlinSerialization = "2.3.21"
 kotlinxSerializationCore = "1.11.0"
@@ -28,7 +28,7 @@ hilt-dagger = "2.59.2"
 javax = "1"
 
 # Room
-room = "2.7.0"
+room = "2.8.4"
 
 # Rich editor
 richeditorCompose = "1.0.0-rc14"
