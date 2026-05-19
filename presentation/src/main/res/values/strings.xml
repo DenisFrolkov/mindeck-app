@@ -74,7 +74,7 @@
 
     //Delete Card Dialog
     <string name="delete_card_dialog_title">Удаление карточки</string>
-    Быекштп тфьу=Эвудуеу_сфкв_вшфдщп_ищвнЭЮВы ltqcndbntkmyj [jnbnt elfkbnm rfhnjxre ёЭ:1%ыёЭ?Б/ыекштпЮ
+    <string name="delete_card_dialog_body">Ds действительно хотите удалить карточку \"%1$s\"?</string>
 
     //Toast
     <string name="toast_message_impossible_change_the_name">Невозможно изменить название.</string>

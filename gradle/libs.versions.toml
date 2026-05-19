@@ -17,7 +17,7 @@ androidx-splashscreen = "1.2.0"
 bomCompose = "2026.02.00"
 
 # Navigation
-nav3Core = "1.0.0"
+nav3Core = "1.1.1"
 lifecycleViewmodelNav3 = "2.10.0"
 kotlinSerialization = "2.3.21"
 kotlinxSerializationCore = "1.11.0"
