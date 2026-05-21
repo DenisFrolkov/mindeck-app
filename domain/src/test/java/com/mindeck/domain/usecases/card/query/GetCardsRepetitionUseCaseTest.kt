@@ -16,10 +16,9 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class GetCardsRepetitionUseCaseTest {
-
-    private val DAY_MS = 86_400_000L
-    private val now = DAY_MS * 10 + DAY_MS / 2
-    private val todayStart = DAY_MS * 10
+    private val dayMs = 86_400_000L
+    private val now = dayMs * 10 + dayMs / 2
+    private val todayStart = dayMs * 10
 
     private val repository = mockk<CardRepetitionRepository>()
     private val clock = mockk<ClockRepository>()

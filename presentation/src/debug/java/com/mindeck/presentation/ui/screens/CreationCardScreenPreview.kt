@@ -60,4 +60,7 @@ private val previewActions = CreationCardScreenActions(
     onSetDeckId = {},
     onSetType = {},
     onCreateDeck = {},
+    onPickImage = {},
+    onPickImageFromUrl = {},
+    onPickAudio = {},
 )

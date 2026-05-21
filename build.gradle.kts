@@ -33,7 +33,12 @@ subprojects {
             target("**/*.kt")
             targetExclude("${layout.buildDirectory.get()}/**/*.kt")
 
-            ktlint()
+            ktlint().editorConfigOverride(
+                mapOf(
+                    "ktlint_function_naming_ignore_when_annotated_with" to "Composable,Preview",
+                    "ktlint_standard_property-naming" to "disabled",
+                ),
+            )
         }
 
         kotlinGradle {

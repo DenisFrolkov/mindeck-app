@@ -41,10 +41,10 @@ constructor(
     private val _navigationEvent = Channel<DeckNavigationEvent>()
     val navigationEvent = _navigationEvent.receiveAsFlow()
 
-    private val _deckId = MutableSharedFlow<Int>(replay = 1)
+    private val deckId = MutableSharedFlow<Int>(replay = 1)
 
     val screenUiState: StateFlow<UiState<DeckScreenData>> =
-        _deckId
+        deckId
             .flatMapLatest { id ->
                 combine(
                     getDeckByIdUseCase(id),
@@ -64,9 +64,9 @@ constructor(
             }
             .stateIn(viewModelScope, SharingStarted.Companion.WhileSubscribed(5000), UiState.Loading)
 
-    fun loadDeckWithCards(deckId: Int) {
+    fun loadDeckWithCards(id: Int) {
         viewModelScope.launch {
-            _deckId.emit(deckId)
+            deckId.emit(id)
         }
     }
 

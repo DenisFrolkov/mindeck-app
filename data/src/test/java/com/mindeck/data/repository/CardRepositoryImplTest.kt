@@ -24,16 +24,16 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class CardRepositoryImplTest {
-
-    private val card = Card(
-        cardId = 1,
-        cardName = "Card 1",
-        cardQuestion = "Question 1",
-        cardAnswer = "Answer 1",
-        cardType = CardType.SIMPLE,
-        cardTag = "",
-        deckId = 1,
-    )
+    private val card =
+        Card(
+            cardId = 1,
+            cardName = "Card 1",
+            cardQuestion = "Question 1",
+            cardAnswer = "Answer 1",
+            cardType = CardType.SIMPLE,
+            cardTag = "",
+            deckId = 1,
+        )
     private val cardDao = mockk<CardDao>()
 
     private val repository = CardRepositoryImpl(cardDao)
@@ -140,10 +140,11 @@ class CardRepositoryImplTest {
 
     @Test
     fun `getCardWithDeckById emits mapped card with deck when dao returns entity`() = runTest {
-        val cardWithDeckEntity = CardWithDeckEntity(
-            card = card.toEntity(),
-            deck = DeckEntity(deckId = 1, deckName = "Deck 1"),
-        )
+        val cardWithDeckEntity =
+            CardWithDeckEntity(
+                card = card.toEntity(),
+                deck = DeckEntity(deckId = 1, deckName = "Deck 1"),
+            )
 
         every { cardDao.getCardWithDeckById(any()) } returns flowOf(cardWithDeckEntity)
 

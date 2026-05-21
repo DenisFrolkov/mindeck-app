@@ -38,10 +38,10 @@ internal class CardViewModel @Inject constructor(
     private val _uiEvent = Channel<CardUiEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
 
-    private val _cardId = MutableSharedFlow<Int>(replay = 1)
+    private val cardId = MutableSharedFlow<Int>(replay = 1)
 
     val cardWithDeck: StateFlow<UiState<CardWithDeck>> =
-        _cardId
+        cardId
             .flatMapLatest { id ->
                 getCardWithDeckByIdUseCase(cardId = id)
                     .map { cardWithDeck ->
@@ -60,9 +60,9 @@ internal class CardViewModel @Inject constructor(
             }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), UiState.Loading)
 
-    fun loadCardById(cardId: Int) {
+    fun loadCardById(id: Int) {
         viewModelScope.launch {
-            _cardId.emit(cardId)
+            cardId.emit(id)
         }
     }
 

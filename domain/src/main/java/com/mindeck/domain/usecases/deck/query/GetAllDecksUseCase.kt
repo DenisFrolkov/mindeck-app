@@ -5,8 +5,10 @@ import com.mindeck.domain.repository.DeckRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-class GetAllDecksUseCase @Inject constructor(private val deckRepository: DeckRepository) {
-    operator fun invoke(): Flow<List<Deck>> {
-        return deckRepository.getAllDecks()
-    }
+class GetAllDecksUseCase
+@Inject
+constructor(
+    private val deckRepository: DeckRepository,
+) {
+    operator fun invoke(): Flow<List<Deck>> = deckRepository.getAllDecks()
 }

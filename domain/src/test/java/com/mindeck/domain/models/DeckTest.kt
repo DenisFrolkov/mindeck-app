@@ -5,9 +5,7 @@ import org.junit.Assert.assertThrows
 import org.junit.Test
 
 class DeckTest {
-    private fun validDeck(
-        deckName: String = "Столицы мира",
-    ) = Deck(
+    private fun validDeck(deckName: String = "Столицы мира") = Deck(
         deckName = deckName,
     )
 
@@ -15,9 +13,10 @@ class DeckTest {
     fun `deck with blank name throws IllegalArgumentException`() {
         val blankName = "   "
 
-        val exception = assertThrows(IllegalArgumentException::class.java) {
-            validDeck(deckName = blankName)
-        }
+        val exception =
+            assertThrows(IllegalArgumentException::class.java) {
+                validDeck(deckName = blankName)
+            }
 
         assertEquals("Deck name must not be blank", exception.message)
     }

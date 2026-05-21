@@ -6,7 +6,10 @@ import kotlinx.coroutines.flow.Flow
 interface DeckRepository {
     suspend fun insertDeck(deck: Deck): Int
 
-    suspend fun renameDeck(deckId: Int, newName: String)
+    suspend fun renameDeck(
+        deckId: Int,
+        newName: String,
+    )
 
     suspend fun deleteDeck(deckId: Int)
 

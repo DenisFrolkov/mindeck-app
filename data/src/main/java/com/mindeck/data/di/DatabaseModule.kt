@@ -19,30 +19,25 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object DatabaseModule {
+    @Provides
+    @Singleton
+    fun provideDatabase(
+        @ApplicationContext context: Context,
+    ): AppDatabase = Room.databaseBuilder(
+        context = context,
+        klass = AppDatabase::class.java,
+        name = DATABASE_NAME,
+    )
+        .addMigrations(*ALL_MIGRATIONS)
+        .build()
 
     @Provides
     @Singleton
-    fun provideDatabase(@ApplicationContext context: Context): AppDatabase {
-        return Room.databaseBuilder(
-            context = context,
-            klass = AppDatabase::class.java,
-            name = DATABASE_NAME,
-        )
-            .addMigrations(*ALL_MIGRATIONS)
-            .build()
-    }
+    fun provideDeckDao(database: AppDatabase): DeckDao = database.deckDao()
 
     @Provides
     @Singleton
-    fun provideDeckDao(database: AppDatabase): DeckDao {
-        return database.deckDao()
-    }
-
-    @Provides
-    @Singleton
-    fun provideCardDao(database: AppDatabase): CardDao {
-        return database.cardDao()
-    }
+    fun provideCardDao(database: AppDatabase): CardDao = database.cardDao()
 
     @Provides
     @Singleton
