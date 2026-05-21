@@ -15,9 +15,10 @@ class AudioRepositoryImplTest {
 
     @Test
     fun saveAudio_returns_valid_file_path_when_uri_is_valid() = runTest {
-        val file = File(context.filesDir, "test_audio.m4a").also {
-            it.writeText("test content")
-        }
+        val file =
+            File(context.filesDir, "test_audio.m4a").also {
+                it.writeText("test content")
+            }
         val uri = Uri.fromFile(file).toString()
 
         val path = repository.saveAudio(uri = uri)
@@ -27,9 +28,10 @@ class AudioRepositoryImplTest {
 
     @Test
     fun deleteAudio_removes_file_from_storage() = runTest {
-        val file = File(context.filesDir, "test_audio.m4a").also {
-            it.writeText("test content")
-        }
+        val file =
+            File(context.filesDir, "test_audio.m4a").also {
+                it.writeText("test content")
+            }
         val uri = Uri.fromFile(file).toString()
 
         val path = repository.saveAudio(uri = uri)

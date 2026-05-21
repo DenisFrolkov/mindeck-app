@@ -8,9 +8,11 @@ import java.io.File
 import java.util.UUID
 import javax.inject.Inject
 
-class AudioRepositoryImpl @Inject constructor(
+class AudioRepositoryImpl
+@Inject
+constructor(
     @ApplicationContext private val context: Context,
-): AudioRepository {
+) : AudioRepository {
     override suspend fun saveAudio(uri: String): String {
         val fileName = "${UUID.randomUUID()}.mp3"
         val savedFile = File(context.filesDir, fileName)
@@ -22,7 +24,5 @@ class AudioRepositoryImpl @Inject constructor(
         return savedFile.absolutePath
     }
 
-    override fun deleteAudio(path: String): Boolean {
-        return File(path).delete()
-    }
+    override fun deleteAudio(path: String): Boolean = File(path).delete()
 }
