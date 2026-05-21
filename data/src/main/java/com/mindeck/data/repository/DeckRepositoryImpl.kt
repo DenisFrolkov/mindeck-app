@@ -13,7 +13,9 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
-class DeckRepositoryImpl @Inject constructor(
+class DeckRepositoryImpl
+@Inject
+constructor(
     private val deckDao: DeckDao,
 ) : DeckRepository {
     override suspend fun insertDeck(deck: Deck): Int = try {
@@ -26,7 +28,10 @@ class DeckRepositoryImpl @Inject constructor(
         throw DomainError.DatabaseError()
     }
 
-    override suspend fun renameDeck(deckId: Int, newName: String) = try {
+    override suspend fun renameDeck(
+        deckId: Int,
+        newName: String,
+    ) = try {
         deckDao.renameDeck(deckId = deckId, newName = newName)
     } catch (e: CancellationException) {
         throw e
@@ -44,19 +49,17 @@ class DeckRepositoryImpl @Inject constructor(
         throw DomainError.DatabaseError()
     }
 
-    override fun getAllDecks(): Flow<List<Deck>> =
-        deckDao.getAllDecks()
-            .map { list -> list.map { it.toDomain() } }
-            .catch {
-                if (it is CancellationException) throw it
-                throw DomainError.DatabaseError()
-            }
+    override fun getAllDecks(): Flow<List<Deck>> = deckDao.getAllDecks()
+        .map { list -> list.map { it.toDomain() } }
+        .catch {
+            if (it is CancellationException) throw it
+            throw DomainError.DatabaseError()
+        }
 
-    override fun getDeckById(deckId: Int): Flow<Deck?> =
-        deckDao.getDeckById(deckId = deckId)
-            .map { it?.toDomain() }
-            .catch {
-                if (it is CancellationException) throw it
-                throw DomainError.DatabaseError()
-            }
+    override fun getDeckById(deckId: Int): Flow<Deck?> = deckDao.getDeckById(deckId = deckId)
+        .map { it?.toDomain() }
+        .catch {
+            if (it is CancellationException) throw it
+            throw DomainError.DatabaseError()
+        }
 }

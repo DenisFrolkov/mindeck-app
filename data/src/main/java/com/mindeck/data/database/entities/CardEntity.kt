@@ -47,4 +47,7 @@ data class CardEntity(
     @ColumnInfo(name = "lapse_count", defaultValue = "0") val lapseCount: Int = 0,
     @ColumnInfo(name = "first_review_date") val firstReviewDate: Long? = null,
     @ColumnInfo(name = "last_review_date") val lastReviewDate: Long? = null,
+    @ColumnInfo(name = "card_image_path") val cardImagePath: String? = null,
+    @ColumnInfo(name = "card_question_audio_path") val cardQuestionAudioPath: String? = null,
+    @ColumnInfo(name = "card_answer_audio_path") val cardAnswerAudioPath: String? = null,
 )

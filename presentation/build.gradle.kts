@@ -55,6 +55,9 @@ dependencies {
     // Rich editor
     implementation(libs.richeditor.compose)
 
+    // Coil
+    implementation(libs.coil.compose)
+
     // Core
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.core)

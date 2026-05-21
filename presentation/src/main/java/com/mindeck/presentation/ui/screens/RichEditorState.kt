@@ -82,7 +82,9 @@ fun rememberImeToolbarAlpha(isVisible: Boolean): Float {
     val imeHeight = WindowInsets.ime.getBottom(density)
     var imeMaxHeight by remember { mutableIntStateOf(0) }
     if (imeHeight > imeMaxHeight) imeMaxHeight = imeHeight
-    return if (imeMaxHeight > 0 && isVisible)
+    return if (imeMaxHeight > 0 && isVisible) {
         (imeHeight / imeMaxHeight.toFloat()).coerceIn(0f, 1f)
-    else 0f
+    } else {
+        0f
+    }
 }

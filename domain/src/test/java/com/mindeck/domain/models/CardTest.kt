@@ -22,9 +22,10 @@ class CardTest {
     fun `card with blank name throws IllegalArgumentException`() {
         val blankName = "   "
 
-        val exception = assertThrows(IllegalArgumentException::class.java) {
-            validCard(cardName = blankName)
-        }
+        val exception =
+            assertThrows(IllegalArgumentException::class.java) {
+                validCard(cardName = blankName)
+            }
 
         assertEquals("Card name must not be blank", exception.message)
     }
@@ -33,9 +34,10 @@ class CardTest {
     fun `card with blank question throws IllegalArgumentException`() {
         val blankQuestion = "   "
 
-        val exception = assertThrows(IllegalArgumentException::class.java) {
-            validCard(cardQuestion = blankQuestion)
-        }
+        val exception =
+            assertThrows(IllegalArgumentException::class.java) {
+                validCard(cardQuestion = blankQuestion)
+            }
 
         assertEquals("Card question must not be blank", exception.message)
     }
@@ -44,9 +46,10 @@ class CardTest {
     fun `card with blank answer throws IllegalArgumentException`() {
         val blankAnswer = "   "
 
-        val exception = assertThrows(IllegalArgumentException::class.java) {
-            validCard(cardAnswer = blankAnswer)
-        }
+        val exception =
+            assertThrows(IllegalArgumentException::class.java) {
+                validCard(cardAnswer = blankAnswer)
+            }
 
         assertEquals("Card answer must not be blank", exception.message)
     }

@@ -4,7 +4,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class CardTypeTest {
-
     @Test
     fun `fromStableId returns SIMPLE for id 1`() {
         assertEquals(CardType.SIMPLE, CardType.fromStableId(1))

@@ -43,14 +43,12 @@ class DeckViewModelTest {
     private val renameDeckUseCase: RenameDeckUseCase = mockk()
     private val deleteDeckUseCase: DeleteDeckUseCase = mockk()
 
-    private fun createViewModel(): DeckViewModel {
-        return DeckViewModel(
-            getCardsUseCase = getCardsUseCase,
-            getDeckByIdUseCase = getDeckByIdUseCase,
-            renameDeckUseCase = renameDeckUseCase,
-            deleteDeckUseCase = deleteDeckUseCase,
-        )
-    }
+    private fun createViewModel(): DeckViewModel = DeckViewModel(
+        getCardsUseCase = getCardsUseCase,
+        getDeckByIdUseCase = getDeckByIdUseCase,
+        renameDeckUseCase = renameDeckUseCase,
+        deleteDeckUseCase = deleteDeckUseCase,
+    )
 
     private fun deck(deckId: Int, deckName: String) = Deck(
         deckId = deckId,

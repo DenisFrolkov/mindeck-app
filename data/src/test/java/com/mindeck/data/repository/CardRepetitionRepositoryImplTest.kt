@@ -20,19 +20,20 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class CardRepetitionRepositoryImplTest {
-    private val DAY_MS = 86_400_000L
-    private val now = DAY_MS * 10 + DAY_MS / 2
-    private val todayStart = DAY_MS * 10
+    private val dayMs = 86_400_000L
+    private val now = dayMs * 10 + dayMs / 2
+    private val todayStart = dayMs * 10
 
-    private val card = Card(
-        cardId = 1,
-        cardName = "Card 1",
-        cardQuestion = "Question 1",
-        cardAnswer = "Answer 1",
-        cardType = CardType.SIMPLE,
-        cardTag = "",
-        deckId = 1,
-    )
+    private val card =
+        Card(
+            cardId = 1,
+            cardName = "Card 1",
+            cardQuestion = "Question 1",
+            cardAnswer = "Answer 1",
+            cardType = CardType.SIMPLE,
+            cardTag = "",
+            deckId = 1,
+        )
     private val cardDao = mockk<CardDao>()
 
     private val repository = CardRepetitionRepositoryImpl(cardDao)

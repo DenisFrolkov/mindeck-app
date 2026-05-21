@@ -14,7 +14,9 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
-class CardRepositoryImpl @Inject constructor(
+class CardRepositoryImpl
+@Inject
+constructor(
     private val cardDao: CardDao,
 ) : CardRepository {
     override suspend fun insertCard(card: Card) = try {
@@ -45,27 +47,24 @@ class CardRepositoryImpl @Inject constructor(
         throw DomainError.DatabaseError()
     }
 
-    override fun getAllCardsByDeckId(deckId: Int): Flow<List<Card>> =
-        cardDao.getAllCardsByDeckId(deckId = deckId)
-            .map { list -> list.map { it.toDomain() } }
-            .catch {
-                if (it is CancellationException) throw it
-                throw DomainError.DatabaseError()
-            }
+    override fun getAllCardsByDeckId(deckId: Int): Flow<List<Card>> = cardDao.getAllCardsByDeckId(deckId = deckId)
+        .map { list -> list.map { it.toDomain() } }
+        .catch {
+            if (it is CancellationException) throw it
+            throw DomainError.DatabaseError()
+        }
 
-    override fun getCardById(cardId: Int): Flow<Card?> =
-        cardDao.getCardById(cardId = cardId)
-            .map { it?.toDomain() }
-            .catch {
-                if (it is CancellationException) throw it
-                throw DomainError.DatabaseError()
-            }
+    override fun getCardById(cardId: Int): Flow<Card?> = cardDao.getCardById(cardId = cardId)
+        .map { it?.toDomain() }
+        .catch {
+            if (it is CancellationException) throw it
+            throw DomainError.DatabaseError()
+        }
 
-    override fun getCardWithDeckById(cardId: Int): Flow<CardWithDeck?> =
-        cardDao.getCardWithDeckById(cardId = cardId)
-            .map { it?.toDomain() }
-            .catch {
-                if (it is CancellationException) throw it
-                throw DomainError.DatabaseError()
-            }
+    override fun getCardWithDeckById(cardId: Int): Flow<CardWithDeck?> = cardDao.getCardWithDeckById(cardId = cardId)
+        .map { it?.toDomain() }
+        .catch {
+            if (it is CancellationException) throw it
+            throw DomainError.DatabaseError()
+        }
 }

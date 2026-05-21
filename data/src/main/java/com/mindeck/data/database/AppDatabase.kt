@@ -9,11 +9,12 @@ import com.mindeck.data.database.entities.DeckEntity
 
 @Database(
     entities = [DeckEntity::class, CardEntity::class],
-    version = 5,
+    version = 7,
     exportSchema = true,
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun deckDao(): DeckDao
+
     abstract fun cardDao(): CardDao
 
     companion object {

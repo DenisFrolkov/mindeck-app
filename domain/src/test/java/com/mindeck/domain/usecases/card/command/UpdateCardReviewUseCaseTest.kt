@@ -17,9 +17,8 @@ import org.junit.Test
 import java.util.concurrent.TimeUnit
 
 class UpdateCardReviewUseCaseTest {
-
-    private val DAY_MS = 86_400_000L
-    private val now = DAY_MS * 10 + DAY_MS / 2
+    private val dayMs = 86_400_000L
+    private val now = dayMs * 10 + dayMs / 2
     private val repository = mockk<CardRepetitionRepository>()
     private val clock = mockk<ClockRepository>()
     private val useCase = UpdateCardReviewUseCase(repository, clock)
@@ -124,7 +123,7 @@ class UpdateCardReviewUseCaseTest {
         assertEquals(2.36f, result.easeFactor, 0.001f)
         assertEquals(6f, result.interval, 0.001f)
         assertEquals(1, result.repetitionCount)
-        assertEquals(DAY_MS * 16, result.nextReviewDate)
+        assertEquals(dayMs * 16, result.nextReviewDate)
     }
 
     @Test
@@ -138,26 +137,25 @@ class UpdateCardReviewUseCaseTest {
         assertEquals(CardState.REVIEW, result.cardState)
         assertEquals(12.5f, result.interval, 0.001f)
         assertEquals(2.5f, result.easeFactor, 0.001f)
-        assertEquals(DAY_MS * 23, result.nextReviewDate)
+        assertEquals(dayMs * 23, result.nextReviewDate)
         assertEquals(1, result.repetitionCount)
     }
 
     @Test
-    fun `REVIEW + EASY multiplies interval by easeFactor and 1_3x and increases easeFactor`() =
-        runTest {
-            val card =
-                newCard().copy(cardState = CardState.REVIEW, interval = 5f, easeFactor = 2.5f)
-            setupClock()
-            setupRepository()
+    fun `REVIEW + EASY multiplies interval by easeFactor and 1_3x and increases easeFactor`() = runTest {
+        val card =
+            newCard().copy(cardState = CardState.REVIEW, interval = 5f, easeFactor = 2.5f)
+        setupClock()
+        setupRepository()
 
-            val result = useCase(card, ReviewButton.EASY)
+        val result = useCase(card, ReviewButton.EASY)
 
-            assertEquals(CardState.REVIEW, result.cardState)
-            assertEquals(2.6f, result.easeFactor, 0.001f)
-            assertEquals(16.25f, result.interval, 0.001f)
-            assertEquals(1, result.repetitionCount)
-            assertEquals(DAY_MS * 27, result.nextReviewDate)
-        }
+        assertEquals(CardState.REVIEW, result.cardState)
+        assertEquals(2.6f, result.easeFactor, 0.001f)
+        assertEquals(16.25f, result.interval, 0.001f)
+        assertEquals(1, result.repetitionCount)
+        assertEquals(dayMs * 27, result.nextReviewDate)
+    }
 
     @Test
     fun `easeFactor does not drop below MIN_EASE_FACTOR on AGAIN`() = runTest {
@@ -205,24 +203,23 @@ class UpdateCardReviewUseCaseTest {
         assertEquals(CardState.REVIEW, result.cardState)
         assertEquals(1f, result.interval, 0.001f)
         assertEquals(1, result.repetitionCount)
-        assertEquals(DAY_MS * 11, result.nextReviewDate)
+        assertEquals(dayMs * 11, result.nextReviewDate)
     }
 
     @Test
-    fun `LAPSE + EASY graduates to REVIEW with interval coerced to minimum 4f and increased easeFactor`() =
-        runTest {
-            val card = newCard().copy(cardState = CardState.LAPSE)
-            setupClock()
-            setupRepository()
+    fun `LAPSE + EASY graduates to REVIEW with interval coerced to minimum 4f and increased easeFactor`() = runTest {
+        val card = newCard().copy(cardState = CardState.LAPSE)
+        setupClock()
+        setupRepository()
 
-            val result = useCase(card, ReviewButton.EASY)
+        val result = useCase(card, ReviewButton.EASY)
 
-            assertEquals(CardState.REVIEW, result.cardState)
-            assertEquals(4f, result.interval, 0.001f)
-            assertEquals(2.6f, result.easeFactor, 0.001f)
-            assertEquals(1, result.repetitionCount)
-            assertEquals(DAY_MS * 14, result.nextReviewDate)
-        }
+        assertEquals(CardState.REVIEW, result.cardState)
+        assertEquals(4f, result.interval, 0.001f)
+        assertEquals(2.6f, result.easeFactor, 0.001f)
+        assertEquals(1, result.repetitionCount)
+        assertEquals(dayMs * 14, result.nextReviewDate)
+    }
 
     @Test
     fun `REVIEW + AGAIN transitions to LAPSE and increments lapseCount`() = runTest {
@@ -237,16 +234,15 @@ class UpdateCardReviewUseCaseTest {
     }
 
     @Test
-    fun `firstReviewDate is set on first review and not overwritten on subsequent reviews`() =
-        runTest {
-            val card = newCard().copy(cardState = CardState.REVIEW, firstReviewDate = now)
-            setupClock()
-            setupRepository()
+    fun `firstReviewDate is set on first review and not overwritten on subsequent reviews`() = runTest {
+        val card = newCard().copy(cardState = CardState.REVIEW, firstReviewDate = now)
+        setupClock()
+        setupRepository()
 
-            val result = useCase(card, ReviewButton.AGAIN)
+        val result = useCase(card, ReviewButton.AGAIN)
 
-            assertEquals(card.firstReviewDate, result.firstReviewDate)
-        }
+        assertEquals(card.firstReviewDate, result.firstReviewDate)
+    }
 
     @Test
     fun `lastReviewDate is updated to current time on each review`() = runTest {

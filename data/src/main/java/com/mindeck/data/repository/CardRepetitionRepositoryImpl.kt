@@ -12,16 +12,20 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
-class CardRepetitionRepositoryImpl @Inject constructor(
+class CardRepetitionRepositoryImpl
+@Inject
+constructor(
     private val cardDao: CardDao,
 ) : CardRepetitionRepository {
-    override fun getCardsRepetition(currentTime: Long, todayStart: Long): Flow<List<Card>> =
-        cardDao.getCardsRepetition(currentTime = currentTime, todayStart = todayStart)
-            .map { cardsEntityList -> cardsEntityList.map { it.toDomain() } }
-            .catch { e ->
-                if (e is CancellationException) throw e
-                throw DomainError.DatabaseError()
-            }
+    override fun getCardsRepetition(
+        currentTime: Long,
+        todayStart: Long,
+    ): Flow<List<Card>> = cardDao.getCardsRepetition(currentTime = currentTime, todayStart = todayStart)
+        .map { cardsEntityList -> cardsEntityList.map { it.toDomain() } }
+        .catch { e ->
+            if (e is CancellationException) throw e
+            throw DomainError.DatabaseError()
+        }
 
     override suspend fun updateReview(card: Card) = try {
         cardDao.updateCard(card.toEntity())
