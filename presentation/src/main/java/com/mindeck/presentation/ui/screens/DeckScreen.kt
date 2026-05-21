@@ -68,6 +68,7 @@ fun DeckScreen(
             when (event) {
                 DeckNavigationEvent.GoBack -> navigator.pop()
                 is DeckNavigationEvent.ShowToast -> {
+                    @Suppress("LocalContextGetResourceValueCall")
                     Toast.makeText(
                         context,
                         context.getString(event.messageRes),
