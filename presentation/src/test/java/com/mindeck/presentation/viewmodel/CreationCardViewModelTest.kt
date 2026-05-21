@@ -4,6 +4,9 @@ import app.cash.turbine.test
 import com.mindeck.domain.exception.DomainError
 import com.mindeck.domain.models.CardType
 import com.mindeck.domain.usecases.card.command.CreateCardUseCase
+import com.mindeck.domain.usecases.card.command.SaveAudioUseCase
+import com.mindeck.domain.usecases.card.command.SaveImageFromFileUseCase
+import com.mindeck.domain.usecases.card.command.SaveImageFromUrlUseCase
 import com.mindeck.domain.usecases.deck.command.CreateDeckUseCase
 import com.mindeck.domain.usecases.deck.query.GetAllDecksUseCase
 import com.mindeck.presentation.R
@@ -35,6 +38,9 @@ class CreationCardViewModelTest {
     private val createCardUseCase: CreateCardUseCase = mockk()
     private val getAllDecksUseCase: GetAllDecksUseCase = mockk()
     private val createDeckUseCase: CreateDeckUseCase = mockk()
+    private val saveImageFromFileUseCase: SaveImageFromFileUseCase = mockk()
+    private val saveImageFromUrlUseCase: SaveImageFromUrlUseCase = mockk()
+    private val saveAudioUseCase: SaveAudioUseCase = mockk()
 
     private fun createViewModel(): CreationCardViewModel {
         every { getAllDecksUseCase() } returns flowOf(emptyList())
@@ -42,6 +48,9 @@ class CreationCardViewModelTest {
             createCardUseCase = createCardUseCase,
             getAllDecksUseCase = getAllDecksUseCase,
             createDeckUseCase = createDeckUseCase,
+            saveImageFromFileUseCase = saveImageFromFileUseCase,
+            saveImageFromUrlUseCase = saveImageFromUrlUseCase,
+            saveAudioUseCase = saveAudioUseCase,
         )
     }
 
@@ -75,6 +84,28 @@ class CreationCardViewModelTest {
 
         assertEquals(1, viewModel.formState.value.selectedDeckId)
         assertEquals(ModalState.None, viewModel.modalState.value)
+    }
+
+    @Test
+    fun saveImage_updates_cardImagePath_in_formState() = runTest {
+        coEvery { saveImageFromFileUseCase(any()) } returns "/files/image.jpg"
+
+        val viewModel = createViewModel()
+        val uri = "content://media/image.jpg"
+        viewModel.saveImage(uri)
+
+        assertEquals("/files/image.jpg", viewModel.formState.value.cardImagePath)
+    }
+
+    @Test
+    fun saveImageFromUrl_updates_cardImagePath_in_formState() = runTest {
+        coEvery { saveImageFromUrlUseCase(any()) } returns "/files/image.jpg"
+
+        val viewModel = createViewModel()
+        val url = "test_url"
+        viewModel.saveImageFromUrl(url)
+
+        assertEquals("/files/image.jpg", viewModel.formState.value.cardImagePath)
     }
 
     @Test

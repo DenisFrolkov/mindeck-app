@@ -17,6 +17,9 @@ data class Card(
     val lapseCount: Int = 0,
     val firstReviewDate: Long? = null,
     val lastReviewDate: Long? = null,
+    val cardImagePath: String? = null,
+    val cardQuestionAudioPath: String? = null,
+    val cardAnswerAudioPath: String? = null,
 ) {
     init {
         require(cardName.isNotBlank()) { "Card name must not be blank" }

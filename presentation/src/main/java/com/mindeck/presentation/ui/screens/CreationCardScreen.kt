@@ -1,16 +1,20 @@
 package com.mindeck.presentation.ui.screens
 
-import android.text.Html.escapeHtml
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -19,14 +23,13 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.FormatListBulleted
+import androidx.compose.material.icons.filled.AddPhotoAlternate
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.FormatBold
 import androidx.compose.material.icons.filled.FormatClear
@@ -54,11 +57,19 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.unit.em
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.AsyncImage
 import com.mindeck.domain.models.CardType
 import com.mindeck.domain.models.Deck
 import com.mindeck.presentation.R
@@ -76,12 +87,6 @@ import com.mindeck.presentation.viewmodel.card.CreationCardNavigationEvent
 import com.mindeck.presentation.viewmodel.card.CreationCardViewModel
 import com.mohamedrejeb.richeditor.model.RichTextState
 import com.mohamedrejeb.richeditor.ui.BasicRichTextEditor
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.BaselineShift
-import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.unit.em
 
 @Composable
 fun CreationCardScreen(
@@ -98,6 +103,14 @@ fun CreationCardScreen(
     val createCardState by viewModel.createCardState.collectAsStateWithLifecycle()
     val modalState by viewModel.modalState.collectAsStateWithLifecycle()
 
+    val imageLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.PickVisualMedia(),
+    ) { uri -> uri?.let { viewModel.saveImage(it.toString()) } }
+
+    val audioLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.GetContent(),
+    ) { uri -> uri?.let { viewModel.saveQuestionAudio(it.toString()) } }
+
     LaunchedEffect(deckId) {
         deckId?.let { viewModel.setDeckId(it) }
     }
@@ -106,6 +119,7 @@ fun CreationCardScreen(
         viewModel.navigationEvent.collect { event ->
             when (event) {
                 is CreationCardNavigationEvent.ShowToast -> {
+                    @Suppress("LocalContextGetResourceValueCall")
                     Toast.makeText(context, context.getString(event.messageRes), Toast.LENGTH_SHORT).show()
                 }
             }
@@ -128,6 +142,13 @@ fun CreationCardScreen(
             onSetDeckId = viewModel::setDeckId,
             onSetType = viewModel::setType,
             onCreateDeck = viewModel::createDeck,
+            onPickImage = {
+                imageLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+            },
+            onPickImageFromUrl = viewModel::saveImageFromUrl,
+            onPickAudio = {
+                audioLauncher.launch("audio/*")
+            },
         ),
         modifier = modifier,
     )
@@ -179,7 +200,7 @@ internal fun CreationCardScreenContent(
     } ?: stringResource(R.string.choose_type_title_dialog)
 
     Box(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
     ) {
         Scaffold(
             modifier = modifier
@@ -220,6 +241,9 @@ internal fun CreationCardScreenContent(
                         formState = formState,
                         onValueChange = actions.onUpdateForm,
                         richEditorState = richEditorState,
+                        onPickImage = actions.onPickImage,
+                        onPickImageFromUrl = actions.onPickImageFromUrl,
+                        onPickAudio = actions.onPickAudio,
                     )
 
                     Spacer(modifier = Modifier.height(MindeckTheme.dimensions.spacerLg))
@@ -292,6 +316,9 @@ private fun CardFormInputs(
     formState: CreateCardFormState,
     onValueChange: (CreateCardFormState.() -> CreateCardFormState) -> Unit,
     richEditorState: RichEditorState,
+    onPickImage: () -> Unit,
+    onPickImageFromUrl: (String) -> Unit,
+    onPickAudio: () -> Unit,
 ) {
     val questionState = richEditorState.questionState
     val answerState = richEditorState.answerState
@@ -332,12 +359,12 @@ private fun CardFormInputs(
             .heightIn(min = MindeckTheme.dimensions.dp46, max = MindeckTheme.dimensions.dp200)
             .background(
                 MaterialTheme.colorScheme.surfaceVariant,
-                RoundedCornerShape(MindeckTheme.dimensions.dp6)
+                RoundedCornerShape(MindeckTheme.dimensions.dp6),
             )
             .border(
                 MindeckTheme.dimensions.dp0_25,
                 MaterialTheme.colorScheme.outlineVariant,
-                RoundedCornerShape(MindeckTheme.dimensions.dp6)
+                RoundedCornerShape(MindeckTheme.dimensions.dp6),
             )
             .padding(MindeckTheme.dimensions.paddingSm),
     ) {
@@ -365,12 +392,12 @@ private fun CardFormInputs(
             .heightIn(min = MindeckTheme.dimensions.dp46, max = MindeckTheme.dimensions.dp200)
             .background(
                 MaterialTheme.colorScheme.surfaceVariant,
-                RoundedCornerShape(MindeckTheme.dimensions.dp6)
+                RoundedCornerShape(MindeckTheme.dimensions.dp6),
             )
             .border(
                 MindeckTheme.dimensions.dp0_25,
                 MaterialTheme.colorScheme.outlineVariant,
-                RoundedCornerShape(MindeckTheme.dimensions.dp6)
+                RoundedCornerShape(MindeckTheme.dimensions.dp6),
             )
             .padding(MindeckTheme.dimensions.paddingSm),
     ) {
@@ -406,6 +433,49 @@ private fun CardFormInputs(
             )
             .padding(horizontal = MindeckTheme.dimensions.paddingSm),
     )
+
+    Spacer(modifier = Modifier.height(MindeckTheme.dimensions.spacerMd))
+
+    if (formState.cardImagePath != null) {
+        AsyncImage(
+            model = java.io.File(formState.cardImagePath),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(16f / 9f)
+                .clip(MaterialTheme.shapes.large),
+        )
+        Spacer(modifier = Modifier.height(MindeckTheme.dimensions.spacerSm))
+    }
+
+    Row {
+        IconButton(onClick = onPickImage) {
+            Icon(
+                imageVector = Icons.Default.AddPhotoAlternate,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+            )
+        }
+
+        IconButton(onClick = { onPickImageFromUrl("https://picsum.photos/400") }) {
+            Icon(
+                imageVector = Icons.Default.AddPhotoAlternate,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+            )
+        }
+    }
+
+    Row {
+        IconButton(onClick = onPickAudio) {
+            Icon(
+                imageVector = Icons.Default.AddPhotoAlternate,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+            )
+        }
+    }
 }
 
 @Composable
@@ -516,16 +586,16 @@ private fun RichTextFormattingToolbar(
             richTextState?.toggleSpanStyle(
                 SpanStyle(
                     baselineShift = BaselineShift.Superscript,
-                    fontSize = 0.75.em
-                )
+                    fontSize = 0.75.em,
+                ),
             )
         }
         FormatButton(Icons.Default.Subscript, isSubscript) {
             richTextState?.toggleSpanStyle(
                 SpanStyle(
                     baselineShift = BaselineShift.Subscript,
-                    fontSize = 0.75.em
-                )
+                    fontSize = 0.75.em,
+                ),
             )
         }
 
@@ -580,12 +650,15 @@ private fun ColorFormatButton(
                 .clip(CircleShape)
                 .background(color)
                 .then(
-                    if (isActive) Modifier.border(
-                        MindeckTheme.dimensions.dp2,
-                        MaterialTheme.colorScheme.onSurface,
-                        CircleShape
-                    )
-                    else Modifier
+                    if (isActive) {
+                        Modifier.border(
+                            MindeckTheme.dimensions.dp2,
+                            MaterialTheme.colorScheme.onSurface,
+                            CircleShape,
+                        )
+                    } else {
+                        Modifier
+                    },
                 ),
         )
     }
@@ -625,4 +698,7 @@ data class CreationCardScreenActions(
     val onSetDeckId: (Int) -> Unit,
     val onSetType: (CardType) -> Unit,
     val onCreateDeck: (String) -> Unit,
+    val onPickImage: () -> Unit,
+    val onPickImageFromUrl: (String) -> Unit,
+    val onPickAudio: () -> Unit,
 )

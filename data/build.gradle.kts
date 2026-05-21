@@ -43,6 +43,10 @@ dependencies {
     ksp(libs.hilt.compiler)
     ksp(libs.android.hilt.compiler)
 
+    // Ktor
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.android)
+
     // Room
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)

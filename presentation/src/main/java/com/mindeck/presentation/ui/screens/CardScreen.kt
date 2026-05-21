@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -28,6 +29,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -35,6 +38,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.AsyncImage
 import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.CardType
 import com.mindeck.domain.models.CardWithDeck
@@ -66,9 +70,10 @@ fun CardScreen(
     val cardWithDeckState by viewModel.cardWithDeck.collectAsStateWithLifecycle()
     val deleteCardState by viewModel.deleteCardState.collectAsStateWithLifecycle()
     val modalState by viewModel.modalState.collectAsStateWithLifecycle()
+    val cardDeletedSuccess = stringResource(R.string.card_deleted_success)
 
     LaunchedEffect(cardId) {
-        viewModel.loadCardById(cardId = cardId)
+        viewModel.loadCardById(id = cardId)
     }
 
     LaunchedEffect(Unit) {
@@ -77,7 +82,7 @@ fun CardScreen(
                 is CardUiEvent.DeletionSuccessful -> {
                     Toast.makeText(
                         context,
-                        context.getString(R.string.card_deleted_success, event.cardName),
+                        cardDeletedSuccess.format(event.cardName),
                         Toast.LENGTH_SHORT,
                     ).show()
                     navigator.pop()
@@ -193,6 +198,19 @@ private fun CardContent(
     when (cardWithDeckState) {
         is UiState.Success -> {
             val cardWithDeck = cardWithDeckState.data
+            if (cardWithDeck.card.cardImagePath != null) {
+                AsyncImage(
+                    model = java.io.File(cardWithDeck.card.cardImagePath),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(16f / 9f)
+                        .clip(MaterialTheme.shapes.large),
+                )
+                Spacer(modifier = Modifier.height(MindeckTheme.dimensions.spacerSm))
+            }
+
             Spacer(modifier = Modifier.height(MindeckTheme.dimensions.spacerMd))
             CardInfoItem(
                 label = stringResource(R.string.text_deck_dropdown_selector),

@@ -6,6 +6,9 @@ import com.mindeck.domain.exception.DomainError
 import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.CardType
 import com.mindeck.domain.usecases.card.command.CreateCardUseCase
+import com.mindeck.domain.usecases.card.command.SaveAudioUseCase
+import com.mindeck.domain.usecases.card.command.SaveImageFromFileUseCase
+import com.mindeck.domain.usecases.card.command.SaveImageFromUrlUseCase
 import com.mindeck.domain.usecases.deck.command.CreateDeckUseCase
 import com.mindeck.domain.usecases.deck.query.GetAllDecksUseCase
 import com.mindeck.presentation.R
@@ -29,9 +32,13 @@ internal class CreationCardViewModel @Inject constructor(
     private val createCardUseCase: CreateCardUseCase,
     getAllDecksUseCase: GetAllDecksUseCase,
     createDeckUseCase: CreateDeckUseCase,
+    private val saveImageFromFileUseCase: SaveImageFromFileUseCase,
+    private val saveImageFromUrlUseCase: SaveImageFromUrlUseCase,
+    private val saveAudioUseCase: SaveAudioUseCase,
 ) : ViewModel() {
 
-    private val deckSelectionHandler = DeckSelectionHandler(getAllDecksUseCase, createDeckUseCase, viewModelScope)
+    private val deckSelectionHandler =
+        DeckSelectionHandler(getAllDecksUseCase, createDeckUseCase, viewModelScope)
 
     val decksState = deckSelectionHandler.decksState
     val createDeckState = deckSelectionHandler.createDeckState
@@ -49,6 +56,34 @@ internal class CreationCardViewModel @Inject constructor(
     val createCardState: StateFlow<UiState<Unit>> = _createCardState.asStateFlow()
 
     private val createCardMutex = Mutex()
+
+    fun saveImage(uri: String) {
+        viewModelScope.launch {
+            val path = saveImageFromFileUseCase(uri)
+            _formState.update { it.copy(cardImagePath = path) }
+        }
+    }
+
+    fun saveImageFromUrl(url: String) {
+        viewModelScope.launch {
+            val path = saveImageFromUrlUseCase(url)
+            _formState.update { it.copy(cardImagePath = path) }
+        }
+    }
+
+    fun saveQuestionAudio(uri: String) {
+        viewModelScope.launch {
+            val path = saveAudioUseCase(uri)
+            _formState.update { it.copy(cardQuestionAudioPath = path) }
+        }
+    }
+
+    fun saveAnswerAudio(uri: String) {
+        viewModelScope.launch {
+            val path = saveAudioUseCase(uri)
+            _formState.update { it.copy(cardAnswerAudioPath = path) }
+        }
+    }
 
     fun createCard(question: String, answer: String) {
         viewModelScope.launch {
@@ -77,6 +112,9 @@ internal class CreationCardViewModel @Inject constructor(
                         cardType = selectedType,
                         cardTag = form.tag,
                         deckId = selectedDeckId,
+                        cardImagePath = form.cardImagePath,
+                        cardQuestionAudioPath = form.cardQuestionAudioPath,
+                        cardAnswerAudioPath = form.cardAnswerAudioPath,
                     ),
                 )
                 _createCardState.update { UiState.Success(Unit) }
@@ -135,7 +173,7 @@ internal class CreationCardViewModel @Inject constructor(
     }
 
     private fun clearFormFields() {
-        _formState.update { it.copy(title = "", tag = "") }
+        _formState.update { it.copy(title = "", tag = "", cardImagePath = null) }
     }
 
     private fun clearError() {

@@ -7,9 +7,11 @@ data class CreateCardFormState(
     val tag: String = "",
     val selectedDeckId: Int? = null,
     val selectedType: CardType? = null,
+    val cardImagePath: String? = null,
+    val cardQuestionAudioPath: String? = null,
+    val cardAnswerAudioPath: String? = null,
 ) {
-    fun isValid(): Boolean =
-        title.isNotBlank() &&
-            selectedDeckId != null &&
-            selectedType != null
+    fun isValid(): Boolean = title.isNotBlank() &&
+        selectedDeckId != null &&
+        selectedType != null
 }
