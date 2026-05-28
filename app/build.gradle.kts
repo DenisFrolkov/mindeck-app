@@ -70,6 +70,8 @@ dependencies {
     // Modules
     implementation(projects.presentation)
     implementation(projects.data)
+    implementation(projects.shared)
+
 
     // Splash screen
     implementation(libs.androidx.splashscreen)
