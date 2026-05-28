@@ -44,3 +44,11 @@ captures/
 
 *.jks
 *.keystore
+
+# macOS
+.DS_Store
+
+# Xcode
+xcuserdata/
+*.xcuserstate
+*.xcscheme
