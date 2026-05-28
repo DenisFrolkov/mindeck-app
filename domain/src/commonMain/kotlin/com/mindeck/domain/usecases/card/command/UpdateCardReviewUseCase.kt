@@ -4,7 +4,7 @@ import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.CardState
 import com.mindeck.domain.models.ReviewButton
 import com.mindeck.domain.repository.CardRepetitionRepository
-import com.mindeck.domain.repository.ClockRepository
+import com.mindeck.domain.service.ClockRepository
 import kotlin.math.ceil
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.minutes

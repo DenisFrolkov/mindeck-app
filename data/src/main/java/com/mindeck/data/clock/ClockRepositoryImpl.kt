@@ -1,7 +1,8 @@
 package com.mindeck.data.clock
 
-import com.mindeck.domain.repository.ClockRepository
+import com.mindeck.domain.service.ClockRepository
+import javax.inject.Inject
 
-class ClockRepositoryImpl : ClockRepository {
+class ClockRepositoryImpl @Inject constructor() : ClockRepository {
     override fun now(): Long = System.currentTimeMillis()
 }

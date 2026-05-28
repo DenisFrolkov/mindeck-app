@@ -8,7 +8,7 @@ import com.mindeck.data.database.AppDatabase.Companion.DATABASE_NAME
 import com.mindeck.data.database.dao.CardDao
 import com.mindeck.data.database.dao.DeckDao
 import com.mindeck.data.database.migrations.ALL_MIGRATIONS
-import com.mindeck.domain.repository.ClockRepository
+import com.mindeck.domain.service.ClockRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

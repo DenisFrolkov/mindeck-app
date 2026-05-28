@@ -5,7 +5,7 @@ import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.CardState
 import com.mindeck.domain.models.CardType
 import com.mindeck.domain.repository.CardRepetitionRepository
-import com.mindeck.domain.repository.ClockRepository
+import com.mindeck.domain.service.ClockRepository
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.flowOf
@@ -22,7 +22,7 @@ class GetCardsRepetitionUseCaseTest {
     private val todayStart = DAY_MS * 10
 
     private val repository = mockk<CardRepetitionRepository>()
-    private val clock = mockk<ClockRepository>()
+    private val clock = ClockRepository { now }
     private val useCase = GetCardsRepetitionUseCase(repository, clock)
 
     private fun card(
@@ -41,10 +41,6 @@ class GetCardsRepetitionUseCaseTest {
         firstReviewDate = firstReviewDate,
     )
 
-    private fun setupClock() {
-        every { clock.now() } returns now
-    }
-
     private fun setupRepository(cards: List<Card>) {
         every {
             repository.getCardsRepetition(currentTime = now, todayStart = todayStart)
@@ -54,7 +50,6 @@ class GetCardsRepetitionUseCaseTest {
     @Test
     fun `LEARNING card with null nextReviewDate is included in session`() = runTest {
         val learningCard = card(cardState = CardState.LEARNING, nextReviewDate = null)
-        setupClock()
         setupRepository(listOf(learningCard))
 
         useCase().test {
@@ -67,7 +62,6 @@ class GetCardsRepetitionUseCaseTest {
     @Test
     fun `LEARNING card with future nextReviewDate is NOT included in session`() = runTest {
         val learningCard = card(cardState = CardState.LEARNING, nextReviewDate = now + 1L)
-        setupClock()
         setupRepository(listOf(learningCard))
 
         useCase().test {
@@ -80,7 +74,6 @@ class GetCardsRepetitionUseCaseTest {
     @Test
     fun `NEW cards are limited by DAILY_NEW_LIMIT`() = runTest {
         val newCards = List(21) { card(cardState = CardState.NEW) }
-        setupClock()
         setupRepository(newCards)
 
         useCase().test {
@@ -95,7 +88,6 @@ class GetCardsRepetitionUseCaseTest {
         val newCards = List(20) { card(cardState = CardState.NEW, firstReviewDate = null) }
         val reviewTodayCards =
             List(5) { card(cardState = CardState.LEARNING, firstReviewDate = now) }
-        setupClock()
         setupRepository(newCards + reviewTodayCards)
 
         useCase().test {
@@ -110,7 +102,6 @@ class GetCardsRepetitionUseCaseTest {
         val newCards = List(20) { card(cardState = CardState.NEW, firstReviewDate = null) }
         val reviewTodayCards =
             List(5) { card(cardState = CardState.LEARNING, firstReviewDate = now) }
-        setupClock()
         setupRepository(newCards + reviewTodayCards)
 
         useCase().test {
@@ -125,7 +116,6 @@ class GetCardsRepetitionUseCaseTest {
         val learningCards = List(2) { card(cardState = CardState.LEARNING, nextReviewDate = null) }
         val reviewCards = List(2) { card(cardState = CardState.REVIEW, nextReviewDate = now - 1L) }
         val newCards = List(2) { card(cardState = CardState.NEW) }
-        setupClock()
         setupRepository(newCards + reviewCards + learningCards)
 
         useCase().test {
@@ -140,7 +130,6 @@ class GetCardsRepetitionUseCaseTest {
     @Test
     fun `REVIEW card with expired nextReviewDate is included in session`() = runTest {
         val reviewCard = card(cardState = CardState.REVIEW, nextReviewDate = now - 1L)
-        setupClock()
         setupRepository(listOf(reviewCard))
 
         useCase().test {
@@ -153,7 +142,6 @@ class GetCardsRepetitionUseCaseTest {
     @Test
     fun `REVIEW card with null nextReviewDate is NOT included in session`() = runTest {
         val reviewCard = card(cardState = CardState.REVIEW, nextReviewDate = null)
-        setupClock()
         setupRepository(listOf(reviewCard))
 
         useCase().test {
@@ -166,7 +154,6 @@ class GetCardsRepetitionUseCaseTest {
     @Test
     fun `LAPSE card with null nextReviewDate is included in session`() = runTest {
         val lapseCard = card(cardState = CardState.LAPSE, nextReviewDate = null)
-        setupClock()
         setupRepository(listOf(lapseCard))
 
         useCase().test {
@@ -181,7 +168,6 @@ class GetCardsRepetitionUseCaseTest {
         val shownTodayCards =
             List(20) { card(cardState = CardState.LEARNING, firstReviewDate = now) }
         val newCards = List(5) { card(cardState = CardState.NEW) }
-        setupClock()
         setupRepository(shownTodayCards + newCards)
 
         useCase().test {
@@ -194,7 +180,6 @@ class GetCardsRepetitionUseCaseTest {
     @Test
     fun `LAPSE card with future nextReviewDate is NOT included in session`() = runTest {
         val lapseCard = card(cardState = CardState.LAPSE, nextReviewDate = now + 1L)
-        setupClock()
         setupRepository(listOf(lapseCard))
 
         useCase().test {
@@ -206,7 +191,6 @@ class GetCardsRepetitionUseCaseTest {
 
     @Test
     fun `empty card list returns empty session`() = runTest {
-        setupClock()
         setupRepository(emptyList())
 
         useCase().test {

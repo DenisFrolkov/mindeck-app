@@ -13,20 +13,21 @@ import dagger.hilt.components.SingletonComponent
 
 @Module
 @InstallIn(SingletonComponent::class)
-abstract class RepositoryModule {
+interface RepositoryModule {
 
     @Binds
-    abstract fun bindCardRepository(
+    fun bindCardRepository(
         impl: CardRepositoryImpl,
     ): CardRepository
 
     @Binds
-    abstract fun bindCardRepetitionRepository(
+    fun bindCardRepetitionRepository(
         impl: CardRepetitionRepositoryImpl,
     ): CardRepetitionRepository
 
     @Binds
-    abstract fun bindDeckRepository(
+    fun bindDeckRepository(
         impl: DeckRepositoryImpl,
     ): DeckRepository
+
 }

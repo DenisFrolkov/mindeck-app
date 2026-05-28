@@ -5,9 +5,8 @@ import com.mindeck.domain.models.CardState
 import com.mindeck.domain.models.CardType
 import com.mindeck.domain.models.ReviewButton
 import com.mindeck.domain.repository.CardRepetitionRepository
-import com.mindeck.domain.repository.ClockRepository
+import com.mindeck.domain.service.ClockRepository
 import io.mockk.coEvery
-import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
@@ -23,7 +22,7 @@ class UpdateCardReviewUseCaseTest {
     private val DAY_MS = 86_400_000L
     private val now = DAY_MS * 10 + DAY_MS / 2
     private val repository = mockk<CardRepetitionRepository>()
-    private val clock = mockk<ClockRepository>()
+    private val clock = ClockRepository { now }
     private val useCase = UpdateCardReviewUseCase(repository, clock)
 
     private fun newCard() = Card(
@@ -37,10 +36,6 @@ class UpdateCardReviewUseCaseTest {
         easeFactor = 2.5f,
     )
 
-    private fun setupClock() {
-        every { clock.now() } returns now
-    }
-
     private fun setupRepository() {
         coEvery { repository.updateReview(any()) } just runs
     }
@@ -48,7 +43,6 @@ class UpdateCardReviewUseCaseTest {
     @Test
     fun `NEW + AGAIN transitions card to LEARNING with reduced easeFactor`() = runTest {
         val card = newCard()
-        setupClock()
         setupRepository()
 
         val result = useCase(card, ReviewButton.AGAIN)
@@ -62,7 +56,6 @@ class UpdateCardReviewUseCaseTest {
     @Test
     fun `NEW + HARD transitions card to LEARNING with reduced easeFactor`() = runTest {
         val card = newCard()
-        setupClock()
         setupRepository()
 
         val result = useCase(card, ReviewButton.HARD)
@@ -76,7 +69,6 @@ class UpdateCardReviewUseCaseTest {
     @Test
     fun `NEW + GOOD advances learning step to 1`() = runTest {
         val card = newCard()
-        setupClock()
         setupRepository()
 
         val result = useCase(card, ReviewButton.GOOD)
@@ -90,7 +82,6 @@ class UpdateCardReviewUseCaseTest {
     @Test
     fun `NEW + GOOD on last learning step graduates card to REVIEW`() = runTest {
         val card = newCard().copy(learningStep = 1)
-        setupClock()
         setupRepository()
 
         val result = useCase(card, ReviewButton.GOOD)
@@ -103,7 +94,6 @@ class UpdateCardReviewUseCaseTest {
     @Test
     fun `NEW + EASY immediately graduates card to REVIEW with interval 4`() = runTest {
         val card = newCard()
-        setupClock()
         setupRepository()
 
         val result = useCase(card, ReviewButton.EASY)
@@ -117,7 +107,6 @@ class UpdateCardReviewUseCaseTest {
     @Test
     fun `REVIEW + HARD multiplies interval by 120 percent and reduces easeFactor`() = runTest {
         val card = newCard().copy(cardState = CardState.REVIEW, interval = 5f)
-        setupClock()
         setupRepository()
 
         val result = useCase(card, ReviewButton.HARD)
@@ -132,7 +121,6 @@ class UpdateCardReviewUseCaseTest {
     @Test
     fun `REVIEW + GOOD multiplies interval by easeFactor`() = runTest {
         val card = newCard().copy(cardState = CardState.REVIEW, interval = 5f)
-        setupClock()
         setupRepository()
 
         val result = useCase(card, ReviewButton.GOOD)
@@ -149,7 +137,6 @@ class UpdateCardReviewUseCaseTest {
         runTest {
             val card =
                 newCard().copy(cardState = CardState.REVIEW, interval = 5f, easeFactor = 2.5f)
-            setupClock()
             setupRepository()
 
             val result = useCase(card, ReviewButton.EASY)
@@ -164,7 +151,6 @@ class UpdateCardReviewUseCaseTest {
     @Test
     fun `easeFactor does not drop below MIN_EASE_FACTOR on AGAIN`() = runTest {
         val card = newCard().copy(cardState = CardState.REVIEW, easeFactor = 1f)
-        setupClock()
         setupRepository()
 
         val result = useCase(card, ReviewButton.AGAIN)
@@ -176,7 +162,6 @@ class UpdateCardReviewUseCaseTest {
     @Test
     fun `easeFactor does not exceed MAX_EASE_FACTOR on EASY`() = runTest {
         val card = newCard().copy(cardState = CardState.REVIEW, easeFactor = 3.5f)
-        setupClock()
         setupRepository()
 
         val result = useCase(card, ReviewButton.EASY)
@@ -188,7 +173,6 @@ class UpdateCardReviewUseCaseTest {
     @Test
     fun `LAPSE + AGAIN keeps card in LAPSE state`() = runTest {
         val card = newCard().copy(cardState = CardState.LAPSE)
-        setupClock()
         setupRepository()
 
         val result = useCase(card, ReviewButton.AGAIN)
@@ -199,7 +183,6 @@ class UpdateCardReviewUseCaseTest {
     @Test
     fun `LAPSE + GOOD graduates to REVIEW with interval coerced to minimum 1f`() = runTest {
         val card = newCard().copy(cardState = CardState.LAPSE, learningStep = 2)
-        setupClock()
         setupRepository()
 
         val result = useCase(card, ReviewButton.GOOD)
@@ -214,7 +197,6 @@ class UpdateCardReviewUseCaseTest {
     fun `LAPSE + EASY graduates to REVIEW with interval coerced to minimum 4f and increased easeFactor`() =
         runTest {
             val card = newCard().copy(cardState = CardState.LAPSE)
-            setupClock()
             setupRepository()
 
             val result = useCase(card, ReviewButton.EASY)
@@ -229,7 +211,6 @@ class UpdateCardReviewUseCaseTest {
     @Test
     fun `REVIEW + AGAIN transitions to LAPSE and increments lapseCount`() = runTest {
         val card = newCard().copy(cardState = CardState.REVIEW)
-        setupClock()
         setupRepository()
 
         val result = useCase(card, ReviewButton.AGAIN)
@@ -242,7 +223,6 @@ class UpdateCardReviewUseCaseTest {
     fun `firstReviewDate is set on first review and not overwritten on subsequent reviews`() =
         runTest {
             val card = newCard().copy(cardState = CardState.REVIEW, firstReviewDate = now)
-            setupClock()
             setupRepository()
 
             val result = useCase(card, ReviewButton.AGAIN)
@@ -253,7 +233,6 @@ class UpdateCardReviewUseCaseTest {
     @Test
     fun `lastReviewDate is updated to current time on each review`() = runTest {
         val card = newCard().copy(cardState = CardState.REVIEW, lastReviewDate = now - 1000L)
-        setupClock()
         setupRepository()
 
         val result = useCase(card, ReviewButton.AGAIN)
@@ -264,8 +243,6 @@ class UpdateCardReviewUseCaseTest {
     @Test
     fun `previewNextInterval for NEW + AGAIN returns 1 minute`() {
         val card = newCard()
-        setupClock()
-
         val result = useCase.previewNextInterval(card, ReviewButton.AGAIN)
 
         assertEquals(1.minutes.inWholeMilliseconds, result)
@@ -274,8 +251,6 @@ class UpdateCardReviewUseCaseTest {
     @Test
     fun `previewNextInterval for NEW + HARD returns 1 minute`() {
         val card = newCard()
-        setupClock()
-
         val result = useCase.previewNextInterval(card, ReviewButton.HARD)
 
         assertEquals(1.minutes.inWholeMilliseconds, result)
@@ -284,8 +259,6 @@ class UpdateCardReviewUseCaseTest {
     @Test
     fun `previewNextInterval for NEW + GOOD returns 10 minutes`() {
         val card = newCard()
-        setupClock()
-
         val result = useCase.previewNextInterval(card, ReviewButton.GOOD)
 
         assertEquals(10.minutes.inWholeMilliseconds, result)
@@ -294,8 +267,6 @@ class UpdateCardReviewUseCaseTest {
     @Test
     fun `previewNextInterval for NEW + EASY returns interval until next day boundary`() {
         val card = newCard()
-        setupClock()
-
         val result = useCase.previewNextInterval(card, ReviewButton.EASY)
 
         assertEquals(3.days.inWholeMilliseconds + 12.hours.inWholeMilliseconds, result)
