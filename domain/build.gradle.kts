@@ -1,24 +1,40 @@
-plugins {
-    id("java-library")
-    alias(libs.plugins.kotlin.jvm)
-}
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
-java {
-    sourceCompatibility = rootProject.extra["javaVersion"] as JavaVersion
-    targetCompatibility = rootProject.extra["javaVersion"] as JavaVersion
+plugins {
+    alias(libs.plugins.kotlin.multiplatform)
 }
 
 kotlin {
-    jvmToolchain(rootProject.extra["jdkVersion"] as Int)
-}
+    jvm {
+        compilerOptions {
+            jvmTarget = JvmTarget.fromTarget(rootProject.extra["jvmTarget"] as String)
+        }
+    }
 
-dependencies {
-    implementation(libs.javax)
-    implementation(libs.coroutines)
+    iosX64()             // simulator on Intel Mac
+    iosArm64()           // real iPhone/iPad
+    iosSimulatorArm64()  // simulator on Apple Silicon Mac
 
-    // Тесты
-    testImplementation(libs.junit)
-    testImplementation(libs.mockk)
-    testImplementation(libs.turbine)
-    testImplementation(libs.coroutines.test)
+    sourceSets {
+        commonMain {
+            dependencies {
+                implementation(libs.coroutines)
+            }
+        }
+
+        commonTest {
+            dependencies {
+                implementation(libs.kotlin.test)
+                implementation(libs.coroutines.test)
+                implementation(libs.turbine)
+            }
+        }
+
+        jvmTest {
+            dependencies {
+                implementation(libs.junit)
+                implementation(libs.mockk)
+            }
+        }
+    }
 }
