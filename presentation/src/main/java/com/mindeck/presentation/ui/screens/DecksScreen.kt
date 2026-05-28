@@ -25,7 +25,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mindeck.domain.models.Deck
 import com.mindeck.presentation.R
@@ -36,22 +35,22 @@ import com.mindeck.presentation.ui.navigation.DeckRoute
 import com.mindeck.presentation.ui.navigation.LocalNavigator
 import com.mindeck.presentation.ui.theme.MindeckTheme
 import com.mindeck.presentation.viewmodel.deck.DecksViewModel
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun DecksScreen(
-    modifier: Modifier = Modifier,
-) {
+fun DecksScreen(modifier: Modifier = Modifier) {
     val navigator = LocalNavigator.current
 
-    val viewModel = hiltViewModel<DecksViewModel>()
+    val viewModel = koinViewModel<DecksViewModel>()
     val decksState by viewModel.decksState.collectAsStateWithLifecycle()
 
     DecksScreenContent(
         decksState = decksState,
-        actions = DecksScreenActions(
-            onNavigateBack = navigator::pop,
-            onNavigateToDeck = { navigator.push(DeckRoute(it)) },
-        ),
+        actions =
+            DecksScreenActions(
+                onNavigateBack = navigator::pop,
+                onNavigateToDeck = { navigator.push(DeckRoute(it)) },
+            ),
         modifier = modifier,
     )
 }
@@ -63,9 +62,10 @@ internal fun DecksScreenContent(
     modifier: Modifier = Modifier,
 ) {
     Scaffold(
-        modifier = modifier
-            .fillMaxSize()
-            .systemBarsPadding(),
+        modifier =
+            modifier
+                .fillMaxSize()
+                .systemBarsPadding(),
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             AppTopBar(
@@ -75,9 +75,10 @@ internal fun DecksScreenContent(
         },
         content = { padding ->
             Column(
-                modifier = Modifier
-                    .padding(padding)
-                    .padding(horizontal = MindeckTheme.dimensions.paddingMd),
+                modifier =
+                    Modifier
+                        .padding(padding)
+                        .padding(horizontal = MindeckTheme.dimensions.paddingMd),
             ) {
                 DecksList(
                     decksState = decksState,
@@ -104,11 +105,12 @@ private fun DecksList(
                 if (decks.isNotEmpty()) {
                     item {
                         Text(
-                            text = pluralStringResource(
-                                R.plurals.deck_amount,
-                                decks.size,
-                                decks.size,
-                            ),
+                            text =
+                                pluralStringResource(
+                                    R.plurals.deck_amount,
+                                    decks.size,
+                                    decks.size,
+                                ),
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -120,9 +122,10 @@ private fun DecksList(
                     item {
                         Text(
                             text = stringResource(R.string.empty_decks_list),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = MindeckTheme.dimensions.dp40),
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = MindeckTheme.dimensions.dp40),
                             textAlign = TextAlign.Center,
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -135,8 +138,9 @@ private fun DecksList(
                     key = { it.deckId },
                 ) { deck ->
                     DisplayItem(
-                        modifier = Modifier
-                            .fillMaxWidth(),
+                        modifier =
+                            Modifier
+                                .fillMaxWidth(),
                         icon = R.drawable.deck_icon,
                         name = deck.deckName,
                         onClick = { onDeckClick(deck.deckId) },
@@ -150,9 +154,10 @@ private fun DecksList(
 
         UiState.Loading -> {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentSize(Alignment.Center),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .wrapContentSize(Alignment.Center),
             ) {
                 Spacer(modifier = Modifier.height(MindeckTheme.dimensions.spacerMd))
                 CircularProgressIndicator(

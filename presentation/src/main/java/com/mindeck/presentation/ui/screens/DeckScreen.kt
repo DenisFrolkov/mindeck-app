@@ -27,7 +27,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mindeck.presentation.R
 import com.mindeck.presentation.state.ModalState
@@ -44,6 +43,7 @@ import com.mindeck.presentation.ui.theme.MindeckTheme
 import com.mindeck.presentation.viewmodel.deck.DeckNavigationEvent
 import com.mindeck.presentation.viewmodel.deck.DeckScreenData
 import com.mindeck.presentation.viewmodel.deck.DeckViewModel
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun DeckScreen(
@@ -53,7 +53,7 @@ fun DeckScreen(
     val navigator = LocalNavigator.current
 
     val context = LocalContext.current
-    val viewModel = hiltViewModel<DeckViewModel>()
+    val viewModel = koinViewModel<DeckViewModel>()
 
     val screenUiState by viewModel.screenUiState.collectAsStateWithLifecycle()
     val renameDeckState by viewModel.renameDeckState.collectAsStateWithLifecycle()
@@ -68,11 +68,12 @@ fun DeckScreen(
             when (event) {
                 DeckNavigationEvent.GoBack -> navigator.pop()
                 is DeckNavigationEvent.ShowToast -> {
-                    Toast.makeText(
-                        context,
-                        context.getString(event.messageRes),
-                        Toast.LENGTH_SHORT,
-                    ).show()
+                    Toast
+                        .makeText(
+                            context,
+                            context.getString(event.messageRes),
+                            Toast.LENGTH_SHORT,
+                        ).show()
                 }
             }
         }
@@ -82,16 +83,17 @@ fun DeckScreen(
         screenUiState = screenUiState,
         renameDeckState = renameDeckState,
         modalState = modalState,
-        actions = DeckScreenActions(
-            onMenuClick = viewModel::showDropdownMenu,
-            onDismissModal = viewModel::hideModal,
-            onShowRenameDialog = viewModel::showRenameDialog,
-            onDeleteDeck = viewModel::deleteDeck,
-            onRenameDeck = { id, name -> viewModel.renameDeck(id, name) },
-            onNavigateBack = navigator::pop,
-            onNavigateToCard = { navigator.push(CardRoute(it)) },
-            onNavigateToCreateCard = { navigator.push(CreationCardRoute(it)) },
-        ),
+        actions =
+            DeckScreenActions(
+                onMenuClick = viewModel::showDropdownMenu,
+                onDismissModal = viewModel::hideModal,
+                onShowRenameDialog = viewModel::showRenameDialog,
+                onDeleteDeck = viewModel::deleteDeck,
+                onRenameDeck = { id, name -> viewModel.renameDeck(id, name) },
+                onNavigateBack = navigator::pop,
+                onNavigateToCard = { navigator.push(CardRoute(it)) },
+                onNavigateToCreateCard = { navigator.push(CreationCardRoute(it)) },
+            ),
         modifier = modifier,
     )
 }
@@ -107,9 +109,10 @@ internal fun DeckScreenContent(
     val dataSuccess = (screenUiState as? UiState.Success<DeckScreenData>)?.data
 
     Scaffold(
-        modifier = modifier
-            .fillMaxSize()
-            .systemBarsPadding(),
+        modifier =
+            modifier
+                .fillMaxSize()
+                .systemBarsPadding(),
         topBar = {
             AppTopBar(
                 showMenuButton = screenUiState is UiState.Success,
@@ -120,9 +123,10 @@ internal fun DeckScreenContent(
         },
         content = { padding ->
             Column(
-                modifier = Modifier
-                    .padding(padding)
-                    .padding(horizontal = MindeckTheme.dimensions.paddingMd),
+                modifier =
+                    Modifier
+                        .padding(padding)
+                        .padding(horizontal = MindeckTheme.dimensions.paddingMd),
             ) {
                 DeckContent(
                     screenUiState = screenUiState,
@@ -210,9 +214,10 @@ private fun DeckContent(
                     item {
                         Text(
                             text = stringResource(R.string.empty_cards_list),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = MindeckTheme.dimensions.dp40),
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = MindeckTheme.dimensions.dp40),
                             textAlign = TextAlign.Center,
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -225,8 +230,9 @@ private fun DeckContent(
                     key = { it.cardId },
                 ) { card ->
                     DisplayItem(
-                        modifier = Modifier
-                            .fillMaxWidth(),
+                        modifier =
+                            Modifier
+                                .fillMaxWidth(),
                         icon = R.drawable.card_icon,
                         name = card.cardName,
                         onClick = { onNavigateToCard(card.cardId) },
@@ -237,9 +243,10 @@ private fun DeckContent(
 
         UiState.Loading -> {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentSize(Alignment.Center),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .wrapContentSize(Alignment.Center),
             ) {
                 Spacer(modifier = Modifier.height(MindeckTheme.dimensions.spacerMd))
                 CircularProgressIndicator(

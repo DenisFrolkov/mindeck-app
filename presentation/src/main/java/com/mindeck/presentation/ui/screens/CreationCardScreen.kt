@@ -1,12 +1,12 @@
 package com.mindeck.presentation.ui.screens
 
-import android.text.Html.escapeHtml
 import android.widget.Toast
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,8 +19,6 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -56,8 +54,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextAlign
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.unit.em
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mindeck.domain.models.CardType
 import com.mindeck.domain.models.Deck
@@ -76,12 +79,7 @@ import com.mindeck.presentation.viewmodel.card.CreationCardNavigationEvent
 import com.mindeck.presentation.viewmodel.card.CreationCardViewModel
 import com.mohamedrejeb.richeditor.model.RichTextState
 import com.mohamedrejeb.richeditor.ui.BasicRichTextEditor
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.BaselineShift
-import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.unit.em
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun CreationCardScreen(
@@ -91,7 +89,7 @@ fun CreationCardScreen(
     val navigator = LocalNavigator.current
 
     val context = LocalContext.current
-    val viewModel = hiltViewModel<CreationCardViewModel>()
+    val viewModel = koinViewModel<CreationCardViewModel>()
     val formState by viewModel.formState.collectAsStateWithLifecycle()
     val deckState by viewModel.decksState.collectAsStateWithLifecycle()
     val createDeckState by viewModel.createDeckState.collectAsStateWithLifecycle()
@@ -118,17 +116,18 @@ fun CreationCardScreen(
         createDeckState = createDeckState,
         createCardState = createCardState,
         modalState = modalState,
-        actions = CreationCardScreenActions(
-            onNavigateBack = navigator::pop,
-            onShowDeckModal = viewModel::showDeckModal,
-            onShowTypeModal = viewModel::showTypeModal,
-            onUpdateForm = viewModel::updateForm,
-            onCreateCard = { q, a -> viewModel.createCard(q, a) },
-            onHideModal = viewModel::hideModal,
-            onSetDeckId = viewModel::setDeckId,
-            onSetType = viewModel::setType,
-            onCreateDeck = viewModel::createDeck,
-        ),
+        actions =
+            CreationCardScreenActions(
+                onNavigateBack = navigator::pop,
+                onShowDeckModal = viewModel::showDeckModal,
+                onShowTypeModal = viewModel::showTypeModal,
+                onUpdateForm = viewModel::updateForm,
+                onCreateCard = { q, a -> viewModel.createCard(q, a) },
+                onHideModal = viewModel::hideModal,
+                onSetDeckId = viewModel::setDeckId,
+                onSetType = viewModel::setType,
+                onCreateDeck = viewModel::createDeck,
+            ),
         modifier = modifier,
     )
 }
@@ -155,36 +154,42 @@ internal fun CreationCardScreenContent(
 
     val isRichTextValid by remember {
         derivedStateOf {
-            richEditorState.questionState.annotatedString.text.isNotBlank() &&
-                richEditorState.answerState.annotatedString.text.isNotBlank()
+            richEditorState.questionState.annotatedString.text
+                .isNotBlank() &&
+                richEditorState.answerState.annotatedString.text
+                    .isNotBlank()
         }
     }
 
-    val cardTypes = listOf(
-        Pair(stringResource(R.string.card_type_simple), CardType.SIMPLE),
-        Pair(stringResource(R.string.card_type_complex), CardType.COMPLEX),
-    )
+    val cardTypes =
+        listOf(
+            Pair(stringResource(R.string.card_type_simple), CardType.SIMPLE),
+            Pair(stringResource(R.string.card_type_complex), CardType.COMPLEX),
+        )
 
-    val selectedDeckName = remember(deckState, formState.selectedDeckId) {
-        formState.selectedDeckId?.let { id ->
-            (deckState as? UiState.Success)?.data?.find { it.deckId == id }?.deckName
+    val selectedDeckName =
+        remember(deckState, formState.selectedDeckId) {
+            formState.selectedDeckId?.let { id ->
+                (deckState as? UiState.Success)?.data?.find { it.deckId == id }?.deckName
+            }
         }
-    }
 
-    val selectedTypeName = formState.selectedType?.let { cardType ->
-        when (cardType) {
-            CardType.SIMPLE -> stringResource(R.string.card_type_simple)
-            CardType.COMPLEX -> stringResource(R.string.card_type_complex)
-        }
-    } ?: stringResource(R.string.choose_type_title_dialog)
+    val selectedTypeName =
+        formState.selectedType?.let { cardType ->
+            when (cardType) {
+                CardType.SIMPLE -> stringResource(R.string.card_type_simple)
+                CardType.COMPLEX -> stringResource(R.string.card_type_complex)
+            }
+        } ?: stringResource(R.string.choose_type_title_dialog)
 
     Box(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
     ) {
         Scaffold(
-            modifier = modifier
-                .fillMaxSize()
-                .systemBarsPadding(),
+            modifier =
+                modifier
+                    .fillMaxSize()
+                    .systemBarsPadding(),
             containerColor = MaterialTheme.colorScheme.background,
             topBar = {
                 AppTopBar(
@@ -194,15 +199,17 @@ internal fun CreationCardScreenContent(
             },
             content = { padding ->
                 Column(
-                    modifier = Modifier
-                        .padding(padding)
-                        .verticalScroll(rememberScrollState())
-                        .padding(horizontal = MindeckTheme.dimensions.paddingMd),
+                    modifier =
+                        Modifier
+                            .padding(padding)
+                            .verticalScroll(rememberScrollState())
+                            .padding(horizontal = MindeckTheme.dimensions.paddingMd),
                 ) {
                     SelectorRow(
                         label = stringResource(R.string.text_deck_dropdown_selector),
-                        selectedText = selectedDeckName
-                            ?: stringResource(R.string.choose_deck_title_dialog),
+                        selectedText =
+                            selectedDeckName
+                                ?: stringResource(R.string.choose_deck_title_dialog),
                         onClick = actions.onShowDeckModal,
                     )
 
@@ -243,10 +250,11 @@ internal fun CreationCardScreenContent(
 
         RichTextFormattingToolbar(
             richTextState = richEditorState.activeState,
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .imePadding()
-                .alpha(toolbarAlpha),
+            modifier =
+                Modifier
+                    .align(Alignment.BottomCenter)
+                    .imePadding()
+                    .alpha(toolbarAlpha),
         )
     }
 
@@ -254,12 +262,13 @@ internal fun CreationCardScreenContent(
         is ModalState.DeckSelection -> {
             ChooseModalWindow(
                 titleText = stringResource(R.string.choose_deck_title_dialog),
-                items = (deckState as? UiState.Success)?.data?.map {
-                    Pair(
-                        it.deckName,
-                        it.deckId,
-                    )
-                },
+                items =
+                    (deckState as? UiState.Success)?.data?.map {
+                        Pair(
+                            it.deckName,
+                            it.deckId,
+                        )
+                    },
                 actionState = createDeckState,
                 onExitClick = actions.onHideModal,
                 onSaveClick = actions.onSetDeckId,
@@ -302,19 +311,18 @@ private fun CardFormInputs(
         singleLine = true,
         onValueChange = { onValueChange { copy(title = it) } },
         placeholderTextStyle = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.outline),
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(
-                color = MaterialTheme.colorScheme.surfaceVariant,
-                shape = MaterialTheme.shapes.large,
-            )
-            .height(height = MindeckTheme.dimensions.dp46)
-            .border(
-                width = MindeckTheme.dimensions.dp0_25,
-                color = MaterialTheme.colorScheme.outlineVariant,
-                shape = MaterialTheme.shapes.large,
-            )
-            .padding(horizontal = MindeckTheme.dimensions.paddingSm),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .background(
+                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    shape = MaterialTheme.shapes.large,
+                ).height(height = MindeckTheme.dimensions.dp46)
+                .border(
+                    width = MindeckTheme.dimensions.dp0_25,
+                    color = MaterialTheme.colorScheme.outlineVariant,
+                    shape = MaterialTheme.shapes.large,
+                ).padding(horizontal = MindeckTheme.dimensions.paddingSm),
     )
 
     Spacer(modifier = Modifier.height(MindeckTheme.dimensions.spacerMd))
@@ -326,26 +334,26 @@ private fun CardFormInputs(
     Spacer(modifier = Modifier.height(MindeckTheme.dimensions.dp4))
     Box(
         contentAlignment = Alignment.CenterStart,
-        modifier = Modifier
-            .fillMaxWidth()
-            .onFocusChanged { richEditorState.isQuestionFocused = it.hasFocus }
-            .heightIn(min = MindeckTheme.dimensions.dp46, max = MindeckTheme.dimensions.dp200)
-            .background(
-                MaterialTheme.colorScheme.surfaceVariant,
-                RoundedCornerShape(MindeckTheme.dimensions.dp6)
-            )
-            .border(
-                MindeckTheme.dimensions.dp0_25,
-                MaterialTheme.colorScheme.outlineVariant,
-                RoundedCornerShape(MindeckTheme.dimensions.dp6)
-            )
-            .padding(MindeckTheme.dimensions.paddingSm),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .onFocusChanged { richEditorState.isQuestionFocused = it.hasFocus }
+                .heightIn(min = MindeckTheme.dimensions.dp46, max = MindeckTheme.dimensions.dp200)
+                .background(
+                    MaterialTheme.colorScheme.surfaceVariant,
+                    RoundedCornerShape(MindeckTheme.dimensions.dp6),
+                ).border(
+                    MindeckTheme.dimensions.dp0_25,
+                    MaterialTheme.colorScheme.outlineVariant,
+                    RoundedCornerShape(MindeckTheme.dimensions.dp6),
+                ).padding(MindeckTheme.dimensions.paddingSm),
     ) {
         BasicRichTextEditor(
             state = questionState,
-            textStyle = MaterialTheme.typography.bodyLarge.copy(
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            ),
+            textStyle =
+                MaterialTheme.typography.bodyLarge.copy(
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                ),
             modifier = Modifier.fillMaxWidth(),
         )
     }
@@ -359,26 +367,26 @@ private fun CardFormInputs(
     Spacer(modifier = Modifier.height(MindeckTheme.dimensions.dp4))
     Box(
         contentAlignment = Alignment.CenterStart,
-        modifier = Modifier
-            .fillMaxWidth()
-            .onFocusChanged { richEditorState.isAnswerFocused = it.hasFocus }
-            .heightIn(min = MindeckTheme.dimensions.dp46, max = MindeckTheme.dimensions.dp200)
-            .background(
-                MaterialTheme.colorScheme.surfaceVariant,
-                RoundedCornerShape(MindeckTheme.dimensions.dp6)
-            )
-            .border(
-                MindeckTheme.dimensions.dp0_25,
-                MaterialTheme.colorScheme.outlineVariant,
-                RoundedCornerShape(MindeckTheme.dimensions.dp6)
-            )
-            .padding(MindeckTheme.dimensions.paddingSm),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .onFocusChanged { richEditorState.isAnswerFocused = it.hasFocus }
+                .heightIn(min = MindeckTheme.dimensions.dp46, max = MindeckTheme.dimensions.dp200)
+                .background(
+                    MaterialTheme.colorScheme.surfaceVariant,
+                    RoundedCornerShape(MindeckTheme.dimensions.dp6),
+                ).border(
+                    MindeckTheme.dimensions.dp0_25,
+                    MaterialTheme.colorScheme.outlineVariant,
+                    RoundedCornerShape(MindeckTheme.dimensions.dp6),
+                ).padding(MindeckTheme.dimensions.paddingSm),
     ) {
         BasicRichTextEditor(
             state = answerState,
-            textStyle = MaterialTheme.typography.bodyLarge.copy(
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            ),
+            textStyle =
+                MaterialTheme.typography.bodyLarge.copy(
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                ),
             modifier = Modifier.fillMaxWidth(),
         )
     }
@@ -390,21 +398,19 @@ private fun CardFormInputs(
         placeholder = stringResource(R.string.text_tag_input_field),
         placeholderTextStyle = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.outline),
         onValueChange = { onValueChange { copy(tag = it) } },
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(
-                MaterialTheme.colorScheme.surfaceVariant,
-                MaterialTheme.shapes.large,
-            )
-            .height(
-                height = MindeckTheme.dimensions.dp46,
-            )
-            .border(
-                MindeckTheme.dimensions.dp0_25,
-                MaterialTheme.colorScheme.outlineVariant,
-                MaterialTheme.shapes.large,
-            )
-            .padding(horizontal = MindeckTheme.dimensions.paddingSm),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .background(
+                    MaterialTheme.colorScheme.surfaceVariant,
+                    MaterialTheme.shapes.large,
+                ).height(
+                    height = MindeckTheme.dimensions.dp46,
+                ).border(
+                    MindeckTheme.dimensions.dp0_25,
+                    MaterialTheme.colorScheme.outlineVariant,
+                    MaterialTheme.shapes.large,
+                ).padding(horizontal = MindeckTheme.dimensions.paddingSm),
     )
 }
 
@@ -419,20 +425,22 @@ private fun CreateCardButton(
     val errorState = actionState as? UiState.Error
 
     val animatedButtonColor by animateColorAsState(
-        targetValue = when {
-            !isValid -> MaterialTheme.colorScheme.surfaceVariant
-            else -> MaterialTheme.colorScheme.primary
-        },
+        targetValue =
+            when {
+                !isValid -> MaterialTheme.colorScheme.surfaceVariant
+                else -> MaterialTheme.colorScheme.primary
+            },
         animationSpec = tween(DURATION_300),
         label = "buttonColor",
     )
 
     val animatedTextColor by animateColorAsState(
-        targetValue = when {
-            !isValid -> MaterialTheme.colorScheme.onSurfaceVariant
-            isLoading -> MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.6f)
-            else -> MaterialTheme.colorScheme.onPrimary
-        },
+        targetValue =
+            when {
+                !isValid -> MaterialTheme.colorScheme.onSurfaceVariant
+                isLoading -> MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.6f)
+                else -> MaterialTheme.colorScheme.onPrimary
+            },
         animationSpec = tween(DURATION_300),
         label = "textColor",
     )
@@ -442,20 +450,22 @@ private fun CreateCardButton(
         color = animatedButtonColor,
         textColor = animatedTextColor,
         onClick = { if (!isLoading && isValid) onSaveClick() },
-        modifier = Modifier.size(
-            height = MindeckTheme.dimensions.dp42,
-            width = MindeckTheme.dimensions.dp140,
-        ),
+        modifier =
+            Modifier.size(
+                height = MindeckTheme.dimensions.dp42,
+                width = MindeckTheme.dimensions.dp140,
+            ),
     )
 
     errorState?.let { error ->
         Text(
             text = stringResource(error.messageRes, *error.args.toTypedArray()),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    top = MindeckTheme.dimensions.dp4,
-                ),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        top = MindeckTheme.dimensions.dp4,
+                    ),
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.error,
@@ -483,10 +493,11 @@ private fun RichTextFormattingToolbar(
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
-            .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surface)
-            .horizontalScroll(rememberScrollState()),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.surface)
+                .horizontalScroll(rememberScrollState()),
     ) {
         FormatButton(Icons.Default.FormatBold, isBold) {
             richTextState?.toggleSpanStyle(SpanStyle(fontWeight = FontWeight.Bold))
@@ -516,16 +527,16 @@ private fun RichTextFormattingToolbar(
             richTextState?.toggleSpanStyle(
                 SpanStyle(
                     baselineShift = BaselineShift.Superscript,
-                    fontSize = 0.75.em
-                )
+                    fontSize = 0.75.em,
+                ),
             )
         }
         FormatButton(Icons.Default.Subscript, isSubscript) {
             richTextState?.toggleSpanStyle(
                 SpanStyle(
                     baselineShift = BaselineShift.Subscript,
-                    fontSize = 0.75.em
-                )
+                    fontSize = 0.75.em,
+                ),
             )
         }
 
@@ -554,9 +565,10 @@ private fun RichTextFormattingToolbar(
 @Composable
 private fun ToolbarDivider() {
     VerticalDivider(
-        modifier = Modifier
-            .height(MindeckTheme.dimensions.dp24)
-            .padding(horizontal = MindeckTheme.dimensions.dp4),
+        modifier =
+            Modifier
+                .height(MindeckTheme.dimensions.dp24)
+                .padding(horizontal = MindeckTheme.dimensions.dp4),
         thickness = MindeckTheme.dimensions.dp0_25,
         color = MaterialTheme.colorScheme.outlineVariant,
     )
@@ -569,24 +581,29 @@ private fun ColorFormatButton(
     onClick: () -> Unit,
 ) {
     Box(
-        modifier = Modifier
-            .size(MindeckTheme.dimensions.dp40)
-            .clickable(onClick = onClick),
+        modifier =
+            Modifier
+                .size(MindeckTheme.dimensions.dp40)
+                .clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
         Box(
-            modifier = Modifier
-                .size(MindeckTheme.dimensions.dp20)
-                .clip(CircleShape)
-                .background(color)
-                .then(
-                    if (isActive) Modifier.border(
-                        MindeckTheme.dimensions.dp2,
-                        MaterialTheme.colorScheme.onSurface,
-                        CircleShape
-                    )
-                    else Modifier
-                ),
+            modifier =
+                Modifier
+                    .size(MindeckTheme.dimensions.dp20)
+                    .clip(CircleShape)
+                    .background(color)
+                    .then(
+                        if (isActive) {
+                            Modifier.border(
+                                MindeckTheme.dimensions.dp2,
+                                MaterialTheme.colorScheme.onSurface,
+                                CircleShape,
+                            )
+                        } else {
+                            Modifier
+                        },
+                    ),
         )
     }
 }
@@ -607,11 +624,12 @@ private fun FormatButton(
 }
 
 private val ToolbarHighlightColor = Color(0x80FFFF00)
-private val ToolbarTextColors = listOf(
-    Color(0xFFE53935),
-    Color(0xFF1E88E5),
-    Color(0xFF43A047),
-)
+private val ToolbarTextColors =
+    listOf(
+        Color(0xFFE53935),
+        Color(0xFF1E88E5),
+        Color(0xFF43A047),
+    )
 
 const val DURATION_300 = 300
 

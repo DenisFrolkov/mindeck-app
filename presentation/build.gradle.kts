@@ -2,8 +2,6 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.android.library)
-    alias(libs.plugins.ksp)
-    alias(libs.plugins.hilt)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.jetbrains.kotlin.serialization)
 }
@@ -44,9 +42,11 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.navigation3)
     implementation(libs.kotlinx.serialization.core)
 
-    // Hilt
-    implementation(libs.bundles.hilt)
-    ksp(libs.bundles.hilt.compiler)
+    // Koin
+    implementation(libs.koin.core)
+    implementation(libs.koin.android)
+    implementation(libs.koin.compose)
+    implementation(libs.koin.compose.viewmodel)
 
     api(platform(libs.compose.bom))
     api(libs.bundles.compose)
@@ -65,5 +65,4 @@ dependencies {
     testImplementation(libs.coroutines.test)
     androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation(libs.compose.ui.test.junit)
-    kspAndroidTest(libs.hilt.compiler)
 }

@@ -28,7 +28,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.CardState
@@ -55,6 +54,7 @@ import com.mindeck.presentation.viewmodel.card.CardStudyViewModel
 import com.mohamedrejeb.richeditor.annotation.ExperimentalRichTextApi
 import com.mohamedrejeb.richeditor.model.rememberRichTextState
 import com.mohamedrejeb.richeditor.ui.material3.RichText
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun CardStudyScreen(
@@ -63,7 +63,7 @@ fun CardStudyScreen(
 ) {
     val navigator = LocalNavigator.current
 
-    val viewModel = hiltViewModel<CardStudyViewModel>()
+    val viewModel = koinViewModel<CardStudyViewModel>()
     val modalState by viewModel.modalState.collectAsStateWithLifecycle()
     val cardsState by viewModel.cardsState.collectAsStateWithLifecycle()
     val reviewLabels by viewModel.reviewLabels.collectAsStateWithLifecycle()
@@ -80,27 +80,47 @@ fun CardStudyScreen(
         modalState = modalState,
         cardsForRepetitionState = cardsState,
         reviewLabels = reviewLabels,
-        actions = CardStudyScreenActions(
-            onNavigateBack = navigator::pop,
-            onShowDropdownMenu = viewModel::showDropdownMenu,
-            onHideModal = viewModel::hideModal,
-            onReviewCard = viewModel::reviewCard,
-        ),
+        actions =
+            CardStudyScreenActions(
+                onNavigateBack = navigator::pop,
+                onShowDropdownMenu = viewModel::showDropdownMenu,
+                onHideModal = viewModel::hideModal,
+                onReviewCard = viewModel::reviewCard,
+            ),
         modifier = modifier,
     )
 }
 
 @Composable
 private fun formatInterval(millis: Long): String {
-    val minutes = java.util.concurrent.TimeUnit.MILLISECONDS.toMinutes(millis)
-    val hours = java.util.concurrent.TimeUnit.MILLISECONDS.toHours(millis)
+    val minutes =
+        java.util.concurrent.TimeUnit.MILLISECONDS
+            .toMinutes(millis)
+    val hours =
+        java.util.concurrent.TimeUnit.MILLISECONDS
+            .toHours(millis)
     return when {
-        millis < java.util.concurrent.TimeUnit.MINUTES.toMillis(1) ->
-            stringResource(R.string.review_interval_seconds, java.util.concurrent.TimeUnit.MILLISECONDS.toSeconds(millis))
+        millis <
+            java.util.concurrent.TimeUnit.MINUTES
+                .toMillis(1)
+        ->
+            stringResource(
+                R.string.review_interval_seconds,
+                java.util.concurrent.TimeUnit.MILLISECONDS
+                    .toSeconds(millis),
+            )
         hours < 1 ->
             stringResource(R.string.review_interval_minutes, minutes)
         else ->
-            stringResource(R.string.review_interval_days, kotlin.math.ceil(millis.toDouble() / java.util.concurrent.TimeUnit.DAYS.toMillis(1)).toInt())
+            stringResource(
+                R.string.review_interval_days,
+                kotlin.math
+                    .ceil(
+                        millis.toDouble() /
+                            java.util.concurrent.TimeUnit.DAYS
+                                .toMillis(1),
+                    ).toInt(),
+            )
     }
 }
 
@@ -120,9 +140,10 @@ internal fun CardStudyScreenContent(
     val answerState = rememberRichTextState()
 
     Scaffold(
-        modifier = modifier
-            .fillMaxSize()
-            .systemBarsPadding(),
+        modifier =
+            modifier
+                .fillMaxSize()
+                .systemBarsPadding(),
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             AppTopBar(
@@ -149,11 +170,12 @@ internal fun CardStudyScreenContent(
                     }
 
                     Column(
-                        modifier = Modifier
-                            .padding(padding)
-                            .padding(horizontal = MindeckTheme.dimensions.paddingMd)
-                            .statusBarsPadding()
-                            .verticalScroll(state = scrollState),
+                        modifier =
+                            Modifier
+                                .padding(padding)
+                                .padding(horizontal = MindeckTheme.dimensions.paddingMd)
+                                .statusBarsPadding()
+                                .verticalScroll(state = scrollState),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         if (currentCard == null) {
@@ -171,12 +193,13 @@ internal fun CardStudyScreenContent(
                             )
                             Spacer(modifier = Modifier.height(MindeckTheme.dimensions.spacerSm))
                             Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clip(MaterialTheme.shapes.large)
-                                    .background(MaterialTheme.colorScheme.primary)
-                                    .height(MindeckTheme.dimensions.dp1)
-                                    .padding(horizontal = MindeckTheme.dimensions.paddingMd),
+                                modifier =
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .clip(MaterialTheme.shapes.large)
+                                        .background(MaterialTheme.colorScheme.primary)
+                                        .height(MindeckTheme.dimensions.dp1)
+                                        .padding(horizontal = MindeckTheme.dimensions.paddingMd),
                             )
                             Spacer(modifier = Modifier.height(MindeckTheme.dimensions.spacerSm))
                             RichText(
@@ -187,40 +210,42 @@ internal fun CardStudyScreenContent(
                     }
 
                     if (currentCard != null) {
-                        val showAgain = currentCard.cardState == CardState.LAPSE ||
-                            currentCard.cardState == CardState.REVIEW ||
-                            (currentCard.cardState == CardState.LEARNING && currentCard.learningStep > 0)
+                        val showAgain =
+                            currentCard.cardState == CardState.LAPSE ||
+                                currentCard.cardState == CardState.REVIEW ||
+                                (currentCard.cardState == CardState.LEARNING && currentCard.learningStep > 0)
                         RepeatButtons(
-                            options = listOfNotNull(
-                                if (showAgain) {
+                            options =
+                                listOfNotNull(
+                                    if (showAgain) {
+                                        RepeatOptionData(
+                                            title = stringResource(R.string.repeat_option_title_again_text),
+                                            time = reviewLabels[ReviewButton.AGAIN]?.let { formatInterval(it) }.orEmpty(),
+                                            color = if (isDark) repeat_option_again_dark else repeat_option_again_light,
+                                            onClick = { actions.onReviewCard(currentCard, ReviewButton.AGAIN) },
+                                        )
+                                    } else {
+                                        null
+                                    },
                                     RepeatOptionData(
-                                        title = stringResource(R.string.repeat_option_title_again_text),
-                                        time = reviewLabels[ReviewButton.AGAIN]?.let { formatInterval(it) }.orEmpty(),
-                                        color = if (isDark) repeat_option_again_dark else repeat_option_again_light,
-                                        onClick = { actions.onReviewCard(currentCard, ReviewButton.AGAIN) },
-                                    )
-                                } else {
-                                    null
-                                },
-                                RepeatOptionData(
-                                    title = stringResource(R.string.repeat_option_title_hard_text),
-                                    time = reviewLabels[ReviewButton.HARD]?.let { formatInterval(it) }.orEmpty(),
-                                    color = if (isDark) repeat_option_hard_dark else repeat_option_hard_light,
-                                    onClick = { actions.onReviewCard(currentCard, ReviewButton.HARD) },
+                                        title = stringResource(R.string.repeat_option_title_hard_text),
+                                        time = reviewLabels[ReviewButton.HARD]?.let { formatInterval(it) }.orEmpty(),
+                                        color = if (isDark) repeat_option_hard_dark else repeat_option_hard_light,
+                                        onClick = { actions.onReviewCard(currentCard, ReviewButton.HARD) },
+                                    ),
+                                    RepeatOptionData(
+                                        title = stringResource(R.string.repeat_option_title_good_text),
+                                        time = reviewLabels[ReviewButton.GOOD]?.let { formatInterval(it) }.orEmpty(),
+                                        color = if (isDark) repeat_option_medium_dark else repeat_option_medium_light,
+                                        onClick = { actions.onReviewCard(currentCard, ReviewButton.GOOD) },
+                                    ),
+                                    RepeatOptionData(
+                                        title = stringResource(R.string.repeat_option_title_easy_text),
+                                        time = reviewLabels[ReviewButton.EASY]?.let { formatInterval(it) }.orEmpty(),
+                                        color = if (isDark) repeat_option_easy_dark else repeat_option_easy_light,
+                                        onClick = { actions.onReviewCard(currentCard, ReviewButton.EASY) },
+                                    ),
                                 ),
-                                RepeatOptionData(
-                                    title = stringResource(R.string.repeat_option_title_good_text),
-                                    time = reviewLabels[ReviewButton.GOOD]?.let { formatInterval(it) }.orEmpty(),
-                                    color = if (isDark) repeat_option_medium_dark else repeat_option_medium_light,
-                                    onClick = { actions.onReviewCard(currentCard, ReviewButton.GOOD) },
-                                ),
-                                RepeatOptionData(
-                                    title = stringResource(R.string.repeat_option_title_easy_text),
-                                    time = reviewLabels[ReviewButton.EASY]?.let { formatInterval(it) }.orEmpty(),
-                                    color = if (isDark) repeat_option_easy_dark else repeat_option_easy_light,
-                                    onClick = { actions.onReviewCard(currentCard, ReviewButton.EASY) },
-                                ),
-                            ),
                         )
                     }
 
@@ -240,9 +265,10 @@ internal fun CardStudyScreenContent(
 
                 UiState.Loading -> {
                     Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .wrapContentSize(Alignment.Center),
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .wrapContentSize(Alignment.Center),
                     ) {
                         Spacer(modifier = Modifier.height(MindeckTheme.dimensions.spacerMd))
                         CircularProgressIndicator(
@@ -276,14 +302,13 @@ internal fun CardStudyScreenContent(
 }
 
 @Composable
-private fun RepeatButtons(
-    options: List<RepeatOptionData>,
-) {
+private fun RepeatButtons(options: List<RepeatOptionData>) {
     Row(
         horizontalArrangement = Arrangement.SpaceAround,
         verticalAlignment = Alignment.Bottom,
-        modifier = Modifier
-            .fillMaxSize(),
+        modifier =
+            Modifier
+                .fillMaxSize(),
     ) {
         options.forEach {
             RepeatOptionsButton(

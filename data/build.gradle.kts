@@ -3,7 +3,6 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.ksp)
-    alias(libs.plugins.hilt)
 }
 
 android {
@@ -38,10 +37,9 @@ dependencies {
     // Coroutines
     implementation(libs.coroutines)
 
-    // Hilt
-    implementation(libs.bundles.hilt)
-    ksp(libs.hilt.compiler)
-    ksp(libs.android.hilt.compiler)
+    // Koin
+    implementation(libs.koin.core)
+    implementation(libs.koin.android)
 
     // Room
     implementation(libs.androidx.room.runtime)

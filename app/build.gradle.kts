@@ -4,14 +4,13 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.compose.compiler)
-    alias(libs.plugins.hilt)
-    alias(libs.plugins.ksp)
 }
 
-val localProperties = Properties().apply {
-    val file = rootProject.file("local.properties")
-    if (file.exists()) load(file.inputStream())
-}
+val localProperties =
+    Properties().apply {
+        val file = rootProject.file("local.properties")
+        if (file.exists()) load(file.inputStream())
+    }
 
 android {
     namespace = "com.mindeck.app"
@@ -72,13 +71,14 @@ dependencies {
     implementation(projects.data)
     implementation(projects.shared)
 
+    // Activity Compose
+    implementation(libs.androidx.activity.compose)
 
     // Splash screen
     implementation(libs.androidx.splashscreen)
 
-    // Hilt
-    implementation(libs.bundles.hilt)
-    ksp(libs.bundles.hilt.compiler)
+    // Koin
+    implementation(libs.koin.android)
 
     // Debug tools
     debugImplementation(libs.leakcanary)
@@ -87,5 +87,4 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation(libs.compose.ui.test.junit)
-    kspAndroidTest(libs.hilt.compiler)
 }
