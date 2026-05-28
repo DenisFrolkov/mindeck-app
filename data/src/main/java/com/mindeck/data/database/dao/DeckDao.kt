@@ -12,7 +12,10 @@ interface DeckDao {
     suspend fun insertDeck(deckEntity: DeckEntity): Long
 
     @Query("UPDATE deck SET deck_name = :newName WHERE deck_id = :deckId")
-    suspend fun renameDeck(deckId: Int, newName: String)
+    suspend fun renameDeck(
+        deckId: Int,
+        newName: String,
+    )
 
     @Query("DELETE FROM deck WHERE deck_id = :deckId")
     suspend fun deleteDeck(deckId: Int)

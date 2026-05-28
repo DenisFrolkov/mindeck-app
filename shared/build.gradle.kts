@@ -62,7 +62,7 @@ kotlin {
         }
 
         androidMain {
-            dependencies {  }
+            dependencies { }
         }
 
         getByName("androidDeviceTest") {
@@ -74,7 +74,7 @@ kotlin {
         }
 
         iosMain {
-            dependencies {  }
+            dependencies { }
         }
     }
 }

@@ -20,25 +20,28 @@ class CardTest {
 
     @Test
     fun `card with blank name throws IllegalArgumentException`() {
-        val exception = assertFailsWith<IllegalArgumentException> {
-            validCard(cardName = "   ")
-        }
+        val exception =
+            assertFailsWith<IllegalArgumentException> {
+                validCard(cardName = "   ")
+            }
         assertEquals("Card name must not be blank", exception.message)
     }
 
     @Test
     fun `card with blank question throws IllegalArgumentException`() {
-        val exception = assertFailsWith<IllegalArgumentException> {
-            validCard(cardQuestion = "   ")
-        }
+        val exception =
+            assertFailsWith<IllegalArgumentException> {
+                validCard(cardQuestion = "   ")
+            }
         assertEquals("Card question must not be blank", exception.message)
     }
 
     @Test
     fun `card with blank answer throws IllegalArgumentException`() {
-        val exception = assertFailsWith<IllegalArgumentException> {
-            validCard(cardAnswer = "   ")
-        }
+        val exception =
+            assertFailsWith<IllegalArgumentException> {
+                validCard(cardAnswer = "   ")
+            }
         assertEquals("Card answer must not be blank", exception.message)
     }
 

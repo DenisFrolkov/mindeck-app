@@ -15,10 +15,11 @@ private fun CustomButtonPreview() {
             text = "Сохранить",
             color = MaterialTheme.colorScheme.primary,
             onClick = {},
-            modifier = Modifier.size(
-                height = MindeckTheme.dimensions.dp42,
-                width = MindeckTheme.dimensions.dp140,
-            ),
+            modifier =
+                Modifier.size(
+                    height = MindeckTheme.dimensions.dp42,
+                    width = MindeckTheme.dimensions.dp140,
+                ),
         )
     }
 }

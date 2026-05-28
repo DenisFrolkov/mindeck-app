@@ -13,47 +13,61 @@ class UpdateCardReviewUseCase(
     private val cardRepetitionRepository: CardRepetitionRepository,
     private val clock: ClockRepository,
 ) {
-    suspend operator fun invoke(card: Card, button: ReviewButton): Card {
+    suspend operator fun invoke(
+        card: Card,
+        button: ReviewButton,
+    ): Card {
         val now = clock.now()
-        val finalCard = applyReview(card, button, now).copy(
-            firstReviewDate = card.firstReviewDate ?: now,
-            lastReviewDate = now,
-        )
+        val finalCard =
+            applyReview(card, button, now).copy(
+                firstReviewDate = card.firstReviewDate ?: now,
+                lastReviewDate = now,
+            )
         cardRepetitionRepository.updateReview(finalCard)
         return finalCard
     }
 
-    private fun applyReview(card: Card, button: ReviewButton, now: Long): Card {
-        return when (card.cardState) {
+    private fun applyReview(
+        card: Card,
+        button: ReviewButton,
+        now: Long,
+    ): Card =
+        when (card.cardState) {
             CardState.NEW,
             CardState.LEARNING,
             CardState.LAPSE,
             -> applyLearning(card, button, now)
             CardState.REVIEW -> applyReviewPhase(card, button, now)
         }
-    }
 
-    private fun applyLearning(card: Card, button: ReviewButton, now: Long): Card {
-        val learningSteps = listOf<Long>(
-            1.minutes.inWholeMilliseconds,
-            10.minutes.inWholeMilliseconds,
-        )
+    private fun applyLearning(
+        card: Card,
+        button: ReviewButton,
+        now: Long,
+    ): Card {
+        val learningSteps =
+            listOf<Long>(
+                1.minutes.inWholeMilliseconds,
+                10.minutes.inWholeMilliseconds,
+            )
 
         return when (button) {
-            ReviewButton.AGAIN -> card.copy(
-                cardState = if (card.cardState == CardState.LAPSE) CardState.LAPSE else CardState.LEARNING,
-                easeFactor = (card.easeFactor - 0.54f).coerceAtLeast(MIN_EASE_FACTOR),
-                learningStep = 0,
-                nextReviewDate = now + learningSteps[0],
-                repetitionCount = card.repetitionCount + 1,
-            )
+            ReviewButton.AGAIN ->
+                card.copy(
+                    cardState = if (card.cardState == CardState.LAPSE) CardState.LAPSE else CardState.LEARNING,
+                    easeFactor = (card.easeFactor - 0.54f).coerceAtLeast(MIN_EASE_FACTOR),
+                    learningStep = 0,
+                    nextReviewDate = now + learningSteps[0],
+                    repetitionCount = card.repetitionCount + 1,
+                )
 
-            ReviewButton.HARD -> card.copy(
-                cardState = CardState.LEARNING,
-                easeFactor = (card.easeFactor - 0.14f).coerceAtLeast(MIN_EASE_FACTOR),
-                nextReviewDate = now + learningSteps[card.learningStep],
-                repetitionCount = card.repetitionCount + 1,
-            )
+            ReviewButton.HARD ->
+                card.copy(
+                    cardState = CardState.LEARNING,
+                    easeFactor = (card.easeFactor - 0.14f).coerceAtLeast(MIN_EASE_FACTOR),
+                    nextReviewDate = now + learningSteps[card.learningStep],
+                    repetitionCount = card.repetitionCount + 1,
+                )
 
             ReviewButton.GOOD -> {
                 val nextStep = card.learningStep + 1
@@ -65,11 +79,12 @@ class UpdateCardReviewUseCase(
                         repetitionCount = card.repetitionCount + 1,
                     )
                 } else {
-                    val newInterval = if (card.cardState == CardState.LAPSE) {
-                        (card.interval * LAPSE_INTERVAL_MULTIPLIER).coerceAtLeast(1f)
-                    } else {
-                        1f
-                    }
+                    val newInterval =
+                        if (card.cardState == CardState.LAPSE) {
+                            (card.interval * LAPSE_INTERVAL_MULTIPLIER).coerceAtLeast(1f)
+                        } else {
+                            1f
+                        }
                     card.copy(
                         cardState = CardState.REVIEW,
                         learningStep = 0,
@@ -81,11 +96,12 @@ class UpdateCardReviewUseCase(
             }
 
             ReviewButton.EASY -> {
-                val newInterval = if (card.cardState == CardState.LAPSE) {
-                    (card.interval * LAPSE_INTERVAL_MULTIPLIER).coerceAtLeast(4f)
-                } else {
-                    4f
-                }
+                val newInterval =
+                    if (card.cardState == CardState.LAPSE) {
+                        (card.interval * LAPSE_INTERVAL_MULTIPLIER).coerceAtLeast(4f)
+                    } else {
+                        4f
+                    }
                 card.copy(
                     cardState = CardState.REVIEW,
                     easeFactor = (card.easeFactor + 0.10f).coerceAtMost(MAX_EASE_FACTOR),
@@ -97,16 +113,22 @@ class UpdateCardReviewUseCase(
             }
         }
     }
-    private fun applyReviewPhase(card: Card, button: ReviewButton, now: Long): Card {
-        return when (button) {
-            ReviewButton.AGAIN -> card.copy(
-                cardState = CardState.LAPSE,
-                easeFactor = (card.easeFactor - 0.54f).coerceAtLeast(MIN_EASE_FACTOR),
-                learningStep = 0,
-                lapseCount = card.lapseCount + 1,
-                nextReviewDate = now + 1.minutes.inWholeMilliseconds,
-                repetitionCount = card.repetitionCount + 1,
-            )
+
+    private fun applyReviewPhase(
+        card: Card,
+        button: ReviewButton,
+        now: Long,
+    ): Card =
+        when (button) {
+            ReviewButton.AGAIN ->
+                card.copy(
+                    cardState = CardState.LAPSE,
+                    easeFactor = (card.easeFactor - 0.54f).coerceAtLeast(MIN_EASE_FACTOR),
+                    learningStep = 0,
+                    lapseCount = card.lapseCount + 1,
+                    nextReviewDate = now + 1.minutes.inWholeMilliseconds,
+                    repetitionCount = card.repetitionCount + 1,
+                )
 
             ReviewButton.HARD -> {
                 val newInterval = (card.interval * 1.2f).coerceAtLeast(card.interval + 1f)
@@ -137,16 +159,17 @@ class UpdateCardReviewUseCase(
                 )
             }
         }
-    }
 
-    fun previewNextInterval(card: Card, button: ReviewButton): Long {
+    fun previewNextInterval(
+        card: Card,
+        button: ReviewButton,
+    ): Long {
         val now = clock.now()
         val updated = applyReview(card, button, now)
         return (updated.nextReviewDate ?: now) - now
     }
 
-    private fun startOfUtcDay(timestamp: Long): Long =
-        (timestamp / 1.days.inWholeMilliseconds) * 1.days.inWholeMilliseconds
+    private fun startOfUtcDay(timestamp: Long): Long = (timestamp / 1.days.inWholeMilliseconds) * 1.days.inWholeMilliseconds
 
     companion object {
         private const val MIN_EASE_FACTOR = 1.3f

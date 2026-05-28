@@ -15,9 +15,10 @@ import com.mindeck.presentation.ui.theme.MindeckTheme
 private fun CardScreenContentPreview() {
     MindeckTheme {
         CardScreenContent(
-            cardWithDeckState = UiState.Success(
-                CardWithDeck(card = previewCard, deckId = 1, deckName = "Английский язык"),
-            ),
+            cardWithDeckState =
+                UiState.Success(
+                    CardWithDeck(card = previewCard, deckId = 1, deckName = "Английский язык"),
+                ),
             deleteCardState = UiState.Idle,
             modalState = ModalState.None,
             actions = previewActions,
@@ -51,20 +52,22 @@ private fun CardScreenContentErrorPreview() {
     }
 }
 
-private val previewActions = CardScreenActions(
-    onBack = {},
-    onMenuClick = {},
-    onDismissModal = {},
-    onShowDeleteDialog = {},
-    onDeleteCard = {},
-    onStudyCard = {},
-)
+private val previewActions =
+    CardScreenActions(
+        onBack = {},
+        onMenuClick = {},
+        onDismissModal = {},
+        onShowDeleteDialog = {},
+        onDeleteCard = {},
+        onStudyCard = {},
+    )
 
-private val previewCard = Card(
-    cardName = "Kotlin корутины",
-    cardQuestion = "Что такое coroutine?",
-    cardAnswer = "Лёгковесная сопрограмма для асинхронного кода в Kotlin",
-    cardType = CardType.SIMPLE,
-    cardTag = "kotlin",
-    deckId = 1,
-)
+private val previewCard =
+    Card(
+        cardName = "Kotlin корутины",
+        cardQuestion = "Что такое coroutine?",
+        cardAnswer = "Лёгковесная сопрограмма для асинхронного кода в Kotlin",
+        cardType = CardType.SIMPLE,
+        cardTag = "kotlin",
+        deckId = 1,
+    )

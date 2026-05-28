@@ -23,10 +23,13 @@ class DeckDaoTest {
 
     @Before
     fun setup() {
-        db = Room.inMemoryDatabaseBuilder(
-            ApplicationProvider.getApplicationContext(),
-            AppDatabase::class.java,
-        ).allowMainThreadQueries().build()
+        db =
+            Room
+                .inMemoryDatabaseBuilder(
+                    ApplicationProvider.getApplicationContext(),
+                    AppDatabase::class.java,
+                ).allowMainThreadQueries()
+                .build()
 
         deckDao = db.deckDao()
     }
@@ -37,48 +40,52 @@ class DeckDaoTest {
     }
 
     @Test
-    fun renameDeck_updatesName_and_getDeckById_returnsRenamed() = runTest {
-        val deck = DeckEntity(deckId = 1, deckName = "Test Deck")
-        deckDao.insertDeck(deck)
+    fun renameDeck_updatesName_and_getDeckById_returnsRenamed() =
+        runTest {
+            val deck = DeckEntity(deckId = 1, deckName = "Test Deck")
+            deckDao.insertDeck(deck)
 
-        deckDao.renameDeck(deckId = 1, newName = "Deck New")
+            deckDao.renameDeck(deckId = 1, newName = "Deck New")
 
-        deckDao.getDeckById(1).test {
-            val result = awaitItem()
-            assertEquals("Deck New", result?.deckName)
-            cancelAndIgnoreRemainingEvents()
+            deckDao.getDeckById(1).test {
+                val result = awaitItem()
+                assertEquals("Deck New", result?.deckName)
+                cancelAndIgnoreRemainingEvents()
+            }
         }
-    }
 
     @Test
-    fun insertDeck_and_getDeckById_returnsInsertedDeck() = runTest {
-        val deck = DeckEntity(deckId = 1, deckName = "Test Deck")
-        deckDao.insertDeck(deck)
+    fun insertDeck_and_getDeckById_returnsInsertedDeck() =
+        runTest {
+            val deck = DeckEntity(deckId = 1, deckName = "Test Deck")
+            deckDao.insertDeck(deck)
 
-        deckDao.getDeckById(1).test {
-            assertEquals(deck, awaitItem())
-            cancelAndIgnoreRemainingEvents()
+            deckDao.getDeckById(1).test {
+                assertEquals(deck, awaitItem())
+                cancelAndIgnoreRemainingEvents()
+            }
         }
-    }
 
     @Test
-    fun deleteDeck_removesDeck_and_getAllDecks_returnsRemaining() = runTest {
-        val deck1 = DeckEntity(deckId = 1, deckName = "Deck 1")
-        val deck2 = DeckEntity(deckId = 2, deckName = "Deck 2")
-        deckDao.insertDeck(deck1)
-        deckDao.insertDeck(deck2)
+    fun deleteDeck_removesDeck_and_getAllDecks_returnsRemaining() =
+        runTest {
+            val deck1 = DeckEntity(deckId = 1, deckName = "Deck 1")
+            val deck2 = DeckEntity(deckId = 2, deckName = "Deck 2")
+            deckDao.insertDeck(deck1)
+            deckDao.insertDeck(deck2)
 
-        deckDao.deleteDeck(1)
+            deckDao.deleteDeck(1)
 
-        deckDao.getAllDecks().test {
-            assertEquals(listOf(deck2), awaitItem())
-            cancelAndIgnoreRemainingEvents()
+            deckDao.getAllDecks().test {
+                assertEquals(listOf(deck2), awaitItem())
+                cancelAndIgnoreRemainingEvents()
+            }
         }
-    }
 
     @Test(expected = SQLiteConstraintException::class)
-    fun insertDeck_withDuplicateName_throwsSQLiteConstraintException() = runTest {
-        deckDao.insertDeck(DeckEntity(deckName = "Same Name"))
-        deckDao.insertDeck(DeckEntity(deckName = "Same Name"))
-    }
+    fun insertDeck_withDuplicateName_throwsSQLiteConstraintException() =
+        runTest {
+            deckDao.insertDeck(DeckEntity(deckName = "Same Name"))
+            deckDao.insertDeck(DeckEntity(deckName = "Same Name"))
+        }
 }

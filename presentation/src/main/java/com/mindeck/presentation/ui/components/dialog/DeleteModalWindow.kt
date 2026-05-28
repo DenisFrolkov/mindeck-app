@@ -41,10 +41,11 @@ fun DeleteModalWindow(
     val errorMessage = isError?.let { stringResource(it.messageRes, *it.args.toTypedArray()) }
 
     val animatedTextColor by animateColorAsState(
-        targetValue = when {
-            isLoading -> MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.6f)
-            else -> MaterialTheme.colorScheme.onPrimary
-        },
+        targetValue =
+            when {
+                isLoading -> MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.6f)
+                else -> MaterialTheme.colorScheme.onPrimary
+            },
         animationSpec = tween(DURATION_300),
         label = "textColor",
     )
@@ -52,13 +53,13 @@ fun DeleteModalWindow(
     Dialog(onDismissRequest = { if (!isLoading) onExitClick() }) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .background(
-                    color = MaterialTheme.colorScheme.background,
-                    shape = MaterialTheme.shapes.small,
-                )
-                .clip(MaterialTheme.shapes.small)
-                .padding(MindeckTheme.dimensions.paddingXs),
+            modifier =
+                Modifier
+                    .background(
+                        color = MaterialTheme.colorScheme.background,
+                        shape = MaterialTheme.shapes.small,
+                    ).clip(MaterialTheme.shapes.small)
+                    .padding(MindeckTheme.dimensions.paddingXs),
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -90,9 +91,10 @@ fun DeleteModalWindow(
                 text = bodyText,
                 style = MaterialTheme.typography.bodyLarge,
                 textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = MindeckTheme.dimensions.paddingMd),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = MindeckTheme.dimensions.paddingMd),
             )
             Spacer(modifier = Modifier.height(MindeckTheme.dimensions.spacerLg))
 
@@ -101,20 +103,22 @@ fun DeleteModalWindow(
                 color = MaterialTheme.colorScheme.primary,
                 textColor = animatedTextColor,
                 onClick = { if (!isLoading) onDeleteClick() },
-                modifier = Modifier.size(
-                    height = MindeckTheme.dimensions.dp42,
-                    width = MindeckTheme.dimensions.dp140,
-                ),
+                modifier =
+                    Modifier.size(
+                        height = MindeckTheme.dimensions.dp42,
+                        width = MindeckTheme.dimensions.dp140,
+                    ),
             )
 
             errorMessage?.let { message ->
                 Text(
                     text = message,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(
-                            top = MindeckTheme.dimensions.dp4,
-                        ),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                top = MindeckTheme.dimensions.dp4,
+                            ),
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.error,

@@ -25,108 +25,120 @@ class DeckRepositoryImplTest {
     private val repository = DeckRepositoryImpl(deckDao)
 
     @Test
-    fun `insertDeck returns id from dao`() = runTest {
-        val deck = Deck(deckId = 0, deckName = "Kotlin Basics")
-        coEvery { deckDao.insertDeck(any()) } returns 42L
+    fun `insertDeck returns id from dao`() =
+        runTest {
+            val deck = Deck(deckId = 0, deckName = "Kotlin Basics")
+            coEvery { deckDao.insertDeck(any()) } returns 42L
 
-        val result = repository.insertDeck(deck)
+            val result = repository.insertDeck(deck)
 
-        assertEquals(42, result)
-    }
+            assertEquals(42, result)
+        }
 
     @Test(expected = DomainError.NameAlreadyExists::class)
-    fun `insertDeck throws NameAlreadyExists when dao throws SQLiteConstraintException`() = runTest {
-        val deck = Deck(deckId = 0, deckName = "Kotlin Basics")
-        coEvery { deckDao.insertDeck(any()) } throws SQLiteConstraintException()
+    fun `insertDeck throws NameAlreadyExists when dao throws SQLiteConstraintException`() =
+        runTest {
+            val deck = Deck(deckId = 0, deckName = "Kotlin Basics")
+            coEvery { deckDao.insertDeck(any()) } throws SQLiteConstraintException()
 
-        repository.insertDeck(deck)
-    }
+            repository.insertDeck(deck)
+        }
 
     @Test(expected = DomainError.DatabaseError::class)
-    fun `insertDeck throws DatabaseError when dao throws Exception`() = runTest {
-        val deck = Deck(deckId = 0, deckName = "Kotlin Basics")
-        coEvery { deckDao.insertDeck(any()) } throws Exception()
+    fun `insertDeck throws DatabaseError when dao throws Exception`() =
+        runTest {
+            val deck = Deck(deckId = 0, deckName = "Kotlin Basics")
+            coEvery { deckDao.insertDeck(any()) } throws Exception()
 
-        repository.insertDeck(deck)
-    }
+            repository.insertDeck(deck)
+        }
 
     @Test
-    fun `renameDeck calls dao with correct arguments`() = runTest {
-        coEvery { deckDao.renameDeck(any(), any()) } just Runs
-        repository.renameDeck(deckId = 1, newName = "New Name")
+    fun `renameDeck calls dao with correct arguments`() =
+        runTest {
+            coEvery { deckDao.renameDeck(any(), any()) } just Runs
+            repository.renameDeck(deckId = 1, newName = "New Name")
 
-        coVerify { deckDao.renameDeck(deckId = 1, newName = "New Name") }
-    }
+            coVerify { deckDao.renameDeck(deckId = 1, newName = "New Name") }
+        }
 
     @Test(expected = DomainError.NameAlreadyExists::class)
-    fun `renameDeck throws NameAlreadyExists when dao throws SQLiteConstraintException`() = runTest {
-        coEvery { deckDao.renameDeck(any(), any()) } throws SQLiteConstraintException()
-        repository.renameDeck(deckId = 1, newName = "New Name")
-    }
+    fun `renameDeck throws NameAlreadyExists when dao throws SQLiteConstraintException`() =
+        runTest {
+            coEvery { deckDao.renameDeck(any(), any()) } throws SQLiteConstraintException()
+            repository.renameDeck(deckId = 1, newName = "New Name")
+        }
 
     @Test(expected = DomainError.DatabaseError::class)
-    fun `renameDeck throws DatabaseError when dao throws Exception`() = runTest {
-        coEvery { deckDao.renameDeck(any(), any()) } throws Exception()
-        repository.renameDeck(deckId = 1, newName = "New Name")
-    }
+    fun `renameDeck throws DatabaseError when dao throws Exception`() =
+        runTest {
+            coEvery { deckDao.renameDeck(any(), any()) } throws Exception()
+            repository.renameDeck(deckId = 1, newName = "New Name")
+        }
 
     @Test
-    fun `deleteDeck calls dao with correct arguments`() = runTest {
-        coEvery { deckDao.deleteDeck(any()) } just Runs
-        repository.deleteDeck(deckId = 1)
+    fun `deleteDeck calls dao with correct arguments`() =
+        runTest {
+            coEvery { deckDao.deleteDeck(any()) } just Runs
+            repository.deleteDeck(deckId = 1)
 
-        coVerify { deckDao.deleteDeck(deckId = 1) }
-    }
+            coVerify { deckDao.deleteDeck(deckId = 1) }
+        }
 
     @Test(expected = DomainError.DatabaseError::class)
-    fun `deleteDeck throws DatabaseError when dao throws Exception`() = runTest {
-        coEvery { deckDao.deleteDeck(any()) } throws Exception()
-        repository.deleteDeck(deckId = 1)
-    }
+    fun `deleteDeck throws DatabaseError when dao throws Exception`() =
+        runTest {
+            coEvery { deckDao.deleteDeck(any()) } throws Exception()
+            repository.deleteDeck(deckId = 1)
+        }
 
     @Test
-    fun `getAllDecks emits mapped domain list from dao`() = runTest {
-        val deckEntity = DeckEntity(deckId = 1, deckName = "Deck 1")
-        every { deckDao.getAllDecks() } returns flowOf(listOf(deckEntity))
+    fun `getAllDecks emits mapped domain list from dao`() =
+        runTest {
+            val deckEntity = DeckEntity(deckId = 1, deckName = "Deck 1")
+            every { deckDao.getAllDecks() } returns flowOf(listOf(deckEntity))
 
-        repository.getAllDecks().test {
-            val result = awaitItem()
-            assertEquals(listOf(deckEntity.toDomain()), result)
-            cancelAndIgnoreRemainingEvents()
+            repository.getAllDecks().test {
+                val result = awaitItem()
+                assertEquals(listOf(deckEntity.toDomain()), result)
+                cancelAndIgnoreRemainingEvents()
+            }
         }
-    }
 
     @Test
-    fun `getAllDecks emits DatabaseError when dao flow throws Exception`() = runTest {
-        every { deckDao.getAllDecks() } returns flow { throw Exception() }
+    fun `getAllDecks emits DatabaseError when dao flow throws Exception`() =
+        runTest {
+            every { deckDao.getAllDecks() } returns flow { throw Exception() }
 
-        repository.getAllDecks().test {
-            val error = awaitError()
-            assert(error is DomainError.DatabaseError)
+            repository.getAllDecks().test {
+                val error = awaitError()
+                assert(error is DomainError.DatabaseError)
+            }
         }
-    }
 
     @Test
-    fun `getDeckById emits mapped deck when dao returns entity`() = runTest {
-        val deckEntity = DeckEntity(deckId = 1, deckName = "Deck 1")
-        every {
-            deckDao.getDeckById(any())
-        } returns flowOf(deckEntity)
+    fun `getDeckById emits mapped deck when dao returns entity`() =
+        runTest {
+            val deckEntity = DeckEntity(deckId = 1, deckName = "Deck 1")
+            every {
+                deckDao.getDeckById(any())
+            } returns flowOf(deckEntity)
 
-        repository.getDeckById(1).test {
-            val result = awaitItem()
-            assertEquals(deckEntity.toDomain(), result)
-            cancelAndIgnoreRemainingEvents()
+            repository.getDeckById(1).test {
+                val result = awaitItem()
+                assertEquals(deckEntity.toDomain(), result)
+                cancelAndIgnoreRemainingEvents()
+            }
         }
-    }
 
     @Test
-    fun `getDeckById emits DatabaseError when dao flow throws Exception`() = runTest {
-        every { deckDao.getDeckById(any()) } returns flow { throw Exception() }
+    fun `getDeckById emits DatabaseError when dao flow throws Exception`() =
+        runTest {
+            every { deckDao.getDeckById(any()) } returns flow { throw Exception() }
 
-        repository.getDeckById(1).test {
-            val error = awaitError()
-            assert(error is DomainError.DatabaseError)
+            repository.getDeckById(1).test {
+                val error = awaitError()
+                assert(error is DomainError.DatabaseError)
+            }
         }
-    }
 }

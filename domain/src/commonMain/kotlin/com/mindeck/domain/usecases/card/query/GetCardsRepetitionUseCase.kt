@@ -15,30 +15,41 @@ class GetCardsRepetitionUseCase(
     operator fun invoke(): Flow<List<Card>> {
         val now = clock.now()
         val todayStart = getTodayStartMillis(now)
-        return cardRepetitionRepository.getCardsRepetition(currentTime = now, todayStart = todayStart)
+        return cardRepetitionRepository
+            .getCardsRepetition(currentTime = now, todayStart = todayStart)
             .map { cards -> buildSession(cards, now, todayStart) }
     }
 
-    private fun buildSession(cards: List<Card>, now: Long, todayStart: Long): List<Card> {
-        val learning = cards.filter { card ->
-            (card.cardState == CardState.LEARNING || card.cardState == CardState.LAPSE) &&
-                (card.nextReviewDate == null || card.nextReviewDate <= now)
-        }
+    private fun buildSession(
+        cards: List<Card>,
+        now: Long,
+        todayStart: Long,
+    ): List<Card> {
+        val learning =
+            cards.filter { card ->
+                (card.cardState == CardState.LEARNING || card.cardState == CardState.LAPSE) &&
+                    (card.nextReviewDate == null || card.nextReviewDate <= now)
+            }
 
-        val review = cards.filter { card ->
-            card.cardState == CardState.REVIEW &&
-                card.nextReviewDate != null && card.nextReviewDate <= now
-        }
+        val review =
+            cards.filter { card ->
+                card.cardState == CardState.REVIEW &&
+                    card.nextReviewDate != null &&
+                    card.nextReviewDate <= now
+            }
 
-        val newShownToday = cards.count { card ->
-            card.cardState != CardState.NEW &&
-                card.firstReviewDate != null && card.firstReviewDate >= todayStart
-        }
+        val newShownToday =
+            cards.count { card ->
+                card.cardState != CardState.NEW &&
+                    card.firstReviewDate != null &&
+                    card.firstReviewDate >= todayStart
+            }
         val newLimit = (DAILY_NEW_LIMIT - newShownToday).coerceAtLeast(0)
 
-        val new = cards
-            .filter { it.cardState == CardState.NEW }
-            .take(newLimit)
+        val new =
+            cards
+                .filter { it.cardState == CardState.NEW }
+                .take(newLimit)
 
         return learning + review + new
     }

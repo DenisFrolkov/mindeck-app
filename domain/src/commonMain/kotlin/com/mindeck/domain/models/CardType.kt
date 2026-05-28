@@ -1,6 +1,8 @@
 package com.mindeck.domain.models
 
-enum class CardType(val stableId: Int) {
+enum class CardType(
+    val stableId: Int,
+) {
     SIMPLE(1),
     COMPLEX(2),
     ;

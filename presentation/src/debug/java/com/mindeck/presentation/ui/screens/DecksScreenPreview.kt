@@ -12,13 +12,14 @@ import com.mindeck.presentation.ui.theme.MindeckTheme
 private fun DecksScreenContentPreview() {
     MindeckTheme {
         DecksScreenContent(
-            decksState = UiState.Success(
-                listOf(
-                    Deck(deckId = 1, deckName = "Английский язык"),
-                    Deck(deckId = 2, deckName = "Математика"),
-                    Deck(deckId = 3, deckName = "История"),
+            decksState =
+                UiState.Success(
+                    listOf(
+                        Deck(deckId = 1, deckName = "Английский язык"),
+                        Deck(deckId = 2, deckName = "Математика"),
+                        Deck(deckId = 3, deckName = "История"),
+                    ),
                 ),
-            ),
             actions = previewActions,
         )
     }
@@ -57,7 +58,8 @@ private fun DecksScreenContentErrorPreview() {
     }
 }
 
-private val previewActions = DecksScreenActions(
-    onNavigateBack = {},
-    onNavigateToDeck = {},
-)
+private val previewActions =
+    DecksScreenActions(
+        onNavigateBack = {},
+        onNavigateToDeck = {},
+    )

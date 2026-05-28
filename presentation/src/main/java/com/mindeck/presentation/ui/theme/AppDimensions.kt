@@ -13,24 +13,20 @@ data class AppDimensions(
     val paddingMd: Dp = 16.dp,
     val paddingLg: Dp = 24.dp,
     val paddingXl: Dp = 32.dp,
-
     // Spacer
     val spacerXs: Dp = 4.dp,
     val spacerSm: Dp = 6.dp,
     val spacerMd: Dp = 12.dp,
     val spacerLg: Dp = 20.dp,
     val spacerXl: Dp = 50.dp,
-
     // Icon
     val iconXs: Dp = 18.dp,
     val iconSm: Dp = 22.dp,
     val iconMd: Dp = 24.dp,
     val iconLg: Dp = 36.dp,
     val iconXl: Dp = 48.dp,
-
     // Stroke
     val strokeThin: Dp = 0.25.dp,
-
     // Numeric
     val dp0: Dp = 0.dp,
     val dp0_25: Dp = 0.25.dp,

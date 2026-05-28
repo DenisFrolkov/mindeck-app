@@ -16,9 +16,10 @@ import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.unit.sp
 import com.mohamedrejeb.richeditor.model.RichTextState
 
-internal val BlockquoteParagraphStyle = ParagraphStyle(
-    textIndent = TextIndent(firstLine = 16.sp, restLine = 16.sp),
-)
+internal val BlockquoteParagraphStyle =
+    ParagraphStyle(
+        textIndent = TextIndent(firstLine = 16.sp, restLine = 16.sp),
+    )
 
 @Stable
 class RichEditorState(
@@ -31,11 +32,12 @@ class RichEditorState(
         internal set
 
     val activeState: RichTextState?
-        get() = when {
-            isQuestionFocused -> questionState
-            isAnswerFocused -> answerState
-            else -> null
-        }
+        get() =
+            when {
+                isQuestionFocused -> questionState
+                isAnswerFocused -> answerState
+                else -> null
+            }
 
     val isAnyFocused: Boolean
         get() = isQuestionFocused || isAnswerFocused
@@ -45,7 +47,9 @@ fun RichTextState.hasFormatting(): Boolean {
     val range = selection
     return if (!range.collapsed) {
         annotatedString.spanStyles.any { it.start < range.max && it.end > range.min } ||
-            isCodeSpan || isUnorderedList || isOrderedList
+            isCodeSpan ||
+            isUnorderedList ||
+            isOrderedList
     } else {
         currentSpanStyle != SpanStyle() || isCodeSpan || isUnorderedList || isOrderedList
     }
@@ -69,12 +73,13 @@ fun RichTextState.clearAllFormatting() {
 }
 
 @Composable
-fun rememberRichEditorState() = remember {
-    RichEditorState(
-        questionState = RichTextState(),
-        answerState = RichTextState(),
-    )
-}
+fun rememberRichEditorState() =
+    remember {
+        RichEditorState(
+            questionState = RichTextState(),
+            answerState = RichTextState(),
+        )
+    }
 
 @Composable
 fun rememberImeToolbarAlpha(isVisible: Boolean): Float {
@@ -82,7 +87,9 @@ fun rememberImeToolbarAlpha(isVisible: Boolean): Float {
     val imeHeight = WindowInsets.ime.getBottom(density)
     var imeMaxHeight by remember { mutableIntStateOf(0) }
     if (imeHeight > imeMaxHeight) imeMaxHeight = imeHeight
-    return if (imeMaxHeight > 0 && isVisible)
+    return if (imeMaxHeight > 0 && isVisible) {
         (imeHeight / imeMaxHeight.toFloat()).coerceIn(0f, 1f)
-    else 0f
+    } else {
+        0f
+    }
 }

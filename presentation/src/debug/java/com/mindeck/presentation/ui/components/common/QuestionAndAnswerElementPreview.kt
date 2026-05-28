@@ -20,9 +20,10 @@ private fun QuestionAndAnswerElementPreview() {
             answer = "Лёгковесная сопрограмма для асинхронного кода",
             questionStyle = MaterialTheme.typography.bodyMedium,
             answerStyle = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(MindeckTheme.dimensions.paddingMd),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(MindeckTheme.dimensions.paddingMd),
         )
     }
 }

@@ -13,15 +13,17 @@ import com.mindeck.presentation.ui.theme.MindeckTheme
 private fun MainScreenContentPreview() {
     MindeckTheme {
         MainScreenContent(
-            decksState = UiState.Success(
-                listOf(
-                    Deck(deckId = 1, deckName = "Английский язык"),
-                    Deck(deckId = 2, deckName = "Математика"),
+            decksState =
+                UiState.Success(
+                    listOf(
+                        Deck(deckId = 1, deckName = "Английский язык"),
+                        Deck(deckId = 2, deckName = "Математика"),
+                    ),
                 ),
-            ),
-            sessionSummaryState = UiState.Success(
-                SessionSummary(newCount = 5, learningCount = 3, reviewCount = 12),
-            ),
+            sessionSummaryState =
+                UiState.Success(
+                    SessionSummary(newCount = 5, learningCount = 3, reviewCount = 12),
+                ),
             actions = previewActions,
         )
     }
@@ -51,9 +53,10 @@ private fun MainScreenContentErrorPreview() {
     }
 }
 
-private val previewActions = MainScreenActions(
-    onNavigateToStudy = {},
-    onNavigateToDeck = {},
-    onNavigateToDecks = {},
-    onNavigateToCreateCard = {},
-)
+private val previewActions =
+    MainScreenActions(
+        onNavigateToStudy = {},
+        onNavigateToDeck = {},
+        onNavigateToDecks = {},
+        onNavigateToCreateCard = {},
+    )

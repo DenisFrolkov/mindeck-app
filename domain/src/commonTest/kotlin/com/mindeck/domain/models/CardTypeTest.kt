@@ -5,7 +5,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
 class CardTypeTest {
-
     @Test
     fun `fromStableId returns SIMPLE for id 1`() {
         assertEquals(CardType.SIMPLE, CardType.fromStableId(1))

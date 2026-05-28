@@ -5,17 +5,17 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
 class DeckTest {
-    private fun validDeck(
-        deckName: String = "Столицы мира",
-    ) = Deck(
-        deckName = deckName,
-    )
+    private fun validDeck(deckName: String = "Столицы мира") =
+        Deck(
+            deckName = deckName,
+        )
 
     @Test
     fun `deck with blank name throws IllegalArgumentException`() {
-        val exception = assertFailsWith<IllegalArgumentException> {
-            validDeck(deckName = "   ")
-        }
+        val exception =
+            assertFailsWith<IllegalArgumentException> {
+                validDeck(deckName = "   ")
+            }
         assertEquals("Deck name must not be blank", exception.message)
     }
 

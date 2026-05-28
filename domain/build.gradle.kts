@@ -11,9 +11,9 @@ kotlin {
         }
     }
 
-    iosX64()             // simulator on Intel Mac
-    iosArm64()           // real iPhone/iPad
-    iosSimulatorArm64()  // simulator on Apple Silicon Mac
+    iosX64() // simulator on Intel Mac
+    iosArm64() // real iPhone/iPad
+    iosSimulatorArm64() // simulator on Apple Silicon Mac
 
     sourceSets {
         commonMain {

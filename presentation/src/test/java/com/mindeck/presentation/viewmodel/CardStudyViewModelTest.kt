@@ -26,7 +26,6 @@ import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class CardStudyViewModelTest {
-
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
@@ -34,13 +33,17 @@ class CardStudyViewModelTest {
     private val getCardByIdUseCase: GetCardByIdUseCase = mockk()
     private val updateCardReviewUseCase: UpdateCardReviewUseCase = mockk()
 
-    private fun createViewModel(): CardStudyViewModel = CardStudyViewModel(
-        getCardsRepetitionUseCase = getCardsRepetitionUseCase,
-        getCardByIdUseCase = getCardByIdUseCase,
-        updateCardReviewUseCase = updateCardReviewUseCase,
-    )
+    private fun createViewModel(): CardStudyViewModel =
+        CardStudyViewModel(
+            getCardsRepetitionUseCase = getCardsRepetitionUseCase,
+            getCardByIdUseCase = getCardByIdUseCase,
+            updateCardReviewUseCase = updateCardReviewUseCase,
+        )
 
-    private fun card(cardId: Int = 1, cardState: CardState = CardState.NEW) = Card(
+    private fun card(
+        cardId: Int = 1,
+        cardState: CardState = CardState.NEW,
+    ) = Card(
         cardId = cardId,
         cardName = "Card $cardId",
         cardQuestion = "Q?",
@@ -52,151 +55,162 @@ class CardStudyViewModelTest {
     )
 
     @Test
-    fun loadCardRepetition_success_populatesQueue() = runTest {
-        val cards = listOf(card(1), card(2))
-        every { getCardsRepetitionUseCase() } returns flowOf(cards)
-        every { updateCardReviewUseCase.previewNextInterval(any(), any()) } returns 1_000L
-        val viewModel = createViewModel()
+    fun loadCardRepetition_success_populatesQueue() =
+        runTest {
+            val cards = listOf(card(1), card(2))
+            every { getCardsRepetitionUseCase() } returns flowOf(cards)
+            every { updateCardReviewUseCase.previewNextInterval(any(), any()) } returns 1_000L
+            val viewModel = createViewModel()
 
-        viewModel.loadCardRepetition()
-        advanceUntilIdle()
+            viewModel.loadCardRepetition()
+            advanceUntilIdle()
 
-        assertEquals(UiState.Success(cards), viewModel.cardsState.value)
-    }
-
-    @Test
-    fun loadCardRepetition_returnsError_whenFlowIsEmpty() = runTest {
-        every { getCardsRepetitionUseCase() } returns emptyFlow()
-        val viewModel = createViewModel()
-
-        viewModel.loadCardRepetition()
-        advanceUntilIdle()
-
-        assertEquals(UiState.Error(R.string.error_get_card_for_study), viewModel.cardsState.value)
-    }
+            assertEquals(UiState.Success(cards), viewModel.cardsState.value)
+        }
 
     @Test
-    fun loadCardRepetition_databaseError_emitsError() = runTest {
-        every { getCardsRepetitionUseCase() } throws DomainError.DatabaseError()
-        val viewModel = createViewModel()
+    fun loadCardRepetition_returnsError_whenFlowIsEmpty() =
+        runTest {
+            every { getCardsRepetitionUseCase() } returns emptyFlow()
+            val viewModel = createViewModel()
 
-        viewModel.loadCardRepetition()
-        advanceUntilIdle()
+            viewModel.loadCardRepetition()
+            advanceUntilIdle()
 
-        assertEquals(UiState.Error(R.string.error_get_card_for_study), viewModel.cardsState.value)
-    }
-
-    @Test
-    fun loadCardById_success_populatesQueue() = runTest {
-        val card = card(1)
-        every { getCardByIdUseCase(any()) } returns flowOf(card)
-        every { updateCardReviewUseCase.previewNextInterval(any(), any()) } returns 1_000L
-        val viewModel = createViewModel()
-
-        viewModel.loadCardById(1)
-        advanceUntilIdle()
-
-        assertEquals(UiState.Success(listOf(card)), viewModel.cardsState.value)
-    }
+            assertEquals(UiState.Error(R.string.error_get_card_for_study), viewModel.cardsState.value)
+        }
 
     @Test
-    fun loadCardById_returnsError_whenCardIsNull() = runTest {
-        every { getCardByIdUseCase(any()) } returns flowOf(null)
-        val viewModel = createViewModel()
+    fun loadCardRepetition_databaseError_emitsError() =
+        runTest {
+            every { getCardsRepetitionUseCase() } throws DomainError.DatabaseError()
+            val viewModel = createViewModel()
 
-        viewModel.loadCardById(1)
-        advanceUntilIdle()
+            viewModel.loadCardRepetition()
+            advanceUntilIdle()
 
-        assertEquals(UiState.Error(R.string.error_failed_to_load_card), viewModel.cardsState.value)
-    }
-
-    @Test
-    fun reviewCard_learningState_reAddsCardToEndOfQueue() = runTest {
-        val card1 = card(1)
-        val card2 = card(2)
-        val reviewedCard = card(1, CardState.LEARNING)
-        every { getCardsRepetitionUseCase() } returns flowOf(listOf(card1, card2))
-        every { updateCardReviewUseCase.previewNextInterval(any(), any()) } returns 1_000L
-        coEvery { updateCardReviewUseCase(card1, ReviewButton.AGAIN) } returns reviewedCard
-        val viewModel = createViewModel()
-
-        viewModel.loadCardRepetition()
-        advanceUntilIdle()
-        viewModel.reviewCard(card1, ReviewButton.AGAIN)
-        advanceUntilIdle()
-
-        assertEquals(UiState.Success(listOf(card2, reviewedCard)), viewModel.cardsState.value)
-    }
+            assertEquals(UiState.Error(R.string.error_get_card_for_study), viewModel.cardsState.value)
+        }
 
     @Test
-    fun reviewCard_lapseState_reAddsCardToEndOfQueue() = runTest {
-        val card1 = card(1)
-        val card2 = card(2)
-        val reviewedCard = card(1, CardState.LAPSE)
-        every { getCardsRepetitionUseCase() } returns flowOf(listOf(card1, card2))
-        every { updateCardReviewUseCase.previewNextInterval(any(), any()) } returns 1_000L
-        coEvery { updateCardReviewUseCase(card1, ReviewButton.AGAIN) } returns reviewedCard
-        val viewModel = createViewModel()
+    fun loadCardById_success_populatesQueue() =
+        runTest {
+            val card = card(1)
+            every { getCardByIdUseCase(any()) } returns flowOf(card)
+            every { updateCardReviewUseCase.previewNextInterval(any(), any()) } returns 1_000L
+            val viewModel = createViewModel()
 
-        viewModel.loadCardRepetition()
-        advanceUntilIdle()
-        viewModel.reviewCard(card1, ReviewButton.AGAIN)
-        advanceUntilIdle()
+            viewModel.loadCardById(1)
+            advanceUntilIdle()
 
-        assertEquals(UiState.Success(listOf(card2, reviewedCard)), viewModel.cardsState.value)
-    }
+            assertEquals(UiState.Success(listOf(card)), viewModel.cardsState.value)
+        }
 
     @Test
-    fun reviewCard_reviewState_removesCardFromQueue() = runTest {
-        val card1 = card(1)
-        val card2 = card(2)
-        val reviewedCard = card(1, CardState.REVIEW)
-        every { getCardsRepetitionUseCase() } returns flowOf(listOf(card1, card2))
-        every { updateCardReviewUseCase.previewNextInterval(any(), any()) } returns 1_000L
-        coEvery { updateCardReviewUseCase(card1, ReviewButton.GOOD) } returns reviewedCard
-        val viewModel = createViewModel()
+    fun loadCardById_returnsError_whenCardIsNull() =
+        runTest {
+            every { getCardByIdUseCase(any()) } returns flowOf(null)
+            val viewModel = createViewModel()
 
-        viewModel.loadCardRepetition()
-        advanceUntilIdle()
-        viewModel.reviewCard(card1, ReviewButton.GOOD)
-        advanceUntilIdle()
+            viewModel.loadCardById(1)
+            advanceUntilIdle()
 
-        assertEquals(UiState.Success(listOf(card2)), viewModel.cardsState.value)
-    }
+            assertEquals(UiState.Error(R.string.error_failed_to_load_card), viewModel.cardsState.value)
+        }
 
     @Test
-    fun reviewLabels_containsInterval_whenIntervalLessThanOneMinute() = runTest {
-        every { getCardsRepetitionUseCase() } returns flowOf(listOf(card()))
-        every { updateCardReviewUseCase.previewNextInterval(any(), any()) } returns 30_000L
-        val viewModel = createViewModel()
+    fun reviewCard_learningState_reAddsCardToEndOfQueue() =
+        runTest {
+            val card1 = card(1)
+            val card2 = card(2)
+            val reviewedCard = card(1, CardState.LEARNING)
+            every { getCardsRepetitionUseCase() } returns flowOf(listOf(card1, card2))
+            every { updateCardReviewUseCase.previewNextInterval(any(), any()) } returns 1_000L
+            coEvery { updateCardReviewUseCase(card1, ReviewButton.AGAIN) } returns reviewedCard
+            val viewModel = createViewModel()
 
-        viewModel.loadCardRepetition()
-        advanceUntilIdle()
+            viewModel.loadCardRepetition()
+            advanceUntilIdle()
+            viewModel.reviewCard(card1, ReviewButton.AGAIN)
+            advanceUntilIdle()
 
-        assertEquals(30_000L, viewModel.reviewLabels.value[ReviewButton.AGAIN])
-    }
-
-    @Test
-    fun reviewLabels_containsInterval_whenIntervalLessThanOneHour() = runTest {
-        every { getCardsRepetitionUseCase() } returns flowOf(listOf(card()))
-        every { updateCardReviewUseCase.previewNextInterval(any(), any()) } returns 600_000L
-        val viewModel = createViewModel()
-
-        viewModel.loadCardRepetition()
-        advanceUntilIdle()
-
-        assertEquals(600_000L, viewModel.reviewLabels.value[ReviewButton.AGAIN])
-    }
+            assertEquals(UiState.Success(listOf(card2, reviewedCard)), viewModel.cardsState.value)
+        }
 
     @Test
-    fun reviewLabels_containsInterval_whenIntervalOneHourOrMore() = runTest {
-        every { getCardsRepetitionUseCase() } returns flowOf(listOf(card()))
-        every { updateCardReviewUseCase.previewNextInterval(any(), any()) } returns 86_400_000L
-        val viewModel = createViewModel()
+    fun reviewCard_lapseState_reAddsCardToEndOfQueue() =
+        runTest {
+            val card1 = card(1)
+            val card2 = card(2)
+            val reviewedCard = card(1, CardState.LAPSE)
+            every { getCardsRepetitionUseCase() } returns flowOf(listOf(card1, card2))
+            every { updateCardReviewUseCase.previewNextInterval(any(), any()) } returns 1_000L
+            coEvery { updateCardReviewUseCase(card1, ReviewButton.AGAIN) } returns reviewedCard
+            val viewModel = createViewModel()
 
-        viewModel.loadCardRepetition()
-        advanceUntilIdle()
+            viewModel.loadCardRepetition()
+            advanceUntilIdle()
+            viewModel.reviewCard(card1, ReviewButton.AGAIN)
+            advanceUntilIdle()
 
-        assertEquals(86_400_000L, viewModel.reviewLabels.value[ReviewButton.AGAIN])
-    }
+            assertEquals(UiState.Success(listOf(card2, reviewedCard)), viewModel.cardsState.value)
+        }
+
+    @Test
+    fun reviewCard_reviewState_removesCardFromQueue() =
+        runTest {
+            val card1 = card(1)
+            val card2 = card(2)
+            val reviewedCard = card(1, CardState.REVIEW)
+            every { getCardsRepetitionUseCase() } returns flowOf(listOf(card1, card2))
+            every { updateCardReviewUseCase.previewNextInterval(any(), any()) } returns 1_000L
+            coEvery { updateCardReviewUseCase(card1, ReviewButton.GOOD) } returns reviewedCard
+            val viewModel = createViewModel()
+
+            viewModel.loadCardRepetition()
+            advanceUntilIdle()
+            viewModel.reviewCard(card1, ReviewButton.GOOD)
+            advanceUntilIdle()
+
+            assertEquals(UiState.Success(listOf(card2)), viewModel.cardsState.value)
+        }
+
+    @Test
+    fun reviewLabels_containsInterval_whenIntervalLessThanOneMinute() =
+        runTest {
+            every { getCardsRepetitionUseCase() } returns flowOf(listOf(card()))
+            every { updateCardReviewUseCase.previewNextInterval(any(), any()) } returns 30_000L
+            val viewModel = createViewModel()
+
+            viewModel.loadCardRepetition()
+            advanceUntilIdle()
+
+            assertEquals(30_000L, viewModel.reviewLabels.value[ReviewButton.AGAIN])
+        }
+
+    @Test
+    fun reviewLabels_containsInterval_whenIntervalLessThanOneHour() =
+        runTest {
+            every { getCardsRepetitionUseCase() } returns flowOf(listOf(card()))
+            every { updateCardReviewUseCase.previewNextInterval(any(), any()) } returns 600_000L
+            val viewModel = createViewModel()
+
+            viewModel.loadCardRepetition()
+            advanceUntilIdle()
+
+            assertEquals(600_000L, viewModel.reviewLabels.value[ReviewButton.AGAIN])
+        }
+
+    @Test
+    fun reviewLabels_containsInterval_whenIntervalOneHourOrMore() =
+        runTest {
+            every { getCardsRepetitionUseCase() } returns flowOf(listOf(card()))
+            every { updateCardReviewUseCase.previewNextInterval(any(), any()) } returns 86_400_000L
+            val viewModel = createViewModel()
+
+            viewModel.loadCardRepetition()
+            advanceUntilIdle()
+
+            assertEquals(86_400_000L, viewModel.reviewLabels.value[ReviewButton.AGAIN])
+        }
 }

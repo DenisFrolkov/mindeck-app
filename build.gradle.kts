@@ -36,12 +36,12 @@ subprojects {
             target("**/*.kt")
             targetExclude("${layout.buildDirectory.get()}/**/*.kt")
 
-            ktlint()
+            ktlint("1.5.0")
         }
 
         kotlinGradle {
             target("*.gradle.kts")
-            ktlint()
+            ktlint("1.5.0")
         }
     }
 }

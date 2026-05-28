@@ -10,23 +10,20 @@ import com.mindeck.domain.models.CardWithDeck
 import com.mindeck.domain.models.Deck
 
 object Mappers {
-
-    fun Deck.toEntity(): DeckEntity {
-        return DeckEntity(
+    fun Deck.toEntity(): DeckEntity =
+        DeckEntity(
             deckId = this.deckId,
             deckName = this.deckName,
         )
-    }
 
-    fun DeckEntity.toDomain(): Deck {
-        return Deck(
+    fun DeckEntity.toDomain(): Deck =
+        Deck(
             deckId = this.deckId,
             deckName = this.deckName,
         )
-    }
 
-    fun Card.toEntity(): CardEntity {
-        return CardEntity(
+    fun Card.toEntity(): CardEntity =
+        CardEntity(
             cardId = this.cardId,
             cardName = this.cardName,
             cardQuestion = this.cardQuestion,
@@ -44,10 +41,9 @@ object Mappers {
             firstReviewDate = this.firstReviewDate,
             lastReviewDate = this.lastReviewDate,
         )
-    }
 
-    fun CardEntity.toDomain(): Card {
-        return Card(
+    fun CardEntity.toDomain(): Card =
+        Card(
             cardId = this.cardId,
             cardName = this.cardName,
             cardQuestion = this.cardQuestion,
@@ -65,13 +61,11 @@ object Mappers {
             firstReviewDate = this.firstReviewDate,
             lastReviewDate = this.lastReviewDate,
         )
-    }
 
-    fun CardWithDeckEntity.toDomain(): CardWithDeck {
-        return CardWithDeck(
+    fun CardWithDeckEntity.toDomain(): CardWithDeck =
+        CardWithDeck(
             card = this.card.toDomain(),
             deckId = this.deck.deckId,
             deckName = this.deck.deckName,
         )
-    }
 }

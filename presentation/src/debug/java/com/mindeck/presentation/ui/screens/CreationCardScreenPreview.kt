@@ -15,12 +15,13 @@ private fun CreationCardScreenContentEmptyPreview() {
     MindeckTheme {
         CreationCardScreenContent(
             formState = CreateCardFormState(),
-            deckState = UiState.Success(
-                listOf(
-                    Deck(deckId = 1, deckName = "Английский язык"),
-                    Deck(deckId = 2, deckName = "Математика"),
+            deckState =
+                UiState.Success(
+                    listOf(
+                        Deck(deckId = 1, deckName = "Английский язык"),
+                        Deck(deckId = 2, deckName = "Математика"),
+                    ),
                 ),
-            ),
             createDeckState = UiState.Idle,
             createCardState = UiState.Idle,
             modalState = ModalState.None,
@@ -34,14 +35,16 @@ private fun CreationCardScreenContentEmptyPreview() {
 private fun CreationCardScreenContentFilledPreview() {
     MindeckTheme {
         CreationCardScreenContent(
-            formState = CreateCardFormState(
-                title = "Kotlin корутины",
-                selectedDeckId = 1,
-                selectedType = CardType.SIMPLE,
-            ),
-            deckState = UiState.Success(
-                listOf(Deck(deckId = 1, deckName = "Английский язык")),
-            ),
+            formState =
+                CreateCardFormState(
+                    title = "Kotlin корутины",
+                    selectedDeckId = 1,
+                    selectedType = CardType.SIMPLE,
+                ),
+            deckState =
+                UiState.Success(
+                    listOf(Deck(deckId = 1, deckName = "Английский язык")),
+                ),
             createDeckState = UiState.Idle,
             createCardState = UiState.Idle,
             modalState = ModalState.None,
@@ -50,14 +53,15 @@ private fun CreationCardScreenContentFilledPreview() {
     }
 }
 
-private val previewActions = CreationCardScreenActions(
-    onNavigateBack = {},
-    onShowDeckModal = {},
-    onShowTypeModal = {},
-    onUpdateForm = {},
-    onCreateCard = { _, _ -> },
-    onHideModal = {},
-    onSetDeckId = {},
-    onSetType = {},
-    onCreateDeck = {},
-)
+private val previewActions =
+    CreationCardScreenActions(
+        onNavigateBack = {},
+        onShowDeckModal = {},
+        onShowTypeModal = {},
+        onUpdateForm = {},
+        onCreateCard = { _, _ -> },
+        onHideModal = {},
+        onSetDeckId = {},
+        onSetType = {},
+        onCreateDeck = {},
+    )

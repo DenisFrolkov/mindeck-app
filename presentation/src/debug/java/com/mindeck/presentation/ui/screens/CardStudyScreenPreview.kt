@@ -18,12 +18,13 @@ private fun CardStudyScreenContentPreview() {
         CardStudyScreenContent(
             modalState = ModalState.None,
             cardsForRepetitionState = UiState.Success(listOf(previewCard)),
-            reviewLabels = mapOf(
-                ReviewButton.AGAIN to 600_000L,
-                ReviewButton.HARD to 86_400_000L,
-                ReviewButton.GOOD to 259_200_000L,
-                ReviewButton.EASY to 604_800_000L,
-            ),
+            reviewLabels =
+                mapOf(
+                    ReviewButton.AGAIN to 600_000L,
+                    ReviewButton.HARD to 86_400_000L,
+                    ReviewButton.GOOD to 259_200_000L,
+                    ReviewButton.EASY to 604_800_000L,
+                ),
             actions = previewActions,
         )
     }
@@ -55,19 +56,21 @@ private fun CardStudyScreenContentErrorPreview() {
     }
 }
 
-private val previewActions = CardStudyScreenActions(
-    onNavigateBack = {},
-    onShowDropdownMenu = {},
-    onHideModal = {},
-    onReviewCard = { _, _ -> },
-)
+private val previewActions =
+    CardStudyScreenActions(
+        onNavigateBack = {},
+        onShowDropdownMenu = {},
+        onHideModal = {},
+        onReviewCard = { _, _ -> },
+    )
 
-private val previewCard = Card(
-    cardName = "Kotlin корутины",
-    cardQuestion = "Что такое coroutine?",
-    cardAnswer = "Лёгковесная сопрограмма для асинхронного кода",
-    cardType = CardType.SIMPLE,
-    cardTag = "",
-    deckId = 1,
-    cardState = CardState.REVIEW,
-)
+private val previewCard =
+    Card(
+        cardName = "Kotlin корутины",
+        cardQuestion = "Что такое coroutine?",
+        cardAnswer = "Лёгковесная сопрограмма для асинхронного кода",
+        cardType = CardType.SIMPLE,
+        cardTag = "",
+        deckId = 1,
+        cardState = CardState.REVIEW,
+    )

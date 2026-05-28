@@ -30,24 +30,25 @@ fun DisplayItem(
     modifier: Modifier = Modifier,
 ) {
     Row(
-        modifier = modifier
-            .border(
-                width = MindeckTheme.dimensions.dp0_25,
-                color = MaterialTheme.colorScheme.outline,
-                shape = MaterialTheme.shapes.small,
-            )
-            .clip(shape = MaterialTheme.shapes.small)
-            .height(MindeckTheme.dimensions.dp48)
-            .clickable(onClick = onClick),
+        modifier =
+            modifier
+                .border(
+                    width = MindeckTheme.dimensions.dp0_25,
+                    color = MaterialTheme.colorScheme.outline,
+                    shape = MaterialTheme.shapes.small,
+                ).clip(shape = MaterialTheme.shapes.small)
+                .height(MindeckTheme.dimensions.dp48)
+                .clickable(onClick = onClick),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(
             contentAlignment = Alignment.CenterStart,
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.surface)
-                .padding(horizontal = MindeckTheme.dimensions.dp12),
+            modifier =
+                Modifier
+                    .weight(1f)
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.surface)
+                    .padding(horizontal = MindeckTheme.dimensions.dp12),
         ) {
             Text(
                 text = name,
@@ -65,9 +66,10 @@ fun DisplayItem(
         )
 
         Box(
-            modifier = Modifier
-                .size(MindeckTheme.dimensions.dp48)
-                .background(color = MaterialTheme.colorScheme.secondaryContainer),
+            modifier =
+                Modifier
+                    .size(MindeckTheme.dimensions.dp48)
+                    .background(color = MaterialTheme.colorScheme.secondaryContainer),
             contentAlignment = Alignment.Center,
         ) {
             Icon(

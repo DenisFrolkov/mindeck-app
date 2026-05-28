@@ -27,8 +27,9 @@ fun AppTopBar(
     )
 
     Row(
-        modifier = modifier
-            .fillMaxWidth(),
+        modifier =
+            modifier
+                .fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
         ActionHandlerButton(

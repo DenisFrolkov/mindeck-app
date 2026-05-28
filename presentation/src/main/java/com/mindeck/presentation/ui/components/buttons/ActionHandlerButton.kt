@@ -26,19 +26,21 @@ fun ActionHandlerButton(
 ) {
     Box(
         contentAlignment = Alignment.TopStart,
-        modifier = modifier
-            .clip(shape = MaterialTheme.shapes.extraLarge)
-            .clickable {
-                onClick()
-            },
+        modifier =
+            modifier
+                .clip(shape = MaterialTheme.shapes.extraLarge)
+                .clickable {
+                    onClick()
+                },
     ) {
         Icon(
             painter = painter,
             tint = tint,
             contentDescription = contentDescription,
-            modifier = Modifier
-                .padding(MindeckTheme.dimensions.paddingSm)
-                .size(size),
+            modifier =
+                Modifier
+                    .padding(MindeckTheme.dimensions.paddingSm)
+                    .size(size),
         )
     }
 }

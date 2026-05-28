@@ -13,47 +13,52 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class MappersTest {
+    private val deck =
+        Deck(
+            deckId = 0,
+            deckName = "Deck 1",
+        )
 
-    private val deck = Deck(
-        deckId = 0,
-        deckName = "Deck 1",
-    )
+    private val deckEntity =
+        DeckEntity(
+            deckId = 0,
+            deckName = "Deck 1",
+        )
 
-    private val deckEntity = DeckEntity(
-        deckId = 0,
-        deckName = "Deck 1",
-    )
+    private val card =
+        Card(
+            cardId = 1,
+            cardName = "Card 1",
+            cardQuestion = "Question 1",
+            cardAnswer = "Answer 1",
+            cardType = CardType.SIMPLE,
+            cardTag = "",
+            deckId = 1,
+        )
 
-    private val card = Card(
-        cardId = 1,
-        cardName = "Card 1",
-        cardQuestion = "Question 1",
-        cardAnswer = "Answer 1",
-        cardType = CardType.SIMPLE,
-        cardTag = "",
-        deckId = 1,
-    )
+    private val cardEntity =
+        CardEntity(
+            cardId = 1,
+            cardName = "Card 1",
+            cardQuestion = "Question 1",
+            cardAnswer = "Answer 1",
+            cardType = CardType.SIMPLE.stableId,
+            cardTag = "",
+            deckId = 1,
+        )
 
-    private val cardEntity = CardEntity(
-        cardId = 1,
-        cardName = "Card 1",
-        cardQuestion = "Question 1",
-        cardAnswer = "Answer 1",
-        cardType = CardType.SIMPLE.stableId,
-        cardTag = "",
-        deckId = 1,
-    )
+    private val cardWithDeckEntity =
+        CardWithDeckEntity(
+            card = cardEntity,
+            deck = deckEntity,
+        )
 
-    private val cardWithDeckEntity = CardWithDeckEntity(
-        card = cardEntity,
-        deck = deckEntity,
-    )
-
-    private val cardWithDeck = CardWithDeck(
-        card = card,
-        deckId = deck.deckId,
-        deckName = deck.deckName,
-    )
+    private val cardWithDeck =
+        CardWithDeck(
+            card = card,
+            deckId = deck.deckId,
+            deckName = deck.deckName,
+        )
 
     @Test
     fun `Deck toEntity maps all fields correctly`() {

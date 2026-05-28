@@ -16,12 +16,13 @@ import com.mindeck.presentation.viewmodel.deck.DeckScreenData
 private fun DeckScreenContentPreview() {
     MindeckTheme {
         DeckScreenContent(
-            screenUiState = UiState.Success(
-                DeckScreenData(
-                    deck = previewDeck,
-                    cards = listOf(previewCard, previewCard.copy(cardId = 2, cardName = "StateFlow")),
+            screenUiState =
+                UiState.Success(
+                    DeckScreenData(
+                        deck = previewDeck,
+                        cards = listOf(previewCard, previewCard.copy(cardId = 2, cardName = "StateFlow")),
+                    ),
                 ),
-            ),
             renameDeckState = UiState.Idle,
             modalState = ModalState.None,
             actions = previewActions,
@@ -55,24 +56,26 @@ private fun DeckScreenContentErrorPreview() {
     }
 }
 
-private val previewActions = DeckScreenActions(
-    onMenuClick = {},
-    onDismissModal = {},
-    onShowRenameDialog = {},
-    onDeleteDeck = {},
-    onRenameDeck = { _, _ -> },
-    onNavigateBack = {},
-    onNavigateToCard = {},
-    onNavigateToCreateCard = {},
-)
+private val previewActions =
+    DeckScreenActions(
+        onMenuClick = {},
+        onDismissModal = {},
+        onShowRenameDialog = {},
+        onDeleteDeck = {},
+        onRenameDeck = { _, _ -> },
+        onNavigateBack = {},
+        onNavigateToCard = {},
+        onNavigateToCreateCard = {},
+    )
 
 private val previewDeck = Deck(deckId = 1, deckName = "Английский язык")
 
-private val previewCard = Card(
-    cardName = "Kotlin корутины",
-    cardQuestion = "Что такое coroutine?",
-    cardAnswer = "Лёгковесная сопрограмма для асинхронного кода",
-    cardType = CardType.SIMPLE,
-    cardTag = "",
-    deckId = 1,
-)
+private val previewCard =
+    Card(
+        cardName = "Kotlin корутины",
+        cardQuestion = "Что такое coroutine?",
+        cardAnswer = "Лёгковесная сопрограмма для асинхронного кода",
+        cardType = CardType.SIMPLE,
+        cardTag = "",
+        deckId = 1,
+    )

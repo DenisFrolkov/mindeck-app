@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.MaterialTheme
@@ -36,22 +35,20 @@ fun SelectorRow(
         )
 
         Box(
-            modifier = Modifier
-                .clickable(onClick = onClick)
-                .background(
-                    color = MaterialTheme.colorScheme.surfaceVariant,
-                    shape = MaterialTheme.shapes.extraSmall,
-                )
-                .size(
-                    height = MindeckTheme.dimensions.dp36,
-                    width = MindeckTheme.dimensions.dp200,
-                )
-                .border(
-                    width = MindeckTheme.dimensions.dp0_25,
-                    color = MaterialTheme.colorScheme.outlineVariant,
-                    shape = MaterialTheme.shapes.extraSmall,
-                )
-                .wrapContentSize(Alignment.Center),
+            modifier =
+                Modifier
+                    .clickable(onClick = onClick)
+                    .background(
+                        color = MaterialTheme.colorScheme.surfaceVariant,
+                        shape = MaterialTheme.shapes.extraSmall,
+                    ).size(
+                        height = MindeckTheme.dimensions.dp36,
+                        width = MindeckTheme.dimensions.dp200,
+                    ).border(
+                        width = MindeckTheme.dimensions.dp0_25,
+                        color = MaterialTheme.colorScheme.outlineVariant,
+                        shape = MaterialTheme.shapes.extraSmall,
+                    ).wrapContentSize(Alignment.Center),
         ) {
             Text(
                 text = selectedText,

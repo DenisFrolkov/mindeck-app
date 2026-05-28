@@ -11,11 +11,12 @@ private fun ChooseModalWindowListPreview() {
     MindeckTheme {
         ChooseModalWindow(
             titleText = "Выберите колоду",
-            items = listOf(
-                "Английский" to 1,
-                "Математика" to 2,
-                "История" to 3,
-            ),
+            items =
+                listOf(
+                    "Английский" to 1,
+                    "Математика" to 2,
+                    "История" to 3,
+                ),
             selectedId = 1,
             actionState = UiState.Idle,
             showAddIcon = true,

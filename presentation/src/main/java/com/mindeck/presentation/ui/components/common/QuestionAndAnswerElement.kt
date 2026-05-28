@@ -43,10 +43,11 @@ fun QuestionAndAnswerElement(
             state = questionState,
             style = questionStyle,
             textAlign = TextAlign.Start,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(MindeckTheme.dimensions.paddingSm)
-                .wrapContentSize(Alignment.CenterStart),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(MindeckTheme.dimensions.paddingSm)
+                    .wrapContentSize(Alignment.CenterStart),
         )
         HorizontalDivider(
             modifier = Modifier.fillMaxWidth(),
@@ -57,10 +58,11 @@ fun QuestionAndAnswerElement(
             state = answerState,
             style = answerStyle,
             textAlign = TextAlign.Start,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(MindeckTheme.dimensions.paddingSm)
-                .wrapContentSize(Alignment.CenterStart),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(MindeckTheme.dimensions.paddingSm)
+                    .wrapContentSize(Alignment.CenterStart),
         )
     }
 }

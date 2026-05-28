@@ -14,6 +14,7 @@ import com.mindeck.data.database.entities.DeckEntity
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun deckDao(): DeckDao
+
     abstract fun cardDao(): CardDao
 
     companion object {

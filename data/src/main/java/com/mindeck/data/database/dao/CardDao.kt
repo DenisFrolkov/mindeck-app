@@ -39,5 +39,8 @@ interface CardDao {
         ORDER BY card_id ASC
         """,
     )
-    fun getCardsRepetition(currentTime: Long, todayStart: Long): Flow<List<CardEntity>>
+    fun getCardsRepetition(
+        currentTime: Long,
+        todayStart: Long,
+    ): Flow<List<CardEntity>>
 }

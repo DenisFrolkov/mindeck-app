@@ -51,20 +51,22 @@ fun WriteModalWindow(
     val isTextValid = text.trim().isNotEmpty()
 
     val animatedButtonColor by animateColorAsState(
-        targetValue = when {
-            !isTextValid -> MaterialTheme.colorScheme.surfaceVariant
-            else -> MaterialTheme.colorScheme.primary
-        },
+        targetValue =
+            when {
+                !isTextValid -> MaterialTheme.colorScheme.surfaceVariant
+                else -> MaterialTheme.colorScheme.primary
+            },
         animationSpec = tween(DURATION_300),
         label = "buttonColor",
     )
 
     val animatedTextColor by animateColorAsState(
-        targetValue = when {
-            !isTextValid -> MaterialTheme.colorScheme.onSurfaceVariant
-            isLoading -> MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.6f)
-            else -> MaterialTheme.colorScheme.onPrimary
-        },
+        targetValue =
+            when {
+                !isTextValid -> MaterialTheme.colorScheme.onSurfaceVariant
+                isLoading -> MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.6f)
+                else -> MaterialTheme.colorScheme.onPrimary
+            },
         animationSpec = tween(DURATION_300),
         label = "textColor",
     )
@@ -72,13 +74,13 @@ fun WriteModalWindow(
     Dialog(onDismissRequest = { if (!isLoading) onExitClick() }) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .background(
-                    color = MaterialTheme.colorScheme.background,
-                    shape = MaterialTheme.shapes.small,
-                )
-                .clip(MaterialTheme.shapes.small)
-                .padding(MindeckTheme.dimensions.paddingXs),
+            modifier =
+                Modifier
+                    .background(
+                        color = MaterialTheme.colorScheme.background,
+                        shape = MaterialTheme.shapes.small,
+                    ).clip(MaterialTheme.shapes.small)
+                    .padding(MindeckTheme.dimensions.paddingXs),
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -117,19 +119,18 @@ fun WriteModalWindow(
                 singleLine = true,
                 enabled = !isLoading,
                 placeholderTextStyle = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurfaceVariant),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(
-                        MaterialTheme.colorScheme.surface,
-                        MaterialTheme.shapes.large,
-                    )
-                    .height(height = MindeckTheme.dimensions.dp46)
-                    .border(
-                        MindeckTheme.dimensions.dp0_25,
-                        MaterialTheme.colorScheme.outline,
-                        MaterialTheme.shapes.large,
-                    )
-                    .padding(MindeckTheme.dimensions.paddingSm),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .background(
+                            MaterialTheme.colorScheme.surface,
+                            MaterialTheme.shapes.large,
+                        ).height(height = MindeckTheme.dimensions.dp46)
+                        .border(
+                            MindeckTheme.dimensions.dp0_25,
+                            MaterialTheme.colorScheme.outline,
+                            MaterialTheme.shapes.large,
+                        ).padding(MindeckTheme.dimensions.paddingSm),
             )
 
             Spacer(modifier = Modifier.height(MindeckTheme.dimensions.spacerLg))
@@ -139,20 +140,22 @@ fun WriteModalWindow(
                 color = animatedButtonColor,
                 textColor = animatedTextColor,
                 onClick = { if (!isLoading && isTextValid) onSaveClick(text) },
-                modifier = Modifier.size(
-                    height = MindeckTheme.dimensions.dp42,
-                    width = MindeckTheme.dimensions.dp140,
-                ),
+                modifier =
+                    Modifier.size(
+                        height = MindeckTheme.dimensions.dp42,
+                        width = MindeckTheme.dimensions.dp140,
+                    ),
             )
 
             errorMessage?.let { message ->
                 Text(
                     text = message,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(
-                            top = MindeckTheme.dimensions.dp4,
-                        ),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                top = MindeckTheme.dimensions.dp4,
+                            ),
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.error,
