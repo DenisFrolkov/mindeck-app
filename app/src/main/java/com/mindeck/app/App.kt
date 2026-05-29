@@ -1,6 +1,7 @@
 package com.mindeck.app
 
 import android.app.Application
+import com.mindeck.data.di.commonDataModule
 import com.mindeck.data.di.dataModule
 import com.mindeck.presentation.di.presentationModule
 import org.koin.android.ext.koin.androidContext
@@ -11,7 +12,7 @@ class App : Application() {
         super.onCreate()
         startKoin {
             androidContext(this@App)
-            modules(dataModule, presentationModule)
+            modules(dataModule, commonDataModule, presentationModule)
         }
     }
 }

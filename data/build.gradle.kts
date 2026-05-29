@@ -46,7 +46,6 @@ kotlin {
             }
         }
 
-
         getByName("androidHostTest") {
             dependencies {
                 implementation(libs.junit)

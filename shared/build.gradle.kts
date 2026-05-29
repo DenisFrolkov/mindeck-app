@@ -7,7 +7,7 @@ plugins {
 }
 
 kotlin {
-    androidLibrary {
+    android {
         namespace = "com.mindeck.shared"
         compileSdk = rootProject.extra["compileSdk"] as Int
         compilerOptions {
@@ -51,7 +51,8 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(libs.kotlin.stdlib)
-                // Add KMP dependencies here
+                api(projects.data)
+                implementation(libs.koin.core)
             }
         }
 

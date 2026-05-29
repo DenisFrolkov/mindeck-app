@@ -6,9 +6,14 @@
 //
 
 import SwiftUI
+import sharedKit
 
 @main
 struct MindeckApp: App {
+    init() {
+        KoinIosKt.doInitKoin()
+    }
+
     var body: some Scene {
         WindowGroup {
             ContentView()

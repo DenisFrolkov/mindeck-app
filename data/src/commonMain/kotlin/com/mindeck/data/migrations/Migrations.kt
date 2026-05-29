@@ -68,7 +68,9 @@ val MIGRATION_1_2 =
             )
             connection.execSQL("DROP TABLE `card`")
             connection.execSQL("ALTER TABLE `card_new` RENAME TO `card`")
-            connection.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_card_card_name_card_question` ON `card` (`card_name`, `card_question`)")
+            connection.execSQL(
+                "CREATE UNIQUE INDEX IF NOT EXISTS `index_card_card_name_card_question` ON `card` (`card_name`, `card_question`)",
+            )
             connection.execSQL("CREATE INDEX IF NOT EXISTS `index_card_deck_id` ON `card` (`deck_id`)")
         }
     }
@@ -121,7 +123,9 @@ val MIGRATION_2_3 =
             )
             connection.execSQL("DROP TABLE `card`")
             connection.execSQL("ALTER TABLE `card_new` RENAME TO `card`")
-            connection.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_card_card_name_card_question` ON `card` (`card_name`, `card_question`)")
+            connection.execSQL(
+                "CREATE UNIQUE INDEX IF NOT EXISTS `index_card_card_name_card_question` ON `card` (`card_name`, `card_question`)",
+            )
             connection.execSQL("CREATE INDEX IF NOT EXISTS `index_card_deck_id` ON `card` (`deck_id`)")
         }
     }
@@ -167,7 +171,9 @@ val MIGRATION_3_4 =
             )
             connection.execSQL("DROP TABLE `card`")
             connection.execSQL("ALTER TABLE `card_new` RENAME TO `card`")
-            connection.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_card_card_name_card_question` ON `card` (`card_name`, `card_question`)")
+            connection.execSQL(
+                "CREATE UNIQUE INDEX IF NOT EXISTS `index_card_card_name_card_question` ON `card` (`card_name`, `card_question`)",
+            )
             connection.execSQL("CREATE INDEX IF NOT EXISTS `index_card_deck_id` ON `card` (`deck_id`)")
         }
     }
