@@ -17,12 +17,13 @@ fun AppDropdownMenuItem(
     Text(
         text = text,
         style = MaterialTheme.typography.bodyMedium,
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(
-                horizontal = MindeckTheme.dimensions.dp20,
-                vertical = MindeckTheme.dimensions.dp10,
-            ),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .clickable(onClick = onClick)
+                .padding(
+                    horizontal = MindeckTheme.dimensions.dp20,
+                    vertical = MindeckTheme.dimensions.dp10,
+                ),
     )
 }

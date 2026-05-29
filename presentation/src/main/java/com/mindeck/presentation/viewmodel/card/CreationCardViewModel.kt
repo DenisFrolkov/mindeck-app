@@ -13,7 +13,6 @@ import com.mindeck.presentation.state.CreateCardFormState
 import com.mindeck.presentation.state.ModalState
 import com.mindeck.presentation.state.UiState
 import com.mindeck.presentation.viewmodel.managers.DeckSelectionHandler
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -22,15 +21,12 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
-import javax.inject.Inject
 
-@HiltViewModel
-internal class CreationCardViewModel @Inject constructor(
+internal class CreationCardViewModel(
     private val createCardUseCase: CreateCardUseCase,
     getAllDecksUseCase: GetAllDecksUseCase,
     createDeckUseCase: CreateDeckUseCase,
 ) : ViewModel() {
-
     private val deckSelectionHandler = DeckSelectionHandler(getAllDecksUseCase, createDeckUseCase, viewModelScope)
 
     val decksState = deckSelectionHandler.decksState
@@ -50,7 +46,10 @@ internal class CreationCardViewModel @Inject constructor(
 
     private val createCardMutex = Mutex()
 
-    fun createCard(question: String, answer: String) {
+    fun createCard(
+        question: String,
+        answer: String,
+    ) {
         viewModelScope.launch {
             if (!createCardMutex.tryLock()) return@launch
 
@@ -60,24 +59,27 @@ internal class CreationCardViewModel @Inject constructor(
                 _createCardState.update { UiState.Loading }
 
                 val form = _formState.value
-                val selectedType = form.selectedType ?: run {
-                    _createCardState.update { UiState.Error(R.string.error_card_type_required) }
-                    return@launch
-                }
-                val selectedDeckId = form.selectedDeckId ?: run {
-                    _createCardState.update { UiState.Error(R.string.error_deck_selection_required) }
-                    return@launch
-                }
+                val selectedType =
+                    form.selectedType ?: run {
+                        _createCardState.update { UiState.Error(R.string.error_card_type_required) }
+                        return@launch
+                    }
+                val selectedDeckId =
+                    form.selectedDeckId ?: run {
+                        _createCardState.update { UiState.Error(R.string.error_deck_selection_required) }
+                        return@launch
+                    }
 
                 createCardUseCase(
-                    card = Card(
-                        cardName = form.title,
-                        cardQuestion = question,
-                        cardAnswer = answer,
-                        cardType = selectedType,
-                        cardTag = form.tag,
-                        deckId = selectedDeckId,
-                    ),
+                    card =
+                        Card(
+                            cardName = form.title,
+                            cardQuestion = question,
+                            cardAnswer = answer,
+                            cardType = selectedType,
+                            cardTag = form.tag,
+                            deckId = selectedDeckId,
+                        ),
                 )
                 _createCardState.update { UiState.Success(Unit) }
                 clearFormFields()

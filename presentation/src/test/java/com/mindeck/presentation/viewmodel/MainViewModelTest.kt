@@ -23,7 +23,6 @@ import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class MainViewModelTest {
-
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
@@ -35,35 +34,38 @@ class MainViewModelTest {
         return MainViewModel(getAllDecksUseCase, getCardsRepetitionUseCase)
     }
 
-    private fun card(cardState: CardState) = Card(
-        cardName = "Card",
-        cardQuestion = "Q?",
-        cardAnswer = "A",
-        cardType = CardType.SIMPLE,
-        cardTag = "",
-        deckId = 1,
-        cardState = cardState,
-    )
+    private fun card(cardState: CardState) =
+        Card(
+            cardName = "Card",
+            cardQuestion = "Q?",
+            cardAnswer = "A",
+            cardType = CardType.SIMPLE,
+            cardTag = "",
+            deckId = 1,
+            cardState = cardState,
+        )
 
     @Test
-    fun sessionSummaryState_classifiesLapseAsLearning() = runTest {
-        val cards = listOf(
-            card(CardState.NEW),
-            card(CardState.LEARNING),
-            card(CardState.LAPSE),
-            card(CardState.REVIEW),
-        )
-        every { getCardsRepetitionUseCase() } returns flowOf(cards)
-        val viewModel = createViewModel()
+    fun sessionSummaryState_classifiesLapseAsLearning() =
+        runTest {
+            val cards =
+                listOf(
+                    card(CardState.NEW),
+                    card(CardState.LEARNING),
+                    card(CardState.LAPSE),
+                    card(CardState.REVIEW),
+                )
+            every { getCardsRepetitionUseCase() } returns flowOf(cards)
+            val viewModel = createViewModel()
 
-        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
-            viewModel.sessionSummaryState.collect {}
+            backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+                viewModel.sessionSummaryState.collect {}
+            }
+            advanceUntilIdle()
+
+            assertEquals(
+                UiState.Success(SessionSummary(newCount = 1, learningCount = 2, reviewCount = 1)),
+                viewModel.sessionSummaryState.value,
+            )
         }
-        advanceUntilIdle()
-
-        assertEquals(
-            UiState.Success(SessionSummary(newCount = 1, learningCount = 2, reviewCount = 1)),
-            viewModel.sessionSummaryState.value,
-        )
-    }
 }

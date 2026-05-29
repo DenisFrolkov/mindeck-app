@@ -31,7 +31,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mindeck.domain.models.Deck
 import com.mindeck.presentation.R
@@ -46,26 +45,26 @@ import com.mindeck.presentation.ui.navigation.DecksRoute
 import com.mindeck.presentation.ui.navigation.LocalNavigator
 import com.mindeck.presentation.ui.theme.MindeckTheme
 import com.mindeck.presentation.viewmodel.main.MainViewModel
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun MainScreen(
-    modifier: Modifier = Modifier,
-) {
+fun MainScreen(modifier: Modifier = Modifier) {
     val navigator = LocalNavigator.current
 
-    val viewModel = hiltViewModel<MainViewModel>()
+    val viewModel = koinViewModel<MainViewModel>()
     val decksState by viewModel.decksState.collectAsStateWithLifecycle()
     val sessionSummaryState by viewModel.sessionSummaryState.collectAsStateWithLifecycle()
 
     MainScreenContent(
         decksState = decksState,
         sessionSummaryState = sessionSummaryState,
-        actions = MainScreenActions(
-            onNavigateToStudy = { navigator.push(CardStudyRoute()) },
-            onNavigateToDeck = { navigator.push(DeckRoute(it)) },
-            onNavigateToDecks = { navigator.push(DecksRoute) },
-            onNavigateToCreateCard = { navigator.push(CreationCardRoute()) },
-        ),
+        actions =
+            MainScreenActions(
+                onNavigateToStudy = { navigator.push(CardStudyRoute()) },
+                onNavigateToDeck = { navigator.push(DeckRoute(it)) },
+                onNavigateToDecks = { navigator.push(DecksRoute) },
+                onNavigateToCreateCard = { navigator.push(CreationCardRoute()) },
+            ),
         modifier = modifier,
     )
 }
@@ -77,19 +76,22 @@ internal fun MainScreenContent(
     actions: MainScreenActions,
     modifier: Modifier = Modifier,
 ) {
-    val hasCardsToStudy = sessionSummaryState is UiState.Success &&
-        sessionSummaryState.data.totalCount > 0
+    val hasCardsToStudy =
+        sessionSummaryState is UiState.Success &&
+            sessionSummaryState.data.totalCount > 0
 
     Scaffold(
-        modifier = modifier
-            .fillMaxSize()
-            .systemBarsPadding(),
+        modifier =
+            modifier
+                .fillMaxSize()
+                .systemBarsPadding(),
         containerColor = MaterialTheme.colorScheme.background,
         content = { padding ->
             Column(
-                modifier = Modifier
-                    .padding(padding)
-                    .padding(horizontal = MindeckTheme.dimensions.paddingMd),
+                modifier =
+                    Modifier
+                        .padding(padding)
+                        .padding(horizontal = MindeckTheme.dimensions.paddingMd),
                 verticalArrangement = Arrangement.Center,
             ) {
                 Spacer(modifier = Modifier.height(MindeckTheme.dimensions.paddingSm))
@@ -109,9 +111,10 @@ internal fun MainScreenContent(
         floatingActionButton = {
             FloatingActionButton(
                 modifier = Modifier,
-                elevation = FloatingActionButtonDefaults.elevation(
-                    defaultElevation = MindeckTheme.dimensions.dp0,
-                ),
+                elevation =
+                    FloatingActionButtonDefaults.elevation(
+                        defaultElevation = MindeckTheme.dimensions.dp0,
+                    ),
                 shape = MindeckTheme.shapes.shapeXl,
                 containerColor = MaterialTheme.colorScheme.primary,
                 onClick = actions.onNavigateToCreateCard,
@@ -134,12 +137,13 @@ private fun SessionSummaryRow(
     onClick: () -> Unit,
 ) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(MindeckTheme.shapes.shapeLg)
-            .background(MaterialTheme.colorScheme.surface)
-            .then(if (enabled) Modifier.clickable { onClick() } else Modifier)
-            .padding(vertical = MindeckTheme.dimensions.paddingXs),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .clip(MindeckTheme.shapes.shapeLg)
+                .background(MaterialTheme.colorScheme.surface)
+                .then(if (enabled) Modifier.clickable { onClick() } else Modifier)
+                .padding(vertical = MindeckTheme.dimensions.paddingXs),
         horizontalArrangement = Arrangement.SpaceAround,
     ) {
         when (sessionSummaryState) {
@@ -245,10 +249,11 @@ private fun DeckList(
                         CustomButton(
                             text = stringResource(R.string.title_text_all_decks),
                             onClick = onAllDecksClick,
-                            modifier = Modifier.size(
-                                height = MindeckTheme.dimensions.dp42,
-                                width = MindeckTheme.dimensions.dp140,
-                            ),
+                            modifier =
+                                Modifier.size(
+                                    height = MindeckTheme.dimensions.dp42,
+                                    width = MindeckTheme.dimensions.dp140,
+                                ),
                         )
                     }
                 }
@@ -257,9 +262,10 @@ private fun DeckList(
 
         UiState.Loading -> {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentSize(Alignment.Center),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .wrapContentSize(Alignment.Center),
             ) {
                 Spacer(modifier = Modifier.height(MindeckTheme.dimensions.spacerMd))
                 CircularProgressIndicator(

@@ -12,7 +12,6 @@ import com.mindeck.domain.usecases.card.query.GetCardsRepetitionUseCase
 import com.mindeck.presentation.R
 import com.mindeck.presentation.state.ModalState
 import com.mindeck.presentation.state.UiState
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,15 +20,12 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import javax.inject.Inject
 
-@HiltViewModel
-internal class CardStudyViewModel @Inject constructor(
+internal class CardStudyViewModel(
     private val getCardsRepetitionUseCase: GetCardsRepetitionUseCase,
     private val getCardByIdUseCase: GetCardByIdUseCase,
     private val updateCardReviewUseCase: UpdateCardReviewUseCase,
 ) : ViewModel() {
-
     private val _modalState = MutableStateFlow<ModalState>(ModalState.None)
     val modalState: StateFlow<ModalState> = _modalState.asStateFlow()
 
@@ -89,7 +85,10 @@ internal class CardStudyViewModel @Inject constructor(
         }
     }
 
-    fun reviewCard(card: Card, button: ReviewButton) {
+    fun reviewCard(
+        card: Card,
+        button: ReviewButton,
+    ) {
         viewModelScope.launch {
             sessionMutex.withLock {
                 try {

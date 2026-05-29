@@ -30,9 +30,10 @@ fun MyApp() {
     val activity = context as? Activity
 
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
     ) {
         CompositionLocalProvider(LocalNavigator provides navigator) {
             val nav = LocalNavigator.current
@@ -46,30 +47,32 @@ fun MyApp() {
                         nav.pop()
                     }
                 },
-                entryDecorators = listOf(
-                    rememberSaveableStateHolderNavEntryDecorator(),
-                    rememberViewModelStoreNavEntryDecorator(),
-                ),
-                entryProvider = entryProvider {
-                    entry<MainRoute> {
-                        MainScreen()
-                    }
-                    entry<CreationCardRoute> { route ->
-                        CreationCardScreen(route.deckId)
-                    }
-                    entry<DecksRoute> {
-                        DecksScreen()
-                    }
-                    entry<DeckRoute> { route ->
-                        DeckScreen(route.deckId)
-                    }
-                    entry<CardRoute> { route ->
-                        CardScreen(route.cardId)
-                    }
-                    entry<CardStudyRoute> {
-                        CardStudyScreen()
-                    }
-                },
+                entryDecorators =
+                    listOf(
+                        rememberSaveableStateHolderNavEntryDecorator(),
+                        rememberViewModelStoreNavEntryDecorator(),
+                    ),
+                entryProvider =
+                    entryProvider {
+                        entry<MainRoute> {
+                            MainScreen()
+                        }
+                        entry<CreationCardRoute> { route ->
+                            CreationCardScreen(route.deckId)
+                        }
+                        entry<DecksRoute> {
+                            DecksScreen()
+                        }
+                        entry<DeckRoute> { route ->
+                            DeckScreen(route.deckId)
+                        }
+                        entry<CardRoute> { route ->
+                            CardScreen(route.cardId)
+                        }
+                        entry<CardStudyRoute> {
+                            CardStudyScreen()
+                        }
+                    },
             )
         }
     }

@@ -10,7 +10,6 @@ import com.mindeck.domain.usecases.deck.query.GetDeckByIdUseCase
 import com.mindeck.presentation.R
 import com.mindeck.presentation.state.ModalState
 import com.mindeck.presentation.state.UiState
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -26,13 +25,9 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
-import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@HiltViewModel
-internal class DeckViewModel
-@Inject
-constructor(
+internal class DeckViewModel(
     private val getCardsUseCase: GetAllCardsUseCase,
     private val getDeckByIdUseCase: GetDeckByIdUseCase,
     private val renameDeckUseCase: RenameDeckUseCase,
@@ -41,10 +36,10 @@ constructor(
     private val _navigationEvent = Channel<DeckNavigationEvent>()
     val navigationEvent = _navigationEvent.receiveAsFlow()
 
-    private val _deckId = MutableSharedFlow<Int>(replay = 1)
+    private val deckIdFlow = MutableSharedFlow<Int>(replay = 1)
 
     val screenUiState: StateFlow<UiState<DeckScreenData>> =
-        _deckId
+        deckIdFlow
             .flatMapLatest { id ->
                 combine(
                     getDeckByIdUseCase(id),
@@ -61,12 +56,11 @@ constructor(
                         else -> emit(UiState.Error(R.string.error_something_went_wrong))
                     }
                 }
-            }
-            .stateIn(viewModelScope, SharingStarted.Companion.WhileSubscribed(5000), UiState.Loading)
+            }.stateIn(viewModelScope, SharingStarted.Companion.WhileSubscribed(5000), UiState.Loading)
 
     fun loadDeckWithCards(deckId: Int) {
         viewModelScope.launch {
-            _deckId.emit(deckId)
+            deckIdFlow.emit(deckId)
         }
     }
 

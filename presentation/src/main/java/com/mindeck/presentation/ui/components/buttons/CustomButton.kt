@@ -20,15 +20,15 @@ fun CustomButton(
     modifier: Modifier = Modifier,
 ) {
     Box(
-        modifier = modifier
-            .clip(MaterialTheme.shapes.medium)
-            .background(
-                color = color,
-                shape = MaterialTheme.shapes.medium,
-            )
-            .clickable {
-                onClick()
-            },
+        modifier =
+            modifier
+                .clip(MaterialTheme.shapes.medium)
+                .background(
+                    color = color,
+                    shape = MaterialTheme.shapes.medium,
+                ).clickable {
+                    onClick()
+                },
         contentAlignment = Alignment.Center,
     ) {
         Text(

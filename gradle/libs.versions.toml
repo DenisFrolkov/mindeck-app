@@ -1,7 +1,7 @@
 [versions]
 # Build
 agp = "9.2.0"
-spotless = "6.22.0"
+spotless = "7.0.3"
 
 # Kotlin
 coroutines = "1.11.0"
@@ -23,12 +23,11 @@ kotlinSerialization = "2.3.21"
 kotlinxSerializationCore = "1.11.0"
 
 # DI
-hilt-android = "1.3.0"
-hilt-dagger = "2.59.2"
-javax = "1"
+koin = "4.2.1"
 
-# Room
+# Database
 room = "2.8.4"
+sqlite = "2.6.2"
 
 # Rich editor
 richeditorCompose = "1.0.0-rc14"
@@ -42,10 +41,12 @@ junitExt = "1.3.0"
 mockk = "1.14.9"
 turbine = "1.2.1"
 androidxTestRunner = "1.7.0"
+kotlinStdlib = "2.3.21"
+kotlinTest = "2.3.21"
+core = "1.7.0"
 
 [libraries]
 # For classpath plugins
-hilt-android-gradle = { module = "com.google.dagger:hilt-android-gradle-plugin", version.ref = "hilt-dagger" }
 spotless-gradle = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotless" }
 
 # Kotlin
@@ -71,20 +72,19 @@ androidx-navigation3-runtime = { module = "androidx.navigation3:navigation3-runt
 androidx-navigation3-ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "nav3Core" }
 androidx-lifecycle-viewmodel-navigation3 = { module = "androidx.lifecycle:lifecycle-viewmodel-navigation3", version.ref = "lifecycleViewmodelNav3" }
 kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinxSerializationCore" }
-android-hilt-nav-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hilt-android" }
 
-# Dependency Injection (Hilt)
-hilt = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt-dagger" }
-hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "hilt-dagger" }
-android-hilt-compiler = { group = "androidx.hilt", name = "hilt-compiler", version.ref = "hilt-android" }
-javax = { group = "javax.inject", name = "javax.inject", version.ref = "javax" }
+# Dependency Injection (Koin)
+koin-core = { group = "io.insert-koin", name = "koin-core", version.ref = "koin" }
+koin-android = { group = "io.insert-koin", name = "koin-android", version.ref = "koin" }
+koin-compose = { group = "io.insert-koin", name = "koin-compose", version.ref = "koin" }
+koin-compose-viewmodel = { group = "io.insert-koin", name = "koin-compose-viewmodel", version.ref = "koin" }
 
 # Room (Database)
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
-androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
-androidx-room-paging = { module = "androidx.room:room-paging", version.ref = "room" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 androidx-room-testing = { module = "androidx.room:room-testing", version.ref = "room" }
+androidx-sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqlite" }
+androidx-room-sqlite-wrapper = { module = "androidx.room:room-sqlite-wrapper", version.ref = "room" }
 
 # Rich editor
 richeditor-compose = { module = "com.mohamedrejeb.richeditor:richeditor-compose", version.ref = "richeditorCompose" }
@@ -99,10 +99,11 @@ mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
 turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
 coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutines" }
 androidx-test-runner = { group = "androidx.test", name = "runner", version.ref = "androidxTestRunner" }
+kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlinStdlib" }
+kotlin-test = { group = "org.jetbrains.kotlin", name = "kotlin-test", version.ref = "kotlinTest" }
+core = { group = "androidx.test", name = "core", version.ref = "core" }
 
 [bundles]
-hilt = ["hilt", "android-hilt-nav-compose"]
-hilt-compiler = ["hilt-compiler", "android-hilt-compiler"]
 compose = ["compose-ui", "compose-ui-graphics", "compose-ui-preview", "compose-material3"]
 
 [plugins]
@@ -120,4 +121,9 @@ ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 jetbrains-kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlinSerialization"}
 
 #DI
-hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt-dagger" }
+kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+android-kotlin-multiplatform-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
+android-lint = { id = "com.android.lint", version.ref = "agp" }
+
+#Database
+androidx-room = { id = "androidx.room", version.ref = "room" }

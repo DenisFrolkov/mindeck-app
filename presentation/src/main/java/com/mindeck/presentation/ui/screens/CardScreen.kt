@@ -33,7 +33,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.CardType
@@ -52,6 +51,7 @@ import com.mindeck.presentation.ui.theme.MindeckTheme
 import com.mindeck.presentation.viewmodel.card.CardUiEvent
 import com.mindeck.presentation.viewmodel.card.CardViewModel
 import com.mohamedrejeb.richeditor.model.rememberRichTextState
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun CardScreen(
@@ -60,7 +60,7 @@ fun CardScreen(
 ) {
     val navigator = LocalNavigator.current
 
-    val viewModel = hiltViewModel<CardViewModel>()
+    val viewModel = koinViewModel<CardViewModel>()
 
     val context = LocalContext.current
     val cardWithDeckState by viewModel.cardWithDeck.collectAsStateWithLifecycle()
@@ -75,11 +75,12 @@ fun CardScreen(
         viewModel.uiEvent.collect { event ->
             when (event) {
                 is CardUiEvent.DeletionSuccessful -> {
-                    Toast.makeText(
-                        context,
-                        context.getString(R.string.card_deleted_success, event.cardName),
-                        Toast.LENGTH_SHORT,
-                    ).show()
+                    Toast
+                        .makeText(
+                            context,
+                            context.getString(R.string.card_deleted_success, event.cardName),
+                            Toast.LENGTH_SHORT,
+                        ).show()
                     navigator.pop()
                 }
             }
@@ -90,14 +91,15 @@ fun CardScreen(
         cardWithDeckState = cardWithDeckState,
         deleteCardState = deleteCardState,
         modalState = modalState,
-        actions = CardScreenActions(
-            onBack = navigator::pop,
-            onMenuClick = viewModel::showDropdownMenu,
-            onDismissModal = viewModel::hideModal,
-            onShowDeleteDialog = viewModel::showDeleteDialog,
-            onDeleteCard = viewModel::deleteCard,
-            onStudyCard = { navigator.push(CardStudyRoute(it)) },
-        ),
+        actions =
+            CardScreenActions(
+                onBack = navigator::pop,
+                onMenuClick = viewModel::showDropdownMenu,
+                onDismissModal = viewModel::hideModal,
+                onShowDeleteDialog = viewModel::showDeleteDialog,
+                onDeleteCard = viewModel::deleteCard,
+                onStudyCard = { navigator.push(CardStudyRoute(it)) },
+            ),
         modifier = modifier,
     )
 }
@@ -113,9 +115,10 @@ internal fun CardScreenContent(
     val cardWithDeck = (cardWithDeckState as? UiState.Success)?.data
 
     Scaffold(
-        modifier = modifier
-            .fillMaxSize()
-            .systemBarsPadding(),
+        modifier =
+            modifier
+                .fillMaxSize()
+                .systemBarsPadding(),
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             AppTopBar(
@@ -127,10 +130,11 @@ internal fun CardScreenContent(
         },
         content = { padding ->
             Column(
-                modifier = Modifier
-                    .padding(padding)
-                    .verticalScroll(state = rememberScrollState())
-                    .padding(horizontal = MindeckTheme.dimensions.paddingMd),
+                modifier =
+                    Modifier
+                        .padding(padding)
+                        .verticalScroll(state = rememberScrollState())
+                        .padding(horizontal = MindeckTheme.dimensions.paddingMd),
             ) {
                 CardContent(cardWithDeckState = cardWithDeckState)
             }
@@ -184,9 +188,7 @@ internal fun CardScreenContent(
 }
 
 @Composable
-private fun CardContent(
-    cardWithDeckState: UiState<CardWithDeck>,
-) {
+private fun CardContent(cardWithDeckState: UiState<CardWithDeck>) {
     val questionState = rememberRichTextState()
     val answerState = rememberRichTextState()
 
@@ -201,10 +203,11 @@ private fun CardContent(
             Spacer(modifier = Modifier.height(MindeckTheme.dimensions.spacerMd))
             CardInfoItem(
                 label = stringResource(R.string.text_type_dropdown_selector),
-                value = when (cardWithDeck.card.cardType) {
-                    CardType.SIMPLE -> stringResource(R.string.card_type_simple)
-                    CardType.COMPLEX -> stringResource(R.string.card_type_complex)
-                },
+                value =
+                    when (cardWithDeck.card.cardType) {
+                        CardType.SIMPLE -> stringResource(R.string.card_type_simple)
+                        CardType.COMPLEX -> stringResource(R.string.card_type_complex)
+                    },
             )
             Spacer(modifier = Modifier.height(height = MindeckTheme.dimensions.dp20))
             Text(
@@ -222,18 +225,17 @@ private fun CardContent(
                 answer = cardWithDeck.card.cardAnswer,
                 questionStyle = MaterialTheme.typography.bodyMedium,
                 answerStyle = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(
-                        color = MaterialTheme.colorScheme.surfaceVariant,
-                        shape = MaterialTheme.shapes.large,
-                    )
-                    .border(
-                        width = MindeckTheme.dimensions.dp0_25,
-                        color = MaterialTheme.colorScheme.outlineVariant,
-                        shape = MaterialTheme.shapes.large,
-                    )
-                    .padding(horizontal = MindeckTheme.dimensions.paddingSm),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .background(
+                            color = MaterialTheme.colorScheme.surfaceVariant,
+                            shape = MaterialTheme.shapes.large,
+                        ).border(
+                            width = MindeckTheme.dimensions.dp0_25,
+                            color = MaterialTheme.colorScheme.outlineVariant,
+                            shape = MaterialTheme.shapes.large,
+                        ).padding(horizontal = MindeckTheme.dimensions.paddingSm),
             )
 
             if (cardWithDeck.card.cardTag.isNotEmpty()) {
@@ -248,21 +250,19 @@ private fun CardContent(
                     )
 
                     LazyRow(
-                        modifier = Modifier
-                            .background(
-                                color = MaterialTheme.colorScheme.surfaceVariant,
-                                shape = MaterialTheme.shapes.large,
-                            )
-                            .size(
-                                width = MindeckTheme.dimensions.dp140,
-                                height = MindeckTheme.dimensions.dp46,
-                            )
-                            .border(
-                                MindeckTheme.dimensions.dp0_25,
-                                MaterialTheme.colorScheme.outlineVariant,
-                                MaterialTheme.shapes.large,
-                            )
-                            .padding(horizontal = MindeckTheme.dimensions.paddingSm),
+                        modifier =
+                            Modifier
+                                .background(
+                                    color = MaterialTheme.colorScheme.surfaceVariant,
+                                    shape = MaterialTheme.shapes.large,
+                                ).size(
+                                    width = MindeckTheme.dimensions.dp140,
+                                    height = MindeckTheme.dimensions.dp46,
+                                ).border(
+                                    MindeckTheme.dimensions.dp0_25,
+                                    MaterialTheme.colorScheme.outlineVariant,
+                                    MaterialTheme.shapes.large,
+                                ).padding(horizontal = MindeckTheme.dimensions.paddingSm),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         item {
@@ -279,9 +279,10 @@ private fun CardContent(
 
         UiState.Loading -> {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentSize(Alignment.Center),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .wrapContentSize(Alignment.Center),
             ) {
                 Spacer(modifier = Modifier.height(MindeckTheme.dimensions.spacerMd))
                 CircularProgressIndicator(
@@ -333,21 +334,19 @@ private fun CardInfoItem(
             modifier = Modifier.padding(MindeckTheme.dimensions.paddingXs),
         )
         Box(
-            modifier = Modifier
-                .background(
-                    color = MaterialTheme.colorScheme.surfaceVariant,
-                    shape = MaterialTheme.shapes.extraSmall,
-                )
-                .size(
-                    height = MindeckTheme.dimensions.dp36,
-                    width = MindeckTheme.dimensions.dp200,
-                )
-                .border(
-                    MindeckTheme.dimensions.dp0_25,
-                    color = MaterialTheme.colorScheme.outlineVariant,
-                    shape = MaterialTheme.shapes.extraSmall,
-                )
-                .wrapContentSize(Alignment.Center),
+            modifier =
+                Modifier
+                    .background(
+                        color = MaterialTheme.colorScheme.surfaceVariant,
+                        shape = MaterialTheme.shapes.extraSmall,
+                    ).size(
+                        height = MindeckTheme.dimensions.dp36,
+                        width = MindeckTheme.dimensions.dp200,
+                    ).border(
+                        MindeckTheme.dimensions.dp0_25,
+                        color = MaterialTheme.colorScheme.outlineVariant,
+                        shape = MaterialTheme.shapes.extraSmall,
+                    ).wrapContentSize(Alignment.Center),
         ) {
             Text(
                 text = value,

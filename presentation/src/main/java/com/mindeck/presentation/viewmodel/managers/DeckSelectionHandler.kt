@@ -24,9 +24,10 @@ internal class DeckSelectionHandler(
 
     private val createDeckMutex = Mutex()
 
-    val decksState: StateFlow<UiState<List<Deck>>> = getAllDecksUseCase()
-        .toUiState()
-        .stateIn(scope, SharingStarted.WhileSubscribed(5000), UiState.Loading)
+    val decksState: StateFlow<UiState<List<Deck>>> =
+        getAllDecksUseCase()
+            .toUiState()
+            .stateIn(scope, SharingStarted.WhileSubscribed(5000), UiState.Loading)
 
     suspend fun createDeck(deckName: String): Int? {
         if (!createDeckMutex.tryLock()) return null

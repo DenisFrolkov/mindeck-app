@@ -71,20 +71,22 @@ fun ChooseModalWindow(
     )
 
     val animatedButtonColor by animateColorAsState(
-        targetValue = when {
-            !isTextValid -> MaterialTheme.colorScheme.surfaceVariant
-            else -> MaterialTheme.colorScheme.primary
-        },
+        targetValue =
+            when {
+                !isTextValid -> MaterialTheme.colorScheme.surfaceVariant
+                else -> MaterialTheme.colorScheme.primary
+            },
         animationSpec = tween(300),
         label = "buttonColor",
     )
 
     val animatedTextColor by animateColorAsState(
-        targetValue = when {
-            !isTextValid -> MaterialTheme.colorScheme.onSurfaceVariant
-            isLoading -> MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.6f)
-            else -> MaterialTheme.colorScheme.onPrimary
-        },
+        targetValue =
+            when {
+                !isTextValid -> MaterialTheme.colorScheme.onSurfaceVariant
+                isLoading -> MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.6f)
+                else -> MaterialTheme.colorScheme.onPrimary
+            },
         animationSpec = tween(300),
         label = "textColor",
     )
@@ -92,13 +94,13 @@ fun ChooseModalWindow(
     Dialog(onDismissRequest = onExitClick) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .background(
-                    color = MaterialTheme.colorScheme.background,
-                    shape = MaterialTheme.shapes.small,
-                )
-                .clip(MaterialTheme.shapes.small)
-                .padding(MindeckTheme.dimensions.paddingXs),
+            modifier =
+                Modifier
+                    .background(
+                        color = MaterialTheme.colorScheme.background,
+                        shape = MaterialTheme.shapes.small,
+                    ).clip(MaterialTheme.shapes.small)
+                    .padding(MindeckTheme.dimensions.paddingXs),
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -151,28 +153,28 @@ fun ChooseModalWindow(
                             text = it
                         },
                         placeholderTextStyle = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurfaceVariant),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(
-                                MaterialTheme.colorScheme.surface,
-                                MaterialTheme.shapes.large,
-                            )
-                            .border(
-                                MindeckTheme.dimensions.dp0_25,
-                                MaterialTheme.colorScheme.outline,
-                                MaterialTheme.shapes.large,
-                            )
-                            .padding(MindeckTheme.dimensions.paddingSm),
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .background(
+                                    MaterialTheme.colorScheme.surface,
+                                    MaterialTheme.shapes.large,
+                                ).border(
+                                    MindeckTheme.dimensions.dp0_25,
+                                    MaterialTheme.colorScheme.outline,
+                                    MaterialTheme.shapes.large,
+                                ).padding(MindeckTheme.dimensions.paddingSm),
                     )
 
                     errorMessage?.let { message ->
                         Text(
                             text = message,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(
-                                    top = MindeckTheme.dimensions.dp4,
-                                ),
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .padding(
+                                        top = MindeckTheme.dimensions.dp4,
+                                    ),
                             textAlign = TextAlign.Start,
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.error,
@@ -190,29 +192,30 @@ fun ChooseModalWindow(
                         label = "loading_button",
                     ) { target ->
                         Box(
-                            modifier = Modifier
-                                .background(
-                                    color = animatedButtonColor,
-                                    shape = MaterialTheme.shapes.medium,
-                                )
-                                .then(
-                                    if (text.isEmpty()) {
-                                        Modifier
-                                    } else {
-                                        Modifier.clickable {
-                                            onCreateClick(text)
-                                        }
-                                    },
-                                ),
+                            modifier =
+                                Modifier
+                                    .background(
+                                        color = animatedButtonColor,
+                                        shape = MaterialTheme.shapes.medium,
+                                    ).then(
+                                        if (text.isEmpty()) {
+                                            Modifier
+                                        } else {
+                                            Modifier.clickable {
+                                                onCreateClick(text)
+                                            }
+                                        },
+                                    ),
                         ) {
                             Text(
                                 text = if (target) stringResource(R.string.loading_text) else createButtonLabel,
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = animatedTextColor,
-                                modifier = Modifier.padding(
-                                    vertical = MindeckTheme.dimensions.paddingSm,
-                                    horizontal = MindeckTheme.dimensions.paddingXl,
-                                ),
+                                modifier =
+                                    Modifier.padding(
+                                        vertical = MindeckTheme.dimensions.paddingSm,
+                                        horizontal = MindeckTheme.dimensions.paddingXl,
+                                    ),
                             )
                         }
                     }
@@ -220,46 +223,48 @@ fun ChooseModalWindow(
             } else {
                 items?.let {
                     LazyColumn(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(MaterialTheme.shapes.medium)
-                            .background(MaterialTheme.colorScheme.surface)
-                            .heightIn(max = MindeckTheme.dimensions.dp200),
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .clip(MaterialTheme.shapes.medium)
+                                .background(MaterialTheme.colorScheme.surface)
+                                .heightIn(max = MindeckTheme.dimensions.dp200),
                         verticalArrangement = Arrangement.spacedBy(MindeckTheme.dimensions.dp4),
                     ) {
                         items(it) { item ->
                             val isSelected = selectedId == item.second
                             val backgroundColor by animateColorAsState(
-                                targetValue = if (isSelected) {
-                                    MaterialTheme.colorScheme.primaryContainer
-                                } else {
-                                    MaterialTheme.colorScheme.surfaceVariant
-                                },
+                                targetValue =
+                                    if (isSelected) {
+                                        MaterialTheme.colorScheme.primaryContainer
+                                    } else {
+                                        MaterialTheme.colorScheme.surfaceVariant
+                                    },
                                 animationSpec = tween(300),
                                 label = "background_color",
                             )
 
                             Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .background(
-                                        color = backgroundColor,
-                                        shape = MaterialTheme.shapes.small,
-                                    )
-                                    .clip(MaterialTheme.shapes.small)
-                                    .clickable {
-                                        onSaveClick(item.second)
-                                    }
-                                    .padding(MindeckTheme.dimensions.paddingSm),
+                                modifier =
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .background(
+                                            color = backgroundColor,
+                                            shape = MaterialTheme.shapes.small,
+                                        ).clip(MaterialTheme.shapes.small)
+                                        .clickable {
+                                            onSaveClick(item.second)
+                                        }.padding(MindeckTheme.dimensions.paddingSm),
                             ) {
                                 Text(
                                     text = item.first,
                                     style = MaterialTheme.typography.bodyMedium,
-                                    color = if (isSelected) {
-                                        MaterialTheme.colorScheme.onPrimaryContainer
-                                    } else {
-                                        MaterialTheme.colorScheme.onSurfaceVariant
-                                    },
+                                    color =
+                                        if (isSelected) {
+                                            MaterialTheme.colorScheme.onPrimaryContainer
+                                        } else {
+                                            MaterialTheme.colorScheme.onSurfaceVariant
+                                        },
                                 )
                             }
                         }

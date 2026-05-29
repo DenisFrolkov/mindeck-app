@@ -26,17 +26,16 @@ fun RepeatOptionsButton(
     modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = modifier
-            .background(color = buttonColor)
-            .border(
-                width = MindeckTheme.dimensions.dp0_25,
-                color = MaterialTheme.colorScheme.outline,
-            )
-            .clickable {
-                onClick()
-            }
-            .padding(vertical = MindeckTheme.dimensions.dp4)
-            .wrapContentSize(Alignment.Center),
+        modifier =
+            modifier
+                .background(color = buttonColor)
+                .border(
+                    width = MindeckTheme.dimensions.dp0_25,
+                    color = MaterialTheme.colorScheme.outline,
+                ).clickable {
+                    onClick()
+                }.padding(vertical = MindeckTheme.dimensions.dp4)
+                .wrapContentSize(Alignment.Center),
         verticalArrangement = Arrangement.spacedBy(MindeckTheme.dimensions.dp4),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {

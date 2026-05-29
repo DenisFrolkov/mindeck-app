@@ -21,11 +21,12 @@ fun AppDropdownMenu(
     content: @Composable () -> Unit,
 ) {
     Box(
-        modifier = modifier
-            .padding(horizontal = MindeckTheme.dimensions.dp28)
-            .padding(padding)
-            .fillMaxWidth()
-            .wrapContentSize(Alignment.TopEnd),
+        modifier =
+            modifier
+                .padding(horizontal = MindeckTheme.dimensions.dp28)
+                .padding(padding)
+                .fillMaxWidth()
+                .wrapContentSize(Alignment.TopEnd),
     ) {
         DropdownMenu(
             expanded = isExpanded,

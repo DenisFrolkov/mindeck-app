@@ -19,18 +19,17 @@ private fun CardInputFieldEmptyPreview() {
             value = "",
             onValueChange = {},
             placeholderTextStyle = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurfaceVariant),
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(
-                    MaterialTheme.colorScheme.surface,
-                    MaterialTheme.shapes.large,
-                )
-                .border(
-                    MindeckTheme.dimensions.dp0_25,
-                    MaterialTheme.colorScheme.outline,
-                    MaterialTheme.shapes.large,
-                )
-                .padding(MindeckTheme.dimensions.paddingSm),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .background(
+                        MaterialTheme.colorScheme.surface,
+                        MaterialTheme.shapes.large,
+                    ).border(
+                        MindeckTheme.dimensions.dp0_25,
+                        MaterialTheme.colorScheme.outline,
+                        MaterialTheme.shapes.large,
+                    ).padding(MindeckTheme.dimensions.paddingSm),
         )
     }
 }
@@ -43,18 +42,17 @@ private fun CardInputFieldFilledPreview() {
             value = "Что такое sealed class?",
             onValueChange = {},
             placeholderTextStyle = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurfaceVariant),
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(
-                    MaterialTheme.colorScheme.surface,
-                    MaterialTheme.shapes.large,
-                )
-                .border(
-                    MindeckTheme.dimensions.dp0_25,
-                    MaterialTheme.colorScheme.outline,
-                    MaterialTheme.shapes.large,
-                )
-                .padding(MindeckTheme.dimensions.paddingSm),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .background(
+                        MaterialTheme.colorScheme.surface,
+                        MaterialTheme.shapes.large,
+                    ).border(
+                        MindeckTheme.dimensions.dp0_25,
+                        MaterialTheme.colorScheme.outline,
+                        MaterialTheme.shapes.large,
+                    ).padding(MindeckTheme.dimensions.paddingSm),
         )
     }
 }

@@ -10,7 +10,6 @@ import com.mindeck.domain.usecases.card.query.GetCardWithDeckByIdUseCase
 import com.mindeck.presentation.R
 import com.mindeck.presentation.state.ModalState
 import com.mindeck.presentation.state.UiState
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -26,22 +25,19 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
-import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@HiltViewModel
-internal class CardViewModel @Inject constructor(
+internal class CardViewModel(
     private val getCardWithDeckByIdUseCase: GetCardWithDeckByIdUseCase,
     private val deleteCardUseCase: DeleteCardUseCase,
 ) : ViewModel() {
-
     private val _uiEvent = Channel<CardUiEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
 
-    private val _cardId = MutableSharedFlow<Int>(replay = 1)
+    private val cardIdFlow = MutableSharedFlow<Int>(replay = 1)
 
     val cardWithDeck: StateFlow<UiState<CardWithDeck>> =
-        _cardId
+        cardIdFlow
             .flatMapLatest { id ->
                 getCardWithDeckByIdUseCase(cardId = id)
                     .map { cardWithDeck ->
@@ -50,19 +46,17 @@ internal class CardViewModel @Inject constructor(
                         } else {
                             UiState.Error(R.string.error_failed_to_load_card)
                         }
-                    }
-                    .catch { e ->
+                    }.catch { e ->
                         when (e) {
                             is DomainError.DatabaseError -> emit(UiState.Error(R.string.error_failed_to_load_card))
                             else -> emit(UiState.Error(R.string.error_something_went_wrong))
                         }
                     }
-            }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), UiState.Loading)
+            }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), UiState.Loading)
 
     fun loadCardById(cardId: Int) {
         viewModelScope.launch {
-            _cardId.emit(cardId)
+            cardIdFlow.emit(cardId)
         }
     }
 
