@@ -11,12 +11,8 @@
 
 -keep class dagger.hilt.** { *; }
 -keep class javax.inject.** { *; }
--keep @dagger.hilt.android.HiltAndroidApp class * { *; }
--keep @dagger.hilt.android.AndroidEntryPoint class * { *; }
--keepclassmembers class * {
-    @javax.inject.Inject <init>(...);
-    @javax.inject.Inject <fields>;
-}
+
+-keep class * extends androidx.room.RoomDatabase { <init>(); }
 
 -keepattributes *Annotation*, InnerClasses
 -dontnote kotlinx.serialization.AnnotationsKt

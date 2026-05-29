@@ -1,62 +1,81 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.android.kotlin.multiplatform.library)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.androidx.room)
 }
 
-android {
-    namespace = "com.mindeck.data"
-    compileSdk = rootProject.extra["compileSdk"] as Int
-
-    defaultConfig {
-        minSdk = rootProject.extra["minSdk"] as Int
-
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        consumerProguardFiles("consumer-rules.pro")
-    }
-
-    compileOptions {
-        sourceCompatibility = rootProject.extra["javaVersion"] as JavaVersion
-        targetCompatibility = rootProject.extra["javaVersion"] as JavaVersion
-    }
-}
 kotlin {
-    compilerOptions {
-        jvmTarget.set(JvmTarget.fromTarget(rootProject.extra["jvmTarget"] as String))
+    android {
+        namespace = "com.mindeck.data"
+        compileSdk = rootProject.extra["compileSdk"] as Int
+        minSdk = rootProject.extra["minSdk"] as Int
+        compilerOptions {
+            jvmTarget = JvmTarget.fromTarget(rootProject.extra["jvmTarget"] as String)
+        }
+        withHostTestBuilder { }
+
+        withDeviceTestBuilder {
+            sourceSetTreeName = "test"
+        }.configure {
+            instrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        }
+    }
+
+    iosX64()
+    iosArm64()
+    iosSimulatorArm64()
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                implementation(projects.domain)
+                implementation(libs.coroutines)
+                implementation(libs.koin.core)
+                implementation(libs.androidx.room.runtime)
+                implementation(libs.androidx.sqlite.bundled)
+            }
+        }
+
+        androidMain {
+            dependencies {
+                implementation(libs.koin.android)
+                implementation(libs.androidx.core)
+            }
+        }
+
+
+        getByName("androidHostTest") {
+            dependencies {
+                implementation(libs.junit)
+                implementation(libs.mockk)
+                implementation(libs.turbine)
+                implementation(libs.coroutines.test)
+                implementation(libs.androidx.room.testing)
+            }
+        }
+
+        getByName("androidDeviceTest") {
+            dependencies {
+                implementation(libs.androidx.junit)
+                implementation(libs.androidx.room.testing)
+                implementation(libs.turbine)
+                implementation(libs.coroutines.test)
+                implementation(libs.androidx.test.runner)
+            }
+        }
     }
 }
 
-ksp {
-    arg("room.schemaLocation", "$projectDir/schemas")
+room {
+    schemaDirectory("$projectDir/schemas")
 }
 
 dependencies {
-    implementation(projects.domain)
-
-    // Coroutines
-    implementation(libs.coroutines)
-
-    // Koin
-    implementation(libs.koin.core)
-    implementation(libs.koin.android)
-
-    // Room
-    implementation(libs.androidx.room.runtime)
-    ksp(libs.androidx.room.compiler)
-    implementation(libs.androidx.room.ktx)
-    implementation(libs.androidx.room.paging)
-    testImplementation(libs.androidx.room.testing)
-
-    implementation(libs.androidx.core)
-
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.room.testing)
-    androidTestImplementation(libs.turbine)
-    androidTestImplementation(libs.coroutines.test)
-    androidTestImplementation(libs.androidx.test.runner)
-    testImplementation(libs.junit)
-    testImplementation(libs.mockk)
-    testImplementation(libs.turbine)
-    testImplementation(libs.coroutines.test)
+    kspAndroid(libs.androidx.room.compiler)
+    add("kspIosX64", libs.androidx.room.compiler)
+    add("kspIosArm64", libs.androidx.room.compiler)
+    add("kspIosSimulatorArm64", libs.androidx.room.compiler)
 }

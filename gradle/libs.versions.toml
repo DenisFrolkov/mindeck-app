@@ -25,8 +25,9 @@ kotlinxSerializationCore = "1.11.0"
 # DI
 koin = "4.2.1"
 
-# Room
+# Database
 room = "2.8.4"
+sqlite = "2.6.2"
 
 # Rich editor
 richeditorCompose = "1.0.0-rc14"
@@ -80,10 +81,10 @@ koin-compose-viewmodel = { group = "io.insert-koin", name = "koin-compose-viewmo
 
 # Room (Database)
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
-androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
-androidx-room-paging = { module = "androidx.room:room-paging", version.ref = "room" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 androidx-room-testing = { module = "androidx.room:room-testing", version.ref = "room" }
+androidx-sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqlite" }
+androidx-room-sqlite-wrapper = { module = "androidx.room:room-sqlite-wrapper", version.ref = "room" }
 
 # Rich editor
 richeditor-compose = { module = "com.mohamedrejeb.richeditor:richeditor-compose", version.ref = "richeditorCompose" }
@@ -123,3 +124,6 @@ jetbrains-kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serializati
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 android-kotlin-multiplatform-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
 android-lint = { id = "com.android.lint", version.ref = "agp" }
+
+#Database
+androidx-room = { id = "androidx.room", version.ref = "room" }
