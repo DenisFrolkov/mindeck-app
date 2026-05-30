@@ -27,5 +27,6 @@ class RootComponent(
     private fun createChild(config: Config, context: ComponentContext) =
         when (config) {
             is Config.Main -> Child.Main
+            is Config.Second -> Child.Second
         }
 }

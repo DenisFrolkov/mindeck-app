@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import com.arkivanov.decompose.extensions.compose.stack.Children
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import com.mindeck.presentation.screen.MainScreen
+import com.mindeck.presentation.screen.SecondScreen
 import com.mindeck.presentation.ui.navigation.Child
 import com.mindeck.presentation.ui.navigation.LocalRootComponent
 import com.mindeck.presentation.ui.navigation.RootComponent
@@ -29,6 +30,7 @@ fun Navigation(rootComponent: RootComponent, modifier: Modifier = Modifier) {
             Children(stack = stack) { child ->
                 when (child.instance) {
                     is Child.Main -> MainScreen()
+                    is Child.Second -> SecondScreen()
                 }
             }
         }
