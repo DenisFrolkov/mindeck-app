@@ -1,68 +1,84 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.android.kotlin.multiplatform.library)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.jetbrains.kotlin.serialization)
 }
 
-android {
-    namespace = "com.mindeck.presentation"
-    compileSdk = rootProject.extra["compileSdk"] as Int
-
-    defaultConfig {
-        minSdk = rootProject.extra["minSdk"] as Int
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        consumerProguardFiles("consumer-rules.pro")
-    }
-
-    compileOptions {
-        sourceCompatibility = rootProject.extra["javaVersion"] as JavaVersion
-        targetCompatibility = rootProject.extra["javaVersion"] as JavaVersion
-    }
-
-    buildFeatures {
-        compose = true
-    }
-}
-
 kotlin {
-    compilerOptions {
-        jvmTarget.set(JvmTarget.fromTarget(rootProject.extra["jvmTarget"] as String))
+    android {
+        namespace = "com.mindeck.presentation"
+        compileSdk = rootProject.extra["compileSdk"] as Int
+
+        compilerOptions {
+            jvmTarget = JvmTarget.fromTarget(rootProject.extra["jvmTarget"] as String)
+        }
+
+        androidResources {
+            enable = true
+        }
+
+        withHostTestBuilder { }
+
+        withDeviceTestBuilder {
+            sourceSetTreeName = "test"
+        }.configure {
+            instrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        }
     }
-}
 
-dependencies {
-    // Modules
-    implementation(projects.domain)
+    val xcfName = "presentationKit"
 
-    // Navigation
-    implementation(libs.androidx.navigation3.runtime)
-    implementation(libs.androidx.navigation3.ui)
-    implementation(libs.androidx.lifecycle.viewmodel.navigation3)
-    implementation(libs.kotlinx.serialization.core)
+    iosX64 { binaries.framework { baseName = xcfName } }
+    iosArm64 { binaries.framework { baseName = xcfName } }
+    iosSimulatorArm64 { binaries.framework { baseName = xcfName } }
 
-    // Koin
-    implementation(libs.koin.core)
-    implementation(libs.koin.android)
-    implementation(libs.koin.compose)
-    implementation(libs.koin.compose.viewmodel)
+    sourceSets {
+        commonMain {
+            dependencies {
+                implementation(projects.domain)
+                implementation(libs.kotlinx.serialization.core)
+                implementation(libs.koin.core)
+                implementation(libs.koin.compose)
+                implementation(libs.decompose.decompose)
+                implementation(libs.decompose.extensions.compose)
+            }
+        }
 
-    api(platform(libs.compose.bom))
-    api(libs.bundles.compose)
-    implementation(libs.compose.material.icons)
+        androidMain {
+            dependencies {
+                implementation(libs.koin.android)
+                implementation(libs.koin.compose.viewmodel)
+                api(dependencies.platform(libs.compose.bom))
+                api(libs.bundles.compose)
+                implementation(libs.compose.material.icons)
+                implementation(libs.richeditor.compose)
+                implementation(libs.androidx.activity.compose)
+                implementation(libs.androidx.core)
+                implementation(libs.compose.ui.tooling)
+            }
+        }
 
-    // Rich editor
-    implementation(libs.richeditor.compose)
+        iosMain {
+            dependencies { }
+        }
 
-    // Core
-    implementation(libs.androidx.activity.compose)
-    implementation(libs.androidx.core)
-    debugImplementation(libs.compose.ui.tooling)
-    testImplementation(libs.junit)
-    testImplementation(libs.mockk)
-    testImplementation(libs.turbine)
-    testImplementation(libs.coroutines.test)
-    androidTestImplementation(platform(libs.compose.bom))
-    androidTestImplementation(libs.compose.ui.test.junit)
+        getByName("androidHostTest") {
+            dependencies {
+                implementation(libs.junit)
+                implementation(libs.mockk)
+                implementation(libs.turbine)
+                implementation(libs.coroutines.test)
+            }
+        }
+
+        getByName("androidDeviceTest") {
+            dependencies {
+                implementation(dependencies.platform(libs.compose.bom))
+                implementation(libs.compose.ui.test.junit)
+            }
+        }
+    }
 }

@@ -71,6 +71,8 @@ dependencies {
     implementation(projects.data)
     implementation(projects.shared)
 
+    implementation(libs.decompose.decompose)
+
     // Activity Compose
     implementation(libs.androidx.activity.compose)
 

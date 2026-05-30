@@ -8,24 +8,16 @@ sealed interface NavigationRoute
 data object MainRoute : NavigationRoute
 
 @Serializable
-data class CreationCardRoute(
-    val deckId: Int? = null,
-) : NavigationRoute
+data class CreationCardRoute(val deckId: Int? = null) : NavigationRoute
 
 @Serializable
 data object DecksRoute : NavigationRoute
 
 @Serializable
-data class DeckRoute(
-    val deckId: Int,
-) : NavigationRoute
+data class DeckRoute(val deckId: Int) : NavigationRoute
 
 @Serializable
-data class CardRoute(
-    val cardId: Int,
-) : NavigationRoute
+data class CardRoute(val cardId: Int) : NavigationRoute
 
 @Serializable
-data class CardStudyRoute(
-    val cardId: Int? = null,
-) : NavigationRoute
+data class CardStudyRoute(val cardId: Int? = null) : NavigationRoute

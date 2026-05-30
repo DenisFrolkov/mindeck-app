@@ -48,7 +48,7 @@ import com.mindeck.presentation.viewmodel.main.MainViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun MainScreen(modifier: Modifier = Modifier) {
+fun MainScreenOld(modifier: Modifier = Modifier) {
     val navigator = LocalNavigator.current
 
     val viewModel = koinViewModel<MainViewModel>()
