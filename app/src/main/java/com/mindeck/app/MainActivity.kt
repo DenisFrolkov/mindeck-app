@@ -7,7 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import com.arkivanov.decompose.DefaultComponentContext
 import com.mindeck.presentation.ui.navigation.Navigation
 import com.mindeck.presentation.ui.navigation.RootComponent
-import com.mindeck.presentation.ui.theme.MindeckTheme
+import com.mindeck.presentation.theme.MindeckTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

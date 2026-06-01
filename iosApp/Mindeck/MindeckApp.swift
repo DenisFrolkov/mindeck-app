@@ -10,6 +10,8 @@ import sharedKit
 
 @main
 struct MindeckApp: App {
+    @StateObject private var rootHolder = RootHolder()
+
     init() {
         KoinIosKt.doInitKoin()
     }
@@ -17,6 +19,7 @@ struct MindeckApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(rootHolder)
         }
     }
 }
