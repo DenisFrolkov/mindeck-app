@@ -1,4 +1,4 @@
-package com.mindeck.presentation.navigation
+package com.mindeck.presentation.ui.navigation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -10,11 +10,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import com.arkivanov.decompose.extensions.compose.stack.Children
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
-import com.mindeck.presentation.screen.MainScreen
-import com.mindeck.presentation.screen.SecondScreen
-import com.mindeck.presentation.ui.navigation.Child
-import com.mindeck.presentation.ui.navigation.LocalRootComponent
-import com.mindeck.presentation.ui.navigation.RootComponent
+import com.mindeck.presentation.ui.screen.MainScreen
+import com.mindeck.presentation.ui.screen.SecondScreen
 
 @Composable
 fun Navigation(rootComponent: RootComponent, modifier: Modifier = Modifier) {

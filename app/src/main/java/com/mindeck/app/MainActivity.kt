@@ -5,7 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import com.arkivanov.decompose.DefaultComponentContext
-import com.mindeck.presentation.navigation.Navigation
+import com.mindeck.presentation.ui.navigation.Navigation
 import com.mindeck.presentation.ui.navigation.RootComponent
 import com.mindeck.presentation.ui.theme.MindeckTheme
 

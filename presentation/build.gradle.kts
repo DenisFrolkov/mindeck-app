@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.android.kotlin.multiplatform.library)
+    alias(libs.plugins.compose.multiplatform)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.jetbrains.kotlin.serialization)
 }
@@ -44,6 +45,10 @@ kotlin {
                 implementation(libs.koin.compose)
                 implementation(libs.decompose.decompose)
                 implementation(libs.decompose.extensions.compose)
+                implementation(compose.runtime)
+                implementation(compose.foundation)
+                implementation(compose.material3)
+                implementation(compose.ui)
             }
         }
 
@@ -51,8 +56,6 @@ kotlin {
             dependencies {
                 implementation(libs.koin.android)
                 implementation(libs.koin.compose.viewmodel)
-                api(dependencies.platform(libs.compose.bom))
-                api(libs.bundles.compose)
                 implementation(libs.compose.material.icons)
                 implementation(libs.richeditor.compose)
                 implementation(libs.androidx.activity.compose)
