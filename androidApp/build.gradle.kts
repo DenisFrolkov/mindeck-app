@@ -13,7 +13,7 @@ val localProperties =
     }
 
 android {
-    namespace = "com.mindeck.app"
+    namespace = "com.mindeck.androidApp"
     compileSdk = rootProject.extra["compileSdk"] as Int
 
     defaultConfig {

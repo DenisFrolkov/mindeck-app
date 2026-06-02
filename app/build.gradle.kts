@@ -9,6 +9,11 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.serialization)
 }
 
+compose.resources {
+    publicResClass = true
+    generateResClass = always
+}
+
 kotlin {
     android {
         namespace = "com.mindeck.app"
@@ -48,6 +53,8 @@ kotlin {
 
                 // Serialization
                 implementation(libs.kotlinx.serialization.core)
+
+                implementation(compose.components.resources)
             }
         }
     }

@@ -14,4 +14,4 @@ data class AppShapes(
     val shapeXl: RoundedCornerShape = RoundedCornerShape(28.dp),
 )
 
-val LocalShapes = staticCompositionLocalOf { com.mindeck.presentation.theme.AppShapes() }
+val LocalShapes = staticCompositionLocalOf { AppShapes() }
