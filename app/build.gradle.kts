@@ -2,91 +2,53 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.util.Properties
 
 plugins {
-    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.android.kotlin.multiplatform.library)
+    alias(libs.plugins.compose.multiplatform)
     alias(libs.plugins.compose.compiler)
-}
-
-val localProperties =
-    Properties().apply {
-        val file = rootProject.file("local.properties")
-        if (file.exists()) load(file.inputStream())
-    }
-
-android {
-    namespace = "com.mindeck.app"
-    compileSdk = rootProject.extra["compileSdk"] as Int
-
-    defaultConfig {
-        applicationId = "com.mindeck.app"
-        minSdk = rootProject.extra["minSdk"] as Int
-        targetSdk = rootProject.extra["targetSdk"] as Int
-        versionCode = rootProject.extra["versionCode"] as Int
-        versionName = rootProject.extra["versionName"] as String
-
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-    }
-
-    signingConfigs {
-        create("release") {
-            storeFile = file(localProperties["signing.storeFile"] as String)
-            storePassword = localProperties["signing.storePassword"] as String
-            keyAlias = localProperties["signing.keyAlias"] as String
-            keyPassword = localProperties["signing.keyPassword"] as String
-        }
-    }
-
-    buildTypes {
-        debug {
-            applicationIdSuffix = ".debug"
-            versionNameSuffix = "-debug"
-        }
-        release {
-            signingConfig = signingConfigs.getByName("release")
-            isMinifyEnabled = true
-            isShrinkResources = true
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro",
-            )
-        }
-    }
-    compileOptions {
-        sourceCompatibility = rootProject.extra["javaVersion"] as JavaVersion
-        targetCompatibility = rootProject.extra["javaVersion"] as JavaVersion
-    }
-    buildFeatures {
-        compose = true
-    }
+    alias(libs.plugins.jetbrains.kotlin.serialization)
 }
 
 kotlin {
-    compilerOptions {
-        jvmTarget.set(JvmTarget.fromTarget(rootProject.extra["jvmTarget"] as String))
+    android {
+        namespace = "com.mindeck.app"
+        compileSdk = rootProject.extra["compileSdk"] as Int
+
+        compilerOptions {
+            jvmTarget = JvmTarget.fromTarget(rootProject.extra["jvmTarget"] as String)
+        }
     }
-}
 
-dependencies {
-    // Modules
-    implementation(projects.presentation)
-    implementation(projects.data)
-    implementation(projects.shared)
+    val xcfName = "appKit"
 
-    implementation(libs.decompose.decompose)
+    iosArm64 { binaries.framework { baseName = xcfName } }
+    iosSimulatorArm64 { binaries.framework { baseName = xcfName } }
 
-    // Activity Compose
-    implementation(libs.androidx.activity.compose)
+    sourceSets {
+        androidMain { dependencies { implementation(libs.koin.android) } }
 
-    // Splash screen
-    implementation(libs.androidx.splashscreen)
+        commonMain {
+            dependencies {
+                // Module
+                implementation(projects.domain)
+                implementation(projects.data)
 
-    // Koin
-    implementation(libs.koin.android)
+                // DI
+                implementation(libs.koin.core)
 
-    // Debug tools
-    debugImplementation(libs.leakcanary)
+                // Decompose
+                implementation(libs.decompose.decompose)
+                implementation(libs.decompose.extensions.compose)
 
-    // Tests
-    testImplementation(libs.junit)
-    androidTestImplementation(platform(libs.compose.bom))
-    androidTestImplementation(libs.compose.ui.test.junit)
+                // Compose
+                implementation(compose.runtime)
+                implementation(compose.foundation)
+                implementation(compose.material3)
+                implementation(compose.ui)
+
+                // Serialization
+                implementation(libs.kotlinx.serialization.core)
+            }
+        }
+    }
 }
