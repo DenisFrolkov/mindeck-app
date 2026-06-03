@@ -1,4 +1,4 @@
-package com.mindeck.app.theme
+package com.mindeck.core.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

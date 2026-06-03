@@ -19,5 +19,6 @@ rootProject.name = "mindeck-app"
 include(":androidApp")
 include(":app")
 include(":core:mvi")
+include(":core:ui")
 include(":data")
 include(":domain")

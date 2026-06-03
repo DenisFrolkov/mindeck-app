@@ -1,4 +1,4 @@
-package com.mindeck.app.theme
+package com.mindeck.core.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -14,8 +14,8 @@ import org.jetbrains.compose.resources.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import mindeck_app.app.generated.resources.Res
-import mindeck_app.app.generated.resources.nunito_variable
+import mindeck_app.core.ui.generated.resources.Res
+import mindeck_app.core.ui.generated.resources.nunito_variable
 
 private val LightColorScheme =
     lightColorScheme(
