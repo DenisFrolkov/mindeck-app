@@ -18,5 +18,6 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 rootProject.name = "mindeck-app"
 include(":androidApp")
 include(":app")
+include(":core:mvi")
 include(":data")
 include(":domain")
