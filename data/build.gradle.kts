@@ -16,12 +16,6 @@ kotlin {
             jvmTarget = JvmTarget.fromTarget(rootProject.extra["jvmTarget"] as String)
         }
         withHostTestBuilder { }
-
-        withDeviceTestBuilder {
-            sourceSetTreeName = "test"
-        }.configure {
-            instrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        }
     }
 
     iosX64()
@@ -55,16 +49,10 @@ kotlin {
                 implementation(libs.androidx.room.testing)
             }
         }
+    }
 
-        getByName("androidDeviceTest") {
-            dependencies {
-                implementation(libs.androidx.junit)
-                implementation(libs.androidx.room.testing)
-                implementation(libs.turbine)
-                implementation(libs.coroutines.test)
-                implementation(libs.androidx.test.runner)
-            }
-        }
+    compilerOptions {
+        freeCompilerArgs.add("-Xexpect-actual-classes")
     }
 }
 

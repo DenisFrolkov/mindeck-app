@@ -16,8 +16,10 @@ dependencyResolutionManagement {
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 rootProject.name = "mindeck-app"
+include(":androidApp")
 include(":app")
-include(":presentation")
+include(":core:mvi")
+include(":core:ui")
 include(":data")
 include(":domain")
-include(":shared")
+include(":feature:home")

@@ -5,12 +5,16 @@ plugins {
     alias(libs.plugins.android.kotlin.multiplatform.library)
     alias(libs.plugins.compose.multiplatform)
     alias(libs.plugins.compose.compiler)
-    alias(libs.plugins.jetbrains.kotlin.serialization)
+}
+
+compose.resources {
+    publicResClass = true
+    generateResClass = always
 }
 
 kotlin {
     android {
-        namespace = "com.mindeck.app"
+        namespace = "com.mindeck.feature.home"
         compileSdk = rootProject.extra["compileSdk"] as Int
 
         compilerOptions {
@@ -18,28 +22,14 @@ kotlin {
         }
     }
 
-    val xcfName = "appKit"
-
-    iosArm64 { binaries.framework { baseName = xcfName } }
-    iosSimulatorArm64 { binaries.framework { baseName = xcfName } }
+    iosArm64()
+    iosSimulatorArm64()
 
     sourceSets {
-        androidMain { dependencies { implementation(libs.koin.android) } }
-
         commonMain {
             dependencies {
                 // Module
                 implementation(projects.core.ui)
-                implementation(projects.domain)
-                implementation(projects.data)
-                implementation(projects.feature.home)
-
-                // DI
-                implementation(libs.koin.core)
-
-                // Decompose
-                implementation(libs.decompose.decompose)
-                implementation(libs.decompose.extensions.compose)
 
                 // Compose
                 implementation(compose.runtime)
@@ -47,9 +37,6 @@ kotlin {
                 implementation(compose.material3)
                 implementation(compose.ui)
                 implementation(compose.components.resources)
-
-                // Serialization
-                implementation(libs.kotlinx.serialization.core)
             }
         }
     }

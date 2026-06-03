@@ -1,6 +1,6 @@
 [versions]
 # Build
-agp = "9.2.0"
+agp = "9.0.1"
 spotless = "7.0.3"
 
 # Kotlin
@@ -15,10 +15,10 @@ androidx-splashscreen = "1.2.0"
 
 # Compose
 bomCompose = "2026.02.00"
+composeMultiplatform = "1.11.0"
 
 # Navigation
-nav3Core = "1.1.1"
-lifecycleViewmodelNav3 = "2.10.0"
+decompose = "3.5.0"
 kotlinSerialization = "2.3.21"
 kotlinxSerializationCore = "1.11.0"
 
@@ -65,12 +65,10 @@ compose-ui-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
 compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
 compose-material3 = { module = "androidx.compose.material3:material3-android" }
 compose-ui-test-junit = { module = "androidx.compose.ui:ui-test-junit4" }
-compose-material-icons = { module = "androidx.compose.material:material-icons-extended" }
 
 # Naviation
-androidx-navigation3-runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "nav3Core" }
-androidx-navigation3-ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "nav3Core" }
-androidx-lifecycle-viewmodel-navigation3 = { module = "androidx.lifecycle:lifecycle-viewmodel-navigation3", version.ref = "lifecycleViewmodelNav3" }
+decompose-decompose = { module = "com.arkivanov.decompose:decompose", version.ref = "decompose" }
+decompose-extensions-compose = { module = "com.arkivanov.decompose:extensions-compose", version.ref = "decompose" }
 kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinxSerializationCore" }
 
 # Dependency Injection (Koin)
@@ -119,6 +117,9 @@ ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 
 # Navigation
 jetbrains-kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlinSerialization"}
+
+# Compose Multiplatform
+compose-multiplatform = { id = "org.jetbrains.compose", version.ref = "composeMultiplatform" }
 
 #DI
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }

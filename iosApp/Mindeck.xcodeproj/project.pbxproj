@@ -112,8 +112,8 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 54924DBB2FC8587400389199 /* Build configuration list for PBXNativeTarget "Mindeck" */;
 			buildPhases = (
-				54924D962FC8587100389199 /* Sources */,
 				54924DD02FC8592C00389199 /* ShellScript */,
+				54924D962FC8587100389199 /* Sources */,
 				54924D972FC8587100389199 /* Frameworks */,
 				54924D982FC8587100389199 /* Resources */,
 			);
@@ -262,7 +262,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if [ \"YES\" = \"$OVERRIDE_KOTLIN_BUILD_IDE_SUPPORTED\" ]; then\n    echo \"Skipping Gradle build task invocation due to OVERRIDE_KOTLIN_BUILD_IDE_SUPPORTED environment variable set to \\\"YES\\\"\"\n    exit 0\nfi\ncd \"$SRCROOT/..\"\n./gradlew :shared:embedAndSignAppleFrameworkForXcode\n";
+			shellScript = "if [ \"YES\" = \"$OVERRIDE_KOTLIN_BUILD_IDE_SUPPORTED\" ]; then\n    echo \"Skipping Gradle build task invocation due to OVERRIDE_KOTLIN_BUILD_IDE_SUPPORTED environment variable set to \\\"YES\\\"\"\n    exit 0\nfi\ncd \"$SRCROOT/..\"\n./gradlew :app:embedAndSignAppleFrameworkForXcode\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
