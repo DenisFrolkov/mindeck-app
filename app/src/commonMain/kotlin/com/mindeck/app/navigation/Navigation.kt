@@ -10,12 +10,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import com.arkivanov.decompose.extensions.compose.stack.Children
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
-import com.mindeck.app.ui.screen.MainScreen
-import com.mindeck.app.ui.screen.SecondScreen
+import com.mindeck.feature.home.MainScreen
+import com.mindeck.feature.home.SecondScreen
 
 @Composable
 fun Navigation(rootComponent: RootComponent, modifier: Modifier = Modifier) {
     val stack by rootComponent.stack.subscribeAsState()
+
+    val root = LocalRootComponent.current
 
     Box(
         modifier =
@@ -26,8 +28,12 @@ fun Navigation(rootComponent: RootComponent, modifier: Modifier = Modifier) {
         CompositionLocalProvider(LocalRootComponent provides rootComponent) {
             Children(stack = stack) { child ->
                 when (child.instance) {
-                    is Child.Main -> MainScreen()
-                    is Child.Second -> SecondScreen()
+                    is Child.Main -> MainScreen(
+                        onNavigateToSecond = { root.push(Config.Second) }
+                    )
+                    is Child.Second -> SecondScreen(
+                        onBack = { root.pop() }
+                    )
                 }
             }
         }

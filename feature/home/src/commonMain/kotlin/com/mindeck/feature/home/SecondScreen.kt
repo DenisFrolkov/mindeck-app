@@ -1,4 +1,4 @@
-package com.mindeck.app.ui.screen
+package com.mindeck.feature.home
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -8,19 +8,19 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.mindeck.app.navigation.LocalRootComponent
 
 @Composable
-fun SecondScreen() {
-    val root = LocalRootComponent.current
-
+fun SecondScreen(
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
         modifier = Modifier.fillMaxSize()
     ) {
         Text(text = "Second Screen")
-        Button(onClick = { root.pop() }) {
+        Button(onClick = { onBack() }) {
             Text(text = "Go back")
         }
     }
