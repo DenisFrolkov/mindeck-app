@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import sharedKit
+import appKit
 
 @main
 struct MindeckApp: App {

@@ -12,12 +12,12 @@ import androidx.compose.ui.Modifier
 @Composable
 fun MainScreen(
     onNavigateToSecond: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
     ) {
         Text(text = "Main Screen")
         Button(onClick = { onNavigateToSecond() }) {

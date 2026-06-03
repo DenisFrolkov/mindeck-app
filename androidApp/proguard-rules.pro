@@ -9,9 +9,6 @@
     volatile <fields>;
 }
 
--keep class dagger.hilt.** { *; }
--keep class javax.inject.** { *; }
-
 -keep class * extends androidx.room.RoomDatabase { <init>(); }
 
 -keepattributes *Annotation*, InnerClasses

@@ -49,7 +49,10 @@ kotlin {
                 implementation(libs.androidx.room.testing)
             }
         }
+    }
 
+    compilerOptions {
+        freeCompilerArgs.add("-Xexpect-actual-classes")
     }
 }
 

@@ -1,5 +1,5 @@
 import SwiftUI
-import composeKit
+import appKit
 
 struct ContentView: View {
     @EnvironmentObject private var rootHolder: RootHolder

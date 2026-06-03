@@ -16,5 +16,6 @@ class IosApplicationComponent {
     }
 
     fun onStop() = lifecycle.stop()
+
     fun onDestroy() = lifecycle.destroy()
 }

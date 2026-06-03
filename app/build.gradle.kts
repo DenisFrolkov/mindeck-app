@@ -50,7 +50,6 @@ kotlin {
 
                 // Serialization
                 implementation(libs.kotlinx.serialization.core)
-
             }
         }
     }

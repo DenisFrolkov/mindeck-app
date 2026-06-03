@@ -1,6 +1,6 @@
 import Foundation
 import Combine
-import composeKit
+import appKit
 
 final class RootHolder: ObservableObject {
     let component = IosApplicationComponent()
