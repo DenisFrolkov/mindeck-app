@@ -24,13 +24,13 @@ val copyComposeResourcesToAndroid by tasks.registering(Copy::class) {
     dependsOn("prepareComposeResourcesTaskForCommonMain")
     from(
         layout.buildDirectory.dir(
-            "generated/compose/resourceGenerator/preparedResources/commonMain/composeResources"
-        )
+            "generated/compose/resourceGenerator/preparedResources/commonMain/composeResources",
+        ),
     )
     into(
         composeResAndroidDir.map {
             it.dir("composeResources/mindeck_app.core.ui.generated.resources")
-        }
+        },
     )
 }
 

@@ -57,6 +57,27 @@ android {
     buildFeatures {
         compose = true
     }
+    sourceSets {
+        named("main") {
+            assets.srcDirs(
+                project(":core:ui")
+                    .layout.buildDirectory
+                    .dir("generated/composeResAndroid")
+                    .get()
+                    .asFile,
+            )
+        }
+    }
+}
+
+evaluationDependsOn(":core:ui")
+
+afterEvaluate {
+    listOf("mergeDebugAssets", "mergeReleaseAssets").forEach { taskName ->
+        tasks
+            .findByName(taskName)
+            ?.dependsOn(project(":core:ui").tasks.named("copyComposeResourcesToAndroid"))
+    }
 }
 
 kotlin {
