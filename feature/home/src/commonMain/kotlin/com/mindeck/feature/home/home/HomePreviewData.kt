@@ -10,7 +10,7 @@ internal object HomePreviewData {
 
     val pendingContent =
         HomeUiState.Content(
-            dailyReview = DailyReviewUi.Pending(totalCount = 40, repeatedCount = 13, newCount = 7, newReviewCount = 12, reviewCount = 21),
+            dailyReview = DailyReviewUi.Pending(totalCount = 40, repeatedCount = 1, newCount = 7, newReviewCount = 12, reviewCount = 21),
             decks = decks,
         )
 
@@ -19,4 +19,11 @@ internal object HomePreviewData {
             dailyReview = DailyReviewUi.Completed,
             decks = decks,
         )
+
+    val loading =
+        HomeUiState.Loading
+
+    val error = HomeUiState.Error("Не удалось загрузить колоды")
+
+    val empty = HomeUiState.Empty
 }

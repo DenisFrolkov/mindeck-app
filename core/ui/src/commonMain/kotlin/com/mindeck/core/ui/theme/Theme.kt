@@ -250,6 +250,9 @@ object MindeckTheme {
     val shapes: SpecialAppShapes
         @Composable
         get() = LocalShapes.current
+
+    val extraColors: AppExtraColors
+        @Composable get() = LocalExtraColors.current
 }
 
 @Composable
@@ -265,6 +268,7 @@ fun MindeckTheme(
         CompositionLocalProvider(
             LocalDimensions provides AppDimensions(),
             LocalShapes provides SpecialAppShapes(),
+            LocalExtraColors provides if (darkTheme) DarkExtraColors else LightExtraColors
         ) {
             content()
         }

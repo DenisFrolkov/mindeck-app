@@ -19,6 +19,7 @@ fun AppButton(
     buttonText: String,
     buttonIcon: DrawableResource?,
     color: Color,
+    textColor: Color = MaterialTheme.colorScheme.onPrimary,
 ) {
     Button(
         onClick = { onAction() },
@@ -33,12 +34,13 @@ fun AppButton(
             Icon(
                 painter = painterResource(buttonIcon),
                 contentDescription = null,
+                tint = textColor
             )
             HorizontalSpacer(MindeckTheme.dimensions.spacingSm)
         }
         Text(
             text = buttonText,
-            color = MaterialTheme.colorScheme.onPrimary,
+            color = textColor,
             style = MaterialTheme.typography.titleMedium,
         )
     }
