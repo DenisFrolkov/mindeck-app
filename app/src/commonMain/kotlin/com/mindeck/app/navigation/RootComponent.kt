@@ -8,6 +8,8 @@ import com.arkivanov.decompose.router.stack.childStack
 import com.arkivanov.decompose.router.stack.pop
 import com.arkivanov.decompose.router.stack.push
 import com.arkivanov.decompose.value.Value
+import com.arkivanov.essenty.lifecycle.doOnDestroy
+import com.mindeck.feature.home.home.HomeViewModel
 
 class RootComponent(
     componentContext: ComponentContext,
@@ -31,8 +33,13 @@ class RootComponent(
     private fun createChild(
         config: Config,
         context: ComponentContext,
-    ) = when (config) {
-        is Config.Main -> Child.Main
-        is Config.Second -> Child.Second
-    }
+    ): Child =
+        when (config) {
+            is Config.Main -> {
+                val viewModel = HomeViewModel()
+                context.lifecycle.doOnDestroy(viewModel::clear)
+                Child.Main(viewModel)
+            }
+            is Config.Second -> Child.Second
+        }
 }

@@ -10,7 +10,10 @@ import mindeck_app.core.ui.generated.resources.add_icon
 import org.jetbrains.compose.resources.painterResource
 
 @Composable
-fun AppFAB(onClick: () -> Unit, modifier: Modifier = Modifier) {
+fun AppFAB(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     FloatingActionButton(
         onClick = onClick,
         modifier = modifier,
@@ -18,7 +21,7 @@ fun AppFAB(onClick: () -> Unit, modifier: Modifier = Modifier) {
     ) {
         Icon(
             painter = painterResource(Res.drawable.add_icon),
-            contentDescription = ""
+            contentDescription = "",
         )
     }
 }

@@ -21,12 +21,12 @@ fun AppBar(
     trailingAction: AppBarAction,
     modifier: Modifier = Modifier,
     navigationIcon: DrawableResource? = null,
-    onNavigateBack: (() -> Unit)? = null
+    onNavigateBack: (() -> Unit)? = null,
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.SpaceBetween,
     ) {
         if (onNavigateBack != null) {
             IconButton(onClick = { onNavigateBack() }) {
@@ -36,7 +36,7 @@ fun AppBar(
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onSurface,
             )
         }
         Row(horizontalArrangement = Arrangement.spacedBy(MindeckTheme.dimensions.spacingXs)) {
@@ -52,5 +52,5 @@ fun AppBar(
 
 data class AppBarAction(
     val icon: DrawableResource,
-    val onClick: () -> Unit
+    val onClick: () -> Unit,
 )

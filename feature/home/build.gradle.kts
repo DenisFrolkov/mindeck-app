@@ -29,6 +29,7 @@ kotlin {
         commonMain {
             dependencies {
                 // Module
+                api(projects.core.mvi)
                 implementation(projects.core.ui)
 
                 // Compose

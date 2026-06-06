@@ -6,13 +6,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import com.arkivanov.decompose.extensions.compose.stack.Children
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import com.mindeck.core.ui.theme.MindeckTheme
-import com.mindeck.feature.home.MainScreen
 import com.mindeck.feature.home.SecondScreen
+import com.mindeck.feature.home.home.HomeScreen
 
 @Composable
 fun Navigation(
@@ -30,16 +31,16 @@ fun Navigation(
         ) {
             CompositionLocalProvider(LocalRootComponent provides rootComponent) {
                 Children(stack = stack) { child ->
-                    when (child.instance) {
-                        is Child.Main ->
-                            MainScreen(
+                    when (val instance = child.instance) {
+                        is Child.Main -> {
+                            val state by instance.viewModel.state.collectAsState()
+                            HomeScreen(
+                                state = state,
+                                onIntent = instance.viewModel::accept,
                                 onNavigateToSecond = { rootComponent.push(Config.Second) },
                             )
-
-                        is Child.Second ->
-                            SecondScreen(
-                                onBack = { rootComponent.pop() },
-                            )
+                        }
+                        is Child.Second -> SecondScreen(onBack = { rootComponent.pop() })
                     }
                 }
             }
