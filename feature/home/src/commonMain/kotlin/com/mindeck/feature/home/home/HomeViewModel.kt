@@ -4,7 +4,7 @@ import com.mindeck.core.mvi.BaseViewModel
 
 class HomeViewModel :
     BaseViewModel<HomeUiState, HomeIntent>(
-        initialState = HomePreviewData.empty,
+        initialState = HomePreviewData.error,
     ) {
     override fun accept(intent: HomeIntent) {
         when (intent) {

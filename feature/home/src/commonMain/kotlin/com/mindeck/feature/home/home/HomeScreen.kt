@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -24,7 +23,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -37,7 +35,6 @@ import androidx.compose.ui.unit.sp
 import com.mindeck.core.ui.appBar.AppBar
 import com.mindeck.core.ui.appBar.AppBarAction
 import com.mindeck.core.ui.button.AppButton
-import com.mindeck.core.ui.button.AppFAB
 import com.mindeck.core.ui.button.AppTextButton
 import com.mindeck.core.ui.label.TagLabel
 import com.mindeck.core.ui.spacer.HorizontalSpacer
@@ -91,51 +88,48 @@ fun HomeScreen(
     state: HomeUiState,
     onIntent: (HomeIntent) -> Unit,
     onNavigateToSecond: () -> Unit,
+    contentPadding: PaddingValues,
     modifier: Modifier = Modifier,
 ) {
-    Scaffold(
-        contentWindowInsets = WindowInsets(0),
+    Column(
         modifier =
             modifier
                 .fillMaxSize()
+                .padding(contentPadding)
                 .padding(MindeckTheme.dimensions.screenPadding),
-        topBar = {
-            AppBar(
-                title = stringResource(HomeRes.string.home_title),
-                actions =
-                    listOf(
-                        AppBarAction(
-                            icon = Res.drawable.search_icon,
-                            contentDescription = stringResource(HomeRes.string.home_action_search),
-                            onClick = { },
-                        ),
-                        AppBarAction(
-                            icon = Res.drawable.settings_icon,
-                            contentDescription = stringResource(HomeRes.string.home_action_settings),
-                            onClick = { },
-                        ),
+    ) {
+        AppBar(
+            title = stringResource(HomeRes.string.home_title),
+            actions =
+                listOf(
+                    AppBarAction(
+                        icon = Res.drawable.search_icon,
+                        contentDescription = stringResource(HomeRes.string.home_action_search),
+                        onClick = { },
                     ),
-                modifier = Modifier.statusBarsPadding(),
-            )
-        },
-        floatingActionButton = {
-            AppFAB(onClick = onNavigateToSecond)
-        },
-    ) { paddingValues ->
+                    AppBarAction(
+                        icon = Res.drawable.settings_icon,
+                        contentDescription = stringResource(HomeRes.string.home_action_settings),
+                        onClick = { },
+                    ),
+                ),
+            modifier = Modifier.statusBarsPadding(),
+        )
         when (state) {
-            HomeUiState.Loading -> HomeLoading()
+            HomeUiState.Loading -> HomeLoading(Modifier.weight(1f))
             is HomeUiState.Error ->
                 HomeError(
                     message = state.message,
                     onRetry = { onIntent(HomeIntent.Retry) },
+                    modifier = Modifier.weight(1f),
                 )
 
-            HomeUiState.Empty -> HomeEmpty()
+            HomeUiState.Empty -> HomeEmpty(Modifier.weight(1f))
             is HomeUiState.Content ->
                 HomeContent(
-                    paddingValues = paddingValues,
                     content = state,
                     onNavigateToSecond = onNavigateToSecond,
+                    modifier = Modifier.weight(1f),
                 )
         }
     }
@@ -144,7 +138,7 @@ fun HomeScreen(
 @Composable
 private fun HomeLoading(modifier: Modifier = Modifier) {
     Box(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier.fillMaxWidth(),
         contentAlignment = Alignment.Center,
     ) {
         CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
@@ -160,8 +154,7 @@ private fun HomeError(
     Column(
         modifier =
             modifier
-                .fillMaxSize()
-                .padding(MindeckTheme.dimensions.screenPadding),
+                .fillMaxWidth(),
         verticalArrangement =
             Arrangement.spacedBy(
                 MindeckTheme.dimensions.spacingLg,
@@ -208,7 +201,7 @@ private fun HomeError(
 @Composable
 private fun HomeEmpty(modifier: Modifier = Modifier) {
     Column(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Column(
@@ -292,13 +285,12 @@ private fun HomeEmpty(modifier: Modifier = Modifier) {
 
 @Composable
 private fun HomeContent(
-    paddingValues: PaddingValues,
     content: HomeUiState.Content,
     onNavigateToSecond: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = modifier.padding(paddingValues),
+        modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(MindeckTheme.dimensions.spacingXxxl),
     ) {
         DailyReviewCard(
@@ -503,12 +495,21 @@ private fun RepetitionScaleInfo(
     ) {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text(
-                text = stringResource(HomeRes.string.home_review_progress, repeatedCount, totalCount),
+                text =
+                    stringResource(
+                        HomeRes.string.home_review_progress,
+                        repeatedCount,
+                        totalCount,
+                    ),
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.primary.copy(alpha = .5f),
             )
             Text(
-                text = stringResource(HomeRes.string.home_progress_percent, (progress * 100).toInt()),
+                text =
+                    stringResource(
+                        HomeRes.string.home_progress_percent,
+                        (progress * 100).toInt(),
+                    ),
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.primary.copy(alpha = .5f),
             )
@@ -646,7 +647,12 @@ private fun DeckItem(
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = .75f),
                     )
                     Text(
-                        text = pluralStringResource(HomeRes.plurals.home_deck_card_count, deck.cardCount, deck.cardCount),
+                        text =
+                            pluralStringResource(
+                                HomeRes.plurals.home_deck_card_count,
+                                deck.cardCount,
+                                deck.cardCount,
+                            ),
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.outline,
                     )

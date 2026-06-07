@@ -14,3 +14,6 @@ sealed interface HomeUiState {
         val decks: List<DeckUi>,
     ) : HomeUiState
 }
+
+val HomeUiState.showsAddFab: Boolean
+    get() = this !is HomeUiState.Empty
