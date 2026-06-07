@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_title">Mindeck</string>
+    <string name="home_action_search">Search</string>
+    <string name="home_action_settings">Settings</string>
+
+    <string name="home_error_retry">Retry loading</string>
+
+    <string name="home_empty_title">Nothing here yet</string>
+    <string name="home_empty_subtitle">Create your first card — a deck will be created for it automatically. Mindeck will remind you when it\'s time to review.</string>
+    <string name="home_empty_create_card">Create card</string>
+    <string name="home_empty_import_deck">Import deck</string>
+    <string name="home_empty_hint">A card is a question and an answer. You can set the deck name right when creating it.</string>
+
+    <string name="home_review_pending_title">DUE TODAY</string>
+    <string name="home_review_completed_title">ALL DONE TODAY</string>
+    <string name="home_continue_review">Continue review</string>
+    <string name="home_start_review">Start review</string>
+    <string name="home_review_completed_label">reviewed</string>
+    <string name="home_view_statistics">View statistics</string>
+    <string name="home_review_progress">%1$d of %2$d done</string>
+    <string name="home_progress_percent">%1$d%</string>
+    <string name="home_tag_review">%1$d to review</string>
+
+    <string name="home_decks_header">DECKS</string>
+    <string name="home_decks_all">All</string>
+    <string name="home_deck_all_reviewed">All cards reviewed</string>
+
+    <plurals name="home_cards_noun">
+        <item quantity="one">card</item>
+        <item quantity="other">cards</item>
+    </plurals>
+    <plurals name="home_tag_new">
+        <item quantity="one">%1$d new</item>
+        <item quantity="other">%1$d new</item>
+    </plurals>
+    <plurals name="home_tag_new_review">
+        <item quantity="one">%1$d new to review</item>
+        <item quantity="other">%1$d new to review</item>
+    </plurals>
+    <plurals name="home_deck_card_count">
+        <item quantity="one">%1$d card</item>
+        <item quantity="other">%1$d cards</item>
+    </plurals>
+</resources>

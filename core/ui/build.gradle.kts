@@ -19,7 +19,7 @@ compose.resources {
 // fonts and other assets via classloader on Android.
 val composeResAndroidDir = layout.buildDirectory.dir("generated/composeResAndroid")
 
-val copyComposeResourcesToAndroid by tasks.registering(Copy::class) {
+val copyComposeResourcesToAndroid by tasks.registering(Sync::class) {
     group = "compose resources"
     dependsOn("prepareComposeResourcesTaskForCommonMain")
     from(

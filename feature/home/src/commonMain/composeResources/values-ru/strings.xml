@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_title">Mindeck</string>
+    <string name="home_action_search">Поиск</string>
+    <string name="home_action_settings">Настройки</string>
+
+    <string name="home_error_retry">Повторить загрузку</string>
+
+    <string name="home_empty_title">Здесь пока пусто</string>
+    <string name="home_empty_subtitle">Создайте первую карточку — колода для неё создастся автоматически. Mindeck напомнит, когда придёт время повторения.</string>
+    <string name="home_empty_create_card">Создать карточку</string>
+    <string name="home_empty_import_deck">Импортировать колоду</string>
+    <string name="home_empty_hint">Карточка — это вопрос и ответ. Название колоды можно указать прямо при создании.</string>
+
+    <string name="home_review_pending_title">СЕГОДНЯ К ПОВТОРЕНИЮ</string>
+    <string name="home_review_completed_title">ГОТОВО НА СЕГОДНЯ</string>
+    <string name="home_continue_review">Продолжить повторение</string>
+    <string name="home_start_review">Начать повторение</string>
+    <string name="home_review_completed_label">повторено</string>
+    <string name="home_view_statistics">Посмотреть статистику</string>
+    <string name="home_review_progress">%1$d из %2$d готово</string>
+    <string name="home_progress_percent">%1$d%</string>
+    <string name="home_tag_review">%1$d на повторение</string>
+
+    <string name="home_decks_header">КОЛОДЫ</string>
+    <string name="home_decks_all">Все</string>
+    <string name="home_deck_all_reviewed">Все карточки повторены</string>
+
+    <plurals name="home_cards_noun">
+        <item quantity="one">карточка</item>
+        <item quantity="few">карточки</item>
+        <item quantity="many">карточек</item>
+        <item quantity="other">карточки</item>
+    </plurals>
+    <plurals name="home_tag_new">
+        <item quantity="one">%1$d новая</item>
+        <item quantity="few">%1$d новые</item>
+        <item quantity="many">%1$d новых</item>
+        <item quantity="other">%1$d новых</item>
+    </plurals>
+    <plurals name="home_tag_new_review">
+        <item quantity="one">%1$d новая на повторение</item>
+        <item quantity="few">%1$d новые на повторение</item>
+        <item quantity="many">%1$d новых на повторение</item>
+        <item quantity="other">%1$d новых на повторение</item>
+    </plurals>
+    <plurals name="home_deck_card_count">
+        <item quantity="one">%1$d карточка</item>
+        <item quantity="few">%1$d карточки</item>
+        <item quantity="many">%1$d карточек</item>
+        <item quantity="other">%1$d карточки</item>
+    </plurals>
+</resources>

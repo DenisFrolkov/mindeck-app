@@ -6,8 +6,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import mindeck_app.core.ui.generated.resources.Res
+import mindeck_app.core.ui.generated.resources.action_add
 import mindeck_app.core.ui.generated.resources.add_icon
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun AppFAB(
@@ -21,7 +23,7 @@ fun AppFAB(
     ) {
         Icon(
             painter = painterResource(Res.drawable.add_icon),
-            contentDescription = "Добавить",
+            contentDescription = stringResource(Res.string.action_add),
         )
     }
 }

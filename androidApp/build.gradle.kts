@@ -65,18 +65,26 @@ android {
                     .dir("generated/composeResAndroid")
                     .get()
                     .asFile,
+                project(":feature:home")
+                    .layout.buildDirectory
+                    .dir("generated/composeResAndroid")
+                    .get()
+                    .asFile,
             )
         }
     }
 }
 
 evaluationDependsOn(":core:ui")
+evaluationDependsOn(":feature:home")
 
 afterEvaluate {
+    val composeResProjects = listOf(":core:ui", ":feature:home")
     listOf("mergeDebugAssets", "mergeReleaseAssets").forEach { taskName ->
-        tasks
-            .findByName(taskName)
-            ?.dependsOn(project(":core:ui").tasks.named("copyComposeResourcesToAndroid"))
+        val mergeTask = tasks.findByName(taskName) ?: return@forEach
+        composeResProjects.forEach { projectPath ->
+            mergeTask.dependsOn(project(projectPath).tasks.named("copyComposeResourcesToAndroid"))
+        }
     }
 }
 

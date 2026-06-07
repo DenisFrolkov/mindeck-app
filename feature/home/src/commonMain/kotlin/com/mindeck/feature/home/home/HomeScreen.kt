@@ -37,8 +37,8 @@ import androidx.compose.ui.unit.sp
 import com.mindeck.core.ui.appBar.AppBar
 import com.mindeck.core.ui.appBar.AppBarAction
 import com.mindeck.core.ui.button.AppButton
-import com.mindeck.core.ui.button.AppTextButton
 import com.mindeck.core.ui.button.AppFAB
+import com.mindeck.core.ui.button.AppTextButton
 import com.mindeck.core.ui.label.TagLabel
 import com.mindeck.core.ui.spacer.HorizontalSpacer
 import com.mindeck.core.ui.spacer.VerticalSpacer
@@ -56,7 +56,35 @@ import mindeck_app.core.ui.generated.resources.refresh_icon
 import mindeck_app.core.ui.generated.resources.search_icon
 import mindeck_app.core.ui.generated.resources.settings_icon
 import mindeck_app.core.ui.generated.resources.style_icon
+import mindeck_app.feature.home.generated.resources.home_action_search
+import mindeck_app.feature.home.generated.resources.home_action_settings
+import mindeck_app.feature.home.generated.resources.home_cards_noun
+import mindeck_app.feature.home.generated.resources.home_continue_review
+import mindeck_app.feature.home.generated.resources.home_deck_all_reviewed
+import mindeck_app.feature.home.generated.resources.home_deck_card_count
+import mindeck_app.feature.home.generated.resources.home_decks_all
+import mindeck_app.feature.home.generated.resources.home_decks_header
+import mindeck_app.feature.home.generated.resources.home_empty_create_card
+import mindeck_app.feature.home.generated.resources.home_empty_hint
+import mindeck_app.feature.home.generated.resources.home_empty_import_deck
+import mindeck_app.feature.home.generated.resources.home_empty_subtitle
+import mindeck_app.feature.home.generated.resources.home_empty_title
+import mindeck_app.feature.home.generated.resources.home_error_retry
+import mindeck_app.feature.home.generated.resources.home_progress_percent
+import mindeck_app.feature.home.generated.resources.home_review_completed_label
+import mindeck_app.feature.home.generated.resources.home_review_completed_title
+import mindeck_app.feature.home.generated.resources.home_review_pending_title
+import mindeck_app.feature.home.generated.resources.home_review_progress
+import mindeck_app.feature.home.generated.resources.home_start_review
+import mindeck_app.feature.home.generated.resources.home_tag_new
+import mindeck_app.feature.home.generated.resources.home_tag_new_review
+import mindeck_app.feature.home.generated.resources.home_tag_review
+import mindeck_app.feature.home.generated.resources.home_title
+import mindeck_app.feature.home.generated.resources.home_view_statistics
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.pluralStringResource
+import org.jetbrains.compose.resources.stringResource
+import mindeck_app.feature.home.generated.resources.Res as HomeRes
 
 @Composable
 fun HomeScreen(
@@ -73,17 +101,17 @@ fun HomeScreen(
                 .padding(MindeckTheme.dimensions.screenPadding),
         topBar = {
             AppBar(
-                title = "Mindeck",
+                title = stringResource(HomeRes.string.home_title),
                 actions =
                     listOf(
                         AppBarAction(
                             icon = Res.drawable.search_icon,
-                            contentDescription = "Поиск",
+                            contentDescription = stringResource(HomeRes.string.home_action_search),
                             onClick = { },
                         ),
                         AppBarAction(
                             icon = Res.drawable.settings_icon,
-                            contentDescription = "Настройки",
+                            contentDescription = stringResource(HomeRes.string.home_action_settings),
                             onClick = { },
                         ),
                     ),
@@ -169,7 +197,7 @@ private fun HomeError(
         )
         AppButton(
             onAction = onRetry,
-            buttonText = "Повторить загрузку",
+            buttonText = stringResource(HomeRes.string.home_error_retry),
             buttonIcon = Res.drawable.refresh_icon,
             textColor = MaterialTheme.colorScheme.onErrorContainer,
             color = MaterialTheme.colorScheme.errorContainer,
@@ -207,15 +235,13 @@ private fun HomeEmpty(modifier: Modifier = Modifier) {
             }
             VerticalSpacer(MindeckTheme.dimensions.spacingXxxl)
             Text(
-                text = "Здесь пока пусто",
+                text = stringResource(HomeRes.string.home_empty_title),
                 style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
                 color = MaterialTheme.colorScheme.primary,
             )
             VerticalSpacer(MindeckTheme.dimensions.spacingSm)
             Text(
-                text =
-                    "Создайте первую карточку — колода для неё создастся автоматически. " +
-                        "Mindeck напомнит, когда придёт время повторения.",
+                text = stringResource(HomeRes.string.home_empty_subtitle),
                 style = MaterialTheme.typography.titleSmall,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = .5f),
                 textAlign = TextAlign.Center,
@@ -224,14 +250,14 @@ private fun HomeEmpty(modifier: Modifier = Modifier) {
             VerticalSpacer(MindeckTheme.dimensions.spacingXxxl)
             AppButton(
                 onAction = { },
-                buttonText = "Создать карточку",
+                buttonText = stringResource(HomeRes.string.home_empty_create_card),
                 buttonIcon = Res.drawable.add_icon,
                 color = MaterialTheme.colorScheme.primary,
             )
             VerticalSpacer(MindeckTheme.dimensions.spacingXs)
             AppTextButton(
                 onAction = { },
-                buttonText = "Импортировать колоду",
+                buttonText = stringResource(HomeRes.string.home_empty_import_deck),
                 buttonIcon = Res.drawable.download_icon,
             )
         }
@@ -255,7 +281,7 @@ private fun HomeEmpty(modifier: Modifier = Modifier) {
                 )
                 HorizontalSpacer(MindeckTheme.dimensions.spacingSm)
                 Text(
-                    text = "Карточка — это вопрос и ответ. Название колоды можно указать прямо при создании.",
+                    text = stringResource(HomeRes.string.home_empty_hint),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = .5f),
                 )
@@ -320,9 +346,9 @@ private fun DailyReviewCard(
             Text(
                 text =
                     if (dailyReview !is DailyReviewUi.Completed) {
-                        "СЕГОДНЯ К ПОВТОРЕНИЮ"
+                        stringResource(HomeRes.string.home_review_pending_title)
                     } else {
-                        "ГОТОВО НА СЕГОДНЯ"
+                        stringResource(HomeRes.string.home_review_completed_title)
                     },
                 color =
                     if (dailyReview !is DailyReviewUi.Completed) {
@@ -354,12 +380,14 @@ private fun ColumnScope.PendingReview(
     onStartReview: () -> Unit,
     onContinueReview: () -> Unit,
 ) {
+    val remaining = pending.totalCount - pending.repeatedCount
+
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(MindeckTheme.dimensions.spacingXs),
     ) {
         Text(
-            text = (pending.totalCount - pending.repeatedCount).toString(),
+            text = remaining.toString(),
             modifier = Modifier.alignByBaseline(),
             color = MaterialTheme.colorScheme.onPrimaryContainer,
             style =
@@ -372,7 +400,7 @@ private fun ColumnScope.PendingReview(
                 ),
         )
         Text(
-            text = "карточек",
+            text = pluralStringResource(HomeRes.plurals.home_cards_noun, remaining),
             modifier = Modifier.alignByBaseline(),
             color = MaterialTheme.colorScheme.primary,
             style = MaterialTheme.typography.titleMedium,
@@ -384,13 +412,20 @@ private fun ColumnScope.PendingReview(
         horizontalArrangement = Arrangement.spacedBy(MindeckTheme.dimensions.spacingLg),
         verticalArrangement = Arrangement.spacedBy(MindeckTheme.dimensions.spacingXs),
     ) {
-        TagLabel("${pending.newCount} новых", MaterialTheme.colorScheme.primary, )
         TagLabel(
-            "${pending.newReviewCount} новых на повторение",
+            pluralStringResource(HomeRes.plurals.home_tag_new, pending.newCount, pending.newCount),
+            MaterialTheme.colorScheme.primary,
+        )
+        TagLabel(
+            pluralStringResource(
+                HomeRes.plurals.home_tag_new_review,
+                pending.newReviewCount,
+                pending.newReviewCount,
+            ),
             MaterialTheme.colorScheme.primary.copy(alpha = .70f),
         )
         TagLabel(
-            "${pending.reviewCount} на повторение",
+            stringResource(HomeRes.string.home_tag_review, pending.reviewCount),
             MaterialTheme.colorScheme.primary.copy(alpha = .60f),
         )
     }
@@ -408,14 +443,14 @@ private fun ColumnScope.PendingReview(
     if (pending.inProgress) {
         AppButton(
             onAction = onContinueReview,
-            buttonText = "Продолжить повторение",
+            buttonText = stringResource(HomeRes.string.home_continue_review),
             buttonIcon = Res.drawable.play_arrow_icon,
             color = MaterialTheme.colorScheme.primary,
         )
     } else {
         AppButton(
             onAction = onStartReview,
-            buttonText = "Начать повторение",
+            buttonText = stringResource(HomeRes.string.home_start_review),
             buttonIcon = Res.drawable.play_arrow_icon,
             color = MaterialTheme.colorScheme.primary,
         )
@@ -438,7 +473,7 @@ private fun ColumnScope.CompletedReview(onStartReview: () -> Unit) {
             tint = MindeckTheme.extraColors.ratingGoodOn.copy(alpha = 0.9f),
         )
         Text(
-            text = "повторено",
+            text = stringResource(HomeRes.string.home_review_completed_label),
             color = MindeckTheme.extraColors.ratingGoodOn.copy(alpha = 0.5f),
             style = MaterialTheme.typography.titleMedium,
         )
@@ -448,7 +483,7 @@ private fun ColumnScope.CompletedReview(onStartReview: () -> Unit) {
 
     AppButton(
         onAction = onStartReview,
-        buttonText = "Посмотреть статистику",
+        buttonText = stringResource(HomeRes.string.home_view_statistics),
         buttonIcon = Res.drawable.bar_chart_icon,
         color = MindeckTheme.extraColors.ratingGoodOn,
     )
@@ -468,12 +503,12 @@ private fun RepetitionScaleInfo(
     ) {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text(
-                text = "$repeatedCount из $totalCount готово",
+                text = stringResource(HomeRes.string.home_review_progress, repeatedCount, totalCount),
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.primary.copy(alpha = .5f),
             )
             Text(
-                text = "${(progress * 100).toInt()}%",
+                text = stringResource(HomeRes.string.home_progress_percent, (progress * 100).toInt()),
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.primary.copy(alpha = .5f),
             )
@@ -526,7 +561,7 @@ private fun Decks(
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             Text(
-                "КОЛОДЫ",
+                stringResource(HomeRes.string.home_decks_header),
                 style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
                 color = MaterialTheme.colorScheme.secondary,
                 modifier = Modifier.padding(start = MindeckTheme.dimensions.spacingSm),
@@ -546,7 +581,7 @@ private fun Decks(
                     modifier = Modifier.size(MindeckTheme.dimensions.iconXs),
                 )
                 Text(
-                    text = "Все",
+                    text = stringResource(HomeRes.string.home_decks_all),
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.primary,
                 )
@@ -611,7 +646,7 @@ private fun DeckItem(
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = .75f),
                     )
                     Text(
-                        text = "${deck.cardCount} карточки",
+                        text = pluralStringResource(HomeRes.plurals.home_deck_card_count, deck.cardCount, deck.cardCount),
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.outline,
                     )
@@ -639,7 +674,7 @@ private fun DeckItem(
             } else {
                 Icon(
                     painter = painterResource(Res.drawable.check_circle_icon),
-                    contentDescription = "Все карточки повторены",
+                    contentDescription = stringResource(HomeRes.string.home_deck_all_reviewed),
                     tint = MaterialTheme.colorScheme.outline,
                 )
             }

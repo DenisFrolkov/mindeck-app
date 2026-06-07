@@ -23,10 +23,11 @@ fun AppTextButton(
 ) {
     TextButton(
         onClick = onAction,
-        contentPadding = PaddingValues(
-            horizontal = MindeckTheme.dimensions.spacingLg,
-            vertical = MindeckTheme.dimensions.spacingMd,
-        ),
+        contentPadding =
+            PaddingValues(
+                horizontal = MindeckTheme.dimensions.spacingLg,
+                vertical = MindeckTheme.dimensions.spacingMd,
+            ),
         modifier = modifier,
     ) {
         buttonIcon?.let {
