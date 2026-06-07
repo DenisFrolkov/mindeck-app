@@ -268,7 +268,7 @@ fun MindeckTheme(
         CompositionLocalProvider(
             LocalDimensions provides AppDimensions(),
             LocalShapes provides SpecialAppShapes(),
-            LocalExtraColors provides if (darkTheme) DarkExtraColors else LightExtraColors
+            LocalExtraColors provides if (darkTheme) DarkExtraColors else LightExtraColors,
         ) {
             content()
         }

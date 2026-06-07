@@ -32,23 +32,30 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.LineHeightStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import com.mindeck.core.ui.appBar.AppBar
 import com.mindeck.core.ui.appBar.AppBarAction
 import com.mindeck.core.ui.button.AppButton
+import com.mindeck.core.ui.button.AppTextButton
 import com.mindeck.core.ui.button.AppFAB
 import com.mindeck.core.ui.label.TagLabel
+import com.mindeck.core.ui.spacer.HorizontalSpacer
 import com.mindeck.core.ui.spacer.VerticalSpacer
 import com.mindeck.core.ui.theme.MindeckTheme
 import mindeck_app.core.ui.generated.resources.Res
+import mindeck_app.core.ui.generated.resources.add_icon
 import mindeck_app.core.ui.generated.resources.bar_chart_icon
 import mindeck_app.core.ui.generated.resources.check_circle_icon
 import mindeck_app.core.ui.generated.resources.cloud_off_icon
+import mindeck_app.core.ui.generated.resources.download_icon
 import mindeck_app.core.ui.generated.resources.library_decks_icon
+import mindeck_app.core.ui.generated.resources.lightbulb_icon
 import mindeck_app.core.ui.generated.resources.play_arrow_icon
 import mindeck_app.core.ui.generated.resources.refresh_icon
 import mindeck_app.core.ui.generated.resources.search_icon
 import mindeck_app.core.ui.generated.resources.settings_icon
+import mindeck_app.core.ui.generated.resources.style_icon
 import org.jetbrains.compose.resources.painterResource
 
 @Composable
@@ -67,15 +74,18 @@ fun HomeScreen(
         topBar = {
             AppBar(
                 title = "Mindeck",
-                leadingAction =
-                    AppBarAction(
-                        icon = Res.drawable.search_icon,
-                        onClick = { },
-                    ),
-                trailingAction =
-                    AppBarAction(
-                        icon = Res.drawable.settings_icon,
-                        onClick = { },
+                actions =
+                    listOf(
+                        AppBarAction(
+                            icon = Res.drawable.search_icon,
+                            contentDescription = "Поиск",
+                            onClick = { },
+                        ),
+                        AppBarAction(
+                            icon = Res.drawable.settings_icon,
+                            contentDescription = "Настройки",
+                            onClick = { },
+                        ),
                     ),
                 modifier = Modifier.statusBarsPadding(),
             )
@@ -85,30 +95,26 @@ fun HomeScreen(
         },
     ) { paddingValues ->
         when (state) {
-            HomeUiState.Loading -> HomeLoading(modifier = modifier,)
+            HomeUiState.Loading -> HomeLoading()
             is HomeUiState.Error ->
                 HomeError(
                     message = state.message,
                     onRetry = { onIntent(HomeIntent.Retry) },
-                    modifier = modifier,
                 )
 
-            HomeUiState.Empty -> HomeEmpty(modifier)
+            HomeUiState.Empty -> HomeEmpty()
             is HomeUiState.Content ->
                 HomeContent(
-                    padding = paddingValues,
+                    paddingValues = paddingValues,
                     content = state,
                     onNavigateToSecond = onNavigateToSecond,
-                    modifier = modifier,
                 )
         }
     }
 }
 
 @Composable
-private fun HomeLoading(
-    modifier: Modifier = Modifier,
-) {
+private fun HomeLoading(modifier: Modifier = Modifier) {
     Box(
         modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center,
@@ -136,25 +142,29 @@ private fun HomeError(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Box(
-            modifier = Modifier.background(
-                MaterialTheme.colorScheme.errorContainer,
-                shape = CircleShape
-            )
+            modifier =
+                Modifier.background(
+                    MaterialTheme.colorScheme.errorContainer,
+                    shape = CircleShape,
+                ),
         ) {
             Icon(
                 painter = painterResource(Res.drawable.cloud_off_icon),
-                contentDescription = "",
+                contentDescription = null,
                 tint = MaterialTheme.colorScheme.error,
-                modifier = Modifier.padding(MindeckTheme.dimensions.spacingXxl)
-                    .size(MindeckTheme.dimensions.iconLg),
+                modifier =
+                    Modifier
+                        .padding(MindeckTheme.dimensions.spacingXxl)
+                        .size(MindeckTheme.dimensions.iconLg),
             )
         }
         Text(
             text = message,
-            style = MaterialTheme.typography.bodyLarge.copy(
-                fontWeight = FontWeight.Bold,
-                fontSize = 18.sp
-            ),
+            style =
+                MaterialTheme.typography.bodyLarge.copy(
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp,
+                ),
             color = MaterialTheme.colorScheme.onSurface,
         )
         AppButton(
@@ -169,27 +179,100 @@ private fun HomeError(
 
 @Composable
 private fun HomeEmpty(modifier: Modifier = Modifier) {
-    Box(
+    Column(
         modifier = modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text(
-            text = "Пока нет колод",
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.outline,
-        )
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Box(
+                modifier =
+                    Modifier.background(
+                        MaterialTheme.colorScheme.primaryContainer,
+                        shape = CircleShape,
+                    ),
+            ) {
+                Icon(
+                    painter = painterResource(Res.drawable.style_icon),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier =
+                        Modifier
+                            .padding(MindeckTheme.dimensions.spacingXxl)
+                            .size(MindeckTheme.dimensions.iconXl),
+                )
+            }
+            VerticalSpacer(MindeckTheme.dimensions.spacingXxxl)
+            Text(
+                text = "Здесь пока пусто",
+                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                color = MaterialTheme.colorScheme.primary,
+            )
+            VerticalSpacer(MindeckTheme.dimensions.spacingSm)
+            Text(
+                text =
+                    "Создайте первую карточку — колода для неё создастся автоматически. " +
+                        "Mindeck напомнит, когда придёт время повторения.",
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = .5f),
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(horizontal = MindeckTheme.dimensions.spacingXxxl),
+            )
+            VerticalSpacer(MindeckTheme.dimensions.spacingXxxl)
+            AppButton(
+                onAction = { },
+                buttonText = "Создать карточку",
+                buttonIcon = Res.drawable.add_icon,
+                color = MaterialTheme.colorScheme.primary,
+            )
+            VerticalSpacer(MindeckTheme.dimensions.spacingXs)
+            AppTextButton(
+                onAction = { },
+                buttonText = "Импортировать колоду",
+                buttonIcon = Res.drawable.download_icon,
+            )
+        }
+
+        Card(
+            shape = MindeckTheme.shapes.card,
+            colors = CardDefaults.cardColors(MaterialTheme.colorScheme.secondary.copy(alpha = 0.05f)),
+        ) {
+            Row(
+                modifier =
+                    Modifier.padding(
+                        horizontal = MindeckTheme.dimensions.spacingLg,
+                        vertical = MindeckTheme.dimensions.spacingMd,
+                    ),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(
+                    painter = painterResource(Res.drawable.lightbulb_icon),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                )
+                HorizontalSpacer(MindeckTheme.dimensions.spacingSm)
+                Text(
+                    text = "Карточка — это вопрос и ответ. Название колоды можно указать прямо при создании.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = .5f),
+                )
+            }
+        }
     }
 }
 
 @Composable
 private fun HomeContent(
-    padding: PaddingValues,
+    paddingValues: PaddingValues,
     content: HomeUiState.Content,
     onNavigateToSecond: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = Modifier.padding(padding),
+        modifier = modifier.padding(paddingValues),
         verticalArrangement = Arrangement.spacedBy(MindeckTheme.dimensions.spacingXxxl),
     ) {
         DailyReviewCard(
@@ -216,7 +299,14 @@ private fun DailyReviewCard(
     Card(
         modifier = modifier.fillMaxWidth(),
         shape = MindeckTheme.shapes.hero,
-        colors = CardDefaults.cardColors(if (dailyReview !is DailyReviewUi.Completed) MaterialTheme.colorScheme.primaryContainer else MindeckTheme.extraColors.ratingGoodBackground),
+        colors =
+            CardDefaults.cardColors(
+                if (dailyReview !is DailyReviewUi.Completed) {
+                    MaterialTheme.colorScheme.primaryContainer
+                } else {
+                    MindeckTheme.extraColors.ratingGoodBackground
+                },
+            ),
     ) {
         Column(
             modifier =
@@ -228,18 +318,29 @@ private fun DailyReviewCard(
                 ),
         ) {
             Text(
-                text = if (dailyReview !is DailyReviewUi.Completed) "СЕГОДНЯ К ПОВТОРЕНИЮ" else "ГОТОВО НА СЕГОДНЯ",
-                color = if (dailyReview !is DailyReviewUi.Completed) MaterialTheme.colorScheme.primary else MindeckTheme.extraColors.ratingGoodOn.copy(
-                    alpha = 0.8f
-                ),
+                text =
+                    if (dailyReview !is DailyReviewUi.Completed) {
+                        "СЕГОДНЯ К ПОВТОРЕНИЮ"
+                    } else {
+                        "ГОТОВО НА СЕГОДНЯ"
+                    },
+                color =
+                    if (dailyReview !is DailyReviewUi.Completed) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        MindeckTheme.extraColors.ratingGoodOn.copy(
+                            alpha = 0.8f,
+                        )
+                    },
                 style = MaterialTheme.typography.titleSmall,
             )
             when (dailyReview) {
-                is DailyReviewUi.Pending -> PendingReview(
-                    dailyReview,
-                    onStartReview,
-                    onContinueReview
-                )
+                is DailyReviewUi.Pending ->
+                    PendingReview(
+                        dailyReview,
+                        onStartReview,
+                        onContinueReview,
+                    )
 
                 DailyReviewUi.Completed -> CompletedReview({})
             }
@@ -283,14 +384,14 @@ private fun ColumnScope.PendingReview(
         horizontalArrangement = Arrangement.spacedBy(MindeckTheme.dimensions.spacingLg),
         verticalArrangement = Arrangement.spacedBy(MindeckTheme.dimensions.spacingXs),
     ) {
-        TagLabel(MaterialTheme.colorScheme.primary, "${pending.newCount} новых")
+        TagLabel("${pending.newCount} новых", MaterialTheme.colorScheme.primary, )
         TagLabel(
-            MaterialTheme.colorScheme.primary.copy(alpha = .70f),
             "${pending.newReviewCount} новых на повторение",
+            MaterialTheme.colorScheme.primary.copy(alpha = .70f),
         )
         TagLabel(
-            MaterialTheme.colorScheme.primary.copy(alpha = .60f),
             "${pending.reviewCount} на повторение",
+            MaterialTheme.colorScheme.primary.copy(alpha = .60f),
         )
     }
 
@@ -298,7 +399,8 @@ private fun ColumnScope.PendingReview(
 
     if (pending.inProgress) {
         RepetitionScaleInfo(
-            totalCount = pending.totalCount, repeatedCount = pending.repeatedCount
+            totalCount = pending.totalCount,
+            repeatedCount = pending.repeatedCount,
         )
         VerticalSpacer(MindeckTheme.dimensions.spacingXl)
     }
@@ -321,9 +423,7 @@ private fun ColumnScope.PendingReview(
 }
 
 @Composable
-private fun ColumnScope.CompletedReview(
-    onStartReview: () -> Unit
-) {
+private fun ColumnScope.CompletedReview(onStartReview: () -> Unit) {
     VerticalSpacer(MindeckTheme.dimensions.spacingSm)
 
     Row(
@@ -355,23 +455,27 @@ private fun ColumnScope.CompletedReview(
 }
 
 @Composable
-fun RepetitionScaleInfo(totalCount: Int, repeatedCount: Int, modifier: Modifier = Modifier) {
+private fun RepetitionScaleInfo(
+    totalCount: Int,
+    repeatedCount: Int,
+    modifier: Modifier = Modifier,
+) {
     val progress = if (totalCount > 0) repeatedCount.toFloat() / totalCount else 0f
 
     Column(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(MindeckTheme.dimensions.spacingXxs)
+        verticalArrangement = Arrangement.spacedBy(MindeckTheme.dimensions.spacingXxs),
     ) {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text(
                 text = "$repeatedCount из $totalCount готово",
                 style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.primary.copy(alpha = .5f)
+                color = MaterialTheme.colorScheme.primary.copy(alpha = .5f),
             )
             Text(
                 text = "${(progress * 100).toInt()}%",
                 style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.primary.copy(alpha = .5f)
+                color = MaterialTheme.colorScheme.primary.copy(alpha = .5f),
             )
         }
         RepetitionScale(progress)
@@ -379,24 +483,30 @@ fun RepetitionScaleInfo(totalCount: Int, repeatedCount: Int, modifier: Modifier 
 }
 
 @Composable
-fun RepetitionScale(
+private fun RepetitionScale(
     progress: Float,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Box(modifier = modifier) {
         Box(
-            modifier = Modifier.fillMaxWidth().height(MindeckTheme.dimensions.spacingSm)
-                .background(
-                    color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.25f),
-                    shape = MindeckTheme.shapes.avatar
-                )
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .height(MindeckTheme.dimensions.spacingSm)
+                    .background(
+                        color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.25f),
+                        shape = MindeckTheme.shapes.avatar,
+                    ),
         )
         Box(
-            modifier = Modifier.fillMaxWidth(progress).height(MindeckTheme.dimensions.spacingSm)
-                .background(
-                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.85f),
-                    shape = MindeckTheme.shapes.avatar
-                )
+            modifier =
+                Modifier
+                    .fillMaxWidth(progress)
+                    .height(MindeckTheme.dimensions.spacingSm)
+                    .background(
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.85f),
+                        shape = MindeckTheme.shapes.avatar,
+                    ),
         )
     }
 }
@@ -516,9 +626,9 @@ private fun DeckItem(
                                 shape = MaterialTheme.shapes.medium,
                             ).size(
                                 height = MindeckTheme.dimensions.spacingXxl,
-                                width = MindeckTheme.dimensions.touchTarget
+                                width = MindeckTheme.dimensions.touchTarget,
                             ),
-                    contentAlignment = Alignment.Center
+                    contentAlignment = Alignment.Center,
                 ) {
                     Text(
                         text = deck.reviewCount.toString(),
@@ -529,7 +639,7 @@ private fun DeckItem(
             } else {
                 Icon(
                     painter = painterResource(Res.drawable.check_circle_icon),
-                    contentDescription = null,
+                    contentDescription = "Все карточки повторены",
                     tint = MaterialTheme.colorScheme.outline,
                 )
             }

@@ -10,6 +10,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 import com.mindeck.core.ui.theme.MindeckTheme
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
@@ -17,40 +18,44 @@ import org.jetbrains.compose.resources.painterResource
 @Composable
 fun AppBar(
     title: String,
-    leadingAction: AppBarAction,
-    trailingAction: AppBarAction,
     modifier: Modifier = Modifier,
-    navigationIcon: DrawableResource? = null,
-    onNavigateBack: (() -> Unit)? = null,
+    navigation: AppBarAction? = null,
+    actions: List<AppBarAction> = emptyList(),
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
-        if (onNavigateBack != null) {
-            IconButton(onClick = { onNavigateBack() }) {
-                navigationIcon?.let { Icon(painter = painterResource(it), contentDescription = "") }
-            }
+        if (navigation != null) {
+            ActionButton(navigation)
         } else {
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
             )
         }
         Row(horizontalArrangement = Arrangement.spacedBy(MindeckTheme.dimensions.spacingXs)) {
-            IconButton(onClick = leadingAction.onClick) {
-                Icon(painter = painterResource(leadingAction.icon), contentDescription = "")
-            }
-            IconButton(onClick = trailingAction.onClick) {
-                Icon(painter = painterResource(trailingAction.icon), contentDescription = "")
-            }
+            actions.forEach { ActionButton(it) }
         }
+    }
+}
+
+@Composable
+private fun ActionButton(action: AppBarAction) {
+    IconButton(onClick = action.onClick) {
+        Icon(
+            painter = painterResource(action.icon),
+            contentDescription = action.contentDescription,
+        )
     }
 }
 
 data class AppBarAction(
     val icon: DrawableResource,
+    val contentDescription: String,
     val onClick: () -> Unit,
 )

@@ -21,7 +21,7 @@ fun AppFAB(
     ) {
         Icon(
             painter = painterResource(Res.drawable.add_icon),
-            contentDescription = "",
+            contentDescription = "Добавить",
         )
     }
 }

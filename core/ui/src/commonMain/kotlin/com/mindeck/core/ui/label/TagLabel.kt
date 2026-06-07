@@ -15,10 +15,12 @@ import com.mindeck.core.ui.theme.MindeckTheme
 
 @Composable
 fun TagLabel(
-    color: Color,
     text: String,
+    color: Color,
+    modifier: Modifier = Modifier,
 ) {
     Row(
+        modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(MindeckTheme.dimensions.spacingXs),
     ) {

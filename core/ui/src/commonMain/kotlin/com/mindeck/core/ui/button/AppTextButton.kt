@@ -1,8 +1,6 @@
 package com.mindeck.core.ui.button
 
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -16,22 +14,19 @@ import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 
 @Composable
-fun AppButton(
+fun AppTextButton(
     onAction: () -> Unit,
     buttonText: String,
     buttonIcon: DrawableResource?,
-    color: Color,
     modifier: Modifier = Modifier,
-    textColor: Color = MaterialTheme.colorScheme.onPrimary,
+    textColor: Color = MaterialTheme.colorScheme.primary,
 ) {
-    Button(
+    TextButton(
         onClick = onAction,
-        colors = ButtonDefaults.buttonColors(containerColor = color),
-        contentPadding =
-            PaddingValues(
-                horizontal = MindeckTheme.dimensions.spacingLg,
-                vertical = MindeckTheme.dimensions.spacingMd,
-            ),
+        contentPadding = PaddingValues(
+            horizontal = MindeckTheme.dimensions.spacingLg,
+            vertical = MindeckTheme.dimensions.spacingMd,
+        ),
         modifier = modifier,
     ) {
         buttonIcon?.let {
