@@ -87,7 +87,7 @@ import mindeck_app.feature.home.generated.resources.Res as HomeRes
 fun HomeScreen(
     state: HomeUiState,
     onIntent: (HomeIntent) -> Unit,
-    onNavigateToSecond: () -> Unit,
+    onNavigate: (HomeNavigationEvent) -> Unit,
     contentPadding: PaddingValues,
     modifier: Modifier = Modifier,
 ) {
@@ -105,12 +105,12 @@ fun HomeScreen(
                     AppBarAction(
                         icon = Res.drawable.search_icon,
                         contentDescription = stringResource(HomeRes.string.home_action_search),
-                        onClick = { },
+                        onClick = { onNavigate(HomeNavigationEvent.Search) },
                     ),
                     AppBarAction(
                         icon = Res.drawable.settings_icon,
                         contentDescription = stringResource(HomeRes.string.home_action_settings),
-                        onClick = { },
+                        onClick = { onNavigate(HomeNavigationEvent.Settings) },
                     ),
                 ),
             modifier = Modifier.statusBarsPadding(),
@@ -124,11 +124,20 @@ fun HomeScreen(
                     modifier = Modifier.weight(1f),
                 )
 
-            HomeUiState.Empty -> HomeEmpty(Modifier.weight(1f))
+            HomeUiState.Empty ->
+                HomeEmpty(
+                    onCreateCard = { onNavigate(HomeNavigationEvent.CreateCard) },
+                    onImportDeck = { onNavigate(HomeNavigationEvent.ImportDeck) },
+                    modifier = Modifier.weight(1f),
+                )
+
             is HomeUiState.Content ->
                 HomeContent(
                     content = state,
-                    onNavigateToSecond = onNavigateToSecond,
+                    onReview = { onNavigate(HomeNavigationEvent.Review) },
+                    onViewStatistics = { onNavigate(HomeNavigationEvent.Statistics) },
+                    onAllDecks = { onNavigate(HomeNavigationEvent.AllDecks) },
+                    onOpenDeck = { onNavigate(HomeNavigationEvent.OpenDeck(it)) },
                     modifier = Modifier.weight(1f),
                 )
         }
@@ -199,7 +208,11 @@ private fun HomeError(
 }
 
 @Composable
-private fun HomeEmpty(modifier: Modifier = Modifier) {
+private fun HomeEmpty(
+    onCreateCard: () -> Unit,
+    onImportDeck: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Column(
         modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -242,14 +255,14 @@ private fun HomeEmpty(modifier: Modifier = Modifier) {
             )
             VerticalSpacer(MindeckTheme.dimensions.spacingXxxl)
             AppButton(
-                onAction = { },
+                onAction = onCreateCard,
                 buttonText = stringResource(HomeRes.string.home_empty_create_card),
                 buttonIcon = Res.drawable.add_icon,
                 color = MaterialTheme.colorScheme.primary,
             )
             VerticalSpacer(MindeckTheme.dimensions.spacingXs)
             AppTextButton(
-                onAction = { },
+                onAction = onImportDeck,
                 buttonText = stringResource(HomeRes.string.home_empty_import_deck),
                 buttonIcon = Res.drawable.download_icon,
             )
@@ -286,7 +299,10 @@ private fun HomeEmpty(modifier: Modifier = Modifier) {
 @Composable
 private fun HomeContent(
     content: HomeUiState.Content,
-    onNavigateToSecond: () -> Unit,
+    onReview: () -> Unit,
+    onViewStatistics: () -> Unit,
+    onAllDecks: () -> Unit,
+    onOpenDeck: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -295,13 +311,14 @@ private fun HomeContent(
     ) {
         DailyReviewCard(
             dailyReview = content.dailyReview,
-            onStartReview = onNavigateToSecond,
-            onContinueReview = onNavigateToSecond,
+            onReview = onReview,
+            onViewStatistics = onViewStatistics,
             modifier = Modifier.padding(top = MindeckTheme.dimensions.spacingMd),
         )
         Decks(
             decks = content.decks,
-            onAllDecksClick = { },
+            onAllDecks = onAllDecks,
+            onOpenDeck = onOpenDeck,
             modifier = Modifier.weight(1f),
         )
     }
@@ -310,8 +327,8 @@ private fun HomeContent(
 @Composable
 private fun DailyReviewCard(
     dailyReview: DailyReviewUi,
-    onStartReview: () -> Unit,
-    onContinueReview: () -> Unit,
+    onReview: () -> Unit,
+    onViewStatistics: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Card(
@@ -355,12 +372,11 @@ private fun DailyReviewCard(
             when (dailyReview) {
                 is DailyReviewUi.Pending ->
                     PendingReview(
-                        dailyReview,
-                        onStartReview,
-                        onContinueReview,
+                        pending = dailyReview,
+                        onReview = onReview,
                     )
 
-                DailyReviewUi.Completed -> CompletedReview({})
+                DailyReviewUi.Completed -> CompletedReview(onViewStatistics = onViewStatistics)
             }
         }
     }
@@ -369,8 +385,7 @@ private fun DailyReviewCard(
 @Composable
 private fun ColumnScope.PendingReview(
     pending: DailyReviewUi.Pending,
-    onStartReview: () -> Unit,
-    onContinueReview: () -> Unit,
+    onReview: () -> Unit,
 ) {
     val remaining = pending.totalCount - pending.repeatedCount
 
@@ -434,14 +449,14 @@ private fun ColumnScope.PendingReview(
 
     if (pending.inProgress) {
         AppButton(
-            onAction = onContinueReview,
+            onAction = onReview,
             buttonText = stringResource(HomeRes.string.home_continue_review),
             buttonIcon = Res.drawable.play_arrow_icon,
             color = MaterialTheme.colorScheme.primary,
         )
     } else {
         AppButton(
-            onAction = onStartReview,
+            onAction = onReview,
             buttonText = stringResource(HomeRes.string.home_start_review),
             buttonIcon = Res.drawable.play_arrow_icon,
             color = MaterialTheme.colorScheme.primary,
@@ -450,7 +465,7 @@ private fun ColumnScope.PendingReview(
 }
 
 @Composable
-private fun ColumnScope.CompletedReview(onStartReview: () -> Unit) {
+private fun ColumnScope.CompletedReview(onViewStatistics: () -> Unit) {
     VerticalSpacer(MindeckTheme.dimensions.spacingSm)
 
     Row(
@@ -474,7 +489,7 @@ private fun ColumnScope.CompletedReview(onStartReview: () -> Unit) {
     VerticalSpacer(MindeckTheme.dimensions.spacingLg)
 
     AppButton(
-        onAction = onStartReview,
+        onAction = onViewStatistics,
         buttonText = stringResource(HomeRes.string.home_view_statistics),
         buttonIcon = Res.drawable.bar_chart_icon,
         color = MindeckTheme.extraColors.ratingGoodOn,
@@ -550,7 +565,8 @@ private fun RepetitionScale(
 @Composable
 private fun Decks(
     decks: List<DeckUi>,
-    onAllDecksClick: () -> Unit,
+    onAllDecks: () -> Unit,
+    onOpenDeck: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -571,7 +587,7 @@ private fun Decks(
                 modifier =
                     Modifier
                         .clip(MaterialTheme.shapes.small)
-                        .clickable { onAllDecksClick() }
+                        .clickable(onClick = onAllDecks)
                         .padding(end = MindeckTheme.dimensions.spacingLg),
                 horizontalArrangement = Arrangement.spacedBy(MindeckTheme.dimensions.spacingSm),
             ) {
@@ -594,7 +610,7 @@ private fun Decks(
             verticalArrangement = Arrangement.spacedBy(MindeckTheme.dimensions.spacingSm),
         ) {
             items(decks, key = { it.id }) { deck ->
-                DeckItem(deck = deck)
+                DeckItem(deck = deck, onOpenDeck = onOpenDeck)
             }
         }
     }
@@ -603,10 +619,11 @@ private fun Decks(
 @Composable
 private fun DeckItem(
     deck: DeckUi,
+    onOpenDeck: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Card(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth().clickable(onClick = { onOpenDeck(deck.id) }),
         shape = MindeckTheme.shapes.card,
         colors = CardDefaults.cardColors(MaterialTheme.colorScheme.secondary.copy(alpha = 0.05f)),
     ) {

@@ -1,5 +1,6 @@
 package com.mindeck.app.navigation
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
@@ -14,6 +15,7 @@ import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import com.mindeck.core.ui.button.AppFAB
 import com.mindeck.core.ui.theme.MindeckTheme
 import com.mindeck.feature.home.SecondScreen
+import com.mindeck.feature.home.home.HomeNavigationEvent
 import com.mindeck.feature.home.home.HomeScreen
 import com.mindeck.feature.home.home.showsAddFab
 
@@ -38,28 +40,66 @@ fun Navigation(
                 },
             ) { paddingValues ->
                 Children(stack = stack) { child ->
-                    when (val instance = child.instance) {
-                        is Child.Main -> {
-                            val state by instance.viewModel.state.collectAsState()
-                            HomeScreen(
-                                state = state,
-                                onIntent = instance.viewModel::accept,
-                                onNavigateToSecond = { rootComponent.push(Config.Second) },
-                                contentPadding = paddingValues,
-                            )
-                        }
-
-                        is Child.Second ->
-                            SecondScreen(
-                                onBack = { rootComponent.pop() },
-                                contentPadding = paddingValues,
-                            )
-                    }
+                    ChildContent(
+                        child = child.instance,
+                        rootComponent = rootComponent,
+                        contentPadding = paddingValues,
+                    )
                 }
             }
         }
     }
 }
+
+@Composable
+private fun ChildContent(
+    child: Child,
+    rootComponent: RootComponent,
+    contentPadding: PaddingValues,
+) {
+    when (child) {
+        is Child.Main ->
+            MainContent(
+                child = child,
+                onNavigate = { event -> homeDestinationFor(event)?.let(rootComponent::push) },
+                contentPadding = contentPadding,
+            )
+
+        is Child.Second ->
+            SecondScreen(
+                onBack = rootComponent::pop,
+                contentPadding = contentPadding,
+            )
+    }
+}
+
+@Composable
+private fun MainContent(
+    child: Child.Main,
+    onNavigate: (HomeNavigationEvent) -> Unit,
+    contentPadding: PaddingValues,
+) {
+    val state by child.viewModel.state.collectAsState()
+    HomeScreen(
+        state = state,
+        onIntent = child.viewModel::accept,
+        onNavigate = onNavigate,
+        contentPadding = contentPadding,
+    )
+}
+
+private fun homeDestinationFor(event: HomeNavigationEvent): Config? =
+    when (event) {
+        HomeNavigationEvent.CreateCard -> Config.Second
+        HomeNavigationEvent.Search,
+        HomeNavigationEvent.Settings,
+        HomeNavigationEvent.ImportDeck,
+        HomeNavigationEvent.Review,
+        HomeNavigationEvent.Statistics,
+        HomeNavigationEvent.AllDecks,
+        is HomeNavigationEvent.OpenDeck,
+        -> null
+    }
 
 private data class FabConfig(
     val onClick: () -> Unit,
