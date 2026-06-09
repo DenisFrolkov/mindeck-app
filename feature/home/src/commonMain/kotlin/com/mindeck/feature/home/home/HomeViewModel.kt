@@ -1,8 +1,11 @@
 package com.mindeck.feature.home.home
 
 import com.mindeck.core.mvi.BaseViewModel
+import com.mindeck.domain.usecases.deck.query.GetAllDecksUseCase
 
-class HomeViewModel :
+class HomeViewModel(
+    private val getAllDecksUseCase: GetAllDecksUseCase,
+) :
     BaseViewModel<HomeUiState, HomeIntent>(
         initialState = HomePreviewData.error,
     ) {

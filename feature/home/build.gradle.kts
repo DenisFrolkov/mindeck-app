@@ -53,6 +53,7 @@ kotlin {
                 // Module
                 api(projects.core.mvi)
                 implementation(projects.core.ui)
+                implementation(projects.domain)
 
                 // Compose
                 implementation(compose.runtime)
@@ -60,11 +61,15 @@ kotlin {
                 implementation(compose.material3)
                 implementation(compose.ui)
                 implementation(compose.components.resources)
+
+                // DI
+                implementation(libs.koin.core)
             }
         }
         androidMain {
             dependencies {
                 implementation(libs.compose.ui.preview)
+                implementation(libs.koin.compose.viewmodel)
             }
         }
     }
