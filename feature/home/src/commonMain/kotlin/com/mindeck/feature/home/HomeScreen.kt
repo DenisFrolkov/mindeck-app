@@ -1,4 +1,4 @@
-package com.mindeck.feature.home.home
+package com.mindeck.feature.home
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -40,6 +40,8 @@ import com.mindeck.core.ui.label.TagLabel
 import com.mindeck.core.ui.spacer.HorizontalSpacer
 import com.mindeck.core.ui.spacer.VerticalSpacer
 import com.mindeck.core.ui.theme.MindeckTheme
+import com.mindeck.feature.home.model.DailyReviewUi
+import com.mindeck.feature.home.model.DeckItem
 import mindeck_app.core.ui.generated.resources.Res
 import mindeck_app.core.ui.generated.resources.add_icon
 import mindeck_app.core.ui.generated.resources.bar_chart_icon
@@ -315,7 +317,7 @@ private fun HomeContent(
             onViewStatistics = onViewStatistics,
             modifier = Modifier.padding(top = MindeckTheme.dimensions.spacingMd),
         )
-        Decks(
+        DeckList(
             decks = content.decks,
             onAllDecks = onAllDecks,
             onOpenDeck = onOpenDeck,
@@ -387,7 +389,7 @@ private fun ColumnScope.PendingReview(
     pending: DailyReviewUi.Pending,
     onReview: () -> Unit,
 ) {
-    val remaining = pending.totalCount - pending.repeatedCount
+    val remaining = pending.totalCount - pending.reviewedCount
 
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -442,7 +444,7 @@ private fun ColumnScope.PendingReview(
     if (pending.inProgress) {
         RepetitionScaleInfo(
             totalCount = pending.totalCount,
-            repeatedCount = pending.repeatedCount,
+            reviewedCount = pending.reviewedCount,
         )
         VerticalSpacer(MindeckTheme.dimensions.spacingXl)
     }
@@ -499,10 +501,10 @@ private fun ColumnScope.CompletedReview(onViewStatistics: () -> Unit) {
 @Composable
 private fun RepetitionScaleInfo(
     totalCount: Int,
-    repeatedCount: Int,
+    reviewedCount: Int,
     modifier: Modifier = Modifier,
 ) {
-    val progress = if (totalCount > 0) repeatedCount.toFloat() / totalCount else 0f
+    val progress = if (totalCount > 0) reviewedCount.toFloat() / totalCount else 0f
 
     Column(
         modifier = modifier,
@@ -513,7 +515,7 @@ private fun RepetitionScaleInfo(
                 text =
                     stringResource(
                         HomeRes.string.home_review_progress,
-                        repeatedCount,
+                        reviewedCount,
                         totalCount,
                     ),
                 style = MaterialTheme.typography.labelLarge,
@@ -563,7 +565,7 @@ private fun RepetitionScale(
 }
 
 @Composable
-private fun Decks(
+private fun DeckList(
     decks: List<DeckItem>,
     onAllDecks: () -> Unit,
     onOpenDeck: (Int) -> Unit,
@@ -610,14 +612,14 @@ private fun Decks(
             verticalArrangement = Arrangement.spacedBy(MindeckTheme.dimensions.spacingSm),
         ) {
             items(decks, key = { it.id }) { deck ->
-                DeckItem(deck = deck, onOpenDeck = onOpenDeck)
+                DeckListItem(deck = deck, onOpenDeck = onOpenDeck)
             }
         }
     }
 }
 
 @Composable
-private fun DeckItem(
+private fun DeckListItem(
     deck: DeckItem,
     onOpenDeck: (Int) -> Unit,
     modifier: Modifier = Modifier,

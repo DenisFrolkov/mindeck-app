@@ -15,14 +15,14 @@ object Mappers {
         DeckEntity(
             deckId = deckId,
             deckName = deckName,
-            deckColor = deckColor.name
+            deckColor = deckColor.name,
         )
 
     fun DeckEntity.toDomain(): Deck =
         Deck(
             deckId = deckId,
             deckName = deckName,
-            deckColor = enumValueOf<DeckColor>(deckColor)
+            deckColor = enumValueOf<DeckColor>(deckColor),
         )
 
     fun Card.toEntity(): CardEntity =

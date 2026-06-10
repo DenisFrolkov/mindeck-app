@@ -1,4 +1,4 @@
-package com.mindeck.data.model
+package com.mindeck.data.models
 
 data class DeckCardStats(
     val deckId: Int,

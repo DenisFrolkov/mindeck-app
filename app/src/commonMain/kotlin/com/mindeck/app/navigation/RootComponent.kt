@@ -9,13 +9,14 @@ import com.arkivanov.decompose.router.stack.pop
 import com.arkivanov.decompose.router.stack.push
 import com.arkivanov.decompose.value.Value
 import com.arkivanov.essenty.lifecycle.doOnDestroy
-import com.mindeck.feature.home.home.HomeViewModel
+import com.mindeck.feature.home.HomeViewModel
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 
 class RootComponent(
-    componentContext: ComponentContext
-) : ComponentContext by componentContext, KoinComponent {
+    componentContext: ComponentContext,
+) : ComponentContext by componentContext,
+    KoinComponent {
     private val navigation = StackNavigation<Config>()
 
     val stack: Value<ChildStack<Config, Child>> =

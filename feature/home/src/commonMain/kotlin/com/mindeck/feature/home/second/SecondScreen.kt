@@ -1,4 +1,4 @@
-package com.mindeck.feature.home
+package com.mindeck.feature.home.second
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

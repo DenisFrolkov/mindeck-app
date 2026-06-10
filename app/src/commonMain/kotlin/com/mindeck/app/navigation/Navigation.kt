@@ -14,10 +14,10 @@ import com.arkivanov.decompose.extensions.compose.stack.Children
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import com.mindeck.core.ui.button.AppFAB
 import com.mindeck.core.ui.theme.MindeckTheme
-import com.mindeck.feature.home.SecondScreen
-import com.mindeck.feature.home.home.HomeNavigationEvent
-import com.mindeck.feature.home.home.HomeScreen
-import com.mindeck.feature.home.home.showsAddFab
+import com.mindeck.feature.home.HomeNavigationEvent
+import com.mindeck.feature.home.HomeScreen
+import com.mindeck.feature.home.second.SecondScreen
+import com.mindeck.feature.home.showsAddFab
 
 @Composable
 fun Navigation(

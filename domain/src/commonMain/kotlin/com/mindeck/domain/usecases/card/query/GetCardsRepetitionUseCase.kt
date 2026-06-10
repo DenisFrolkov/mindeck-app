@@ -3,14 +3,14 @@ package com.mindeck.domain.usecases.card.query
 import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.CardState
 import com.mindeck.domain.repository.CardRepetitionRepository
-import com.mindeck.domain.service.ClockRepository
+import com.mindeck.domain.time.TimeProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlin.time.Duration.Companion.days
 
 class GetCardsRepetitionUseCase(
     private val cardRepetitionRepository: CardRepetitionRepository,
-    private val clock: ClockRepository,
+    private val clock: TimeProvider,
 ) {
     operator fun invoke(): Flow<List<Card>> {
         val now = clock.now()

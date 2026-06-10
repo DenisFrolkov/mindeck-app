@@ -69,13 +69,13 @@ class DeckRepositoryImpl(
                 throw DomainError.DatabaseError()
             }
 
-    override fun getReviewCountPerDeck(currentTime: Long): Flow<List<DeckWithStats>> {
-        return combine(
+    override fun getCardStatsPerDeck(currentTime: Long): Flow<List<DeckWithStats>> =
+        combine(
             deckDao.getAllDecks(),
             deckDao.getReviewCountPerDeck(currentTime),
-        ) { decks, reviewCounts ->
+        ) { decks, cardStats ->
             decks.map { deck ->
-                val stats = reviewCounts.find { it.deckId == deck.deckId }
+                val stats = cardStats.find { it.deckId == deck.deckId }
                 DeckWithStats(
                     deck = deck.toDomain(),
                     cardCount = stats?.cardCount ?: 0,
@@ -88,5 +88,4 @@ class DeckRepositoryImpl(
             if (it is CancellationException) throw it
             throw DomainError.DatabaseError()
         }
-    }
 }

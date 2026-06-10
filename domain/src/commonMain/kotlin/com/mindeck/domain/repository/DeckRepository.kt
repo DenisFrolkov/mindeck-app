@@ -18,5 +18,5 @@ interface DeckRepository {
 
     fun getDeckById(deckId: Int): Flow<Deck?>
 
-    fun getReviewCountPerDeck(currentTime: Long): Flow<List<DeckWithStats>>
+    fun getCardStatsPerDeck(currentTime: Long): Flow<List<DeckWithStats>>
 }

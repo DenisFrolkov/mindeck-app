@@ -1,6 +1,6 @@
 package com.mindeck.app.navigation
 
-import com.mindeck.feature.home.home.HomeViewModel
+import com.mindeck.feature.home.HomeViewModel
 
 sealed interface Child {
     data class Main(

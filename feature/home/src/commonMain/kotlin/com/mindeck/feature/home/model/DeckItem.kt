@@ -1,4 +1,4 @@
-package com.mindeck.feature.home.home
+package com.mindeck.feature.home.model
 
 import com.mindeck.domain.models.DeckColor
 
