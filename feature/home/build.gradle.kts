@@ -64,6 +64,9 @@ kotlin {
 
                 // DI
                 implementation(libs.koin.core)
+
+                // KotlinX
+                implementation(libs.kotlinx.datetime)
             }
         }
         androidMain {

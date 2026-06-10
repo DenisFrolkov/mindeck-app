@@ -564,7 +564,7 @@ private fun RepetitionScale(
 
 @Composable
 private fun Decks(
-    decks: List<DeckUi>,
+    decks: List<DeckItem>,
     onAllDecks: () -> Unit,
     onOpenDeck: (Int) -> Unit,
     modifier: Modifier = Modifier,
@@ -618,7 +618,7 @@ private fun Decks(
 
 @Composable
 private fun DeckItem(
-    deck: DeckUi,
+    deck: DeckItem,
     onOpenDeck: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {

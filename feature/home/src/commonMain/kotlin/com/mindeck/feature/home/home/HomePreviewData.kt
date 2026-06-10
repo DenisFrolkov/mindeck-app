@@ -1,11 +1,13 @@
 package com.mindeck.feature.home.home
 
+import com.mindeck.domain.models.DeckColor
+
 internal object HomePreviewData {
     val decks =
         listOf(
-            DeckUi(id = 1, title = "Испанский базовая лексика", cardCount = 124, reviewCount = 18),
-            DeckUi(id = 2, title = "Английский фразовые глаголы", cardCount = 86, reviewCount = 0),
-            DeckUi(id = 3, title = "Биология термины", cardCount = 42, reviewCount = 5),
+            DeckItem(id = 1, title = "Испанский базовая лексика", deckColor = DeckColor.BLUE, cardCount = 124, newCount = 10, newReviewCount = 5, reviewCount = 3),
+            DeckItem(id = 2, title = "Английский фразовые глаголы", deckColor = DeckColor.BLUE, cardCount = 124, newCount = 10, newReviewCount = 5, reviewCount = 3),
+            DeckItem(id = 3, title = "Биология термины", deckColor = DeckColor.BLUE, cardCount = 124, newCount = 10, newReviewCount = 5, reviewCount = 3),
         )
 
     val pendingContent =

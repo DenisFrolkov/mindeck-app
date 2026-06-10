@@ -10,8 +10,8 @@ sealed interface HomeUiState {
     data object Empty : HomeUiState
 
     data class Content(
-        val dailyReview: DailyReviewUi,
-        val decks: List<DeckUi>,
+        val dailyReview: DailyReviewUi = DailyReviewUi.Pending(),
+        val decks: List<DeckItem> = emptyList(),
     ) : HomeUiState
 }
 
