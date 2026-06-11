@@ -33,6 +33,7 @@ kotlin {
                 implementation(projects.domain)
                 implementation(projects.data)
                 implementation(projects.feature.home)
+                implementation(projects.feature.card)
 
                 // DI
                 implementation(libs.koin.core)

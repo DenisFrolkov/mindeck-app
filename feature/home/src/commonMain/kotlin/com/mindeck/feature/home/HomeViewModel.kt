@@ -11,7 +11,7 @@ import kotlin.time.Clock
 
 class HomeViewModel(
     private val getDecksWithStatsUseCase: GetDecksWithStatsUseCase,
-) : BaseViewModel<HomeUiState, HomeIntent>(HomePreviewData.loading) {
+) : BaseViewModel<HomeUiState, HomeIntent>(HomeUiState.Loading) {
     override fun accept(intent: HomeIntent) {
         when (intent) {
             HomeIntent.Retry -> {
