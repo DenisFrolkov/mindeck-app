@@ -14,10 +14,11 @@ import com.arkivanov.decompose.extensions.compose.stack.Children
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import com.mindeck.core.ui.button.AppFAB
 import com.mindeck.core.ui.theme.MindeckTheme
+import com.mindeck.feature.card.CreateCardNavigationEvent
+import com.mindeck.feature.card.CreateCardScreen
 import com.mindeck.feature.home.HomeNavigationEvent
 import com.mindeck.feature.home.HomeScreen
-import com.mindeck.feature.home.second.SecondScreen
-import com.mindeck.feature.home.showsAddFab
+ import com.mindeck.feature.home.showsAddFab
 
 @Composable
 fun Navigation(
@@ -58,24 +59,25 @@ private fun ChildContent(
     contentPadding: PaddingValues,
 ) {
     when (child) {
-        is Child.Main ->
-            MainContent(
+        is Child.Home ->
+            HomeContent(
                 child = child,
                 onNavigate = { event -> homeDestinationFor(event)?.let(rootComponent::push) },
                 contentPadding = contentPadding,
             )
 
-        is Child.Second ->
-            SecondScreen(
-                onBack = rootComponent::pop,
+        is Child.CreateCard ->
+            CreateCardContent(
+                child = child,
+                onNavigate = { event -> createCardDestinationFor(event)?.let(rootComponent::push) },
                 contentPadding = contentPadding,
             )
     }
 }
 
 @Composable
-private fun MainContent(
-    child: Child.Main,
+private fun HomeContent(
+    child: Child.Home,
     onNavigate: (HomeNavigationEvent) -> Unit,
     contentPadding: PaddingValues,
 ) {
@@ -88,9 +90,25 @@ private fun MainContent(
     )
 }
 
+@Composable
+private fun CreateCardContent(
+    child: Child.CreateCard,
+    onNavigate: (CreateCardNavigationEvent) -> Unit,
+    contentPadding: PaddingValues,
+) {
+    val state by child.viewModel.state.collectAsState()
+
+    CreateCardScreen(
+        state = state,
+        onIntent = child.viewModel::accept,
+        onNavigate = onNavigate,
+        contentPadding = contentPadding,
+    )
+}
+
 private fun homeDestinationFor(event: HomeNavigationEvent): Config? =
     when (event) {
-        HomeNavigationEvent.CreateCard -> Config.Second
+        HomeNavigationEvent.CreateCard -> Config.CreateCard
         HomeNavigationEvent.Search,
         HomeNavigationEvent.Settings,
         HomeNavigationEvent.ImportDeck,
@@ -99,6 +117,11 @@ private fun homeDestinationFor(event: HomeNavigationEvent): Config? =
         HomeNavigationEvent.AllDecks,
         is HomeNavigationEvent.OpenDeck,
         -> null
+    }
+
+private fun createCardDestinationFor(event: CreateCardNavigationEvent): Config? =
+    when (event) {
+        CreateCardNavigationEvent.Back -> Config.Home
     }
 
 private data class FabConfig(
@@ -111,10 +134,10 @@ private fun fabConfigFor(
     onNavigate: (Config) -> Unit,
 ): FabConfig? =
     when (active) {
-        is Child.Main -> {
+        is Child.Home -> {
             val state by active.viewModel.state.collectAsState()
-            if (state.showsAddFab) FabConfig(onClick = { onNavigate(Config.Second) }) else null
+            if (state.showsAddFab) FabConfig(onClick = { onNavigate(Config.CreateCard) }) else null
         }
 
-        Child.Second -> null
+        is Child.CreateCard -> null
     }
