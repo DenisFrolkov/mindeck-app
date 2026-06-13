@@ -24,7 +24,7 @@ class RootComponent(
         childStack(
             source = navigation,
             serializer = Config.serializer(),
-            initialConfiguration = Config.Home,
+            initialConfiguration = Config.CreateCard,
             handleBackButton = true,
             childFactory = ::createChild,
         )

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="create_card_title">Новая карточка</string>
+    <string name="create_card_action_back">Назад</string>
+    <string name="create_card_section_deck">КОЛОДА</string>
+    <string name="create_card_section_type">ТИП</string>
+    <string name="create_card_section_photo">ФОТО</string>
+    <string name="create_card_section_question">ВОПРОС</string>
+    <string name="create_card_section_answer">ОТВЕТ</string>
+    <string name="create_card_type_simple">Простая</string>
+    <string name="create_card_type_complex">Сложная</string>
+    <string name="create_card_photo_title">Нажмите, чтобы добавить фото</string>
+    <string name="create_card_photo_hint">или перетащите из галереи · JPEG, PNG · до 5 МБ</string>
+    <string name="create_card_question_placeholder">Что хотите запомнить?</string>
+    <string name="create_card_section_hint">ПРИМЕР / ПОДСКАЗКА (НЕОБЯЗАТЕЛЬНО)</string>
+    <string name="create_card_hint_placeholder">Контекст или мнемоника</string>
+    <string name="create_card_format_bold">Жирный</string>
+    <string name="create_card_format_italic">Курсив</string>
+    <string name="create_card_format_underline">Подчёркнутый</string>
+    <string name="create_card_format_strikethrough">Зачёркнутый</string>
+    <string name="create_card_format_bullet_list">Маркированный список</string>
+    <string name="create_card_format_numbered_list">Нумерованный список</string>
+    <string name="create_card_audio_speak">Озвучить ответ</string>
+    <string name="create_card_audio_record">Записать аудио</string>
+    <string name="create_card_audio_upload">Загрузить аудиофайл</string>
+    <string name="create_card_audio_remove">Удалить аудио</string>
+    <string name="create_card_audio_play">Воспроизвести</string>
+</resources>

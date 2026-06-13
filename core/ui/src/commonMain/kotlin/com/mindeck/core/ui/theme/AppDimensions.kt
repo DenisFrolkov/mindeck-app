@@ -29,6 +29,10 @@ data class AppDimensions(
     val iconMd: Dp = 24.dp,
     val iconLg: Dp = 36.dp,
     val iconXl: Dp = 48.dp,
+    // Border / stroke widths
+    val borderThin: Dp = 1.dp,
+    val borderThick: Dp = 2.dp,
+    val dash: Dp = 6.dp,
 )
 
 val LocalDimensions = staticCompositionLocalOf { AppDimensions() }

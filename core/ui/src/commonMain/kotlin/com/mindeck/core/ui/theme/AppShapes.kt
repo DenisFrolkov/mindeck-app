@@ -12,6 +12,8 @@ data class SpecialAppShapes(
     val hero: RoundedCornerShape = RoundedCornerShape(28.dp),
     val photo: RoundedCornerShape = RoundedCornerShape(24.dp),
     val pill: RoundedCornerShape = RoundedCornerShape(100.dp),
+    val segmentStart: RoundedCornerShape = RoundedCornerShape(topStartPercent = 50, bottomStartPercent = 50),
+    val segmentEnd: RoundedCornerShape = RoundedCornerShape(topEndPercent = 50, bottomEndPercent = 50),
 )
 
 val LocalShapes = staticCompositionLocalOf { SpecialAppShapes() }

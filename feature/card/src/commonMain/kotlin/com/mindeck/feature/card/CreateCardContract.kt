@@ -1,5 +1,7 @@
 package com.mindeck.feature.card
 
+import com.mindeck.feature.card.model.CardType
+
 sealed interface CreateCardUiState {
     data object Loading : CreateCardUiState
 
@@ -10,6 +12,7 @@ sealed interface CreateCardUiState {
     data class Idle(
         val question: String = "",
         val answer: String = "",
+        val selectedType: CardType = CardType.SIMPLE,
     ) : CreateCardUiState
 
     data object Success : CreateCardUiState
@@ -22,6 +25,10 @@ sealed interface CreateCardIntent {
 
     data class UpdateAnswer(
         val value: String,
+    ) : CreateCardIntent
+
+    data class SelectType(
+        val type: CardType,
     ) : CreateCardIntent
 
     data object Submit : CreateCardIntent

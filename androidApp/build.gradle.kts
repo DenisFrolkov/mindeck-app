@@ -70,6 +70,11 @@ android {
                     .dir("generated/composeResAndroid")
                     .get()
                     .asFile,
+                project(":feature:card")
+                    .layout.buildDirectory
+                    .dir("generated/composeResAndroid")
+                    .get()
+                    .asFile,
             )
         }
     }
@@ -77,9 +82,10 @@ android {
 
 evaluationDependsOn(":core:ui")
 evaluationDependsOn(":feature:home")
+evaluationDependsOn(":feature:card")
 
 afterEvaluate {
-    val composeResProjects = listOf(":core:ui", ":feature:home")
+    val composeResProjects = listOf(":core:ui", ":feature:home", ":feature:card")
     listOf("mergeDebugAssets", "mergeReleaseAssets").forEach { taskName ->
         val mergeTask = tasks.findByName(taskName) ?: return@forEach
         composeResProjects.forEach { projectPath ->

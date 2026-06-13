@@ -18,7 +18,7 @@ import com.mindeck.feature.card.CreateCardNavigationEvent
 import com.mindeck.feature.card.CreateCardScreen
 import com.mindeck.feature.home.HomeNavigationEvent
 import com.mindeck.feature.home.HomeScreen
- import com.mindeck.feature.home.showsAddFab
+import com.mindeck.feature.home.showsAddFab
 
 @Composable
 fun Navigation(
