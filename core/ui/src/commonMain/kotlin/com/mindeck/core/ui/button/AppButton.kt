@@ -1,6 +1,7 @@
 package com.mindeck.core.ui.button
 
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -38,6 +39,7 @@ fun AppButton(
                 painter = painterResource(it),
                 contentDescription = null,
                 tint = textColor,
+                modifier = Modifier.size(MindeckTheme.dimensions.iconSm)
             )
             HorizontalSpacer(MindeckTheme.dimensions.spacingSm)
         }
