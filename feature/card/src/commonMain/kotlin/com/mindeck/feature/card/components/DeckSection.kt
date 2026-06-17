@@ -1,7 +1,6 @@
 package com.mindeck.feature.card.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -45,7 +44,6 @@ import com.mindeck.feature.card.model.DeckPickState
 import mindeck_app.core.ui.generated.resources.Res
 import mindeck_app.core.ui.generated.resources.action_add
 import mindeck_app.core.ui.generated.resources.add_icon
-import mindeck_app.core.ui.generated.resources.check_circle_icon
 import mindeck_app.core.ui.generated.resources.check_icon
 import mindeck_app.core.ui.generated.resources.chevron_right_icon
 import mindeck_app.core.ui.generated.resources.library_add_icon
@@ -55,9 +53,9 @@ import mindeck_app.core.ui.generated.resources.style_icon
 import mindeck_app.feature.card.generated.resources.create_card_deck_clear
 import mindeck_app.feature.card.generated.resources.create_card_deck_create
 import mindeck_app.feature.card.generated.resources.create_card_deck_pick
+import mindeck_app.feature.card.generated.resources.create_card_deck_search
 import mindeck_app.feature.card.generated.resources.create_card_section_deck
 import org.jetbrains.compose.resources.painterResource
-import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import mindeck_app.feature.card.generated.resources.Res as CreateCardRes
 
@@ -85,32 +83,36 @@ internal fun DeckSection(
         )
         VerticalSpacer(MindeckTheme.dimensions.spacingSm)
         Card(
-            modifier = Modifier.fillMaxWidth().then(
-                if (state == DeckPickState.NoDecks) {
-                    Modifier.drawBehind {
-                        drawRoundRect(
-                            color = dashedBorderColor,
-                            cornerRadius = CornerRadius(dashedCornerRadius.toPx()),
-                            style =
-                                Stroke(
-                                    width = dashedStrokeWidth.toPx(),
-                                    pathEffect =
-                                        PathEffect.dashPathEffect(
-                                            floatArrayOf(
-                                                dashLengthWidth.toPx(),
-                                                dashGapWidth.toPx()
+            modifier =
+                Modifier.fillMaxWidth().then(
+                    if (state == DeckPickState.NoDecks) {
+                        Modifier.drawBehind {
+                            drawRoundRect(
+                                color = dashedBorderColor,
+                                cornerRadius = CornerRadius(dashedCornerRadius.toPx()),
+                                style =
+                                    Stroke(
+                                        width = dashedStrokeWidth.toPx(),
+                                        pathEffect =
+                                            PathEffect.dashPathEffect(
+                                                floatArrayOf(
+                                                    dashLengthWidth.toPx(),
+                                                    dashGapWidth.toPx(),
+                                                ),
+                                                0f,
                                             ),
-                                            0f,
-                                        ),
-                                ),
-                        )
-                    }
-                } else {
-                    Modifier
-                },
-            ),
+                                    ),
+                            )
+                        }
+                    } else {
+                        Modifier
+                    },
+                ),
             shape = MindeckTheme.shapes.avatar,
-            colors = CardDefaults.cardColors(if (!expanded) MaterialTheme.colorScheme.surfaceContainerHighest else MaterialTheme.colorScheme.surfaceContainer),
+            colors =
+                CardDefaults.cardColors(
+                    if (!expanded) MaterialTheme.colorScheme.surfaceContainerHighest else MaterialTheme.colorScheme.surfaceContainer,
+                ),
         ) {
             when (state) {
                 DeckPickState.NoDecks -> NoDecksContent(onCreateDeck = onCreateDeck)
@@ -171,24 +173,25 @@ private fun NoDecksContent(onCreateDeck: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Box(
-                modifier = Modifier.background(
-                    color = MaterialTheme.colorScheme.primaryContainer,
-                    shape = MindeckTheme.shapes.avatar
-                )
-                    .padding(MindeckTheme.dimensions.spacingSm)
+                modifier =
+                    Modifier
+                        .background(
+                            color = MaterialTheme.colorScheme.primaryContainer,
+                            shape = MindeckTheme.shapes.avatar,
+                        ).padding(MindeckTheme.dimensions.spacingSm),
             ) {
                 Icon(
                     painter = painterResource(Res.drawable.library_add_icon),
                     contentDescription = stringResource(Res.string.action_add),
                     tint = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.size(MindeckTheme.dimensions.iconXs)
+                    modifier = Modifier.size(MindeckTheme.dimensions.iconXs),
                 )
             }
             HorizontalSpacer(MindeckTheme.dimensions.spacingSm)
             Text(
                 text = stringResource(CreateCardRes.string.create_card_deck_create),
                 color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.titleMedium,
             )
         }
         Icon(
@@ -278,24 +281,25 @@ private fun PickCollapsed(onClick: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Box(
-                modifier = Modifier.background(
-                    color = MaterialTheme.colorScheme.surfaceContainerHigh,
-                    shape = MindeckTheme.shapes.avatar
-                )
-                    .padding(MindeckTheme.dimensions.spacingSm)
+                modifier =
+                    Modifier
+                        .background(
+                            color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                            shape = MindeckTheme.shapes.avatar,
+                        ).padding(MindeckTheme.dimensions.spacingSm),
             ) {
                 Icon(
                     painter = painterResource(Res.drawable.style_icon),
                     contentDescription = stringResource(Res.string.action_add),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(MindeckTheme.dimensions.iconXs)
+                    modifier = Modifier.size(MindeckTheme.dimensions.iconXs),
                 )
             }
             HorizontalSpacer(MindeckTheme.dimensions.spacingSm)
             Text(
                 text = stringResource(CreateCardRes.string.create_card_deck_pick),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.titleMedium,
             )
         }
         Icon(
@@ -344,10 +348,13 @@ private fun DeckPickerExpanded(
                 onPickDeck = onPickDeck,
             )
             HorizontalDivider(
-                modifier = Modifier.fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.outlineVariant).height(
-                    MindeckTheme.dimensions.borderThin
-                )
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.outlineVariant)
+                        .height(
+                            MindeckTheme.dimensions.borderThin,
+                        ),
             )
         }
 
@@ -398,8 +405,7 @@ private fun DeckSearchField(
                         .background(
                             color = MaterialTheme.colorScheme.surfaceContainerHighest,
                             shape = MindeckTheme.shapes.avatar,
-                        )
-                        .padding(
+                        ).padding(
                             horizontal = MindeckTheme.dimensions.spacingLg,
                             vertical = MindeckTheme.dimensions.spacingMd,
                         ),
@@ -409,15 +415,15 @@ private fun DeckSearchField(
                     painter = painterResource(Res.drawable.search_icon),
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(MindeckTheme.dimensions.iconSm)
+                    modifier = Modifier.size(MindeckTheme.dimensions.iconSm),
                 )
                 Row(Modifier.weight(1f)) {
                     if (value.isBlank()) {
                         HorizontalSpacer(width = MindeckTheme.dimensions.spacingSm)
                         Text(
-                            "Поиск колоды",
+                            text = stringResource(CreateCardRes.string.create_card_deck_search),
                             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                            style = MaterialTheme.typography.titleMedium
+                            style = MaterialTheme.typography.titleMedium,
                         )
                     }
                     inner()
@@ -425,7 +431,7 @@ private fun DeckSearchField(
                 Text(
                     count.toString(),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.labelLarge
+                    style = MaterialTheme.typography.labelLarge,
                 )
             }
         },
@@ -450,11 +456,12 @@ private fun NewDeckRow(onClick: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Box(
-                modifier = Modifier.background(
-                    color = MaterialTheme.colorScheme.primary,
-                    shape = MindeckTheme.shapes.avatar,
-                )
-                    .padding(MindeckTheme.dimensions.spacingSm)
+                modifier =
+                    Modifier
+                        .background(
+                            color = MaterialTheme.colorScheme.primary,
+                            shape = MindeckTheme.shapes.avatar,
+                        ).padding(MindeckTheme.dimensions.spacingSm),
             ) {
                 Icon(
                     painter = painterResource(Res.drawable.add_icon),
@@ -537,7 +544,7 @@ private fun DeckListItem(
                     painter = painterResource(Res.drawable.check_icon),
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onSecondaryContainer,
-                    modifier = Modifier.size(MindeckTheme.dimensions.iconSm)
+                    modifier = Modifier.size(MindeckTheme.dimensions.iconSm),
                 )
             }
         }

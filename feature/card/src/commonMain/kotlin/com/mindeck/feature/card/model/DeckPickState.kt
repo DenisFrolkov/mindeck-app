@@ -4,7 +4,7 @@ sealed interface DeckPickState {
     data object NoDecks : DeckPickState
 
     data class NotSelected(
-        val decks: List<DeckItem>
+        val decks: List<DeckItem>,
     ) : DeckPickState
 
     data class Selected(

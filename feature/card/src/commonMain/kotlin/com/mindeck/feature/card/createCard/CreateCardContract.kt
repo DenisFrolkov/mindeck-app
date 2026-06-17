@@ -40,6 +40,10 @@ sealed interface CreateCardIntent {
         val value: String,
     ) : CreateCardIntent
 
+    data class UpdateHint(
+        val value: String,
+    ) : CreateCardIntent
+
     data class SelectType(
         val type: CardType,
     ) : CreateCardIntent

@@ -51,15 +51,15 @@ ci/add-lint-workflow
 <type>(<scope>): <description>
 ```
 
-- `scope` — модуль или фича: `domain`, `data`, `presentation`, `card`, `deck`, `navigation`
+- `scope` — модуль или фича: `domain`, `data`, `home`, `card`, `core-ui`, `core-mvi`, `navigation`, `app`
 - `description` — что сделано, lowercase, без точки в конце
 
 ### Примеры
 
 ```
-feat(presentation): add card study screen
+feat(card): add card study screen
 fix(data): protect session queue with mutex
-refactor(presentation): move interval formatting to ui layer
+refactor(home): move interval formatting to ui layer
 chore(deps): update kotlin to 2.1.0
 test(domain): add use case unit tests
 ci: add github actions lint workflow
@@ -85,7 +85,7 @@ BREAKING CHANGE: CardRepository removed, use CardQueryRepository and CardCommand
 
 Примеры:
 ```
-feat(presentation): add deck selection to creation card screen
+feat(card): add deck selection to creation card screen
 fix(data): fix room migration from version 3 to 4
 refactor(domain): extract use case types into subpackages
 ```

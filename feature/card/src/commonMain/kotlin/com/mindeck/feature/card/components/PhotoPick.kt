@@ -54,9 +54,7 @@ internal fun PhotoPick(modifier: Modifier = Modifier) {
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(MindeckTheme.dimensions.spacingLg))
                     .clickable {
-
-                    }
-                    .background(
+                    }.background(
                         MaterialTheme.colorScheme.surfaceContainerLow,
                         shape = RoundedCornerShape(MindeckTheme.dimensions.spacingLg),
                     ).drawBehind {

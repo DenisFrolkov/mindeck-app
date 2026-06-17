@@ -11,6 +11,9 @@ class CreateCardViewModel : BaseViewModel<CreateCardUiState, CreateCardIntent>(C
             is CreateCardIntent.UpdateAnswer ->
                 updateIdle { it.copy(answer = intent.value) }
 
+            is CreateCardIntent.UpdateHint ->
+                updateIdle { it.copy(hint = intent.value.ifBlank { null }) }
+
             is CreateCardIntent.SelectType ->
                 updateIdle { it.copy(selectedType = intent.type) }
 
@@ -22,7 +25,7 @@ class CreateCardViewModel : BaseViewModel<CreateCardUiState, CreateCardIntent>(C
                     idle.copy(pickedDeck = idle.decks.find { it.id == intent.deckId })
                 }
 
-            CreateCardIntent.Submit -> {  }
+            CreateCardIntent.Submit -> { }
         }
     }
 

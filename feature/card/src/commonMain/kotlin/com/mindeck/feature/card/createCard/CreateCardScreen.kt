@@ -73,6 +73,10 @@ fun CreateCardScreen(
                     onSelectType = { onIntent(CreateCardIntent.SelectType(it)) },
                     question = state.question,
                     onQuestionChange = { onIntent(CreateCardIntent.UpdateQuestion(it)) },
+                    answer = state.answer,
+                    onAnswerChange = { onIntent(CreateCardIntent.UpdateAnswer(it)) },
+                    hint = state.hint.orEmpty(),
+                    onHintChange = { onIntent(CreateCardIntent.UpdateHint(it)) },
                     onPickDeck = { onIntent(CreateCardIntent.PickDeck(it)) },
                     onClearDeck = { onIntent(CreateCardIntent.ClearDeck) },
                     onCreateDeck = { onNavigate(CreateCardNavigationEvent.CreateDeck) },
@@ -93,6 +97,10 @@ private fun CreateCardForm(
     onSelectType: (CardType) -> Unit,
     question: String,
     onQuestionChange: (String) -> Unit,
+    answer: String,
+    onAnswerChange: (String) -> Unit,
+    hint: String,
+    onHintChange: (String) -> Unit,
     onPickDeck: (Int) -> Unit,
     onClearDeck: () -> Unit,
     onCreateDeck: () -> Unit,
@@ -100,7 +108,7 @@ private fun CreateCardForm(
 ) {
     Column(
         modifier = modifier.verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(MindeckTheme.dimensions.spacingLg)
+        verticalArrangement = Arrangement.spacedBy(MindeckTheme.dimensions.spacingLg),
     ) {
         DeckSection(
             state = deckPick,
@@ -118,8 +126,8 @@ private fun CreateCardForm(
             onValueChange = onQuestionChange,
         )
         AnswerBlock(
-            value = question,
-            onValueChange = onQuestionChange,
+            value = answer,
+            onValueChange = onAnswerChange,
         )
         var activeFormats by remember { mutableStateOf(emptySet<TextFormat>()) }
         TextFormattingToolbar(
@@ -129,15 +137,15 @@ private fun CreateCardForm(
                     if (format in activeFormats) activeFormats - format else activeFormats + format
             },
         )
-        var selectedAudio by remember { mutableStateOf<String?>("null") }
+        var selectedAudio by remember { mutableStateOf<String?>(null) }
         AudioPick(
             selectedAudio = selectedAudio,
             onPickFile = {},
             onRemoveAudio = { selectedAudio = null },
         )
         HintBlock(
-            value = question,
-            onValueChange = onQuestionChange,
+            value = hint,
+            onValueChange = onHintChange,
         )
     }
 }

@@ -7,6 +7,7 @@
     <string name="create_card_deck_empty">Колод пока нет</string>
     <string name="create_card_deck_create">Создайте первую колоду</string>
     <string name="create_card_deck_clear">Убрать колоду</string>
+    <string name="create_card_deck_search">Поиск колоды</string>
     <string name="create_card_section_type">ТИП</string>
     <string name="create_card_section_photo">ФОТО</string>
     <string name="create_card_section_question">ВОПРОС</string>

@@ -7,6 +7,7 @@
     <string name="create_card_deck_empty">No decks yet</string>
     <string name="create_card_deck_create">Create your first deck</string>
     <string name="create_card_deck_clear">Remove deck</string>
+    <string name="create_card_deck_search">Search deck</string>
     <string name="create_card_section_type">TYPE</string>
     <string name="create_card_section_photo">PHOTO</string>
     <string name="create_card_section_question">QUESTION</string>
