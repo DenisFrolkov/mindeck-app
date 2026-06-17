@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.mindeck.core.ui.appBar.AppBar
@@ -45,11 +46,13 @@ fun HomeScreen(
                     AppBarAction(
                         icon = Res.drawable.search_icon,
                         contentDescription = stringResource(HomeRes.string.home_action_search),
+                        iconColor = MaterialTheme.colorScheme.onSurfaceVariant,
                         onClick = { onNavigate(HomeNavigationEvent.Search) },
                     ),
                     AppBarAction(
                         icon = Res.drawable.settings_icon,
                         contentDescription = stringResource(HomeRes.string.home_action_settings),
+                        iconColor = MaterialTheme.colorScheme.onSurfaceVariant,
                         onClick = { onNavigate(HomeNavigationEvent.Settings) },
                     ),
                 ),

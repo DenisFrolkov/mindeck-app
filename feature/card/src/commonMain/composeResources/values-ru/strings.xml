@@ -3,6 +3,10 @@
     <string name="create_card_title">Новая карточка</string>
     <string name="create_card_action_back">Назад</string>
     <string name="create_card_section_deck">КОЛОДА</string>
+    <string name="create_card_deck_pick">Выберите колоду</string>
+    <string name="create_card_deck_empty">Колод пока нет</string>
+    <string name="create_card_deck_create">Создайте первую колоду</string>
+    <string name="create_card_deck_clear">Убрать колоду</string>
     <string name="create_card_section_type">ТИП</string>
     <string name="create_card_section_photo">ФОТО</string>
     <string name="create_card_section_question">ВОПРОС</string>

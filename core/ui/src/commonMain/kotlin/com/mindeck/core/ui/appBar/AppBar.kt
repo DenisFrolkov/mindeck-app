@@ -1,10 +1,13 @@
 package com.mindeck.core.ui.appBar
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -12,6 +15,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import com.mindeck.core.ui.spacer.HorizontalSpacer
 import com.mindeck.core.ui.theme.MindeckTheme
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
@@ -33,6 +39,7 @@ fun AppBar(
         ) {
             if (navigation != null) {
                 ActionButton(navigation)
+                HorizontalSpacer(MindeckTheme.dimensions.spacingLg)
             }
             Text(
                 text = title,
@@ -40,7 +47,7 @@ fun AppBar(
                 color = MaterialTheme.colorScheme.onSurface,
             )
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(MindeckTheme.dimensions.spacingXs)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(MindeckTheme.dimensions.spacingLg)) {
             actions.forEach { ActionButton(it) }
         }
     }
@@ -48,10 +55,10 @@ fun AppBar(
 
 @Composable
 private fun ActionButton(action: AppBarAction) {
-    IconButton(onClick = action.onClick) {
+    Box(modifier = Modifier.clip(CircleShape).clickable { action.onClick }) {
         Icon(
             painter = painterResource(action.icon),
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            tint = action.iconColor,
             contentDescription = action.contentDescription,
             modifier = Modifier.size(MindeckTheme.dimensions.iconMd)
         )
@@ -61,5 +68,6 @@ private fun ActionButton(action: AppBarAction) {
 data class AppBarAction(
     val icon: DrawableResource,
     val contentDescription: String,
+    val iconColor: Color,
     val onClick: () -> Unit,
 )

@@ -1,5 +1,6 @@
-package com.mindeck.feature.card
+package com.mindeck.feature.card.createCard
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -7,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -17,7 +19,6 @@ import com.mindeck.core.ui.appBar.AppBar
 import com.mindeck.core.ui.appBar.AppBarAction
 import com.mindeck.core.ui.spacer.VerticalSpacer
 import com.mindeck.core.ui.theme.MindeckTheme
-import com.mindeck.domain.models.DeckColor
 import com.mindeck.feature.card.components.AnswerBlock
 import com.mindeck.feature.card.components.AudioPick
 import com.mindeck.feature.card.components.CardTypeSection
@@ -27,7 +28,7 @@ import com.mindeck.feature.card.components.PhotoPick
 import com.mindeck.feature.card.components.QuestionBlock
 import com.mindeck.feature.card.components.TextFormattingToolbar
 import com.mindeck.feature.card.model.CardType
-import com.mindeck.feature.card.model.DeckItem
+import com.mindeck.feature.card.model.DeckPickState
 import com.mindeck.feature.card.model.TextFormat
 import mindeck_app.core.ui.generated.resources.Res
 import mindeck_app.core.ui.generated.resources.arrow_back_icon
@@ -57,61 +58,69 @@ fun CreateCardScreen(
                 AppBarAction(
                     icon = Res.drawable.arrow_back_icon,
                     contentDescription = stringResource(CreateCardRes.string.create_card_action_back),
+                    iconColor = MaterialTheme.colorScheme.onSurface,
                     onClick = { onNavigate(CreateCardNavigationEvent.Back) },
                 ),
             modifier = Modifier.statusBarsPadding(),
         )
-        val idle = state as? CreateCardUiState.Idle
-        val selectedType = idle?.selectedType ?: CardType.SIMPLE
-        val question = idle?.question.orEmpty()
-        CreateCardForm(
-            deck =
-                DeckItem(
-                    id = 0,
-                    title = "История",
-                    deckColor = DeckColor.PINK,
-                ),
-            selectedType = selectedType,
-            onSelectType = { onIntent(CreateCardIntent.SelectType(it)) },
-            question = question,
-            onQuestionChange = { onIntent(CreateCardIntent.UpdateQuestion(it)) },
-            modifier = Modifier.weight(1f),
-        )
+        VerticalSpacer(MindeckTheme.dimensions.spacingXl)
+        when (state) {
+            is CreateCardUiState.Error -> TODO()
+            is CreateCardUiState.Idle -> {
+                CreateCardForm(
+                    deckPick = state.deckPick,
+                    selectedType = state.selectedType,
+                    onSelectType = { onIntent(CreateCardIntent.SelectType(it)) },
+                    question = state.question,
+                    onQuestionChange = { onIntent(CreateCardIntent.UpdateQuestion(it)) },
+                    onPickDeck = { onIntent(CreateCardIntent.PickDeck) },
+                    onClearDeck = { onIntent(CreateCardIntent.ClearDeck) },
+                    onCreateDeck = { onNavigate(CreateCardNavigationEvent.CreateDeck) },
+                    modifier = Modifier.weight(1f),
+                )
+            }
+
+            CreateCardUiState.Loading -> TODO()
+            CreateCardUiState.Success -> TODO()
+        }
     }
 }
 
 @Composable
 private fun CreateCardForm(
-    deck: DeckItem,
+    deckPick: DeckPickState,
     selectedType: CardType,
     onSelectType: (CardType) -> Unit,
     question: String,
     onQuestionChange: (String) -> Unit,
+    onPickDeck: () -> Unit,
+    onClearDeck: () -> Unit,
+    onCreateDeck: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier.verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(MindeckTheme.dimensions.spacingLg)
     ) {
-        VerticalSpacer(MindeckTheme.dimensions.spacingXl)
-        DeckSection(deck = deck)
-        VerticalSpacer(MindeckTheme.dimensions.spacingLg)
+        DeckSection(
+            state = deckPick,
+            onPick = onPickDeck,
+            onClear = onClearDeck,
+            onCreateDeck = onCreateDeck,
+        )
         CardTypeSection(
             selectedType = selectedType,
             onSelectType = onSelectType,
         )
-        VerticalSpacer(MindeckTheme.dimensions.spacingLg)
         PhotoPick()
-        VerticalSpacer(MindeckTheme.dimensions.spacingLg)
         QuestionBlock(
             value = question,
             onValueChange = onQuestionChange,
         )
-        VerticalSpacer(MindeckTheme.dimensions.spacingLg)
         AnswerBlock(
             value = question,
             onValueChange = onQuestionChange,
         )
-        VerticalSpacer(MindeckTheme.dimensions.spacingLg)
         var activeFormats by remember { mutableStateOf(emptySet<TextFormat>()) }
         TextFormattingToolbar(
             active = activeFormats,
@@ -120,14 +129,12 @@ private fun CreateCardForm(
                     if (format in activeFormats) activeFormats - format else activeFormats + format
             },
         )
-        VerticalSpacer(MindeckTheme.dimensions.spacingLg)
         var selectedAudio by remember { mutableStateOf<String?>("null") }
         AudioPick(
             selectedAudio = selectedAudio,
             onPickFile = {},
             onRemoveAudio = { selectedAudio = null },
         )
-        VerticalSpacer(MindeckTheme.dimensions.spacingLg)
         HintBlock(
             value = question,
             onValueChange = onQuestionChange,

@@ -3,6 +3,7 @@ package com.mindeck.core.ui.theme
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 @Immutable
@@ -14,6 +15,7 @@ data class SpecialAppShapes(
     val pill: RoundedCornerShape = RoundedCornerShape(100.dp),
     val segmentStart: RoundedCornerShape = RoundedCornerShape(topStartPercent = 50, bottomStartPercent = 50),
     val segmentEnd: RoundedCornerShape = RoundedCornerShape(topEndPercent = 50, bottomEndPercent = 50),
+    val borderShape: Dp = 14.dp,
 )
 
 val LocalShapes = staticCompositionLocalOf { SpecialAppShapes() }

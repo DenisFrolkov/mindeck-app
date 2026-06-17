@@ -3,6 +3,10 @@
     <string name="create_card_title">New card</string>
     <string name="create_card_action_back">Back</string>
     <string name="create_card_section_deck">DECK</string>
+    <string name="create_card_deck_pick">Choose a deck</string>
+    <string name="create_card_deck_empty">No decks yet</string>
+    <string name="create_card_deck_create">Create your first deck</string>
+    <string name="create_card_deck_clear">Remove deck</string>
     <string name="create_card_section_type">TYPE</string>
     <string name="create_card_section_photo">PHOTO</string>
     <string name="create_card_section_question">QUESTION</string>

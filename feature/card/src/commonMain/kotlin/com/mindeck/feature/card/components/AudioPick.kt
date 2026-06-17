@@ -128,7 +128,7 @@ internal fun AudioPick(
                 )
                 Text(
                     text = "0:02",
-                    style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold),
+                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
                     color = MaterialTheme.colorScheme.onPrimaryContainer,
                     textAlign = TextAlign.End,
                     modifier = Modifier.weight(1f),

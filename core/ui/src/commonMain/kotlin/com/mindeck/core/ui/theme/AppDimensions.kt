@@ -33,6 +33,7 @@ data class AppDimensions(
     val borderThin: Dp = 1.dp,
     val borderThick: Dp = 2.dp,
     val dash: Dp = 6.dp,
+    val dash2: Dp = 4.dp,
 )
 
 val LocalDimensions = staticCompositionLocalOf { AppDimensions() }

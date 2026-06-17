@@ -14,8 +14,8 @@ import com.arkivanov.decompose.extensions.compose.stack.Children
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import com.mindeck.core.ui.button.AppFAB
 import com.mindeck.core.ui.theme.MindeckTheme
-import com.mindeck.feature.card.CreateCardNavigationEvent
-import com.mindeck.feature.card.CreateCardScreen
+import com.mindeck.feature.card.createCard.CreateCardNavigationEvent
+import com.mindeck.feature.card.createCard.CreateCardScreen
 import com.mindeck.feature.home.HomeNavigationEvent
 import com.mindeck.feature.home.HomeScreen
 import com.mindeck.feature.home.showsAddFab
@@ -97,7 +97,6 @@ private fun CreateCardContent(
     contentPadding: PaddingValues,
 ) {
     val state by child.viewModel.state.collectAsState()
-
     CreateCardScreen(
         state = state,
         onIntent = child.viewModel::accept,
@@ -122,6 +121,7 @@ private fun homeDestinationFor(event: HomeNavigationEvent): Config? =
 private fun createCardDestinationFor(event: CreateCardNavigationEvent): Config? =
     when (event) {
         CreateCardNavigationEvent.Back -> Config.Home
+        CreateCardNavigationEvent.CreateDeck -> null
     }
 
 private data class FabConfig(

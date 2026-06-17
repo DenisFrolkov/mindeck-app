@@ -9,7 +9,7 @@ import com.arkivanov.decompose.router.stack.pop
 import com.arkivanov.decompose.router.stack.push
 import com.arkivanov.decompose.value.Value
 import com.arkivanov.essenty.lifecycle.doOnDestroy
-import com.mindeck.feature.card.CreateCardViewModel
+import com.mindeck.feature.card.createCard.CreateCardViewModel
 import com.mindeck.feature.home.HomeViewModel
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
@@ -24,7 +24,7 @@ class RootComponent(
         childStack(
             source = navigation,
             serializer = Config.serializer(),
-            initialConfiguration = Config.Home,
+            initialConfiguration = Config.CreateCard,
             handleBackButton = true,
             childFactory = ::createChild,
         )
