@@ -24,6 +24,41 @@ internal object CreateCardPreviewData {
                     title = "Биология термины",
                     deckColor = DeckColor.BLUE,
                 ),
+                DeckItem(
+                    id = 4,
+                    title = "Биология термины",
+                    deckColor = DeckColor.BLUE,
+                ),
+                DeckItem(
+                    id = 5,
+                    title = "Биология термины",
+                    deckColor = DeckColor.BLUE,
+                ),
+                DeckItem(
+                    id = 6,
+                    title = "Биология термины",
+                    deckColor = DeckColor.BLUE,
+                ),
+                DeckItem(
+                    id = 7,
+                    title = "Биология термины",
+                    deckColor = DeckColor.BLUE,
+                ),
+                DeckItem(
+                    id = 8,
+                    title = "Биология термины",
+                    deckColor = DeckColor.BLUE,
+                ),
+                DeckItem(
+                    id = 10,
+                    title = "Биология термины",
+                    deckColor = DeckColor.BLUE,
+                ),
+                DeckItem(
+                    id = 11,
+                    title = "Биология термины",
+                    deckColor = DeckColor.BLUE,
+                ),
             ),
 //            pickedDeck = DeckItem(
 //                id = 1,

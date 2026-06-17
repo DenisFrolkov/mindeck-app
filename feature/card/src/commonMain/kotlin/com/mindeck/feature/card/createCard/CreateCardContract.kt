@@ -23,8 +23,8 @@ sealed interface CreateCardUiState {
             get() =
                 when {
                     decks.isEmpty() -> DeckPickState.NoDecks
-                    pickedDeck == null -> DeckPickState.NotSelected
-                    else -> DeckPickState.Selected(pickedDeck)
+                    pickedDeck == null -> DeckPickState.NotSelected(decks = decks)
+                    else -> DeckPickState.Selected(decks = decks, deck = pickedDeck)
                 }
     }
 
@@ -44,7 +44,9 @@ sealed interface CreateCardIntent {
         val type: CardType,
     ) : CreateCardIntent
 
-    data object PickDeck : CreateCardIntent
+    data class PickDeck(
+        val deckId: Int,
+    ) : CreateCardIntent
 
     data object ClearDeck : CreateCardIntent
 

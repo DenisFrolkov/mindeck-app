@@ -17,9 +17,10 @@ class CreateCardViewModel : BaseViewModel<CreateCardUiState, CreateCardIntent>(C
             CreateCardIntent.ClearDeck ->
                 updateIdle { it.copy(pickedDeck = null) }
 
-            CreateCardIntent.PickDeck -> {
-                // TODO: открыть выбор колоды (пикер ещё не реализован)
-            }
+            is CreateCardIntent.PickDeck ->
+                updateIdle { idle ->
+                    idle.copy(pickedDeck = idle.decks.find { it.id == intent.deckId })
+                }
 
             CreateCardIntent.Submit -> {  }
         }

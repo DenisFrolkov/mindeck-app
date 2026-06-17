@@ -73,7 +73,7 @@ fun CreateCardScreen(
                     onSelectType = { onIntent(CreateCardIntent.SelectType(it)) },
                     question = state.question,
                     onQuestionChange = { onIntent(CreateCardIntent.UpdateQuestion(it)) },
-                    onPickDeck = { onIntent(CreateCardIntent.PickDeck) },
+                    onPickDeck = { onIntent(CreateCardIntent.PickDeck(it)) },
                     onClearDeck = { onIntent(CreateCardIntent.ClearDeck) },
                     onCreateDeck = { onNavigate(CreateCardNavigationEvent.CreateDeck) },
                     modifier = Modifier.weight(1f),
@@ -93,7 +93,7 @@ private fun CreateCardForm(
     onSelectType: (CardType) -> Unit,
     question: String,
     onQuestionChange: (String) -> Unit,
-    onPickDeck: () -> Unit,
+    onPickDeck: (Int) -> Unit,
     onClearDeck: () -> Unit,
     onCreateDeck: () -> Unit,
     modifier: Modifier = Modifier,
@@ -104,7 +104,7 @@ private fun CreateCardForm(
     ) {
         DeckSection(
             state = deckPick,
-            onPick = onPickDeck,
+            onPickDeck = onPickDeck,
             onClear = onClearDeck,
             onCreateDeck = onCreateDeck,
         )
