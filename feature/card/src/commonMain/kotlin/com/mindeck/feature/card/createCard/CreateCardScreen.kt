@@ -4,19 +4,19 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.mindeck.core.ui.appBar.AppBar
 import com.mindeck.core.ui.appBar.AppBarAction
+import com.mindeck.core.ui.button.AppButton
+import com.mindeck.core.ui.effect.ObserveEffects
 import com.mindeck.core.ui.spacer.VerticalSpacer
 import com.mindeck.core.ui.theme.MindeckTheme
 import com.mindeck.feature.card.components.AnswerBlock
@@ -30,21 +30,37 @@ import com.mindeck.feature.card.components.TextFormattingToolbar
 import com.mindeck.feature.card.model.CardType
 import com.mindeck.feature.card.model.DeckPickState
 import com.mindeck.feature.card.model.TextFormat
+import kotlinx.coroutines.flow.Flow
 import mindeck_app.core.ui.generated.resources.Res
 import mindeck_app.core.ui.generated.resources.arrow_back_icon
+import mindeck_app.core.ui.generated.resources.check_icon
 import mindeck_app.feature.card.generated.resources.create_card_action_back
+import mindeck_app.feature.card.generated.resources.create_card_action_create
+import mindeck_app.feature.card.generated.resources.create_card_created
 import mindeck_app.feature.card.generated.resources.create_card_title
 import org.jetbrains.compose.resources.stringResource
 import mindeck_app.feature.card.generated.resources.Res as CreateCardRes
 
 @Composable
 fun CreateCardScreen(
-    state: CreateCardUiState,
+    state: CreateCardState,
+    effects: Flow<CreateCardEffect>,
     onIntent: (CreateCardIntent) -> Unit,
     onNavigate: (CreateCardNavigationEvent) -> Unit,
+    snackbarHostState: SnackbarHostState,
     contentPadding: PaddingValues,
     modifier: Modifier = Modifier,
 ) {
+    val cardCreatedMessage = stringResource(CreateCardRes.string.create_card_created)
+    ObserveEffects(effects) { effect ->
+        val message =
+            when (effect) {
+                CreateCardEffect.CardCreated -> cardCreatedMessage
+                is CreateCardEffect.CreationFailed -> effect.message
+            }
+        snackbarHostState.showSnackbar(message)
+    }
+
     Column(
         modifier =
             modifier
@@ -64,29 +80,27 @@ fun CreateCardScreen(
             modifier = Modifier.statusBarsPadding(),
         )
         VerticalSpacer(MindeckTheme.dimensions.spacingXl)
-        when (state) {
-            is CreateCardUiState.Error -> TODO()
-            is CreateCardUiState.Idle -> {
-                CreateCardForm(
-                    deckPick = state.deckPick,
-                    selectedType = state.selectedType,
-                    onSelectType = { onIntent(CreateCardIntent.SelectType(it)) },
-                    question = state.question,
-                    onQuestionChange = { onIntent(CreateCardIntent.UpdateQuestion(it)) },
-                    answer = state.answer,
-                    onAnswerChange = { onIntent(CreateCardIntent.UpdateAnswer(it)) },
-                    hint = state.hint.orEmpty(),
-                    onHintChange = { onIntent(CreateCardIntent.UpdateHint(it)) },
-                    onPickDeck = { onIntent(CreateCardIntent.PickDeck(it)) },
-                    onClearDeck = { onIntent(CreateCardIntent.ClearDeck) },
-                    onCreateDeck = { onNavigate(CreateCardNavigationEvent.CreateDeck) },
-                    modifier = Modifier.weight(1f),
-                )
-            }
-
-            CreateCardUiState.Loading -> TODO()
-            CreateCardUiState.Success -> TODO()
-        }
+        CreateCardForm(
+            deckPick = state.deckPick,
+            selectedType = state.selectedType,
+            onSelectType = { onIntent(CreateCardIntent.SelectType(it)) },
+            question = state.question,
+            onQuestionChange = { onIntent(CreateCardIntent.UpdateQuestion(it)) },
+            answer = state.answer,
+            onAnswerChange = { onIntent(CreateCardIntent.UpdateAnswer(it)) },
+            hint = state.hint.orEmpty(),
+            onHintChange = { onIntent(CreateCardIntent.UpdateHint(it)) },
+            activeFormats = state.activeFormats,
+            onToggleFormat = { onIntent(CreateCardIntent.ToggleFormat(it)) },
+            selectedAudio = state.selectedAudio,
+            onRemoveAudio = { onIntent(CreateCardIntent.RemoveAudio) },
+            canCreate = state.canSubmit,
+            onCreate = { onIntent(CreateCardIntent.Submit) },
+            onPickDeck = { onIntent(CreateCardIntent.PickDeck(it)) },
+            onClearDeck = { onIntent(CreateCardIntent.ClearDeck) },
+            onCreateDeck = { onNavigate(CreateCardNavigationEvent.CreateDeck) },
+            modifier = Modifier.weight(1f),
+        )
     }
 }
 
@@ -101,6 +115,12 @@ private fun CreateCardForm(
     onAnswerChange: (String) -> Unit,
     hint: String,
     onHintChange: (String) -> Unit,
+    activeFormats: Set<TextFormat>,
+    onToggleFormat: (TextFormat) -> Unit,
+    selectedAudio: String?,
+    onRemoveAudio: () -> Unit,
+    canCreate: Boolean,
+    onCreate: () -> Unit,
     onPickDeck: (Int) -> Unit,
     onClearDeck: () -> Unit,
     onCreateDeck: () -> Unit,
@@ -129,23 +149,26 @@ private fun CreateCardForm(
             value = answer,
             onValueChange = onAnswerChange,
         )
-        var activeFormats by remember { mutableStateOf(emptySet<TextFormat>()) }
         TextFormattingToolbar(
             active = activeFormats,
-            onToggle = { format ->
-                activeFormats =
-                    if (format in activeFormats) activeFormats - format else activeFormats + format
-            },
+            onToggle = onToggleFormat,
         )
-        var selectedAudio by remember { mutableStateOf<String?>(null) }
         AudioPick(
             selectedAudio = selectedAudio,
-            onPickFile = {},
-            onRemoveAudio = { selectedAudio = null },
+            onPickFile = { /* TODO: platform audio picker */ },
+            onRemoveAudio = onRemoveAudio,
         )
         HintBlock(
             value = hint,
             onValueChange = onHintChange,
+        )
+        AppButton(
+            onAction = onCreate,
+            buttonText = stringResource(CreateCardRes.string.create_card_action_create),
+            buttonIcon = Res.drawable.check_icon,
+            color = MaterialTheme.colorScheme.primary,
+            enabled = canCreate,
+            modifier = Modifier.fillMaxWidth(),
         )
     }
 }

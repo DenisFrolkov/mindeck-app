@@ -3,32 +3,29 @@ package com.mindeck.feature.card.createCard
 import com.mindeck.feature.card.model.CardType
 import com.mindeck.feature.card.model.DeckItem
 import com.mindeck.feature.card.model.DeckPickState
+import com.mindeck.feature.card.model.TextFormat
 
-sealed interface CreateCardUiState {
-    data object Loading : CreateCardUiState
+data class CreateCardState(
+    val decks: List<DeckItem> = emptyList(),
+    val pickedDeck: DeckItem? = null,
+    val selectedType: CardType = CardType.SIMPLE,
+    val question: String = "",
+    val answer: String = "",
+    val hint: String? = null,
+    val activeFormats: Set<TextFormat> = emptySet(),
+    val selectedAudio: String? = null,
+    val isSubmitting: Boolean = false,
+) {
+    val deckPick: DeckPickState
+        get() =
+            when {
+                decks.isEmpty() -> DeckPickState.NoDecks
+                pickedDeck == null -> DeckPickState.NotSelected(decks = decks)
+                else -> DeckPickState.Selected(decks = decks, deck = pickedDeck)
+            }
 
-    data class Error(
-        val message: String,
-    ) : CreateCardUiState
-
-    data class Idle(
-        val decks: List<DeckItem> = emptyList(),
-        val pickedDeck: DeckItem? = null,
-        val selectedType: CardType = CardType.SIMPLE,
-        val question: String = "",
-        val answer: String = "",
-        val hint: String? = null,
-    ) : CreateCardUiState {
-        val deckPick: DeckPickState
-            get() =
-                when {
-                    decks.isEmpty() -> DeckPickState.NoDecks
-                    pickedDeck == null -> DeckPickState.NotSelected(decks = decks)
-                    else -> DeckPickState.Selected(decks = decks, deck = pickedDeck)
-                }
-    }
-
-    data object Success : CreateCardUiState
+    val canSubmit: Boolean
+        get() = !isSubmitting && pickedDeck != null && question.isNotBlank() && answer.isNotBlank()
 }
 
 sealed interface CreateCardIntent {
@@ -48,6 +45,12 @@ sealed interface CreateCardIntent {
         val type: CardType,
     ) : CreateCardIntent
 
+    data class ToggleFormat(
+        val format: TextFormat,
+    ) : CreateCardIntent
+
+    data object RemoveAudio : CreateCardIntent
+
     data class PickDeck(
         val deckId: Int,
     ) : CreateCardIntent
@@ -55,6 +58,14 @@ sealed interface CreateCardIntent {
     data object ClearDeck : CreateCardIntent
 
     data object Submit : CreateCardIntent
+}
+
+sealed interface CreateCardEffect {
+    data object CardCreated : CreateCardEffect
+
+    data class CreationFailed(
+        val message: String,
+    ) : CreateCardEffect
 }
 
 sealed interface CreateCardNavigationEvent {

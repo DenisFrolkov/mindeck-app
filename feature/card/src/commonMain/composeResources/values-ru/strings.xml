@@ -2,6 +2,8 @@
 <resources>
     <string name="create_card_title">Новая карточка</string>
     <string name="create_card_action_back">Назад</string>
+    <string name="create_card_action_create">Создать</string>
+    <string name="create_card_created">Карточка создана</string>
     <string name="create_card_section_deck">КОЛОДА</string>
     <string name="create_card_deck_pick">Выберите колоду</string>
     <string name="create_card_deck_empty">Колод пока нет</string>

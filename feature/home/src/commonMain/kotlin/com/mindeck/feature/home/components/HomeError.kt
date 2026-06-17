@@ -15,7 +15,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.sp
 import com.mindeck.core.ui.button.AppButton
 import com.mindeck.core.ui.theme.MindeckTheme
 import mindeck_app.core.ui.generated.resources.Res

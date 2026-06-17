@@ -2,36 +2,60 @@ package com.mindeck.feature.card.createCard
 
 import com.mindeck.core.mvi.BaseViewModel
 
-class CreateCardViewModel : BaseViewModel<CreateCardUiState, CreateCardIntent>(CreateCardPreviewData.idleContent) {
+class CreateCardViewModel : BaseViewModel<CreateCardState, CreateCardIntent, CreateCardEffect>(CreateCardPreviewData.idleContent) {
     override fun accept(intent: CreateCardIntent) {
         when (intent) {
             is CreateCardIntent.UpdateQuestion ->
-                updateIdle { it.copy(question = intent.value) }
+                updateState { it.copy(question = intent.value) }
 
             is CreateCardIntent.UpdateAnswer ->
-                updateIdle { it.copy(answer = intent.value) }
+                updateState { it.copy(answer = intent.value) }
 
             is CreateCardIntent.UpdateHint ->
-                updateIdle { it.copy(hint = intent.value.ifBlank { null }) }
+                updateState { it.copy(hint = intent.value.ifBlank { null }) }
 
             is CreateCardIntent.SelectType ->
-                updateIdle { it.copy(selectedType = intent.type) }
+                updateState { it.copy(selectedType = intent.type) }
 
-            CreateCardIntent.ClearDeck ->
-                updateIdle { it.copy(pickedDeck = null) }
-
-            is CreateCardIntent.PickDeck ->
-                updateIdle { idle ->
-                    idle.copy(pickedDeck = idle.decks.find { it.id == intent.deckId })
+            is CreateCardIntent.ToggleFormat ->
+                updateState { state ->
+                    val formats =
+                        if (intent.format in state.activeFormats) {
+                            state.activeFormats - intent.format
+                        } else {
+                            state.activeFormats + intent.format
+                        }
+                    state.copy(activeFormats = formats)
                 }
 
-            CreateCardIntent.Submit -> { }
+            CreateCardIntent.RemoveAudio ->
+                updateState { it.copy(selectedAudio = null) }
+
+            CreateCardIntent.ClearDeck ->
+                updateState { it.copy(pickedDeck = null) }
+
+            is CreateCardIntent.PickDeck ->
+                updateState { state ->
+                    state.copy(pickedDeck = state.decks.find { it.id == intent.deckId })
+                }
+
+            CreateCardIntent.Submit -> submit()
         }
     }
 
-    private fun updateIdle(reducer: (CreateCardUiState.Idle) -> CreateCardUiState.Idle) {
-        updateState { state ->
-            if (state is CreateCardUiState.Idle) reducer(state) else state
+    private fun submit() {
+        if (!currentState.canSubmit) return
+        // TODO: persist the card through the data layer (use case) once it is wired in.
+        updateState {
+            it.copy(
+                isSubmitting = false,
+                question = "",
+                answer = "",
+                hint = null,
+                activeFormats = emptySet(),
+                selectedAudio = null,
+            )
         }
+        sendEffect(CreateCardEffect.CardCreated)
     }
 }

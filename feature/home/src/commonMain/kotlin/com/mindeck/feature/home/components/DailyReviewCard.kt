@@ -58,11 +58,11 @@ internal fun DailyReviewCard(
         shape = MindeckTheme.shapes.hero,
         colors =
             CardDefaults.cardColors(
-                if (dailyReview !is DailyReviewUi.Completed)
+                if (dailyReview !is DailyReviewUi.Completed) {
                     MaterialTheme.colorScheme.primaryContainer
-                else
+                } else {
                     MindeckTheme.extraColors.ratingGoodBackground
-                ,
+                },
             ),
     ) {
         Column(
@@ -76,15 +76,17 @@ internal fun DailyReviewCard(
         ) {
             Text(
                 text =
-                    if (dailyReview !is DailyReviewUi.Completed)
+                    if (dailyReview !is DailyReviewUi.Completed) {
                         stringResource(HomeRes.string.home_review_pending_title)
-                    else
-                        stringResource(HomeRes.string.home_review_completed_title),
+                    } else {
+                        stringResource(HomeRes.string.home_review_completed_title)
+                    },
                 color =
-                    if (dailyReview !is DailyReviewUi.Completed)
+                    if (dailyReview !is DailyReviewUi.Completed) {
                         MaterialTheme.colorScheme.onPrimaryContainer
-                    else
-                        MindeckTheme.extraColors.ratingGoodOn.copy(alpha = 0.8f),
+                    } else {
+                        MindeckTheme.extraColors.ratingGoodOn.copy(alpha = 0.8f)
+                    },
                 style = MaterialTheme.typography.titleSmall,
             )
             when (dailyReview) {

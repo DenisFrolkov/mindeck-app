@@ -5,10 +5,13 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import com.arkivanov.decompose.extensions.compose.stack.Children
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
@@ -26,6 +29,7 @@ fun Navigation(
     modifier: Modifier = Modifier,
 ) {
     val stack by rootComponent.stack.subscribeAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
 
     MindeckTheme {
         CompositionLocalProvider(LocalRootComponent provides rootComponent) {
@@ -33,6 +37,7 @@ fun Navigation(
                 modifier = modifier.fillMaxSize(),
                 containerColor = MaterialTheme.colorScheme.background,
                 contentWindowInsets = WindowInsets(0),
+                snackbarHost = { SnackbarHost(snackbarHostState) },
                 floatingActionButton = {
                     val fab = fabConfigFor(stack.active.instance, rootComponent::push)
                     if (fab != null) {
@@ -44,6 +49,7 @@ fun Navigation(
                     ChildContent(
                         child = child.instance,
                         rootComponent = rootComponent,
+                        snackbarHostState = snackbarHostState,
                         contentPadding = paddingValues,
                     )
                 }
@@ -56,6 +62,7 @@ fun Navigation(
 private fun ChildContent(
     child: Child,
     rootComponent: RootComponent,
+    snackbarHostState: SnackbarHostState,
     contentPadding: PaddingValues,
 ) {
     when (child) {
@@ -70,6 +77,7 @@ private fun ChildContent(
             CreateCardContent(
                 child = child,
                 onNavigate = { event -> createCardDestinationFor(event)?.let(rootComponent::push) },
+                snackbarHostState = snackbarHostState,
                 contentPadding = contentPadding,
             )
     }
@@ -94,13 +102,16 @@ private fun HomeContent(
 private fun CreateCardContent(
     child: Child.CreateCard,
     onNavigate: (CreateCardNavigationEvent) -> Unit,
+    snackbarHostState: SnackbarHostState,
     contentPadding: PaddingValues,
 ) {
     val state by child.viewModel.state.collectAsState()
     CreateCardScreen(
         state = state,
+        effects = child.viewModel.effects,
         onIntent = child.viewModel::accept,
         onNavigate = onNavigate,
+        snackbarHostState = snackbarHostState,
         contentPadding = contentPadding,
     )
 }
