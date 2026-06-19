@@ -14,7 +14,7 @@ struct ComposeView: UIViewControllerRepresentable {
     let rootHolder: RootHolder
 
     func makeUIViewController(context: Context) -> UIViewController {
-        MainViewControllerKt.MainViewController(rootComponent: rootHolder.component.rootComponent)
+        MainViewControllerKt.MainViewController(component: rootHolder.component)
     }
 
     func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}

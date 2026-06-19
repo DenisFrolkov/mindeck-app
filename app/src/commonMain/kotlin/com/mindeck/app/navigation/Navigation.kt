@@ -13,7 +13,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import com.arkivanov.decompose.ExperimentalDecomposeApi
 import com.arkivanov.decompose.extensions.compose.stack.Children
+import com.arkivanov.decompose.extensions.compose.stack.animation.predictiveback.predictiveBackAnimation
+import com.arkivanov.decompose.extensions.compose.stack.animation.slide
+import com.arkivanov.decompose.extensions.compose.stack.animation.stackAnimation
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import com.mindeck.core.ui.button.AppFAB
 import com.mindeck.core.ui.theme.MindeckTheme
@@ -23,6 +27,7 @@ import com.mindeck.feature.home.HomeNavigationEvent
 import com.mindeck.feature.home.HomeScreen
 import com.mindeck.feature.home.showsAddFab
 
+@OptIn(ExperimentalDecomposeApi::class)
 @Composable
 fun Navigation(
     rootComponent: RootComponent,
@@ -45,7 +50,15 @@ fun Navigation(
                     }
                 },
             ) { paddingValues ->
-                Children(stack = stack) { child ->
+                Children(
+                    stack = stack,
+                    animation =
+                        predictiveBackAnimation(
+                            backHandler = rootComponent.backHandler,
+                            fallbackAnimation = stackAnimation(slide()),
+                            onBack = rootComponent::pop,
+                        ),
+                ) { child ->
                     ChildContent(
                         child = child.instance,
                         rootComponent = rootComponent,
@@ -69,14 +82,14 @@ private fun ChildContent(
         is Child.Home ->
             HomeContent(
                 child = child,
-                onNavigate = { event -> homeDestinationFor(event)?.let(rootComponent::push) },
+                onNavigate = { rootComponent.navigate(homeDestinationFor(it)) },
                 contentPadding = contentPadding,
             )
 
         is Child.CreateCard ->
             CreateCardContent(
                 child = child,
-                onNavigate = { event -> createCardDestinationFor(event)?.let(rootComponent::push) },
+                onNavigate = { rootComponent.navigate(createCardDestinationFor(it)) },
                 snackbarHostState = snackbarHostState,
                 contentPadding = contentPadding,
             )
@@ -115,25 +128,6 @@ private fun CreateCardContent(
         contentPadding = contentPadding,
     )
 }
-
-private fun homeDestinationFor(event: HomeNavigationEvent): Config? =
-    when (event) {
-        HomeNavigationEvent.CreateCard -> Config.CreateCard
-        HomeNavigationEvent.Search,
-        HomeNavigationEvent.Settings,
-        HomeNavigationEvent.ImportDeck,
-        HomeNavigationEvent.Review,
-        HomeNavigationEvent.Statistics,
-        HomeNavigationEvent.AllDecks,
-        is HomeNavigationEvent.OpenDeck,
-        -> null
-    }
-
-private fun createCardDestinationFor(event: CreateCardNavigationEvent): Config? =
-    when (event) {
-        CreateCardNavigationEvent.Back -> Config.Home
-        CreateCardNavigationEvent.CreateDeck -> null
-    }
 
 private data class FabConfig(
     val onClick: () -> Unit,

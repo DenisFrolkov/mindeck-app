@@ -15,7 +15,11 @@ class MainActivity : ComponentActivity() {
 
         val rootComponent =
             RootComponent(
-                componentContext = DefaultComponentContext(lifecycle),
+                componentContext =
+                    DefaultComponentContext(
+                        lifecycle = lifecycle,
+                        onBackPressedDispatcher = onBackPressedDispatcher,
+                    ),
             )
         setContent {
             Navigation(rootComponent)
