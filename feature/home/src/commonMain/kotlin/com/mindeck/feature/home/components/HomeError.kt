@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import com.mindeck.core.ui.button.AppButton
+import com.mindeck.core.ui.button.appButtonColors
 import com.mindeck.core.ui.theme.MindeckTheme
 import mindeck_app.core.ui.generated.resources.Res
 import mindeck_app.core.ui.generated.resources.cloud_off_icon
@@ -71,8 +72,11 @@ internal fun HomeError(
             onAction = onRetry,
             buttonText = stringResource(HomeRes.string.home_error_retry),
             buttonIcon = Res.drawable.refresh_icon,
-            textColor = MaterialTheme.colorScheme.onErrorContainer,
-            color = MaterialTheme.colorScheme.errorContainer,
+            colors =
+                appButtonColors(
+                    container = MaterialTheme.colorScheme.errorContainer,
+                    content = MaterialTheme.colorScheme.onErrorContainer,
+                ),
         )
     }
 }

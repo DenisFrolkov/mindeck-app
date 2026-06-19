@@ -112,12 +112,13 @@ private fun DeckListItem(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(MindeckTheme.dimensions.spacingMd),
             ) {
+                val swatch = deck.deckColor.toSwatch()
                 Box(
                     modifier =
                         Modifier
                             .size(MindeckTheme.dimensions.touchTarget)
                             .background(
-                                MaterialTheme.colorScheme.primaryContainer,
+                                swatch.container,
                                 shape = MaterialTheme.shapes.medium,
                             ),
                     contentAlignment = Alignment.Center,
@@ -125,7 +126,7 @@ private fun DeckListItem(
                     Text(
                         text = deck.title.firstOrNull()?.toString() ?: "",
                         style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        color = swatch.onContainer,
                     )
                 }
                 Column(

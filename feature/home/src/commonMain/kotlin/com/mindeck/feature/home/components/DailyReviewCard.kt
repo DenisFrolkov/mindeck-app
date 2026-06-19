@@ -21,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.LineHeightStyle
 import com.mindeck.core.ui.button.AppButton
+import com.mindeck.core.ui.button.appButtonColors
 import com.mindeck.core.ui.label.TagLabel
 import com.mindeck.core.ui.spacer.VerticalSpacer
 import com.mindeck.core.ui.theme.MindeckTheme
@@ -172,14 +173,12 @@ private fun ColumnScope.PendingReview(
             onAction = onReview,
             buttonText = stringResource(HomeRes.string.home_continue_review),
             buttonIcon = Res.drawable.play_arrow_icon,
-            color = MaterialTheme.colorScheme.primary,
         )
     } else {
         AppButton(
             onAction = onReview,
             buttonText = stringResource(HomeRes.string.home_start_review),
             buttonIcon = Res.drawable.play_arrow_icon,
-            color = MaterialTheme.colorScheme.primary,
         )
     }
 }
@@ -212,8 +211,11 @@ private fun ColumnScope.CompletedReview(onViewStatistics: () -> Unit) {
         onAction = onViewStatistics,
         buttonText = stringResource(HomeRes.string.home_view_statistics),
         buttonIcon = Res.drawable.bar_chart_icon,
-        color = MindeckTheme.extraColors.ratingGoodOn,
-        textColor = MindeckTheme.extraColors.ratingGoodBackground,
+        colors =
+            appButtonColors(
+                container = MindeckTheme.extraColors.ratingGoodOn,
+                content = MindeckTheme.extraColors.ratingGoodBackground,
+            ),
     )
 }
 

@@ -89,7 +89,6 @@ internal fun HomeEmpty(
                 onAction = onCreateCard,
                 buttonText = stringResource(HomeRes.string.home_empty_create_card),
                 buttonIcon = Res.drawable.add_icon,
-                color = MaterialTheme.colorScheme.primary,
             )
             VerticalSpacer(MindeckTheme.dimensions.spacingXs)
             AppTextButton(
