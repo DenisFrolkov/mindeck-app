@@ -53,7 +53,7 @@ fun AppBar(
 
 @Composable
 private fun ActionButton(action: AppBarAction) {
-    Box(modifier = Modifier.clip(CircleShape).clickable { action.onClick }) {
+    Box(modifier = Modifier.clip(CircleShape).clickable(onClick = action.onClick)) {
         Icon(
             painter = painterResource(action.icon),
             tint = action.iconColor,

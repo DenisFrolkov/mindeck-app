@@ -8,27 +8,40 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import com.mindeck.core.ui.spacer.HorizontalSpacer
 import com.mindeck.core.ui.theme.MindeckTheme
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 
+@Immutable
+data class AppButtonColors(
+    val container: Color,
+    val content: Color,
+)
+
+@Composable
+fun appButtonColors(
+    container: Color = MaterialTheme.colorScheme.primary,
+    content: Color = MaterialTheme.colorScheme.onPrimary,
+): AppButtonColors = AppButtonColors(container = container, content = content)
+
 @Composable
 fun AppButton(
     onAction: () -> Unit,
     buttonText: String,
-    buttonIcon: DrawableResource?,
-    color: Color,
     modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    textColor: Color = MaterialTheme.colorScheme.onPrimary,
+    buttonIcon: DrawableResource? = null,
+    colors: AppButtonColors = appButtonColors(),
+    shape: Shape = ButtonDefaults.shape,
 ) {
     Button(
         onClick = onAction,
-        enabled = enabled,
-        colors = ButtonDefaults.buttonColors(containerColor = color),
+        shape = shape,
+        colors = ButtonDefaults.buttonColors(containerColor = colors.container),
         contentPadding =
             PaddingValues(
                 horizontal = MindeckTheme.dimensions.spacingLg,
@@ -40,14 +53,14 @@ fun AppButton(
             Icon(
                 painter = painterResource(it),
                 contentDescription = null,
-                tint = textColor,
+                tint = colors.content,
                 modifier = Modifier.size(MindeckTheme.dimensions.iconSm),
             )
             HorizontalSpacer(MindeckTheme.dimensions.spacingSm)
         }
         Text(
             text = buttonText,
-            color = textColor,
+            color = colors.content,
             style = MaterialTheme.typography.titleMedium,
         )
     }

@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="action_add">Добавить</string>
+    <string name="create_deck_dialog_title">Новая колода</string>
+    <string name="create_deck_dialog_description">Дайте колоде название и выберите цвет — потом сюда можно добавлять карточки.</string>
+    <string name="create_deck_name_label">Название</string>
+    <string name="create_deck_name_placeholder">Английский · идиомы</string>
+    <string name="create_deck_color_label">ЦВЕТ ОБЛОЖКИ</string>
+    <string name="create_deck_action_cancel">Отмена</string>
+    <string name="create_deck_action_create">Создать</string>
 </resources>
