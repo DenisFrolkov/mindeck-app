@@ -55,21 +55,23 @@ internal fun AudioPick(
 
     val containerModifier =
         if (selectedAudio == null) {
-            Modifier.drawBehind {
-                drawRoundRect(
-                    color = dashedBorderColor,
-                    cornerRadius = CornerRadius(cardCornerRadius.toPx()),
-                    style =
-                        Stroke(
-                            width = dashedStrokeWidth.toPx(),
-                            pathEffect =
-                                PathEffect.dashPathEffect(
-                                    floatArrayOf(dashLengthWidth.toPx(), dashGapWidth.toPx()),
-                                    0f,
-                                ),
-                        ),
-                )
-            }
+            Modifier
+                .clip(RoundedCornerShape(MindeckTheme.dimensions.spacingXxl))
+                .drawBehind {
+                    drawRoundRect(
+                        color = dashedBorderColor,
+                        cornerRadius = CornerRadius(cardCornerRadius.toPx()),
+                        style =
+                            Stroke(
+                                width = dashedStrokeWidth.toPx(),
+                                pathEffect =
+                                    PathEffect.dashPathEffect(
+                                        floatArrayOf(dashLengthWidth.toPx(), dashGapWidth.toPx()),
+                                        0f,
+                                    ),
+                            ),
+                    )
+                }.clickable { onPickFile() }
         } else {
             Modifier
                 .clip(RoundedCornerShape(cardCornerRadius))
@@ -109,7 +111,6 @@ internal fun AudioPick(
                         modifier =
                             Modifier
                                 .clip(CircleShape)
-                                .clickable(onClick = onPickFile)
                                 .padding(MindeckTheme.dimensions.spacingSm)
                                 .size(MindeckTheme.dimensions.iconSm),
                     )

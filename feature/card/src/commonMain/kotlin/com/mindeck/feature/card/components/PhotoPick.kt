@@ -33,7 +33,10 @@ import org.jetbrains.compose.resources.stringResource
 import mindeck_app.feature.card.generated.resources.Res as CreateCardRes
 
 @Composable
-internal fun PhotoPick(modifier: Modifier = Modifier) {
+internal fun PhotoPick(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Column(modifier = modifier) {
         Text(
             stringResource(CreateCardRes.string.create_card_section_photo),
@@ -53,8 +56,8 @@ internal fun PhotoPick(modifier: Modifier = Modifier) {
                 Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(MindeckTheme.dimensions.spacingLg))
-                    .clickable {
-                    }.background(
+                    .clickable(onClick = onClick)
+                    .background(
                         MaterialTheme.colorScheme.surfaceContainerLow,
                         shape = RoundedCornerShape(MindeckTheme.dimensions.spacingLg),
                     ).drawBehind {

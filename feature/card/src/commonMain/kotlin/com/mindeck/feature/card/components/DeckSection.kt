@@ -39,6 +39,7 @@ import androidx.compose.ui.text.font.FontWeight
 import com.mindeck.core.ui.spacer.HorizontalSpacer
 import com.mindeck.core.ui.spacer.VerticalSpacer
 import com.mindeck.core.ui.theme.MindeckTheme
+import com.mindeck.feature.card.createCard.toSwatch
 import com.mindeck.feature.card.model.DeckItem
 import com.mindeck.feature.card.model.DeckPickState
 import mindeck_app.core.ui.generated.resources.Res
@@ -62,13 +63,13 @@ import mindeck_app.feature.card.generated.resources.Res as CreateCardRes
 @Composable
 internal fun DeckSection(
     state: DeckPickState,
+    expanded: Boolean,
     onPickDeck: (Int) -> Unit,
     onClear: () -> Unit,
     onCreateDeck: () -> Unit,
+    onExpand: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var expanded by remember { mutableStateOf(false) }
-
     val dashedBorderColor = MaterialTheme.colorScheme.outline
     val dashedCornerRadius = MindeckTheme.shapes.borderShape
     val dashedStrokeWidth = MindeckTheme.dimensions.borderThick
@@ -122,14 +123,11 @@ internal fun DeckSection(
                         DeckPickerExpanded(
                             decks = state.decks,
                             selectedId = null,
-                            onPickDeck = {
-                                onPickDeck(it)
-                                expanded = false
-                            },
+                            onPickDeck = onPickDeck,
                             onCreateDeck = onCreateDeck,
                         )
                     } else {
-                        PickCollapsed(onClick = { expanded = true })
+                        PickCollapsed(onClick = onExpand)
                     }
 
                 is DeckPickState.Selected ->
@@ -137,17 +135,14 @@ internal fun DeckSection(
                         DeckPickerExpanded(
                             decks = state.decks,
                             selectedId = state.deck.id,
-                            onPickDeck = {
-                                onPickDeck(it)
-                                expanded = false
-                            },
+                            onPickDeck = onPickDeck,
                             onCreateDeck = onCreateDeck,
                         )
                     } else {
                         SelectedDeck(
                             deck = state.deck,
                             onClear = onClear,
-                            onExpand = { expanded = true },
+                            onExpand = onExpand,
                         )
                     }
             }
@@ -228,12 +223,13 @@ private fun SelectedDeck(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(MindeckTheme.dimensions.spacingMd),
         ) {
+            val swatch = deck.deckColor.toSwatch()
             Box(
                 modifier =
                     Modifier
                         .size(MindeckTheme.dimensions.spacingXxxl)
                         .background(
-                            color = MaterialTheme.colorScheme.primaryContainer,
+                            color = swatch.container,
                             shape = CircleShape,
                         ),
                 contentAlignment = Alignment.Center,
@@ -241,7 +237,7 @@ private fun SelectedDeck(
                 Text(
                     text = deck.title.firstOrNull()?.toString() ?: "",
                     style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = swatch.onContainer,
                 )
             }
             Text(
@@ -444,6 +440,7 @@ private fun NewDeckRow(onClick: () -> Unit) {
         modifier =
             Modifier
                 .fillMaxWidth()
+                .clip(MindeckTheme.shapes.card)
                 .clickable(onClick = onClick)
                 .padding(
                     horizontal = MindeckTheme.dimensions.spacingLg,
@@ -513,12 +510,13 @@ private fun DeckListItem(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(MindeckTheme.dimensions.spacingMd),
             ) {
+                val swatch = deck.deckColor.toSwatch()
                 Box(
                     modifier =
                         Modifier
                             .size(MindeckTheme.dimensions.iconLg)
                             .background(
-                                MaterialTheme.colorScheme.primaryContainer,
+                                swatch.container,
                                 shape = MaterialTheme.shapes.large,
                             ),
                     contentAlignment = Alignment.Center,
@@ -526,7 +524,7 @@ private fun DeckListItem(
                     Text(
                         text = deck.title.firstOrNull()?.toString() ?: "",
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        color = swatch.onContainer,
                     )
                 }
                 Column(

@@ -1,8 +1,12 @@
 package com.mindeck.feature.card.createCard
 
+import com.mindeck.domain.models.DeckColor
+import com.mindeck.feature.card.model.AudioSource
 import com.mindeck.feature.card.model.CardType
 import com.mindeck.feature.card.model.DeckItem
 import com.mindeck.feature.card.model.DeckPickState
+import com.mindeck.feature.card.model.MediaSheet
+import com.mindeck.feature.card.model.PhotoSource
 import com.mindeck.feature.card.model.TextFormat
 
 data class CreateCardState(
@@ -15,6 +19,10 @@ data class CreateCardState(
     val activeFormats: Set<TextFormat> = emptySet(),
     val selectedAudio: String? = null,
     val isSubmitting: Boolean = false,
+    val isDeckPickerExpanded: Boolean = false,
+    val isNewDeckDialogVisible: Boolean = false,
+    val activeSheet: MediaSheet? = null,
+    val linkDraft: String = "",
 ) {
     val deckPick: DeckPickState
         get() =
@@ -29,6 +37,19 @@ data class CreateCardState(
 }
 
 sealed interface CreateCardIntent {
+    data object ShowNewDeckDialog : CreateCardIntent
+
+    data object DismissNewDeckDialog : CreateCardIntent
+
+    data class CreateDeck(
+        val name: String,
+        val color: DeckColor,
+    ) : CreateCardIntent
+
+    data class SelectType(
+        val type: CardType,
+    ) : CreateCardIntent
+
     data class UpdateQuestion(
         val value: String,
     ) : CreateCardIntent
@@ -41,19 +62,37 @@ sealed interface CreateCardIntent {
         val value: String,
     ) : CreateCardIntent
 
-    data class SelectType(
-        val type: CardType,
-    ) : CreateCardIntent
-
     data class ToggleFormat(
         val format: TextFormat,
     ) : CreateCardIntent
 
     data object RemoveAudio : CreateCardIntent
 
+    data object ShowAddPhotoSheet : CreateCardIntent
+
+    data object ShowAddAudioSheet : CreateCardIntent
+
+    data object DismissSheet : CreateCardIntent
+
+    data class PickPhotoSource(
+        val source: PhotoSource,
+    ) : CreateCardIntent
+
+    data class PickAudioSource(
+        val source: AudioSource,
+    ) : CreateCardIntent
+
+    data class UpdateLink(
+        val value: String,
+    ) : CreateCardIntent
+
+    data object ConfirmLink : CreateCardIntent
+
     data class PickDeck(
         val deckId: Int,
     ) : CreateCardIntent
+
+    data object ExpandDeckPicker : CreateCardIntent
 
     data object ClearDeck : CreateCardIntent
 
@@ -64,12 +103,15 @@ sealed interface CreateCardEffect {
     data object CardCreated : CreateCardEffect
 
     data class CreationFailed(
-        val message: String,
+        val reason: CreateCardError,
     ) : CreateCardEffect
+}
+
+enum class CreateCardError {
+    DeckNameTaken,
+    Unknown,
 }
 
 sealed interface CreateCardNavigationEvent {
     data object Back : CreateCardNavigationEvent
-
-    data object CreateDeck : CreateCardNavigationEvent
 }
