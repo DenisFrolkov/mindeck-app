@@ -5,6 +5,7 @@ import com.mindeck.feature.card.model.AudioSource
 import com.mindeck.feature.card.model.CardType
 import com.mindeck.feature.card.model.DeckItem
 import com.mindeck.feature.card.model.DeckPickState
+import com.mindeck.feature.card.model.DraftImage
 import com.mindeck.feature.card.model.MediaSheet
 import com.mindeck.feature.card.model.PhotoSource
 import com.mindeck.feature.card.model.TextFormat
@@ -17,6 +18,8 @@ data class CreateCardState(
     val answer: String = "",
     val hint: String? = null,
     val activeFormats: Set<TextFormat> = emptySet(),
+    val draftImage: DraftImage? = null,
+    val isDownloadingImage: Boolean = false,
     val selectedAudio: String? = null,
     val isSubmitting: Boolean = false,
     val isDeckPickerExpanded: Boolean = false,
@@ -68,6 +71,8 @@ sealed interface CreateCardIntent {
 
     data object RemoveAudio : CreateCardIntent
 
+    data object RemoveImage : CreateCardIntent
+
     data object ShowAddPhotoSheet : CreateCardIntent
 
     data object ShowAddAudioSheet : CreateCardIntent
@@ -109,6 +114,7 @@ sealed interface CreateCardEffect {
 
 enum class CreateCardError {
     DeckNameTaken,
+    ImageDownloadFailed,
     Unknown,
 }
 

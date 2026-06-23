@@ -8,4 +8,7 @@
     <string name="create_deck_color_label">ЦВЕТ ОБЛОЖКИ</string>
     <string name="create_deck_action_cancel">Отмена</string>
     <string name="create_deck_action_create">Создать</string>
+    <string name="file_size_unit_bytes">Б</string>
+    <string name="file_size_unit_kb">КБ</string>
+    <string name="file_size_unit_mb">МБ</string>
 </resources>

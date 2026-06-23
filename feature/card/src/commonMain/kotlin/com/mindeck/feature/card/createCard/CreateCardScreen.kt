@@ -22,8 +22,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
@@ -60,6 +58,7 @@ import mindeck_app.feature.card.generated.resources.create_card_action_submit
 import mindeck_app.feature.card.generated.resources.create_card_created
 import mindeck_app.feature.card.generated.resources.create_card_deck_create_failed
 import mindeck_app.feature.card.generated.resources.create_card_deck_name_taken
+import mindeck_app.feature.card.generated.resources.create_card_image_download_failed
 import mindeck_app.feature.card.generated.resources.create_card_title
 import org.jetbrains.compose.resources.stringResource
 import mindeck_app.feature.card.generated.resources.Res as CreateCardRes
@@ -77,6 +76,7 @@ fun CreateCardScreen(
     val cardCreatedMessage = stringResource(CreateCardRes.string.create_card_created)
     val deckNameTakenMessage = stringResource(CreateCardRes.string.create_card_deck_name_taken)
     val deckCreateFailedMessage = stringResource(CreateCardRes.string.create_card_deck_create_failed)
+    val imageDownloadFailedMessage = stringResource(CreateCardRes.string.create_card_image_download_failed)
     ObserveEffects(effects) { effect ->
         val message =
             when (effect) {
@@ -84,6 +84,7 @@ fun CreateCardScreen(
                 is CreateCardEffect.CreationFailed ->
                     when (effect.reason) {
                         CreateCardError.DeckNameTaken -> deckNameTakenMessage
+                        CreateCardError.ImageDownloadFailed -> imageDownloadFailedMessage
                         CreateCardError.Unknown -> deckCreateFailedMessage
                     }
             }
@@ -143,8 +144,11 @@ fun CreateCardScreen(
                     ),
                 media =
                     MediaFieldState(
+                        image = state.draftImage,
+                        isImageLoading = state.isDownloadingImage,
                         selectedAudio = state.selectedAudio,
                         onAddPhoto = { onIntent(CreateCardIntent.ShowAddPhotoSheet) },
+                        onRemoveImage = { onIntent(CreateCardIntent.RemoveImage) },
                         onAddAudio = { onIntent(CreateCardIntent.ShowAddAudioSheet) },
                         onRemoveAudio = { onIntent(CreateCardIntent.RemoveAudio) },
                     ),
@@ -217,7 +221,12 @@ private fun CreateCardForm(
             selectedType = type.selectedType,
             onSelectType = type.onSelectType,
         )
-        PhotoPick(onClick = media.onAddPhoto)
+        PhotoPick(
+            image = media.image,
+            isLoading = media.isImageLoading,
+            onClick = media.onAddPhoto,
+            onRemove = media.onRemoveImage,
+        )
         QuestionBlock(
             value = text.question,
             onValueChange = text.onQuestionChange,

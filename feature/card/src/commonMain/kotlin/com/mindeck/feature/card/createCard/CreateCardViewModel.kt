@@ -6,7 +6,9 @@ import com.mindeck.domain.models.Deck
 import com.mindeck.domain.models.DeckColor
 import com.mindeck.domain.usecases.deck.command.CreateDeckUseCase
 import com.mindeck.domain.usecases.deck.query.GetAllDecksUseCase
+import com.mindeck.domain.usecases.media.DownloadImageUseCase
 import com.mindeck.feature.card.model.AudioSource
+import com.mindeck.feature.card.model.DraftImage
 import com.mindeck.feature.card.model.MediaSheet
 import com.mindeck.feature.card.model.PhotoSource
 import kotlinx.coroutines.flow.catch
@@ -17,6 +19,7 @@ import kotlinx.coroutines.launch
 class CreateCardViewModel(
     private val getAllDecksUseCase: GetAllDecksUseCase,
     private val createDeckUseCase: CreateDeckUseCase,
+    private val downloadImageUseCase: DownloadImageUseCase,
 ) : BaseViewModel<CreateCardState, CreateCardIntent, CreateCardEffect>(CreateCardState()) {
     override fun accept(intent: CreateCardIntent) {
         when (intent) {
@@ -67,6 +70,9 @@ class CreateCardViewModel(
 
             CreateCardIntent.RemoveAudio ->
                 updateState { it.copy(selectedAudio = null) }
+
+            CreateCardIntent.RemoveImage ->
+                updateState { it.copy(draftImage = null) }
 
             CreateCardIntent.ShowAddPhotoSheet ->
                 updateState { it.copy(activeSheet = MediaSheet.PHOTO) }
@@ -132,7 +138,30 @@ class CreateCardViewModel(
     }
 
     private fun confirmLink() {
+        val url = currentState.linkDraft.trim()
+        val sheet = currentState.activeSheet
         closeSheet()
+        if (url.isBlank()) return
+        when (sheet) {
+            MediaSheet.PHOTO -> downloadImage(url)
+            MediaSheet.AUDIO -> Unit // audio-by-link arrives in a later slice
+            null -> Unit
+        }
+    }
+
+    private fun downloadImage(url: String) {
+        updateState { it.copy(isDownloadingImage = true) }
+        viewModelScope.launch {
+            try {
+                val bytes = downloadImageUseCase(url)
+                updateState {
+                    it.copy(draftImage = DraftImage(url = url, bytes = bytes), isDownloadingImage = false)
+                }
+            } catch (e: DomainError) {
+                updateState { it.copy(isDownloadingImage = false) }
+                sendEffect(CreateCardEffect.CreationFailed(CreateCardError.ImageDownloadFailed))
+            }
+        }
     }
 
     private fun closeSheet() = updateState { it.copy(activeSheet = null, linkDraft = "") }
@@ -146,6 +175,7 @@ class CreateCardViewModel(
                 answer = "",
                 hint = null,
                 activeFormats = emptySet(),
+                draftImage = null,
                 selectedAudio = null,
             )
         }

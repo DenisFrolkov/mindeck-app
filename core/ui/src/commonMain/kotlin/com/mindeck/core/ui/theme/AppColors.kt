@@ -119,3 +119,7 @@ val rating_good_on_dark = Color(0xFFCFE8D4)
 
 val rating_easy_background_dark = Color(0xFF1F3F5A)
 val rating_easy_on_dark = Color(0xFFD5E3FF)
+
+// ── Fixed overlay colors ──────────────────────────────────────────────────────
+
+val on_scrim = Color(0xFFFFFFFF)

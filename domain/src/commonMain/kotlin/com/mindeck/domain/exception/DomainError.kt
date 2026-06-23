@@ -4,4 +4,6 @@ sealed class DomainError : Exception() {
     class DatabaseError : DomainError()
 
     class NameAlreadyExists : DomainError()
+
+    class NetworkError : DomainError()
 }

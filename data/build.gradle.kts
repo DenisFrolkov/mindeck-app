@@ -30,6 +30,7 @@ kotlin {
                 implementation(libs.koin.core)
                 implementation(libs.androidx.room.runtime)
                 implementation(libs.androidx.sqlite.bundled)
+                implementation(libs.ktor.client.core)
             }
         }
 
@@ -37,6 +38,13 @@ kotlin {
             dependencies {
                 implementation(libs.koin.android)
                 implementation(libs.androidx.core)
+                implementation(libs.ktor.client.okhttp)
+            }
+        }
+
+        iosMain {
+            dependencies {
+                implementation(libs.ktor.client.darwin)
             }
         }
 

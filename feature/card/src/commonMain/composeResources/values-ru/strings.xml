@@ -22,6 +22,9 @@
     <string name="create_card_type_complex">Сложная</string>
     <string name="create_card_photo_title">Нажмите, чтобы добавить фото</string>
     <string name="create_card_photo_hint">или перетащите из галереи · JPEG, PNG · до 5 МБ</string>
+    <string name="create_card_image_preview">Изображение карточки</string>
+    <string name="create_card_image_remove">Удалить изображение</string>
+    <string name="create_card_image_download_failed">Не удалось загрузить изображение</string>
     <string name="create_card_question_placeholder">Что хотите запомнить?</string>
     <string name="create_card_section_hint">ПРИМЕР / ПОДСКАЗКА (НЕОБЯЗАТЕЛЬНО)</string>
     <string name="create_card_hint_placeholder">Контекст или мнемоника</string>

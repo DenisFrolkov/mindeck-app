@@ -22,6 +22,9 @@
     <string name="create_card_type_complex">Complex</string>
     <string name="create_card_photo_title">Tap to add a photo</string>
     <string name="create_card_photo_hint">or drag from gallery · JPEG, PNG · up to 5 MB</string>
+    <string name="create_card_image_preview">Card image</string>
+    <string name="create_card_image_remove">Remove image</string>
+    <string name="create_card_image_download_failed">Could not download the image</string>
     <string name="create_card_question_placeholder">What do you want to remember?</string>
     <string name="create_card_section_hint">EXAMPLE / HINT (OPTIONAL)</string>
     <string name="create_card_hint_placeholder">Context or mnemonic</string>
