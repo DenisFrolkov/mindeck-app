@@ -1,7 +1,6 @@
 package com.mindeck.feature.card.createCard
 
 import com.mindeck.domain.models.DeckColor
-import com.mindeck.feature.card.model.AudioSource
 import com.mindeck.feature.card.model.CardType
 import com.mindeck.feature.card.model.DeckItem
 import com.mindeck.feature.card.model.DeckPickState
@@ -20,7 +19,6 @@ data class CreateCardState(
     val activeFormats: Set<TextFormat> = emptySet(),
     val draftImage: DraftImage? = null,
     val isDownloadingImage: Boolean = false,
-    val selectedAudio: String? = null,
     val isSubmitting: Boolean = false,
     val isDeckPickerExpanded: Boolean = false,
     val isNewDeckDialogVisible: Boolean = false,
@@ -69,22 +67,14 @@ sealed interface CreateCardIntent {
         val format: TextFormat,
     ) : CreateCardIntent
 
-    data object RemoveAudio : CreateCardIntent
-
     data object RemoveImage : CreateCardIntent
 
     data object ShowAddPhotoSheet : CreateCardIntent
-
-    data object ShowAddAudioSheet : CreateCardIntent
 
     data object DismissSheet : CreateCardIntent
 
     data class PickPhotoSource(
         val source: PhotoSource,
-    ) : CreateCardIntent
-
-    data class PickAudioSource(
-        val source: AudioSource,
     ) : CreateCardIntent
 
     data class UpdateLink(

@@ -34,11 +34,6 @@
     <string name="create_card_format_strikethrough">Strikethrough</string>
     <string name="create_card_format_bullet_list">Bulleted list</string>
     <string name="create_card_format_numbered_list">Numbered list</string>
-    <string name="create_card_audio_speak">Speak the answer</string>
-    <string name="create_card_audio_record">Record audio</string>
-    <string name="create_card_audio_upload">Upload audio file</string>
-    <string name="create_card_audio_remove">Remove audio</string>
-    <string name="create_card_audio_play">Play</string>
     <string name="create_card_photo_sheet_title">Add photo</string>
     <string name="create_card_photo_sheet_description">Choose where to take the card image from</string>
     <string name="create_card_photo_source_camera_title">Take a photo</string>
@@ -50,15 +45,4 @@
     <string name="create_card_photo_link_label">OR PASTE A LINK</string>
     <string name="create_card_photo_link_placeholder">https://example.com/image.jpg</string>
     <string name="create_card_photo_link_confirm">Paste</string>
-    <string name="create_card_audio_sheet_title">Add audio</string>
-    <string name="create_card_audio_sheet_description">Voice the card or upload a file</string>
-    <string name="create_card_audio_source_record_title">Record now</string>
-    <string name="create_card_audio_source_record_subtitle">Use the microphone</string>
-    <string name="create_card_audio_source_files_title">From files</string>
-    <string name="create_card_audio_source_files_subtitle">MP3, M4A, WAV · up to 10 MB</string>
-    <string name="create_card_audio_source_tts_title">TTS pronunciation</string>
-    <string name="create_card_audio_source_tts_subtitle">Synthesis from the answer text</string>
-    <string name="create_card_audio_link_label">OR PASTE A LINK</string>
-    <string name="create_card_audio_link_placeholder">https://example.com/audio.mp3</string>
-    <string name="create_card_audio_link_confirm">Paste</string>
 </resources>

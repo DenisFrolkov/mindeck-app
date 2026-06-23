@@ -35,7 +35,6 @@ import com.mindeck.core.ui.spacer.VerticalSpacer
 import com.mindeck.core.ui.theme.MindeckTheme
 import com.mindeck.domain.models.DeckColor
 import com.mindeck.feature.card.components.AnswerBlock
-import com.mindeck.feature.card.components.AudioPick
 import com.mindeck.feature.card.components.CardTypeSection
 import com.mindeck.feature.card.components.DeckSection
 import com.mindeck.feature.card.components.HintBlock
@@ -146,11 +145,8 @@ fun CreateCardScreen(
                     MediaFieldState(
                         image = state.draftImage,
                         isImageLoading = state.isDownloadingImage,
-                        selectedAudio = state.selectedAudio,
                         onAddPhoto = { onIntent(CreateCardIntent.ShowAddPhotoSheet) },
                         onRemoveImage = { onIntent(CreateCardIntent.RemoveImage) },
-                        onAddAudio = { onIntent(CreateCardIntent.ShowAddAudioSheet) },
-                        onRemoveAudio = { onIntent(CreateCardIntent.RemoveAudio) },
                     ),
                 bottomInset = actionBarHeight,
                 modifier = Modifier.weight(1f),
@@ -190,7 +186,6 @@ fun CreateCardScreen(
                     ),
                 onDismiss = { onIntent(CreateCardIntent.DismissSheet) },
                 onPickPhotoSource = { onIntent(CreateCardIntent.PickPhotoSource(it)) },
-                onPickAudioSource = { onIntent(CreateCardIntent.PickAudioSource(it)) },
             )
         }
     }
@@ -238,11 +233,6 @@ private fun CreateCardForm(
         TextFormattingToolbar(
             active = text.activeFormats,
             onToggle = text.onToggleFormat,
-        )
-        AudioPick(
-            selectedAudio = media.selectedAudio,
-            onPickFile = media.onAddAudio,
-            onRemoveAudio = media.onRemoveAudio,
         )
         HintBlock(
             value = text.hint,

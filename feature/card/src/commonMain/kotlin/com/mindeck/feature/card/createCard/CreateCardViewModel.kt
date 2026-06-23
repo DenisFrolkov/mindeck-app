@@ -7,7 +7,6 @@ import com.mindeck.domain.models.DeckColor
 import com.mindeck.domain.usecases.deck.command.CreateDeckUseCase
 import com.mindeck.domain.usecases.deck.query.GetAllDecksUseCase
 import com.mindeck.domain.usecases.media.DownloadImageUseCase
-import com.mindeck.feature.card.model.AudioSource
 import com.mindeck.feature.card.model.DraftImage
 import com.mindeck.feature.card.model.MediaSheet
 import com.mindeck.feature.card.model.PhotoSource
@@ -68,23 +67,15 @@ class CreateCardViewModel(
                     state.copy(activeFormats = formats)
                 }
 
-            CreateCardIntent.RemoveAudio ->
-                updateState { it.copy(selectedAudio = null) }
-
             CreateCardIntent.RemoveImage ->
                 updateState { it.copy(draftImage = null) }
 
             CreateCardIntent.ShowAddPhotoSheet ->
                 updateState { it.copy(activeSheet = MediaSheet.PHOTO) }
 
-            CreateCardIntent.ShowAddAudioSheet ->
-                updateState { it.copy(activeSheet = MediaSheet.AUDIO) }
-
             CreateCardIntent.DismissSheet -> closeSheet()
 
             is CreateCardIntent.PickPhotoSource -> pickPhotoSource(intent.source)
-
-            is CreateCardIntent.PickAudioSource -> pickAudioSource(intent.source)
 
             is CreateCardIntent.UpdateLink ->
                 updateState { it.copy(linkDraft = intent.value) }
@@ -133,10 +124,6 @@ class CreateCardViewModel(
         closeSheet()
     }
 
-    private fun pickAudioSource(source: AudioSource) {
-        closeSheet()
-    }
-
     private fun confirmLink() {
         val url = currentState.linkDraft.trim()
         val sheet = currentState.activeSheet
@@ -144,7 +131,6 @@ class CreateCardViewModel(
         if (url.isBlank()) return
         when (sheet) {
             MediaSheet.PHOTO -> downloadImage(url)
-            MediaSheet.AUDIO -> Unit // audio-by-link arrives in a later slice
             null -> Unit
         }
     }
@@ -176,7 +162,6 @@ class CreateCardViewModel(
                 hint = null,
                 activeFormats = emptySet(),
                 draftImage = null,
-                selectedAudio = null,
             )
         }
         sendEffect(CreateCardEffect.CardCreated)

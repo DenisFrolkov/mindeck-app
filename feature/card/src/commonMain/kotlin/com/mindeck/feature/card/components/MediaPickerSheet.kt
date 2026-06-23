@@ -6,7 +6,6 @@ import androidx.compose.ui.Modifier
 import com.mindeck.core.ui.sheet.AddMediaBottomSheet
 import com.mindeck.core.ui.sheet.MediaSheetContent
 import com.mindeck.core.ui.sheet.MediaSource
-import com.mindeck.feature.card.model.AudioSource
 import com.mindeck.feature.card.model.LinkFieldState
 import com.mindeck.feature.card.model.MediaSheet
 import com.mindeck.feature.card.model.PhotoSource
@@ -15,20 +14,7 @@ import mindeck_app.core.ui.generated.resources.add_a_photo_icon
 import mindeck_app.core.ui.generated.resources.chevron_right_icon
 import mindeck_app.core.ui.generated.resources.folder_open_icon
 import mindeck_app.core.ui.generated.resources.library_decks_icon
-import mindeck_app.core.ui.generated.resources.library_music_icon
 import mindeck_app.core.ui.generated.resources.link_icon
-import mindeck_app.core.ui.generated.resources.mic_icon
-import mindeck_app.feature.card.generated.resources.create_card_audio_link_confirm
-import mindeck_app.feature.card.generated.resources.create_card_audio_link_label
-import mindeck_app.feature.card.generated.resources.create_card_audio_link_placeholder
-import mindeck_app.feature.card.generated.resources.create_card_audio_sheet_description
-import mindeck_app.feature.card.generated.resources.create_card_audio_sheet_title
-import mindeck_app.feature.card.generated.resources.create_card_audio_source_files_subtitle
-import mindeck_app.feature.card.generated.resources.create_card_audio_source_files_title
-import mindeck_app.feature.card.generated.resources.create_card_audio_source_record_subtitle
-import mindeck_app.feature.card.generated.resources.create_card_audio_source_record_title
-import mindeck_app.feature.card.generated.resources.create_card_audio_source_tts_subtitle
-import mindeck_app.feature.card.generated.resources.create_card_audio_source_tts_title
 import mindeck_app.feature.card.generated.resources.create_card_photo_link_confirm
 import mindeck_app.feature.card.generated.resources.create_card_photo_link_label
 import mindeck_app.feature.card.generated.resources.create_card_photo_link_placeholder
@@ -50,7 +36,6 @@ internal fun MediaPickerSheet(
     link: LinkFieldState,
     onDismiss: () -> Unit,
     onPickPhotoSource: (PhotoSource) -> Unit,
-    onPickAudioSource: (AudioSource) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val content =
@@ -63,15 +48,6 @@ internal fun MediaPickerSheet(
                     linkLabel = stringResource(CreateCardRes.string.create_card_photo_link_label),
                     linkPlaceholder = stringResource(CreateCardRes.string.create_card_photo_link_placeholder),
                     confirmLabel = stringResource(CreateCardRes.string.create_card_photo_link_confirm),
-                )
-            MediaSheet.AUDIO ->
-                MediaSheetContent(
-                    title = stringResource(CreateCardRes.string.create_card_audio_sheet_title),
-                    description = stringResource(CreateCardRes.string.create_card_audio_sheet_description),
-                    sources = audioSources(onPickAudioSource),
-                    linkLabel = stringResource(CreateCardRes.string.create_card_audio_link_label),
-                    linkPlaceholder = stringResource(CreateCardRes.string.create_card_audio_link_placeholder),
-                    confirmLabel = stringResource(CreateCardRes.string.create_card_audio_link_confirm),
                 )
         }
     AddMediaBottomSheet(
@@ -111,28 +87,5 @@ private fun photoSources(onPick: (PhotoSource) -> Unit): List<MediaSource> =
             title = stringResource(CreateCardRes.string.create_card_photo_source_files_title),
             subtitle = stringResource(CreateCardRes.string.create_card_photo_source_files_subtitle),
             onClick = { onPick(PhotoSource.FILES) },
-        ),
-    )
-
-@Composable
-private fun audioSources(onPick: (AudioSource) -> Unit): List<MediaSource> =
-    listOf(
-        MediaSource(
-            icon = Res.drawable.mic_icon,
-            title = stringResource(CreateCardRes.string.create_card_audio_source_record_title),
-            subtitle = stringResource(CreateCardRes.string.create_card_audio_source_record_subtitle),
-            onClick = { onPick(AudioSource.RECORD) },
-        ),
-        MediaSource(
-            icon = Res.drawable.library_music_icon,
-            title = stringResource(CreateCardRes.string.create_card_audio_source_tts_title),
-            subtitle = stringResource(CreateCardRes.string.create_card_audio_source_tts_subtitle),
-            onClick = { onPick(AudioSource.TTS) },
-        ),
-        MediaSource(
-            icon = Res.drawable.folder_open_icon,
-            title = stringResource(CreateCardRes.string.create_card_audio_source_files_title),
-            subtitle = stringResource(CreateCardRes.string.create_card_audio_source_files_subtitle),
-            onClick = { onPick(AudioSource.FILES) },
         ),
     )
