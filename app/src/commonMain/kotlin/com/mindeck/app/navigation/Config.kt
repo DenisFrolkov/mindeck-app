@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 sealed interface Config {
-    @Serializable data object Main : Config
+    @Serializable data object Home : Config
 
-    @Serializable data object Second : Config
+    @Serializable data object CreateCard : Config
 }

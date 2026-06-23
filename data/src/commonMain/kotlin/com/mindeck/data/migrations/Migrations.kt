@@ -188,4 +188,12 @@ val MIGRATION_4_5 =
         }
     }
 
-val ALL_MIGRATIONS = arrayOf<Migration>(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
+// Migration v5 → v6: add deck_color column to deck table.
+val MIGRATION_5_6 =
+    object : Migration(5, 6) {
+        override fun migrate(connection: SQLiteConnection) {
+            connection.execSQL("ALTER TABLE `deck` ADD COLUMN `deck_color` TEXT NOT NULL DEFAULT 'BLUE'")
+        }
+    }
+
+val ALL_MIGRATIONS = arrayOf<Migration>(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)

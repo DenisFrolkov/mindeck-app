@@ -13,6 +13,7 @@ import com.mindeck.domain.usecases.deck.command.DeleteDeckUseCase
 import com.mindeck.domain.usecases.deck.command.RenameDeckUseCase
 import com.mindeck.domain.usecases.deck.query.GetAllDecksUseCase
 import com.mindeck.domain.usecases.deck.query.GetDeckByIdUseCase
+import com.mindeck.domain.usecases.deck.query.GetDecksWithStatsUseCase
 import org.koin.dsl.module
 
 val commonDataModule =
@@ -30,4 +31,5 @@ val commonDataModule =
         factory { RenameDeckUseCase(get()) }
         factory { GetAllDecksUseCase(get()) }
         factory { GetDeckByIdUseCase(get()) }
+        factory { GetDecksWithStatsUseCase(get()) }
     }

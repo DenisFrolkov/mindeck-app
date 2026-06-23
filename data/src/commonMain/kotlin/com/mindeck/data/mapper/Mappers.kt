@@ -8,64 +8,67 @@ import com.mindeck.domain.models.CardState
 import com.mindeck.domain.models.CardType
 import com.mindeck.domain.models.CardWithDeck
 import com.mindeck.domain.models.Deck
+import com.mindeck.domain.models.DeckColor
 
 object Mappers {
     fun Deck.toEntity(): DeckEntity =
         DeckEntity(
-            deckId = this.deckId,
-            deckName = this.deckName,
+            deckId = deckId,
+            deckName = deckName,
+            deckColor = deckColor.name,
         )
 
     fun DeckEntity.toDomain(): Deck =
         Deck(
-            deckId = this.deckId,
-            deckName = this.deckName,
+            deckId = deckId,
+            deckName = deckName,
+            deckColor = enumValueOf<DeckColor>(deckColor),
         )
 
     fun Card.toEntity(): CardEntity =
         CardEntity(
-            cardId = this.cardId,
-            cardName = this.cardName,
-            cardQuestion = this.cardQuestion,
-            cardAnswer = this.cardAnswer,
-            cardType = this.cardType.stableId,
-            cardTag = this.cardTag,
-            deckId = this.deckId,
-            cardState = this.cardState.name,
-            easeFactor = this.easeFactor,
-            interval = this.interval,
-            learningStep = this.learningStep,
-            nextReviewDate = this.nextReviewDate,
-            repetitionCount = this.repetitionCount,
-            lapseCount = this.lapseCount,
-            firstReviewDate = this.firstReviewDate,
-            lastReviewDate = this.lastReviewDate,
+            cardId = cardId,
+            cardName = cardName,
+            cardQuestion = cardQuestion,
+            cardAnswer = cardAnswer,
+            cardType = cardType.stableId,
+            cardTag = cardTag,
+            deckId = deckId,
+            cardState = cardState.name,
+            easeFactor = easeFactor,
+            interval = interval,
+            learningStep = learningStep,
+            nextReviewDate = nextReviewDate,
+            repetitionCount = repetitionCount,
+            lapseCount = lapseCount,
+            firstReviewDate = firstReviewDate,
+            lastReviewDate = lastReviewDate,
         )
 
     fun CardEntity.toDomain(): Card =
         Card(
-            cardId = this.cardId,
-            cardName = this.cardName,
-            cardQuestion = this.cardQuestion,
-            cardAnswer = this.cardAnswer,
-            cardType = CardType.fromStableId(this.cardType),
-            cardTag = this.cardTag,
-            deckId = this.deckId,
-            cardState = CardState.entries.firstOrNull { it.name == this.cardState } ?: CardState.NEW,
-            easeFactor = this.easeFactor,
-            interval = this.interval,
-            learningStep = this.learningStep,
-            nextReviewDate = this.nextReviewDate,
-            repetitionCount = this.repetitionCount,
-            lapseCount = this.lapseCount,
-            firstReviewDate = this.firstReviewDate,
-            lastReviewDate = this.lastReviewDate,
+            cardId = cardId,
+            cardName = cardName,
+            cardQuestion = cardQuestion,
+            cardAnswer = cardAnswer,
+            cardType = CardType.fromStableId(cardType),
+            cardTag = cardTag,
+            deckId = deckId,
+            cardState = enumValueOf<CardState>(cardState),
+            easeFactor = easeFactor,
+            interval = interval,
+            learningStep = learningStep,
+            nextReviewDate = nextReviewDate,
+            repetitionCount = repetitionCount,
+            lapseCount = lapseCount,
+            firstReviewDate = firstReviewDate,
+            lastReviewDate = lastReviewDate,
         )
 
     fun CardWithDeckEntity.toDomain(): CardWithDeck =
         CardWithDeck(
-            card = this.card.toDomain(),
-            deckId = this.deck.deckId,
-            deckName = this.deck.deckName,
+            card = card.toDomain(),
+            deckId = deck.deckId,
+            deckName = deck.deckName,
         )
 }

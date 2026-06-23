@@ -1,7 +1,14 @@
 package com.mindeck.app.navigation
 
-sealed interface Child {
-    data object Main : Child
+import com.mindeck.feature.card.createCard.CreateCardViewModel
+import com.mindeck.feature.home.HomeViewModel
 
-    data object Second : Child
+sealed interface Child {
+    data class Home(
+        val viewModel: HomeViewModel,
+    ) : Child
+
+    data class CreateCard(
+        val viewModel: CreateCardViewModel,
+    ) : Child
 }

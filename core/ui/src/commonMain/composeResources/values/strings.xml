@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="action_add">Add</string>
+    <string name="create_deck_dialog_title">New deck</string>
+    <string name="create_deck_dialog_description">Give the deck a name and pick a color — you can add cards to it later.</string>
+    <string name="create_deck_name_label">Name</string>
+    <string name="create_deck_name_placeholder">English · idioms</string>
+    <string name="create_deck_color_label">COVER COLOR</string>
+    <string name="create_deck_action_cancel">Cancel</string>
+    <string name="create_deck_action_create">Create</string>
+</resources>

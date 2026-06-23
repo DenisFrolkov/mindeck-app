@@ -22,7 +22,7 @@ kotlin {
         commonMain {
             dependencies {
                 // Coroutines
-                implementation(libs.coroutines)
+                api(libs.coroutines)
             }
         }
     }

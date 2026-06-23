@@ -4,7 +4,9 @@ import androidx.room.ConstructedBy
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.RoomDatabaseConstructor
+import androidx.room.TypeConverters
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import com.mindeck.data.converter.TypeConverter
 import com.mindeck.data.dao.CardDao
 import com.mindeck.data.dao.DeckDao
 import com.mindeck.data.entities.CardEntity
@@ -13,9 +15,10 @@ import kotlinx.coroutines.Dispatchers
 
 @Database(
     entities = [DeckEntity::class, CardEntity::class],
-    version = 5,
+    version = 6,
     exportSchema = true,
 )
+@TypeConverters(TypeConverter::class)
 @ConstructedBy(AppDatabaseConstructor::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun deckDao(): DeckDao

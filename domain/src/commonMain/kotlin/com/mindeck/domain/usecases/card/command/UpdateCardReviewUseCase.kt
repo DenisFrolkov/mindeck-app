@@ -4,14 +4,14 @@ import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.CardState
 import com.mindeck.domain.models.ReviewButton
 import com.mindeck.domain.repository.CardRepetitionRepository
-import com.mindeck.domain.service.ClockRepository
+import com.mindeck.domain.time.TimeProvider
 import kotlin.math.ceil
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.minutes
 
 class UpdateCardReviewUseCase(
     private val cardRepetitionRepository: CardRepetitionRepository,
-    private val clock: ClockRepository,
+    private val clock: TimeProvider,
 ) {
     suspend operator fun invoke(
         card: Card,

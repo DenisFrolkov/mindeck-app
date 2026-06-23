@@ -8,17 +8,23 @@ import com.arkivanov.decompose.router.stack.childStack
 import com.arkivanov.decompose.router.stack.pop
 import com.arkivanov.decompose.router.stack.push
 import com.arkivanov.decompose.value.Value
+import com.arkivanov.essenty.lifecycle.doOnDestroy
+import com.mindeck.feature.card.createCard.CreateCardViewModel
+import com.mindeck.feature.home.HomeViewModel
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.get
 
 class RootComponent(
     componentContext: ComponentContext,
-) : ComponentContext by componentContext {
+) : ComponentContext by componentContext,
+    KoinComponent {
     private val navigation = StackNavigation<Config>()
 
     val stack: Value<ChildStack<Config, Child>> =
         childStack(
             source = navigation,
             serializer = Config.serializer(),
-            initialConfiguration = Config.Main,
+            initialConfiguration = Config.Home,
             handleBackButton = true,
             childFactory = ::createChild,
         )
@@ -31,8 +37,17 @@ class RootComponent(
     private fun createChild(
         config: Config,
         context: ComponentContext,
-    ) = when (config) {
-        is Config.Main -> Child.Main
-        is Config.Second -> Child.Second
-    }
+    ): Child =
+        when (config) {
+            is Config.Home -> {
+                val viewModel = get<HomeViewModel>()
+                context.lifecycle.doOnDestroy(viewModel::clear)
+                Child.Home(viewModel)
+            }
+            is Config.CreateCard -> {
+                val viewModel = get<CreateCardViewModel>()
+                context.lifecycle.doOnDestroy(viewModel::clear)
+                Child.CreateCard(viewModel)
+            }
+        }
 }

@@ -5,10 +5,12 @@ import com.mindeck.data.mapper.Mappers.toDomain
 import com.mindeck.data.mapper.Mappers.toEntity
 import com.mindeck.domain.exception.DomainError
 import com.mindeck.domain.models.Deck
+import com.mindeck.domain.models.DeckWithStats
 import com.mindeck.domain.repository.DeckRepository
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 
 class DeckRepositoryImpl(
@@ -66,4 +68,24 @@ class DeckRepositoryImpl(
                 if (it is CancellationException) throw it
                 throw DomainError.DatabaseError()
             }
+
+    override fun getCardStatsPerDeck(currentTime: Long): Flow<List<DeckWithStats>> =
+        combine(
+            deckDao.getAllDecks(),
+            deckDao.getReviewCountPerDeck(currentTime),
+        ) { decks, cardStats ->
+            decks.map { deck ->
+                val stats = cardStats.find { it.deckId == deck.deckId }
+                DeckWithStats(
+                    deck = deck.toDomain(),
+                    cardCount = stats?.cardCount ?: 0,
+                    newCount = stats?.newCount ?: 0,
+                    newReviewCount = stats?.newReviewCount ?: 0,
+                    reviewCount = stats?.reviewCount ?: 0,
+                )
+            }
+        }.catch {
+            if (it is CancellationException) throw it
+            throw DomainError.DatabaseError()
+        }
 }

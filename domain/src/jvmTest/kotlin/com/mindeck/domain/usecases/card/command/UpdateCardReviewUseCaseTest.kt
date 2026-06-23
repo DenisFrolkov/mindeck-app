@@ -5,7 +5,7 @@ import com.mindeck.domain.models.CardState
 import com.mindeck.domain.models.CardType
 import com.mindeck.domain.models.ReviewButton
 import com.mindeck.domain.repository.CardRepetitionRepository
-import com.mindeck.domain.service.ClockRepository
+import com.mindeck.domain.time.TimeProvider
 import io.mockk.coEvery
 import io.mockk.just
 import io.mockk.mockk
@@ -21,7 +21,7 @@ class UpdateCardReviewUseCaseTest {
     private val dayMs = 86_400_000L
     private val now = dayMs * 10 + dayMs / 2
     private val repository = mockk<CardRepetitionRepository>()
-    private val clock = ClockRepository { now }
+    private val clock = TimeProvider { now }
     private val useCase = UpdateCardReviewUseCase(repository, clock)
 
     private fun newCard() =

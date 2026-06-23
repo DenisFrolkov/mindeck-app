@@ -19,4 +19,5 @@ data class DeckEntity(
     @ColumnInfo(name = "deck_id")
     val deckId: Int = 0,
     @ColumnInfo(name = "deck_name") val deckName: String,
+    @ColumnInfo(name = "deck_color") val deckColor: String,
 )
