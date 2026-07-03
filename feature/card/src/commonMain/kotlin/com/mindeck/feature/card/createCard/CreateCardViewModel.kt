@@ -9,7 +9,6 @@ import com.mindeck.domain.usecases.deck.query.GetAllDecksUseCase
 import com.mindeck.domain.usecases.media.DownloadImageUseCase
 import com.mindeck.feature.card.model.DraftImage
 import com.mindeck.feature.card.model.MediaSheet
-import com.mindeck.feature.card.model.PhotoSource
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -75,7 +74,19 @@ class CreateCardViewModel(
 
             CreateCardIntent.DismissSheet -> closeSheet()
 
-            is CreateCardIntent.PickPhotoSource -> pickPhotoSource(intent.source)
+            CreateCardIntent.ShowCamera ->
+                updateState { it.copy(isCameraVisible = true) }
+
+            CreateCardIntent.DismissCamera ->
+                updateState { it.copy(isCameraVisible = false) }
+
+            CreateCardIntent.BeginImagePick ->
+                updateState { it.copy(isProcessingImage = true) }
+
+            is CreateCardIntent.AttachImage ->
+                updateState { it.copy(draftImage = intent.image, isProcessingImage = false) }
+
+            CreateCardIntent.FailImagePick -> failImagePick()
 
             is CreateCardIntent.UpdateLink ->
                 updateState { it.copy(linkDraft = intent.value) }
@@ -120,10 +131,6 @@ class CreateCardViewModel(
         }
     }
 
-    private fun pickPhotoSource(source: PhotoSource) {
-        closeSheet()
-    }
-
     private fun confirmLink() {
         val url = currentState.linkDraft.trim()
         val sheet = currentState.activeSheet
@@ -136,18 +143,23 @@ class CreateCardViewModel(
     }
 
     private fun downloadImage(url: String) {
-        updateState { it.copy(isDownloadingImage = true) }
+        updateState { it.copy(isProcessingImage = true) }
         viewModelScope.launch {
             try {
                 val bytes = downloadImageUseCase(url)
                 updateState {
-                    it.copy(draftImage = DraftImage(url = url, bytes = bytes), isDownloadingImage = false)
+                    it.copy(draftImage = DraftImage(url = url, bytes = bytes), isProcessingImage = false)
                 }
             } catch (e: DomainError) {
-                updateState { it.copy(isDownloadingImage = false) }
+                updateState { it.copy(isProcessingImage = false) }
                 sendEffect(CreateCardEffect.CreationFailed(CreateCardError.ImageDownloadFailed))
             }
         }
+    }
+
+    private fun failImagePick() {
+        updateState { it.copy(isProcessingImage = false) }
+        sendEffect(CreateCardEffect.CreationFailed(CreateCardError.ImageAttachFailed))
     }
 
     private fun closeSheet() = updateState { it.copy(activeSheet = null, linkDraft = "") }

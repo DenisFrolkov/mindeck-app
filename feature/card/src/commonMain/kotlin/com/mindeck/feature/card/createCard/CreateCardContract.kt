@@ -6,7 +6,6 @@ import com.mindeck.feature.card.model.DeckItem
 import com.mindeck.feature.card.model.DeckPickState
 import com.mindeck.feature.card.model.DraftImage
 import com.mindeck.feature.card.model.MediaSheet
-import com.mindeck.feature.card.model.PhotoSource
 import com.mindeck.feature.card.model.TextFormat
 
 data class CreateCardState(
@@ -18,11 +17,12 @@ data class CreateCardState(
     val hint: String? = null,
     val activeFormats: Set<TextFormat> = emptySet(),
     val draftImage: DraftImage? = null,
-    val isDownloadingImage: Boolean = false,
+    val isProcessingImage: Boolean = false,
     val isSubmitting: Boolean = false,
     val isDeckPickerExpanded: Boolean = false,
     val isNewDeckDialogVisible: Boolean = false,
     val activeSheet: MediaSheet? = null,
+    val isCameraVisible: Boolean = false,
     val linkDraft: String = "",
 ) {
     val deckPick: DeckPickState
@@ -73,9 +73,17 @@ sealed interface CreateCardIntent {
 
     data object DismissSheet : CreateCardIntent
 
-    data class PickPhotoSource(
-        val source: PhotoSource,
+    data object ShowCamera : CreateCardIntent
+
+    data object DismissCamera : CreateCardIntent
+
+    data object BeginImagePick : CreateCardIntent
+
+    data class AttachImage(
+        val image: DraftImage,
     ) : CreateCardIntent
+
+    data object FailImagePick : CreateCardIntent
 
     data class UpdateLink(
         val value: String,
@@ -105,6 +113,7 @@ sealed interface CreateCardEffect {
 enum class CreateCardError {
     DeckNameTaken,
     ImageDownloadFailed,
+    ImageAttachFailed,
     Unknown,
 }
 

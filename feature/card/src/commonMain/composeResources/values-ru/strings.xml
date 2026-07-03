@@ -25,6 +25,7 @@
     <string name="create_card_image_preview">Изображение карточки</string>
     <string name="create_card_image_remove">Удалить изображение</string>
     <string name="create_card_image_download_failed">Не удалось загрузить изображение</string>
+    <string name="create_card_image_attach_failed">Не удалось добавить изображение</string>
     <string name="create_card_question_placeholder">Что хотите запомнить?</string>
     <string name="create_card_section_hint">ПРИМЕР / ПОДСКАЗКА (НЕОБЯЗАТЕЛЬНО)</string>
     <string name="create_card_hint_placeholder">Контекст или мнемоника</string>
@@ -45,4 +46,7 @@
     <string name="create_card_photo_link_label">ИЛИ ВСТАВЬТЕ ССЫЛКУ</string>
     <string name="create_card_photo_link_placeholder">https://example.com/image.jpg</string>
     <string name="create_card_photo_link_confirm">Вставить</string>
+    <string name="create_card_camera_capture">Сделать фото</string>
+    <string name="create_card_camera_close">Закрыть камеру</string>
+    <string name="create_card_camera_permission_denied">Для съёмки фото нужен доступ к камере. Включите его в настройках системы.</string>
 </resources>

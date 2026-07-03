@@ -4,5 +4,7 @@
 <dict>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Mindeck uses the camera to take photos for cards.</string>
 </dict>
 </plist>

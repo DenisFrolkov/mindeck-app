@@ -35,6 +35,7 @@ import com.mindeck.core.ui.spacer.VerticalSpacer
 import com.mindeck.core.ui.theme.MindeckTheme
 import com.mindeck.domain.models.DeckColor
 import com.mindeck.feature.card.components.AnswerBlock
+import com.mindeck.feature.card.components.CameraCaptureScreen
 import com.mindeck.feature.card.components.CardTypeSection
 import com.mindeck.feature.card.components.DeckSection
 import com.mindeck.feature.card.components.HintBlock
@@ -42,6 +43,8 @@ import com.mindeck.feature.card.components.MediaPickerSheet
 import com.mindeck.feature.card.components.PhotoPick
 import com.mindeck.feature.card.components.QuestionBlock
 import com.mindeck.feature.card.components.TextFormattingToolbar
+import com.mindeck.feature.card.components.cameraCaptureImage
+import com.mindeck.feature.card.components.rememberImagePickers
 import com.mindeck.feature.card.model.CardTextFieldState
 import com.mindeck.feature.card.model.CardTypeFieldState
 import com.mindeck.feature.card.model.DeckFieldState
@@ -57,6 +60,7 @@ import mindeck_app.feature.card.generated.resources.create_card_action_submit
 import mindeck_app.feature.card.generated.resources.create_card_created
 import mindeck_app.feature.card.generated.resources.create_card_deck_create_failed
 import mindeck_app.feature.card.generated.resources.create_card_deck_name_taken
+import mindeck_app.feature.card.generated.resources.create_card_image_attach_failed
 import mindeck_app.feature.card.generated.resources.create_card_image_download_failed
 import mindeck_app.feature.card.generated.resources.create_card_title
 import org.jetbrains.compose.resources.stringResource
@@ -76,6 +80,7 @@ fun CreateCardScreen(
     val deckNameTakenMessage = stringResource(CreateCardRes.string.create_card_deck_name_taken)
     val deckCreateFailedMessage = stringResource(CreateCardRes.string.create_card_deck_create_failed)
     val imageDownloadFailedMessage = stringResource(CreateCardRes.string.create_card_image_download_failed)
+    val imageAttachFailedMessage = stringResource(CreateCardRes.string.create_card_image_attach_failed)
     ObserveEffects(effects) { effect ->
         val message =
             when (effect) {
@@ -84,11 +89,20 @@ fun CreateCardScreen(
                     when (effect.reason) {
                         CreateCardError.DeckNameTaken -> deckNameTakenMessage
                         CreateCardError.ImageDownloadFailed -> imageDownloadFailedMessage
+                        CreateCardError.ImageAttachFailed -> imageAttachFailedMessage
                         CreateCardError.Unknown -> deckCreateFailedMessage
                     }
             }
         snackbarHostState.showSnackbar(message)
     }
+
+    val imagePickers =
+        rememberImagePickers(
+            onPickStart = { onIntent(CreateCardIntent.BeginImagePick) },
+            onPicked = { onIntent(CreateCardIntent.AttachImage(it)) },
+            onPickFailed = { onIntent(CreateCardIntent.FailImagePick) },
+            onShowCamera = { onIntent(CreateCardIntent.ShowCamera) },
+        )
 
     val actionBarHeight =
         MindeckTheme.dimensions.touchTarget + MindeckTheme.dimensions.spacingMd * 2
@@ -144,7 +158,7 @@ fun CreateCardScreen(
                 media =
                     MediaFieldState(
                         image = state.draftImage,
-                        isImageLoading = state.isDownloadingImage,
+                        isImageLoading = state.isProcessingImage,
                         onAddPhoto = { onIntent(CreateCardIntent.ShowAddPhotoSheet) },
                         onRemoveImage = { onIntent(CreateCardIntent.RemoveImage) },
                     ),
@@ -185,7 +199,24 @@ fun CreateCardScreen(
                         onConfirm = { onIntent(CreateCardIntent.ConfirmLink) },
                     ),
                 onDismiss = { onIntent(CreateCardIntent.DismissSheet) },
-                onPickPhotoSource = { onIntent(CreateCardIntent.PickPhotoSource(it)) },
+                onPickPhotoSource = { source ->
+                    onIntent(CreateCardIntent.DismissSheet)
+                    imagePickers.launch(source)
+                },
+            )
+        }
+
+        if (state.isCameraVisible) {
+            CameraCaptureScreen(
+                onCaptured = { bytes ->
+                    onIntent(CreateCardIntent.DismissCamera)
+                    onIntent(CreateCardIntent.AttachImage(cameraCaptureImage(bytes)))
+                },
+                onFailed = {
+                    onIntent(CreateCardIntent.DismissCamera)
+                    onIntent(CreateCardIntent.FailImagePick)
+                },
+                onDismiss = { onIntent(CreateCardIntent.DismissCamera) },
             )
         }
     }
