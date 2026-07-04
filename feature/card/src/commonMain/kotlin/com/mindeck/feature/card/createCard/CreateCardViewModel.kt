@@ -23,7 +23,8 @@ class CreateCardViewModel(
     private val downloadImageUseCase: DownloadImageUseCase,
     private val saveImageUseCase: SaveImageUseCase,
     private val createCardUseCase: CreateCardUseCase,
-) : BaseViewModel<CreateCardState, CreateCardIntent, CreateCardEffect>(CreateCardState()) {
+    initialState: CreateCardState = CreateCardState(),
+) : BaseViewModel<CreateCardState, CreateCardIntent, CreateCardEffect>(initialState) {
     override fun accept(intent: CreateCardIntent) {
         when (intent) {
             CreateCardIntent.ClearDeck ->
