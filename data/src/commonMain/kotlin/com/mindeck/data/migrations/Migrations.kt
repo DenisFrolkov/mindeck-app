@@ -196,4 +196,21 @@ val MIGRATION_5_6 =
         }
     }
 
-val ALL_MIGRATIONS = arrayOf<Migration>(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
+// Migration v6 → v7: add optional card_hint and media_path columns; move card uniqueness
+// from (card_name, card_question) to (deck_id, card_question) — card name is no longer
+// required, so identical questions may only collide within the same deck.
+val MIGRATION_6_7 =
+    object : Migration(6, 7) {
+        override fun migrate(connection: SQLiteConnection) {
+            connection.execSQL("ALTER TABLE `card` ADD COLUMN `card_hint` TEXT")
+            connection.execSQL("ALTER TABLE `card` ADD COLUMN `media_path` TEXT")
+            connection.execSQL("DROP INDEX IF EXISTS `index_card_card_name_card_question`")
+            connection.execSQL("DROP INDEX IF EXISTS `index_card_deck_id`")
+            connection.execSQL(
+                "CREATE UNIQUE INDEX IF NOT EXISTS `index_card_deck_id_card_question` ON `card` (`deck_id`, `card_question`)",
+            )
+        }
+    }
+
+val ALL_MIGRATIONS =
+    arrayOf<Migration>(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7)

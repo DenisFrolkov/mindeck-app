@@ -2,13 +2,16 @@ package com.mindeck.feature.card.createCard
 
 import com.mindeck.core.mvi.BaseViewModel
 import com.mindeck.domain.exception.DomainError
+import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.Deck
 import com.mindeck.domain.models.DeckColor
+import com.mindeck.domain.usecases.card.command.CreateCardUseCase
 import com.mindeck.domain.usecases.deck.command.CreateDeckUseCase
 import com.mindeck.domain.usecases.deck.query.GetAllDecksUseCase
-import com.mindeck.feature.card.model.AudioSource
+import com.mindeck.domain.usecases.media.DownloadImageUseCase
+import com.mindeck.domain.usecases.media.SaveImageUseCase
+import com.mindeck.feature.card.model.DraftImage
 import com.mindeck.feature.card.model.MediaSheet
-import com.mindeck.feature.card.model.PhotoSource
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -17,6 +20,9 @@ import kotlinx.coroutines.launch
 class CreateCardViewModel(
     private val getAllDecksUseCase: GetAllDecksUseCase,
     private val createDeckUseCase: CreateDeckUseCase,
+    private val downloadImageUseCase: DownloadImageUseCase,
+    private val saveImageUseCase: SaveImageUseCase,
+    private val createCardUseCase: CreateCardUseCase,
 ) : BaseViewModel<CreateCardState, CreateCardIntent, CreateCardEffect>(CreateCardState()) {
     override fun accept(intent: CreateCardIntent) {
         when (intent) {
@@ -65,20 +71,27 @@ class CreateCardViewModel(
                     state.copy(activeFormats = formats)
                 }
 
-            CreateCardIntent.RemoveAudio ->
-                updateState { it.copy(selectedAudio = null) }
+            CreateCardIntent.RemoveImage ->
+                updateState { it.copy(draftImage = null) }
 
             CreateCardIntent.ShowAddPhotoSheet ->
                 updateState { it.copy(activeSheet = MediaSheet.PHOTO) }
 
-            CreateCardIntent.ShowAddAudioSheet ->
-                updateState { it.copy(activeSheet = MediaSheet.AUDIO) }
-
             CreateCardIntent.DismissSheet -> closeSheet()
 
-            is CreateCardIntent.PickPhotoSource -> pickPhotoSource(intent.source)
+            CreateCardIntent.ShowCamera ->
+                updateState { it.copy(isCameraVisible = true) }
 
-            is CreateCardIntent.PickAudioSource -> pickAudioSource(intent.source)
+            CreateCardIntent.DismissCamera ->
+                updateState { it.copy(isCameraVisible = false) }
+
+            CreateCardIntent.BeginImagePick ->
+                updateState { it.copy(isProcessingImage = true) }
+
+            is CreateCardIntent.AttachImage ->
+                updateState { it.copy(draftImage = intent.image, isProcessingImage = false) }
+
+            CreateCardIntent.FailImagePick -> failImagePick()
 
             is CreateCardIntent.UpdateLink ->
                 updateState { it.copy(linkDraft = intent.value) }
@@ -123,32 +136,81 @@ class CreateCardViewModel(
         }
     }
 
-    private fun pickPhotoSource(source: PhotoSource) {
-        closeSheet()
-    }
-
-    private fun pickAudioSource(source: AudioSource) {
-        closeSheet()
-    }
-
     private fun confirmLink() {
+        val url = currentState.linkDraft.trim()
+        val sheet = currentState.activeSheet
         closeSheet()
+        if (url.isBlank()) return
+        when (sheet) {
+            MediaSheet.PHOTO -> downloadImage(url)
+            null -> Unit
+        }
+    }
+
+    private fun downloadImage(url: String) {
+        updateState { it.copy(isProcessingImage = true) }
+        viewModelScope.launch {
+            try {
+                val bytes = downloadImageUseCase(url)
+                updateState {
+                    it.copy(draftImage = DraftImage(url = url, bytes = bytes), isProcessingImage = false)
+                }
+            } catch (e: DomainError) {
+                updateState { it.copy(isProcessingImage = false) }
+                sendEffect(CreateCardEffect.CreationFailed(CreateCardError.ImageDownloadFailed))
+            }
+        }
+    }
+
+    private fun failImagePick() {
+        updateState { it.copy(isProcessingImage = false) }
+        sendEffect(CreateCardEffect.CreationFailed(CreateCardError.ImageAttachFailed))
     }
 
     private fun closeSheet() = updateState { it.copy(activeSheet = null, linkDraft = "") }
 
     private fun submit() {
         if (!currentState.canSubmit) return
-        updateState {
-            it.copy(
-                isSubmitting = false,
-                question = "",
-                answer = "",
-                hint = null,
-                activeFormats = emptySet(),
-                selectedAudio = null,
-            )
+        val deckId = currentState.pickedDeck?.id ?: return
+        updateState { it.copy(isSubmitting = true) }
+        viewModelScope.launch {
+            val mediaPath =
+                try {
+                    currentState.draftImage?.let { saveImageUseCase(it.bytes) }
+                } catch (e: DomainError) {
+                    updateState { it.copy(isSubmitting = false) }
+                    sendEffect(CreateCardEffect.CreationFailed(CreateCardError.ImageAttachFailed))
+                    return@launch
+                }
+            try {
+                createCardUseCase(
+                    Card(
+                        cardQuestion = currentState.question.trim(),
+                        cardAnswer = currentState.answer.trim(),
+                        cardType = currentState.selectedType.toDomain(),
+                        deckId = deckId,
+                        hint = currentState.hint,
+                        mediaPath = mediaPath,
+                    ),
+                )
+                updateState {
+                    it.copy(
+                        isSubmitting = false,
+                        question = "",
+                        answer = "",
+                        hint = null,
+                        activeFormats = emptySet(),
+                        draftImage = null,
+                    )
+                }
+                sendEffect(CreateCardEffect.CardCreated)
+            } catch (e: DomainError.NameAlreadyExists) {
+                updateState { it.copy(isSubmitting = false) }
+                sendEffect(CreateCardEffect.CreationFailed(CreateCardError.DuplicateCard))
+            } catch (e: DomainError) {
+                updateState { it.copy(isSubmitting = false) }
+                sendEffect(CreateCardEffect.CreationFailed(CreateCardError.SaveFailed))
+            }
         }
-        sendEffect(CreateCardEffect.CardCreated)
     }
 }

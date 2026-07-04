@@ -11,10 +11,9 @@ import androidx.room.PrimaryKey
     tableName = "card",
     indices = [
         Index(
-            value = ["card_name", "card_question"],
+            value = ["deck_id", "card_question"],
             unique = true,
         ),
-        Index(value = ["deck_id"]),
         Index(value = ["card_state"]),
         Index(value = ["next_review_date"]),
         Index(value = ["first_review_date"]),
@@ -47,4 +46,6 @@ data class CardEntity(
     @ColumnInfo(name = "lapse_count", defaultValue = "0") val lapseCount: Int = 0,
     @ColumnInfo(name = "first_review_date") val firstReviewDate: Long? = null,
     @ColumnInfo(name = "last_review_date") val lastReviewDate: Long? = null,
+    @ColumnInfo(name = "card_hint") val cardHint: String? = null,
+    @ColumnInfo(name = "media_path") val mediaPath: String? = null,
 )

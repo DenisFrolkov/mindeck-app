@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 7,
-    "identityHash": "a18f0563f31f784518165e015f8e5982",
+    "identityHash": "5b530f11f0b77a3ed7d8c23a99199266",
     "entities": [
       {
         "tableName": "deck",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`deck_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `deck_name` TEXT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`deck_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `deck_name` TEXT NOT NULL, `deck_color` TEXT NOT NULL)",
         "fields": [
           {
             "fieldPath": "deckId",
@@ -17,6 +17,12 @@
           {
             "fieldPath": "deckName",
             "columnName": "deck_name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "deckColor",
+            "columnName": "deck_color",
             "affinity": "TEXT",
             "notNull": true
           }
@@ -41,7 +47,7 @@
       },
       {
         "tableName": "card",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`card_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `card_name` TEXT NOT NULL, `card_question` TEXT NOT NULL, `card_answer` TEXT NOT NULL, `card_type` INTEGER NOT NULL, `card_tag` TEXT NOT NULL, `deck_id` INTEGER NOT NULL, `card_state` TEXT NOT NULL DEFAULT 'NEW', `ease_factor` REAL NOT NULL DEFAULT 2.5, `interval` REAL NOT NULL DEFAULT 0, `learning_step` INTEGER NOT NULL DEFAULT 0, `next_review_date` INTEGER, `repetition_count` INTEGER NOT NULL DEFAULT 0, `lapse_count` INTEGER NOT NULL DEFAULT 0, `first_review_date` INTEGER, `last_review_date` INTEGER, `card_image_path` TEXT, `card_question_audio_path` TEXT, `card_answer_audio_path` TEXT, FOREIGN KEY(`deck_id`) REFERENCES `deck`(`deck_id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`card_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `card_name` TEXT NOT NULL, `card_question` TEXT NOT NULL, `card_answer` TEXT NOT NULL, `card_type` INTEGER NOT NULL, `card_tag` TEXT NOT NULL, `deck_id` INTEGER NOT NULL, `card_state` TEXT NOT NULL DEFAULT 'NEW', `ease_factor` REAL NOT NULL DEFAULT 2.5, `interval` REAL NOT NULL DEFAULT 0, `learning_step` INTEGER NOT NULL DEFAULT 0, `next_review_date` INTEGER, `repetition_count` INTEGER NOT NULL DEFAULT 0, `lapse_count` INTEGER NOT NULL DEFAULT 0, `first_review_date` INTEGER, `last_review_date` INTEGER, `card_hint` TEXT, `media_path` TEXT, FOREIGN KEY(`deck_id`) REFERENCES `deck`(`deck_id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "cardId",
@@ -143,18 +149,13 @@
             "affinity": "INTEGER"
           },
           {
-            "fieldPath": "cardImagePath",
-            "columnName": "card_image_path",
+            "fieldPath": "cardHint",
+            "columnName": "card_hint",
             "affinity": "TEXT"
           },
           {
-            "fieldPath": "cardQuestionAudioPath",
-            "columnName": "card_question_audio_path",
-            "affinity": "TEXT"
-          },
-          {
-            "fieldPath": "cardAnswerAudioPath",
-            "columnName": "card_answer_audio_path",
+            "fieldPath": "mediaPath",
+            "columnName": "media_path",
             "affinity": "TEXT"
           }
         ],
@@ -166,23 +167,14 @@
         },
         "indices": [
           {
-            "name": "index_card_card_name_card_question",
+            "name": "index_card_deck_id_card_question",
             "unique": true,
             "columnNames": [
-              "card_name",
+              "deck_id",
               "card_question"
             ],
             "orders": [],
-            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_card_card_name_card_question` ON `${TABLE_NAME}` (`card_name`, `card_question`)"
-          },
-          {
-            "name": "index_card_deck_id",
-            "unique": false,
-            "columnNames": [
-              "deck_id"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_card_deck_id` ON `${TABLE_NAME}` (`deck_id`)"
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_card_deck_id_card_question` ON `${TABLE_NAME}` (`deck_id`, `card_question`)"
           },
           {
             "name": "index_card_card_state",
@@ -229,7 +221,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a18f0563f31f784518165e015f8e5982')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '5b530f11f0b77a3ed7d8c23a99199266')"
     ]
   }
 }

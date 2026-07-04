@@ -43,6 +43,8 @@ object Mappers {
             lapseCount = lapseCount,
             firstReviewDate = firstReviewDate,
             lastReviewDate = lastReviewDate,
+            cardHint = hint,
+            mediaPath = mediaPath,
         )
 
     fun CardEntity.toDomain(): Card =
@@ -63,6 +65,8 @@ object Mappers {
             lapseCount = lapseCount,
             firstReviewDate = firstReviewDate,
             lastReviewDate = lastReviewDate,
+            hint = cardHint,
+            mediaPath = mediaPath,
         )
 
     fun CardWithDeckEntity.toDomain(): CardWithDeck =

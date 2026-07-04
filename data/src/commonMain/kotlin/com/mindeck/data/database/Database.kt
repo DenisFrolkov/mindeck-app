@@ -15,7 +15,7 @@ import kotlinx.coroutines.Dispatchers
 
 @Database(
     entities = [DeckEntity::class, CardEntity::class],
-    version = 6,
+    version = 7,
     exportSchema = true,
 )
 @TypeConverters(TypeConverter::class)

@@ -19,7 +19,7 @@ sealed interface HomeUiState {
 }
 
 val HomeUiState.showsAddFab: Boolean
-    get() = this !is HomeUiState.Empty
+    get() = this is HomeUiState.Content
 
 sealed interface HomeIntent {
     data object Retry : HomeIntent

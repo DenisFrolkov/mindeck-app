@@ -5,5 +5,5 @@ import org.koin.dsl.module
 
 val cardModule =
     module {
-        factory { CreateCardViewModel(get(), get()) }
+        factory { CreateCardViewModel(get(), get(), get(), get(), get()) }
     }

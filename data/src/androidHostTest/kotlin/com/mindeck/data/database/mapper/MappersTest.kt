@@ -23,6 +23,7 @@ class MappersTest {
         DeckEntity(
             deckId = 0,
             deckName = "Deck 1",
+            deckColor = "BLUE",
         )
 
     private val card =

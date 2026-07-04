@@ -8,4 +8,7 @@
     <string name="create_deck_color_label">COVER COLOR</string>
     <string name="create_deck_action_cancel">Cancel</string>
     <string name="create_deck_action_create">Create</string>
+    <string name="file_size_unit_bytes">B</string>
+    <string name="file_size_unit_kb">KB</string>
+    <string name="file_size_unit_mb">MB</string>
 </resources>

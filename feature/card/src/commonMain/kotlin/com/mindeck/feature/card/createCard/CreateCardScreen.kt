@@ -20,10 +20,10 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
@@ -37,14 +37,15 @@ import com.mindeck.core.ui.spacer.VerticalSpacer
 import com.mindeck.core.ui.theme.MindeckTheme
 import com.mindeck.domain.models.DeckColor
 import com.mindeck.feature.card.components.AnswerBlock
-import com.mindeck.feature.card.components.AudioPick
+import com.mindeck.feature.card.components.CameraCaptureScreen
 import com.mindeck.feature.card.components.CardTypeSection
 import com.mindeck.feature.card.components.DeckSection
 import com.mindeck.feature.card.components.HintBlock
 import com.mindeck.feature.card.components.MediaPickerSheet
 import com.mindeck.feature.card.components.PhotoPick
 import com.mindeck.feature.card.components.QuestionBlock
-import com.mindeck.feature.card.components.TextFormattingToolbar
+import com.mindeck.feature.card.components.cameraCaptureImage
+import com.mindeck.feature.card.components.rememberImagePickers
 import com.mindeck.feature.card.model.CardTextFieldState
 import com.mindeck.feature.card.model.CardTypeFieldState
 import com.mindeck.feature.card.model.DeckFieldState
@@ -60,6 +61,11 @@ import mindeck_app.feature.card.generated.resources.create_card_action_submit
 import mindeck_app.feature.card.generated.resources.create_card_created
 import mindeck_app.feature.card.generated.resources.create_card_deck_create_failed
 import mindeck_app.feature.card.generated.resources.create_card_deck_name_taken
+import mindeck_app.feature.card.generated.resources.create_card_duplicate
+import mindeck_app.feature.card.generated.resources.create_card_image_attach_failed
+import mindeck_app.feature.card.generated.resources.create_card_image_download_failed
+import mindeck_app.feature.card.generated.resources.create_card_open
+import mindeck_app.feature.card.generated.resources.create_card_save_failed
 import mindeck_app.feature.card.generated.resources.create_card_title
 import org.jetbrains.compose.resources.stringResource
 import mindeck_app.feature.card.generated.resources.Res as CreateCardRes
@@ -75,20 +81,49 @@ fun CreateCardScreen(
     modifier: Modifier = Modifier,
 ) {
     val cardCreatedMessage = stringResource(CreateCardRes.string.create_card_created)
+    val openCardLabel = stringResource(CreateCardRes.string.create_card_open)
     val deckNameTakenMessage = stringResource(CreateCardRes.string.create_card_deck_name_taken)
     val deckCreateFailedMessage = stringResource(CreateCardRes.string.create_card_deck_create_failed)
+    val imageDownloadFailedMessage = stringResource(CreateCardRes.string.create_card_image_download_failed)
+    val imageAttachFailedMessage = stringResource(CreateCardRes.string.create_card_image_attach_failed)
+    val duplicateCardMessage = stringResource(CreateCardRes.string.create_card_duplicate)
+    val saveFailedMessage = stringResource(CreateCardRes.string.create_card_save_failed)
     ObserveEffects(effects) { effect ->
-        val message =
-            when (effect) {
-                CreateCardEffect.CardCreated -> cardCreatedMessage
-                is CreateCardEffect.CreationFailed ->
+        when (effect) {
+            CreateCardEffect.CardCreated -> {
+                val result =
+                    snackbarHostState.showSnackbar(
+                        message = cardCreatedMessage,
+                        actionLabel = openCardLabel,
+                        duration = SnackbarDuration.Short,
+                    )
+                if (result == SnackbarResult.ActionPerformed) {
+                    // TODO: navigate to the card details screen once it exists (onNavigate(...)).
+                }
+            }
+
+            is CreateCardEffect.CreationFailed -> {
+                val message =
                     when (effect.reason) {
                         CreateCardError.DeckNameTaken -> deckNameTakenMessage
+                        CreateCardError.ImageDownloadFailed -> imageDownloadFailedMessage
+                        CreateCardError.ImageAttachFailed -> imageAttachFailedMessage
+                        CreateCardError.DuplicateCard -> duplicateCardMessage
+                        CreateCardError.SaveFailed -> saveFailedMessage
                         CreateCardError.Unknown -> deckCreateFailedMessage
                     }
+                snackbarHostState.showSnackbar(message)
             }
-        snackbarHostState.showSnackbar(message)
+        }
     }
+
+    val imagePickers =
+        rememberImagePickers(
+            onPickStart = { onIntent(CreateCardIntent.BeginImagePick) },
+            onPicked = { onIntent(CreateCardIntent.AttachImage(it)) },
+            onPickFailed = { onIntent(CreateCardIntent.FailImagePick) },
+            onShowCamera = { onIntent(CreateCardIntent.ShowCamera) },
+        )
 
     val actionBarHeight =
         MindeckTheme.dimensions.touchTarget + MindeckTheme.dimensions.spacingMd * 2
@@ -143,10 +178,10 @@ fun CreateCardScreen(
                     ),
                 media =
                     MediaFieldState(
-                        selectedAudio = state.selectedAudio,
+                        image = state.draftImage,
+                        isImageLoading = state.isProcessingImage,
                         onAddPhoto = { onIntent(CreateCardIntent.ShowAddPhotoSheet) },
-                        onAddAudio = { onIntent(CreateCardIntent.ShowAddAudioSheet) },
-                        onRemoveAudio = { onIntent(CreateCardIntent.RemoveAudio) },
+                        onRemoveImage = { onIntent(CreateCardIntent.RemoveImage) },
                     ),
                 bottomInset = actionBarHeight,
                 modifier = Modifier.weight(1f),
@@ -185,8 +220,24 @@ fun CreateCardScreen(
                         onConfirm = { onIntent(CreateCardIntent.ConfirmLink) },
                     ),
                 onDismiss = { onIntent(CreateCardIntent.DismissSheet) },
-                onPickPhotoSource = { onIntent(CreateCardIntent.PickPhotoSource(it)) },
-                onPickAudioSource = { onIntent(CreateCardIntent.PickAudioSource(it)) },
+                onPickPhotoSource = { source ->
+                    onIntent(CreateCardIntent.DismissSheet)
+                    imagePickers.launch(source)
+                },
+            )
+        }
+
+        if (state.isCameraVisible) {
+            CameraCaptureScreen(
+                onCaptured = { bytes ->
+                    onIntent(CreateCardIntent.DismissCamera)
+                    onIntent(CreateCardIntent.AttachImage(cameraCaptureImage(bytes)))
+                },
+                onFailed = {
+                    onIntent(CreateCardIntent.DismissCamera)
+                    onIntent(CreateCardIntent.FailImagePick)
+                },
+                onDismiss = { onIntent(CreateCardIntent.DismissCamera) },
             )
         }
     }
@@ -217,7 +268,12 @@ private fun CreateCardForm(
             selectedType = type.selectedType,
             onSelectType = type.onSelectType,
         )
-        PhotoPick(onClick = media.onAddPhoto)
+        PhotoPick(
+            image = media.image,
+            isLoading = media.isImageLoading,
+            onClick = media.onAddPhoto,
+            onRemove = media.onRemoveImage,
+        )
         QuestionBlock(
             value = text.question,
             onValueChange = text.onQuestionChange,
@@ -226,15 +282,10 @@ private fun CreateCardForm(
             value = text.answer,
             onValueChange = text.onAnswerChange,
         )
-        TextFormattingToolbar(
-            active = text.activeFormats,
-            onToggle = text.onToggleFormat,
-        )
-        AudioPick(
-            selectedAudio = media.selectedAudio,
-            onPickFile = media.onAddAudio,
-            onRemoveAudio = media.onRemoveAudio,
-        )
+//        TextFormattingToolbar(
+//            active = text.activeFormats,
+//            onToggle = text.onToggleFormat,
+//        )
         HintBlock(
             value = text.hint,
             onValueChange = text.onHintChange,

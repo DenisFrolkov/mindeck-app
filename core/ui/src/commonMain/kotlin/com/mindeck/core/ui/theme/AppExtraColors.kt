@@ -19,6 +19,7 @@ val LightExtraColors =
         ratingGoodOn = rating_good_on_light,
         ratingEasyBackground = rating_easy_background_light,
         ratingEasyOn = rating_easy_on_light,
+        onScrim = on_scrim,
     )
 
 val DarkExtraColors =
@@ -31,6 +32,7 @@ val DarkExtraColors =
         ratingGoodOn = rating_good_on_dark,
         ratingEasyBackground = rating_easy_background_dark,
         ratingEasyOn = rating_easy_on_dark,
+        onScrim = on_scrim,
     )
 
 @Immutable
@@ -43,4 +45,5 @@ data class AppExtraColors(
     val ratingGoodOn: Color,
     val ratingEasyBackground: Color,
     val ratingEasyOn: Color,
+    val onScrim: Color,
 )

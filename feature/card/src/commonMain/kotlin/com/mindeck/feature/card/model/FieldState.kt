@@ -26,10 +26,10 @@ data class CardTextFieldState(
 )
 
 data class MediaFieldState(
-    val selectedAudio: String?,
+    val image: DraftImage?,
+    val isImageLoading: Boolean,
     val onAddPhoto: () -> Unit,
-    val onAddAudio: () -> Unit,
-    val onRemoveAudio: () -> Unit,
+    val onRemoveImage: () -> Unit,
 )
 
 data class LinkFieldState(

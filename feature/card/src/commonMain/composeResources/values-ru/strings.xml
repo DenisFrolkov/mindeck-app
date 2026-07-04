@@ -6,6 +6,9 @@
     <string name="create_card_action_cancel">Отмена</string>
     <string name="create_card_action_submit">Создать карточку</string>
     <string name="create_card_created">Карточка создана</string>
+    <string name="create_card_open">Открыть</string>
+    <string name="create_card_duplicate">Карточка с таким вопросом уже есть в колоде</string>
+    <string name="create_card_save_failed">Не удалось сохранить карточку</string>
     <string name="create_card_section_deck">КОЛОДА</string>
     <string name="create_card_deck_pick">Выберите колоду</string>
     <string name="create_card_deck_empty">Колод пока нет</string>
@@ -22,6 +25,10 @@
     <string name="create_card_type_complex">Сложная</string>
     <string name="create_card_photo_title">Нажмите, чтобы добавить фото</string>
     <string name="create_card_photo_hint">или перетащите из галереи · JPEG, PNG · до 5 МБ</string>
+    <string name="create_card_image_preview">Изображение карточки</string>
+    <string name="create_card_image_remove">Удалить изображение</string>
+    <string name="create_card_image_download_failed">Не удалось загрузить изображение</string>
+    <string name="create_card_image_attach_failed">Не удалось добавить изображение</string>
     <string name="create_card_question_placeholder">Что хотите запомнить?</string>
     <string name="create_card_section_hint">ПРИМЕР / ПОДСКАЗКА (НЕОБЯЗАТЕЛЬНО)</string>
     <string name="create_card_hint_placeholder">Контекст или мнемоника</string>
@@ -31,11 +38,6 @@
     <string name="create_card_format_strikethrough">Зачёркнутый</string>
     <string name="create_card_format_bullet_list">Маркированный список</string>
     <string name="create_card_format_numbered_list">Нумерованный список</string>
-    <string name="create_card_audio_speak">Озвучить ответ</string>
-    <string name="create_card_audio_record">Записать аудио</string>
-    <string name="create_card_audio_upload">Загрузить аудиофайл</string>
-    <string name="create_card_audio_remove">Удалить аудио</string>
-    <string name="create_card_audio_play">Воспроизвести</string>
     <string name="create_card_photo_sheet_title">Добавить фото</string>
     <string name="create_card_photo_sheet_description">Выберите, откуда взять изображение для карточки</string>
     <string name="create_card_photo_source_camera_title">Сделать фото</string>
@@ -47,15 +49,7 @@
     <string name="create_card_photo_link_label">ИЛИ ВСТАВЬТЕ ССЫЛКУ</string>
     <string name="create_card_photo_link_placeholder">https://example.com/image.jpg</string>
     <string name="create_card_photo_link_confirm">Вставить</string>
-    <string name="create_card_audio_sheet_title">Добавить аудио</string>
-    <string name="create_card_audio_sheet_description">Озвучьте карточку голосом или подгрузите файл</string>
-    <string name="create_card_audio_source_record_title">Записать сейчас</string>
-    <string name="create_card_audio_source_record_subtitle">Использовать микрофон</string>
-    <string name="create_card_audio_source_files_title">Из файлов</string>
-    <string name="create_card_audio_source_files_subtitle">MP3, M4A, WAV · до 10 МБ</string>
-    <string name="create_card_audio_source_tts_title">Произношение TTS</string>
-    <string name="create_card_audio_source_tts_subtitle">Синтез из текста ответа</string>
-    <string name="create_card_audio_link_label">ИЛИ ВСТАВЬТЕ ССЫЛКУ</string>
-    <string name="create_card_audio_link_placeholder">https://example.com/audio.mp3</string>
-    <string name="create_card_audio_link_confirm">Вставить</string>
+    <string name="create_card_camera_capture">Сделать фото</string>
+    <string name="create_card_camera_close">Закрыть камеру</string>
+    <string name="create_card_camera_permission_denied">Для съёмки фото нужен доступ к камере. Включите его в настройках системы.</string>
 </resources>

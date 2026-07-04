@@ -67,12 +67,18 @@ kotlin {
 
                 // KotlinX
                 implementation(libs.kotlinx.datetime)
+
+                // Media
+                implementation(libs.filekit.dialogs)
+                implementation(libs.filekit.dialogs.compose)
+                implementation(libs.peekaboo.ui)
             }
         }
         androidMain {
             dependencies {
                 implementation(libs.compose.ui.preview)
                 implementation(libs.koin.compose.viewmodel)
+                implementation(libs.androidx.activity.compose)
             }
         }
     }
