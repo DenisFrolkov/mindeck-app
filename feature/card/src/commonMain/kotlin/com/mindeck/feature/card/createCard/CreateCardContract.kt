@@ -114,6 +114,8 @@ enum class CreateCardError {
     DeckNameTaken,
     ImageDownloadFailed,
     ImageAttachFailed,
+    DuplicateCard,
+    SaveFailed,
     Unknown,
 }
 

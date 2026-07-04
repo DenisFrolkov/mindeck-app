@@ -20,7 +20,9 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,7 +44,6 @@ import com.mindeck.feature.card.components.HintBlock
 import com.mindeck.feature.card.components.MediaPickerSheet
 import com.mindeck.feature.card.components.PhotoPick
 import com.mindeck.feature.card.components.QuestionBlock
-import com.mindeck.feature.card.components.TextFormattingToolbar
 import com.mindeck.feature.card.components.cameraCaptureImage
 import com.mindeck.feature.card.components.rememberImagePickers
 import com.mindeck.feature.card.model.CardTextFieldState
@@ -60,8 +61,11 @@ import mindeck_app.feature.card.generated.resources.create_card_action_submit
 import mindeck_app.feature.card.generated.resources.create_card_created
 import mindeck_app.feature.card.generated.resources.create_card_deck_create_failed
 import mindeck_app.feature.card.generated.resources.create_card_deck_name_taken
+import mindeck_app.feature.card.generated.resources.create_card_duplicate
 import mindeck_app.feature.card.generated.resources.create_card_image_attach_failed
 import mindeck_app.feature.card.generated.resources.create_card_image_download_failed
+import mindeck_app.feature.card.generated.resources.create_card_open
+import mindeck_app.feature.card.generated.resources.create_card_save_failed
 import mindeck_app.feature.card.generated.resources.create_card_title
 import org.jetbrains.compose.resources.stringResource
 import mindeck_app.feature.card.generated.resources.Res as CreateCardRes
@@ -77,23 +81,40 @@ fun CreateCardScreen(
     modifier: Modifier = Modifier,
 ) {
     val cardCreatedMessage = stringResource(CreateCardRes.string.create_card_created)
+    val openCardLabel = stringResource(CreateCardRes.string.create_card_open)
     val deckNameTakenMessage = stringResource(CreateCardRes.string.create_card_deck_name_taken)
     val deckCreateFailedMessage = stringResource(CreateCardRes.string.create_card_deck_create_failed)
     val imageDownloadFailedMessage = stringResource(CreateCardRes.string.create_card_image_download_failed)
     val imageAttachFailedMessage = stringResource(CreateCardRes.string.create_card_image_attach_failed)
+    val duplicateCardMessage = stringResource(CreateCardRes.string.create_card_duplicate)
+    val saveFailedMessage = stringResource(CreateCardRes.string.create_card_save_failed)
     ObserveEffects(effects) { effect ->
-        val message =
-            when (effect) {
-                CreateCardEffect.CardCreated -> cardCreatedMessage
-                is CreateCardEffect.CreationFailed ->
+        when (effect) {
+            CreateCardEffect.CardCreated -> {
+                val result =
+                    snackbarHostState.showSnackbar(
+                        message = cardCreatedMessage,
+                        actionLabel = openCardLabel,
+                        duration = SnackbarDuration.Short,
+                    )
+                if (result == SnackbarResult.ActionPerformed) {
+                    // TODO: navigate to the card details screen once it exists (onNavigate(...)).
+                }
+            }
+
+            is CreateCardEffect.CreationFailed -> {
+                val message =
                     when (effect.reason) {
                         CreateCardError.DeckNameTaken -> deckNameTakenMessage
                         CreateCardError.ImageDownloadFailed -> imageDownloadFailedMessage
                         CreateCardError.ImageAttachFailed -> imageAttachFailedMessage
+                        CreateCardError.DuplicateCard -> duplicateCardMessage
+                        CreateCardError.SaveFailed -> saveFailedMessage
                         CreateCardError.Unknown -> deckCreateFailedMessage
                     }
+                snackbarHostState.showSnackbar(message)
             }
-        snackbarHostState.showSnackbar(message)
+        }
     }
 
     val imagePickers =
@@ -261,10 +282,10 @@ private fun CreateCardForm(
             value = text.answer,
             onValueChange = text.onAnswerChange,
         )
-        TextFormattingToolbar(
-            active = text.activeFormats,
-            onToggle = text.onToggleFormat,
-        )
+//        TextFormattingToolbar(
+//            active = text.activeFormats,
+//            onToggle = text.onToggleFormat,
+//        )
         HintBlock(
             value = text.hint,
             onValueChange = text.onHintChange,

@@ -2,11 +2,14 @@ package com.mindeck.feature.card.createCard
 
 import com.mindeck.core.mvi.BaseViewModel
 import com.mindeck.domain.exception.DomainError
+import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.Deck
 import com.mindeck.domain.models.DeckColor
+import com.mindeck.domain.usecases.card.command.CreateCardUseCase
 import com.mindeck.domain.usecases.deck.command.CreateDeckUseCase
 import com.mindeck.domain.usecases.deck.query.GetAllDecksUseCase
 import com.mindeck.domain.usecases.media.DownloadImageUseCase
+import com.mindeck.domain.usecases.media.SaveImageUseCase
 import com.mindeck.feature.card.model.DraftImage
 import com.mindeck.feature.card.model.MediaSheet
 import kotlinx.coroutines.flow.catch
@@ -18,6 +21,8 @@ class CreateCardViewModel(
     private val getAllDecksUseCase: GetAllDecksUseCase,
     private val createDeckUseCase: CreateDeckUseCase,
     private val downloadImageUseCase: DownloadImageUseCase,
+    private val saveImageUseCase: SaveImageUseCase,
+    private val createCardUseCase: CreateCardUseCase,
 ) : BaseViewModel<CreateCardState, CreateCardIntent, CreateCardEffect>(CreateCardState()) {
     override fun accept(intent: CreateCardIntent) {
         when (intent) {
@@ -166,16 +171,46 @@ class CreateCardViewModel(
 
     private fun submit() {
         if (!currentState.canSubmit) return
-        updateState {
-            it.copy(
-                isSubmitting = false,
-                question = "",
-                answer = "",
-                hint = null,
-                activeFormats = emptySet(),
-                draftImage = null,
-            )
+        val deckId = currentState.pickedDeck?.id ?: return
+        updateState { it.copy(isSubmitting = true) }
+        viewModelScope.launch {
+            val mediaPath =
+                try {
+                    currentState.draftImage?.let { saveImageUseCase(it.bytes) }
+                } catch (e: DomainError) {
+                    updateState { it.copy(isSubmitting = false) }
+                    sendEffect(CreateCardEffect.CreationFailed(CreateCardError.ImageAttachFailed))
+                    return@launch
+                }
+            try {
+                createCardUseCase(
+                    Card(
+                        cardQuestion = currentState.question.trim(),
+                        cardAnswer = currentState.answer.trim(),
+                        cardType = currentState.selectedType.toDomain(),
+                        deckId = deckId,
+                        hint = currentState.hint,
+                        mediaPath = mediaPath,
+                    ),
+                )
+                updateState {
+                    it.copy(
+                        isSubmitting = false,
+                        question = "",
+                        answer = "",
+                        hint = null,
+                        activeFormats = emptySet(),
+                        draftImage = null,
+                    )
+                }
+                sendEffect(CreateCardEffect.CardCreated)
+            } catch (e: DomainError.NameAlreadyExists) {
+                updateState { it.copy(isSubmitting = false) }
+                sendEffect(CreateCardEffect.CreationFailed(CreateCardError.DuplicateCard))
+            } catch (e: DomainError) {
+                updateState { it.copy(isSubmitting = false) }
+                sendEffect(CreateCardEffect.CreationFailed(CreateCardError.SaveFailed))
+            }
         }
-        sendEffect(CreateCardEffect.CardCreated)
     }
 }

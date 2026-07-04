@@ -94,7 +94,7 @@ class DeckRepositoryImplTest {
     @Test
     fun `getAllDecks emits mapped domain list from dao`() =
         runTest {
-            val deckEntity = DeckEntity(deckId = 1, deckName = "Deck 1")
+            val deckEntity = DeckEntity(deckId = 1, deckName = "Deck 1", deckColor = "BLUE")
             every { deckDao.getAllDecks() } returns flowOf(listOf(deckEntity))
 
             repository.getAllDecks().test {
@@ -118,7 +118,7 @@ class DeckRepositoryImplTest {
     @Test
     fun `getDeckById emits mapped deck when dao returns entity`() =
         runTest {
-            val deckEntity = DeckEntity(deckId = 1, deckName = "Deck 1")
+            val deckEntity = DeckEntity(deckId = 1, deckName = "Deck 1", deckColor = "BLUE")
             every {
                 deckDao.getDeckById(any())
             } returns flowOf(deckEntity)

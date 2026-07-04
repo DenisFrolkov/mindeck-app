@@ -31,6 +31,7 @@ kotlin {
                 implementation(libs.androidx.room.runtime)
                 implementation(libs.androidx.sqlite.bundled)
                 implementation(libs.ktor.client.core)
+                implementation(libs.filekit.core)
             }
         }
 

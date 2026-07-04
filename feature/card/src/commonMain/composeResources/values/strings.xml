@@ -6,6 +6,9 @@
     <string name="create_card_action_cancel">Cancel</string>
     <string name="create_card_action_submit">Create card</string>
     <string name="create_card_created">Card created</string>
+    <string name="create_card_open">Open</string>
+    <string name="create_card_duplicate">A card with this question already exists in the deck</string>
+    <string name="create_card_save_failed">Could not save the card</string>
     <string name="create_card_section_deck">DECK</string>
     <string name="create_card_deck_pick">Choose a deck</string>
     <string name="create_card_deck_empty">No decks yet</string>

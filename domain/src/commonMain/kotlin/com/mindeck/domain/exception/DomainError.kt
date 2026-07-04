@@ -6,4 +6,6 @@ sealed class DomainError : Exception() {
     class NameAlreadyExists : DomainError()
 
     class NetworkError : DomainError()
+
+    class StorageError : DomainError()
 }

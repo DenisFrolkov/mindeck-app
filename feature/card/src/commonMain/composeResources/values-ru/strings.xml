@@ -6,6 +6,9 @@
     <string name="create_card_action_cancel">Отмена</string>
     <string name="create_card_action_submit">Создать карточку</string>
     <string name="create_card_created">Карточка создана</string>
+    <string name="create_card_open">Открыть</string>
+    <string name="create_card_duplicate">Карточка с таким вопросом уже есть в колоде</string>
+    <string name="create_card_save_failed">Не удалось сохранить карточку</string>
     <string name="create_card_section_deck">КОЛОДА</string>
     <string name="create_card_deck_pick">Выберите колоду</string>
     <string name="create_card_deck_empty">Колод пока нет</string>

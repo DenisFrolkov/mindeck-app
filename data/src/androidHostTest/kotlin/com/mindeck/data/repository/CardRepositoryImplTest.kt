@@ -155,7 +155,7 @@ class CardRepositoryImplTest {
             val cardWithDeckEntity =
                 CardWithDeckEntity(
                     card = card.toEntity(),
-                    deck = DeckEntity(deckId = 1, deckName = "Deck 1"),
+                    deck = DeckEntity(deckId = 1, deckName = "Deck 1", deckColor = "BLUE"),
                 )
 
             every { cardDao.getCardWithDeckById(any()) } returns flowOf(cardWithDeckEntity)
