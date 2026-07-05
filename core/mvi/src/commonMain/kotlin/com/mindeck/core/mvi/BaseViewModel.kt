@@ -1,5 +1,6 @@
 package com.mindeck.core.mvi
 
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -16,7 +17,11 @@ import kotlinx.coroutines.launch
 abstract class BaseViewModel<State, Intent, Effect>(
     initialState: State,
 ) : Store<State, Intent, Effect> {
-    protected val viewModelScope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+
+    val handler = CoroutineExceptionHandler { _, exception ->
+        println("[BaseViewModel] Unhandled exception in viewModelScope: ${exception.stackTraceToString()}")
+    }
+    protected val viewModelScope: CoroutineScope = CoroutineScope(handler + SupervisorJob() + Dispatchers.Main)
 
     private val _state = MutableStateFlow(initialState)
     override val state: StateFlow<State> = _state.asStateFlow()
