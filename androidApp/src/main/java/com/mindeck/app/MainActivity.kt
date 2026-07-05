@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.arkivanov.decompose.DefaultComponentContext
+import com.arkivanov.decompose.defaultComponentContext
 import com.mindeck.app.navigation.Navigation
 import com.mindeck.app.navigation.RootComponent
 
@@ -15,11 +15,7 @@ class MainActivity : ComponentActivity() {
 
         val rootComponent =
             RootComponent(
-                componentContext =
-                    DefaultComponentContext(
-                        lifecycle = lifecycle,
-                        onBackPressedDispatcher = onBackPressedDispatcher,
-                    ),
+                componentContext = defaultComponentContext(),
             )
         setContent {
             Navigation(rootComponent)
