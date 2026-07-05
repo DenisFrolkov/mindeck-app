@@ -1,12 +1,11 @@
 package com.mindeck.app.navigation
 
 import com.arkivanov.decompose.ComponentContext
-import com.arkivanov.decompose.DelicateDecomposeApi
 import com.arkivanov.decompose.router.stack.ChildStack
 import com.arkivanov.decompose.router.stack.StackNavigation
 import com.arkivanov.decompose.router.stack.childStack
 import com.arkivanov.decompose.router.stack.pop
-import com.arkivanov.decompose.router.stack.push
+import com.arkivanov.decompose.router.stack.pushNew
 import com.arkivanov.decompose.value.Value
 import com.arkivanov.essenty.lifecycle.doOnDestroy
 import com.mindeck.feature.card.createCard.CreateCardViewModel
@@ -29,8 +28,7 @@ class RootComponent(
             childFactory = ::createChild,
         )
 
-    @OptIn(DelicateDecomposeApi::class)
-    fun push(config: Config) = navigation.push(config)
+    fun push(config: Config) = navigation.pushNew(config)
 
     fun pop() = navigation.pop()
 
