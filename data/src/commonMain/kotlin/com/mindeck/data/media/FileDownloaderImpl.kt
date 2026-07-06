@@ -10,12 +10,14 @@ import kotlinx.coroutines.CancellationException
 class FileDownloaderImpl(
     private val client: HttpClient,
 ) : FileDownloader {
-    override suspend fun download(url: String): ByteArray =
-        try {
+    override suspend fun download(url: String): ByteArray {
+        if (!UrlValidator.isSafe(url)) throw DomainError.NetworkError()
+        return try {
             client.get(url).body()
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
             throw DomainError.NetworkError()
         }
+    }
 }
