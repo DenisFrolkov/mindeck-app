@@ -197,6 +197,7 @@ fun CreateCardScreen(
             CreateCardActionBar(
                 onCancel = { onNavigate(CreateCardNavigationEvent.Back) },
                 onCreateCard = { onIntent(CreateCardIntent.Submit) },
+                isProcessingImage = state.isProcessingImage,
             )
         }
 
@@ -298,6 +299,7 @@ private fun CreateCardForm(
 private fun CreateCardActionBar(
     onCancel: () -> Unit,
     onCreateCard: () -> Unit,
+    isProcessingImage: Boolean,
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -326,6 +328,7 @@ private fun CreateCardActionBar(
 
         AppButton(
             onAction = onCreateCard,
+            enabled = !isProcessingImage,
             buttonText = stringResource(CreateCardRes.string.create_card_action_submit),
             modifier = Modifier.weight(0.75f),
             buttonIcon = Res.drawable.check_icon,

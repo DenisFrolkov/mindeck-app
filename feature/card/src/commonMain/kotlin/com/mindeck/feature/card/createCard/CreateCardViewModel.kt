@@ -171,7 +171,7 @@ class CreateCardViewModel(
     private fun closeSheet() = updateState { it.copy(activeSheet = null, linkDraft = "") }
 
     private fun submit() {
-        if (!currentState.canSubmit) return
+        if (!currentState.canSubmit || currentState.isProcessingImage) return
         val deckId = currentState.pickedDeck?.id ?: return
         updateState { it.copy(isSubmitting = true) }
         viewModelScope.launch {

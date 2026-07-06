@@ -33,6 +33,7 @@ fun appButtonColors(
 fun AppButton(
     onAction: () -> Unit,
     buttonText: String,
+    enabled: Boolean = true,
     modifier: Modifier = Modifier,
     buttonIcon: DrawableResource? = null,
     colors: AppButtonColors = appButtonColors(),
@@ -41,7 +42,11 @@ fun AppButton(
     Button(
         onClick = onAction,
         shape = shape,
-        colors = ButtonDefaults.buttonColors(containerColor = colors.container),
+        enabled = enabled,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = colors.container,
+            contentColor = colors.content,
+        ),
         contentPadding =
             PaddingValues(
                 horizontal = MindeckTheme.dimensions.spacingLg,
@@ -53,14 +58,12 @@ fun AppButton(
             Icon(
                 painter = painterResource(it),
                 contentDescription = null,
-                tint = colors.content,
                 modifier = Modifier.size(MindeckTheme.dimensions.iconSm),
             )
             HorizontalSpacer(MindeckTheme.dimensions.spacingSm)
         }
         Text(
             text = buttonText,
-            color = colors.content,
             style = MaterialTheme.typography.titleMedium,
         )
     }
