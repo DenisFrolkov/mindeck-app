@@ -17,10 +17,10 @@ import kotlinx.coroutines.launch
 abstract class BaseViewModel<State, Intent, Effect>(
     initialState: State,
 ) : Store<State, Intent, Effect> {
-
-    val handler = CoroutineExceptionHandler { _, exception ->
-        println("[BaseViewModel] Unhandled exception in viewModelScope: ${exception.stackTraceToString()}")
-    }
+    val handler =
+        CoroutineExceptionHandler { _, exception ->
+            println("[BaseViewModel] Unhandled exception in viewModelScope: ${exception.stackTraceToString()}")
+        }
     protected val viewModelScope: CoroutineScope = CoroutineScope(handler + SupervisorJob() + Dispatchers.Main)
 
     private val _state = MutableStateFlow(initialState)

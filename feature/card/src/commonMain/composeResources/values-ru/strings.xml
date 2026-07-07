@@ -27,6 +27,7 @@
     <string name="create_card_photo_hint">или перетащите из галереи · JPEG, PNG · до 5 МБ</string>
     <string name="create_card_image_preview">Изображение карточки</string>
     <string name="create_card_image_remove">Удалить изображение</string>
+    <string name="create_card_image_cancel_load">Отменить загрузку</string>
     <string name="create_card_image_download_failed">Не удалось загрузить изображение</string>
     <string name="create_card_image_attach_failed">Не удалось добавить изображение</string>
     <string name="create_card_question_placeholder">Что хотите запомнить?</string>

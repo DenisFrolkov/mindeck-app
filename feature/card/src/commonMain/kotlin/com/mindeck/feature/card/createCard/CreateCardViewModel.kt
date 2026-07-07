@@ -12,6 +12,7 @@ import com.mindeck.domain.usecases.media.DownloadImageUseCase
 import com.mindeck.domain.usecases.media.SaveImageUseCase
 import com.mindeck.feature.card.model.DraftImage
 import com.mindeck.feature.card.model.MediaSheet
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -25,6 +26,8 @@ class CreateCardViewModel(
     private val createCardUseCase: CreateCardUseCase,
     initialState: CreateCardState = CreateCardState(),
 ) : BaseViewModel<CreateCardState, CreateCardIntent, CreateCardEffect>(initialState) {
+    private var downloadImageJob: Job? = null
+
     override fun accept(intent: CreateCardIntent) {
         when (intent) {
             CreateCardIntent.ClearDeck ->
@@ -74,6 +77,11 @@ class CreateCardViewModel(
 
             CreateCardIntent.RemoveImage ->
                 updateState { it.copy(draftImage = null) }
+
+            CreateCardIntent.CancelLoadImage -> {
+                updateState { it.copy(isProcessingImage = false) }
+                downloadImageJob?.cancel()
+            }
 
             CreateCardIntent.ShowAddPhotoSheet ->
                 updateState { it.copy(activeSheet = MediaSheet.PHOTO) }
@@ -150,17 +158,18 @@ class CreateCardViewModel(
 
     private fun downloadImage(url: String) {
         updateState { it.copy(isProcessingImage = true) }
-        viewModelScope.launch {
-            try {
-                val bytes = downloadImageUseCase(url)
-                updateState {
-                    it.copy(draftImage = DraftImage(url = url, bytes = bytes), isProcessingImage = false)
+        downloadImageJob =
+            viewModelScope.launch {
+                try {
+                    val bytes = downloadImageUseCase(url)
+                    updateState {
+                        it.copy(draftImage = DraftImage(url = url, bytes = bytes), isProcessingImage = false)
+                    }
+                } catch (e: DomainError) {
+                    updateState { it.copy(isProcessingImage = false) }
+                    sendEffect(CreateCardEffect.CreationFailed(CreateCardError.ImageDownloadFailed))
                 }
-            } catch (e: DomainError) {
-                updateState { it.copy(isProcessingImage = false) }
-                sendEffect(CreateCardEffect.CreationFailed(CreateCardError.ImageDownloadFailed))
             }
-        }
     }
 
     private fun failImagePick() {
@@ -171,7 +180,7 @@ class CreateCardViewModel(
     private fun closeSheet() = updateState { it.copy(activeSheet = null, linkDraft = "") }
 
     private fun submit() {
-        if (!currentState.canSubmit) return
+        if (!currentState.canSubmit || currentState.isProcessingImage) return
         val deckId = currentState.pickedDeck?.id ?: return
         updateState { it.copy(isSubmitting = true) }
         viewModelScope.launch {

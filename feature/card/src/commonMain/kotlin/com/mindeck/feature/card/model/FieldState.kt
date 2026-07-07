@@ -30,6 +30,7 @@ data class MediaFieldState(
     val isImageLoading: Boolean,
     val onAddPhoto: () -> Unit,
     val onRemoveImage: () -> Unit,
+    val onCancelLoad: () -> Unit,
 )
 
 data class LinkFieldState(

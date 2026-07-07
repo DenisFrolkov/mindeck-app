@@ -27,6 +27,7 @@
     <string name="create_card_photo_hint">or drag from gallery · JPEG, PNG · up to 5 MB</string>
     <string name="create_card_image_preview">Card image</string>
     <string name="create_card_image_remove">Remove image</string>
+    <string name="create_card_image_cancel_load">Cancel loading</string>
     <string name="create_card_image_download_failed">Could not download the image</string>
     <string name="create_card_image_attach_failed">Could not add the image</string>
     <string name="create_card_question_placeholder">What do you want to remember?</string>
