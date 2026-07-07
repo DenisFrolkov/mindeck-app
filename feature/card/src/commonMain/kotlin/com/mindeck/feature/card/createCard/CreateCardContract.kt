@@ -69,6 +69,8 @@ sealed interface CreateCardIntent {
 
     data object RemoveImage : CreateCardIntent
 
+    data object CancelLoadImage : CreateCardIntent
+
     data object ShowAddPhotoSheet : CreateCardIntent
 
     data object DismissSheet : CreateCardIntent

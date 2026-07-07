@@ -43,10 +43,11 @@ fun AppButton(
         onClick = onAction,
         shape = shape,
         enabled = enabled,
-        colors = ButtonDefaults.buttonColors(
-            containerColor = colors.container,
-            contentColor = colors.content,
-        ),
+        colors =
+            ButtonDefaults.buttonColors(
+                containerColor = colors.container,
+                contentColor = colors.content,
+            ),
         contentPadding =
             PaddingValues(
                 horizontal = MindeckTheme.dimensions.spacingLg,

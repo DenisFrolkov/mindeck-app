@@ -1,8 +1,11 @@
 package com.mindeck.feature.card.components
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import com.mindeck.feature.card.model.DraftImage
 import com.mindeck.feature.card.model.PhotoSource
 import io.github.vinceglb.filekit.PlatformFile
@@ -13,6 +16,7 @@ import io.github.vinceglb.filekit.path
 import io.github.vinceglb.filekit.readBytes
 import io.github.vinceglb.filekit.startAccessingSecurityScopedResource
 import io.github.vinceglb.filekit.stopAccessingSecurityScopedResource
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 
@@ -31,17 +35,19 @@ internal fun rememberImagePickers(
     onShowCamera: () -> Unit,
 ): ImagePickers {
     val scope = rememberCoroutineScope()
+    var pickJob by remember { mutableStateOf<Job?>(null) }
 
     fun pick(
         file: PlatformFile?,
         enforceSizeLimit: Boolean,
     ) {
         if (file == null) return
-        scope.launch {
-            onPickStart()
-            val image = readPickedImage(file, enforceSizeLimit)
-            if (image != null) onPicked(image) else onPickFailed()
-        }
+        pickJob =
+            scope.launch {
+                onPickStart()
+                val image = readPickedImage(file, enforceSizeLimit)
+                if (image != null) onPicked(image) else onPickFailed()
+            }
     }
 
     val gallery =
@@ -53,13 +59,16 @@ internal fun rememberImagePickers(
             pick(file, enforceSizeLimit = true)
         }
 
-    return remember(gallery, files, onShowCamera) { ImagePickers(gallery, files, onShowCamera) }
+    return remember(gallery, files, onShowCamera) {
+        ImagePickers(gallery, files, onShowCamera, onCancel = { pickJob?.cancel() })
+    }
 }
 
 internal class ImagePickers(
     private val gallery: PickerResultLauncher,
     private val files: PickerResultLauncher,
     private val onShowCamera: () -> Unit,
+    private val onCancel: () -> Unit,
 ) {
     fun launch(source: PhotoSource) {
         when (source) {
@@ -68,6 +77,8 @@ internal class ImagePickers(
             PhotoSource.CAMERA -> onShowCamera()
         }
     }
+
+    fun cancel() = onCancel()
 }
 
 private suspend fun readPickedImage(

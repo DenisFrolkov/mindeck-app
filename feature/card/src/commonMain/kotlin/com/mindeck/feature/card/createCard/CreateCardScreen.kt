@@ -182,6 +182,10 @@ fun CreateCardScreen(
                         isImageLoading = state.isProcessingImage,
                         onAddPhoto = { onIntent(CreateCardIntent.ShowAddPhotoSheet) },
                         onRemoveImage = { onIntent(CreateCardIntent.RemoveImage) },
+                        onCancelLoad = {
+                            onIntent(CreateCardIntent.CancelLoadImage)
+                            imagePickers.cancel()
+                        },
                     ),
                 bottomInset = actionBarHeight,
                 modifier = Modifier.weight(1f),
@@ -274,6 +278,7 @@ private fun CreateCardForm(
             isLoading = media.isImageLoading,
             onClick = media.onAddPhoto,
             onRemove = media.onRemoveImage,
+            onCancelLoad = media.onCancelLoad,
         )
         QuestionBlock(
             value = text.question,

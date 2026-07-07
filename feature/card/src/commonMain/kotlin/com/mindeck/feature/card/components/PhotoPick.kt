@@ -20,7 +20,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,21 +39,26 @@ import com.mindeck.core.ui.format.toLabel
 import com.mindeck.core.ui.spacer.VerticalSpacer
 import com.mindeck.core.ui.theme.MindeckTheme
 import com.mindeck.feature.card.model.DraftImage
+import kotlinx.coroutines.delay
 import mindeck_app.core.ui.generated.resources.Res
 import mindeck_app.core.ui.generated.resources.add_a_photo_icon
+import mindeck_app.core.ui.generated.resources.close_icon
 import mindeck_app.core.ui.generated.resources.delete_icon
 import mindeck_app.core.ui.generated.resources.image_icon
+import mindeck_app.feature.card.generated.resources.create_card_image_cancel_load
 import mindeck_app.feature.card.generated.resources.create_card_image_preview
 import mindeck_app.feature.card.generated.resources.create_card_image_remove
 import mindeck_app.feature.card.generated.resources.create_card_photo_hint
 import mindeck_app.feature.card.generated.resources.create_card_photo_title
 import mindeck_app.feature.card.generated.resources.create_card_section_photo
+import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.decodeToImageBitmap
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import mindeck_app.feature.card.generated.resources.Res as CreateCardRes
 
 private const val PREVIEW_ASPECT_RATIO = 16f / 9f
+private const val CANCEL_BUTTON_DELAY_MS = 2000L
 
 @Composable
 internal fun PhotoPick(
@@ -57,6 +66,7 @@ internal fun PhotoPick(
     isLoading: Boolean,
     onClick: () -> Unit,
     onRemove: () -> Unit,
+    onCancelLoad: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier) {
@@ -68,7 +78,7 @@ internal fun PhotoPick(
         VerticalSpacer(MindeckTheme.dimensions.spacingSm)
 
         when {
-            isLoading -> PhotoLoading()
+            isLoading -> PhotoLoading(onCancel = onCancelLoad)
             image != null -> PhotoPreview(image = image, onRemove = onRemove)
             else -> PhotoEmpty(onClick = onClick)
         }
@@ -102,21 +112,11 @@ private fun PhotoPreview(
             modifier = Modifier.fillMaxWidth().padding(MindeckTheme.dimensions.spacingSm),
             contentAlignment = Alignment.TopEnd,
         ) {
-            Box(
-                modifier =
-                    Modifier
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.45f))
-                        .clickable(onClick = onRemove)
-                        .padding(MindeckTheme.dimensions.spacingSm),
-            ) {
-                Icon(
-                    painter = painterResource(Res.drawable.delete_icon),
-                    contentDescription = stringResource(CreateCardRes.string.create_card_image_remove),
-                    tint = MindeckTheme.extraColors.onScrim,
-                    modifier = Modifier.size(MindeckTheme.dimensions.iconXs),
-                )
-            }
+            ScrimIconButton(
+                icon = Res.drawable.delete_icon,
+                contentDescription = stringResource(CreateCardRes.string.create_card_image_remove),
+                onClick = onRemove,
+            )
         }
         Box(
             modifier = Modifier.fillMaxHeight().padding(MindeckTheme.dimensions.spacingSm),
@@ -147,7 +147,13 @@ private fun PhotoPreview(
 }
 
 @Composable
-private fun PhotoLoading() {
+private fun PhotoLoading(onCancel: () -> Unit) {
+    var showCancelButton by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        delay(CANCEL_BUTTON_DELAY_MS)
+        showCancelButton = true
+    }
+
     Box(
         modifier =
             Modifier
@@ -158,6 +164,41 @@ private fun PhotoLoading() {
         contentAlignment = Alignment.Center,
     ) {
         CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+        if (showCancelButton) {
+            Box(
+                modifier = Modifier.fillMaxWidth().padding(MindeckTheme.dimensions.spacingSm),
+                contentAlignment = Alignment.TopEnd,
+            ) {
+                ScrimIconButton(
+                    icon = Res.drawable.close_icon,
+                    contentDescription = stringResource(CreateCardRes.string.create_card_image_cancel_load),
+                    onClick = onCancel,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ScrimIconButton(
+    icon: DrawableResource,
+    contentDescription: String,
+    onClick: () -> Unit,
+) {
+    Box(
+        modifier =
+            Modifier
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.45f))
+                .clickable(onClick = onClick)
+                .padding(MindeckTheme.dimensions.spacingSm),
+    ) {
+        Icon(
+            painter = painterResource(icon),
+            contentDescription = contentDescription,
+            tint = MindeckTheme.extraColors.onScrim,
+            modifier = Modifier.size(MindeckTheme.dimensions.iconXs),
+        )
     }
 }
 
