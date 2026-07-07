@@ -12,7 +12,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 
 abstract class BaseViewModel<State, Intent, Effect>(
     initialState: State,
@@ -37,7 +36,7 @@ abstract class BaseViewModel<State, Intent, Effect>(
     }
 
     protected fun sendEffect(effect: Effect) {
-        viewModelScope.launch { _effects.send(effect) }
+        _effects.trySend(effect)
     }
 
     open fun clear() {
