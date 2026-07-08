@@ -83,16 +83,30 @@ class CreateCardViewModel(
                 downloadImageJob?.cancel()
             }
 
+            CreateCardIntent.ShowCamera -> updateState { it.copy(isCameraVisible = true, cameraSessionId = it.cameraSessionId + 1) }
+            CreateCardIntent.DismissCamera -> updateState { it.copy(isCameraVisible = false, cameraSessionId = it.cameraSessionId + 1) }
+            is CreateCardIntent.CameraCaptured ->
+                if (intent.sessionId == currentState.cameraSessionId) {
+                    updateState { it.copy(
+                        draftImage = intent.image,
+                        isProcessingImage = false,
+                        isCameraVisible = false
+                    ) }
+                } else {
+                    Unit
+                }
+            is CreateCardIntent.CameraCaptureFailed ->
+                if (intent.sessionId == currentState.cameraSessionId) {
+                    updateState { it.copy(isCameraVisible = false) }
+                    failImagePick()
+                } else {
+                    Unit
+                }
+
             CreateCardIntent.ShowAddPhotoSheet ->
                 updateState { it.copy(activeSheet = MediaSheet.PHOTO) }
 
             CreateCardIntent.DismissSheet -> closeSheet()
-
-            CreateCardIntent.ShowCamera ->
-                updateState { it.copy(isCameraVisible = true) }
-
-            CreateCardIntent.DismissCamera ->
-                updateState { it.copy(isCameraVisible = false) }
 
             CreateCardIntent.BeginImagePick ->
                 updateState { it.copy(isProcessingImage = true) }

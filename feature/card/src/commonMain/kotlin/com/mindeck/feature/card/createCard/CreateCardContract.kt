@@ -23,6 +23,7 @@ data class CreateCardState(
     val isNewDeckDialogVisible: Boolean = false,
     val activeSheet: MediaSheet? = null,
     val isCameraVisible: Boolean = false,
+    val cameraSessionId: Int = 0,
     val linkDraft: String = "",
 ) {
     val deckPick: DeckPickState
@@ -78,6 +79,15 @@ sealed interface CreateCardIntent {
     data object ShowCamera : CreateCardIntent
 
     data object DismissCamera : CreateCardIntent
+
+    data class CameraCaptured(
+        val sessionId: Int,
+        val image: DraftImage,
+    ) : CreateCardIntent
+
+    data class CameraCaptureFailed(
+        val sessionId: Int,
+    ) : CreateCardIntent
 
     data object BeginImagePick : CreateCardIntent
 
