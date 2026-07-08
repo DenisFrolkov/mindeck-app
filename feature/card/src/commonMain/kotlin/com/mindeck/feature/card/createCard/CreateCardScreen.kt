@@ -235,12 +235,10 @@ fun CreateCardScreen(
         if (state.isCameraVisible) {
             CameraCaptureScreen(
                 onCaptured = { bytes ->
-                    onIntent(CreateCardIntent.DismissCamera)
-                    onIntent(CreateCardIntent.AttachImage(cameraCaptureImage(bytes)))
+                    onIntent(CreateCardIntent.CameraCaptured(state.cameraSessionId, cameraCaptureImage(bytes)))
                 },
                 onFailed = {
-                    onIntent(CreateCardIntent.DismissCamera)
-                    onIntent(CreateCardIntent.FailImagePick)
+                    onIntent(CreateCardIntent.CameraCaptureFailed(state.cameraSessionId))
                 },
                 onDismiss = { onIntent(CreateCardIntent.DismissCamera) },
             )
