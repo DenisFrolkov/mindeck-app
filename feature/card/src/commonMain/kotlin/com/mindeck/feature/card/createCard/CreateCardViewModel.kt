@@ -10,8 +10,8 @@ import com.mindeck.domain.usecases.deck.command.CreateDeckUseCase
 import com.mindeck.domain.usecases.deck.query.GetAllDecksUseCase
 import com.mindeck.domain.usecases.media.DownloadImageUseCase
 import com.mindeck.domain.usecases.media.SaveImageUseCase
-import com.mindeck.feature.card.model.DraftImage
 import com.mindeck.feature.card.model.MediaSheet
+import com.mindeck.feature.card.model.draftImageFromBytes
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
@@ -175,9 +175,12 @@ class CreateCardViewModel(
         downloadImageJob =
             viewModelScope.launch {
                 try {
-                    val bytes = downloadImageUseCase(url)
-                    updateState {
-                        it.copy(draftImage = DraftImage(url = url, bytes = bytes), isProcessingImage = false)
+                    val image = draftImageFromBytes(url = url, bytes = downloadImageUseCase(url))
+                    if (image != null) {
+                        updateState { it.copy(draftImage = image, isProcessingImage = false) }
+                    } else {
+                        updateState { it.copy(isProcessingImage = false) }
+                        sendEffect(CreateCardEffect.CreationFailed(CreateCardError.ImageDownloadFailed))
                     }
                 } catch (e: DomainError) {
                     updateState { it.copy(isProcessingImage = false) }
