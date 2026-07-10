@@ -235,7 +235,12 @@ fun CreateCardScreen(
         if (state.isCameraVisible) {
             CameraCaptureScreen(
                 onCaptured = { bytes ->
-                    onIntent(CreateCardIntent.CameraCaptured(state.cameraSessionId, cameraCaptureImage(bytes)))
+                    val image = cameraCaptureImage(bytes)
+                    if (image != null) {
+                        onIntent(CreateCardIntent.CameraCaptured(state.cameraSessionId, image))
+                    } else {
+                        onIntent(CreateCardIntent.CameraCaptureFailed(state.cameraSessionId))
+                    }
                 },
                 onFailed = {
                     onIntent(CreateCardIntent.CameraCaptureFailed(state.cameraSessionId))
