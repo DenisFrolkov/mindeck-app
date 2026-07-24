@@ -1,5 +1,6 @@
 package com.mindeck.core.mvi
 
+import com.arkivanov.essenty.instancekeeper.InstanceKeeper
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -15,7 +16,8 @@ import kotlinx.coroutines.flow.update
 
 abstract class BaseViewModel<State, Intent, Effect>(
     initialState: State,
-) : Store<State, Intent, Effect> {
+) : Store<State, Intent, Effect>,
+    InstanceKeeper.Instance {
     val handler =
         CoroutineExceptionHandler { _, exception ->
             println("[BaseViewModel] Unhandled exception in viewModelScope: ${exception.stackTraceToString()}")
@@ -39,7 +41,7 @@ abstract class BaseViewModel<State, Intent, Effect>(
         _effects.trySend(effect)
     }
 
-    open fun clear() {
+    override fun onDestroy() {
         viewModelScope.cancel()
     }
 }

@@ -7,11 +7,16 @@ import com.arkivanov.decompose.router.stack.childStack
 import com.arkivanov.decompose.router.stack.pop
 import com.arkivanov.decompose.router.stack.pushNew
 import com.arkivanov.decompose.value.Value
-import com.arkivanov.essenty.lifecycle.doOnDestroy
+import com.arkivanov.essenty.instancekeeper.getOrCreate
+import com.mindeck.feature.card.createCard.CreateCardDraft
+import com.mindeck.feature.card.createCard.CreateCardState
 import com.mindeck.feature.card.createCard.CreateCardViewModel
+import com.mindeck.feature.card.createCard.toDraft
+import com.mindeck.feature.card.createCard.toState
 import com.mindeck.feature.home.HomeViewModel
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
+import org.koin.core.parameter.parametersOf
 
 class RootComponent(
     componentContext: ComponentContext,
@@ -38,14 +43,26 @@ class RootComponent(
     ): Child =
         when (config) {
             is Config.Home -> {
-                val viewModel = get<HomeViewModel>()
-                context.lifecycle.doOnDestroy(viewModel::clear)
+                val viewModel = context.instanceKeeper.getOrCreate { get<HomeViewModel>() }
                 Child.Home(viewModel)
             }
             is Config.CreateCard -> {
-                val viewModel = get<CreateCardViewModel>()
-                context.lifecycle.doOnDestroy(viewModel::clear)
+                val viewModel =
+                    context.instanceKeeper.getOrCreate {
+                        val restored =
+                            context.stateKeeper
+                                .consume(CREATE_CARD_DRAFT_KEY, CreateCardDraft.serializer())
+                                ?.toState()
+                        get<CreateCardViewModel> { parametersOf(restored ?: CreateCardState()) }
+                    }
+                context.stateKeeper.register(CREATE_CARD_DRAFT_KEY, CreateCardDraft.serializer()) {
+                    viewModel.state.value.toDraft()
+                }
                 Child.CreateCard(viewModel)
             }
         }
+
+    private companion object {
+        const val CREATE_CARD_DRAFT_KEY = "create_card_draft"
+    }
 }
