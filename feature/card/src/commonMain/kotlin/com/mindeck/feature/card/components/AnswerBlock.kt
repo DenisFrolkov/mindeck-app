@@ -16,7 +16,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.font.FontWeight
 import com.mindeck.core.ui.spacer.VerticalSpacer
 import com.mindeck.core.ui.theme.MindeckTheme
-import mindeck_app.feature.card.generated.resources.create_card_question_placeholder
+import mindeck_app.feature.card.generated.resources.create_card_answer_placeholder
 import mindeck_app.feature.card.generated.resources.create_card_section_answer
 import org.jetbrains.compose.resources.stringResource
 import mindeck_app.feature.card.generated.resources.Res as CreateCardRes
@@ -58,7 +58,7 @@ internal fun AnswerBlock(
                     ) {
                         if (value.isEmpty()) {
                             Text(
-                                text = stringResource(CreateCardRes.string.create_card_question_placeholder),
+                                text = stringResource(CreateCardRes.string.create_card_answer_placeholder),
                                 style =
                                     MaterialTheme.typography.bodyLarge.copy(
                                         color = MaterialTheme.colorScheme.onSurface,
