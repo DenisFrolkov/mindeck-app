@@ -16,7 +16,8 @@ import kotlinx.coroutines.flow.update
 
 abstract class BaseViewModel<State, Intent, Effect>(
     initialState: State,
-) : Store<State, Intent, Effect>, InstanceKeeper.Instance {
+) : Store<State, Intent, Effect>,
+    InstanceKeeper.Instance {
     val handler =
         CoroutineExceptionHandler { _, exception ->
             println("[BaseViewModel] Unhandled exception in viewModelScope: ${exception.stackTraceToString()}")

@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.android.kotlin.multiplatform.library)
     alias(libs.plugins.compose.multiplatform)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.jetbrains.kotlin.serialization)
 }
 
 compose.resources {
@@ -67,6 +68,9 @@ kotlin {
 
                 // KotlinX
                 implementation(libs.kotlinx.datetime)
+
+                // Serialization
+                implementation(libs.kotlinx.serialization.core)
 
                 // Media
                 implementation(libs.filekit.dialogs)
