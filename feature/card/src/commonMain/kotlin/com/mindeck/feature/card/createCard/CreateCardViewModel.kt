@@ -87,11 +87,13 @@ class CreateCardViewModel(
             CreateCardIntent.DismissCamera -> updateState { it.copy(isCameraVisible = false, cameraSessionId = it.cameraSessionId + 1) }
             is CreateCardIntent.CameraCaptured ->
                 if (intent.sessionId == currentState.cameraSessionId) {
-                    updateState { it.copy(
-                        draftImage = intent.image,
-                        isProcessingImage = false,
-                        isCameraVisible = false
-                    ) }
+                    updateState {
+                        it.copy(
+                            draftImage = intent.image,
+                            isProcessingImage = false,
+                            isCameraVisible = false,
+                        )
+                    }
                 } else {
                     Unit
                 }

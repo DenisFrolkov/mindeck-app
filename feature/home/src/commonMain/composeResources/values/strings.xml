@@ -7,7 +7,7 @@
     <string name="home_error_retry">Retry loading</string>
 
     <string name="home_empty_title">Nothing here yet</string>
-    <string name="home_empty_subtitle">Create your first card — a deck will be created for it automatically. Mindeck will remind you when it\'s time to review.</string>
+    <string name="home_empty_subtitle">Create your first card — a deck will be created for it automatically. Mindeck will remind you when it's time to review.</string>
     <string name="home_empty_create_card">Create card</string>
     <string name="home_empty_import_deck">Import deck</string>
     <string name="home_empty_hint">A card is a question and an answer. You can set the deck name right when creating it.</string>
