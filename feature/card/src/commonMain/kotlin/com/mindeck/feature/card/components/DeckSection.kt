@@ -36,6 +36,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
+import com.mindeck.core.ui.format.deckCoverInitial
 import com.mindeck.core.ui.spacer.HorizontalSpacer
 import com.mindeck.core.ui.spacer.VerticalSpacer
 import com.mindeck.core.ui.theme.MindeckTheme
@@ -236,7 +237,7 @@ private fun SelectedDeck(
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
-                    text = deck.title.firstOrNull()?.toString() ?: "",
+                    text = deckCoverInitial(deck.title),
                     style = MaterialTheme.typography.titleMedium,
                     color = swatch.onContainer,
                 )
@@ -523,7 +524,7 @@ private fun DeckListItem(
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
-                        text = deck.title.firstOrNull()?.toString() ?: "",
+                        text = deckCoverInitial(deck.title),
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                         color = swatch.onContainer,
                     )
