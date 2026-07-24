@@ -81,5 +81,4 @@ private suspend fun readPickedImage(file: PlatformFile): DraftImage? {
     }
 }
 
-internal fun cameraCaptureImage(bytes: ByteArray) =
-    draftImageFromBytes(url = "camera:${Random.nextLong()}", bytes = bytes)
+internal fun cameraCaptureImage(bytes: ByteArray) = draftImageFromBytes(url = "camera:${Random.nextLong()}", bytes = bytes)
