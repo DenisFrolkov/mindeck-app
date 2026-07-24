@@ -51,6 +51,7 @@ import mindeck_app.core.ui.generated.resources.library_add_icon
 import mindeck_app.core.ui.generated.resources.search_icon
 import mindeck_app.core.ui.generated.resources.stat_minus_icon
 import mindeck_app.core.ui.generated.resources.style_icon
+import mindeck_app.feature.card.generated.resources.create_card_deck_add
 import mindeck_app.feature.card.generated.resources.create_card_deck_clear
 import mindeck_app.feature.card.generated.resources.create_card_deck_create
 import mindeck_app.feature.card.generated.resources.create_card_deck_pick
@@ -462,21 +463,21 @@ private fun NewDeckRow(onClick: () -> Unit) {
             ) {
                 Icon(
                     painter = painterResource(Res.drawable.add_icon),
-                    contentDescription = stringResource(CreateCardRes.string.create_card_deck_create),
+                    contentDescription = stringResource(CreateCardRes.string.create_card_deck_add),
                     tint = MaterialTheme.colorScheme.onPrimary,
                     modifier = Modifier.size(MindeckTheme.dimensions.iconSm),
                 )
             }
             HorizontalSpacer(MindeckTheme.dimensions.spacingSm)
             Text(
-                text = stringResource(CreateCardRes.string.create_card_deck_create),
+                text = stringResource(CreateCardRes.string.create_card_deck_add),
                 color = MaterialTheme.colorScheme.primary,
                 style = MaterialTheme.typography.titleMedium,
             )
         }
         Icon(
             painter = painterResource(Res.drawable.chevron_right_icon),
-            contentDescription = stringResource(CreateCardRes.string.create_card_deck_create),
+            contentDescription = stringResource(CreateCardRes.string.create_card_deck_add),
             tint = MaterialTheme.colorScheme.outline,
             modifier =
                 Modifier

@@ -13,6 +13,7 @@
     <string name="create_card_deck_pick">Выберите колоду</string>
     <string name="create_card_deck_empty">Колод пока нет</string>
     <string name="create_card_deck_create">Создайте первую колоду</string>
+    <string name="create_card_deck_add">Создать колоду</string>
     <string name="create_card_deck_name_taken">Колода с таким именем уже существует</string>
     <string name="create_card_deck_create_failed">Не удалось создать колоду</string>
     <string name="create_card_deck_clear">Убрать колоду</string>
@@ -31,6 +32,7 @@
     <string name="create_card_image_download_failed">Не удалось загрузить изображение</string>
     <string name="create_card_image_attach_failed">Не удалось добавить изображение</string>
     <string name="create_card_question_placeholder">Что хотите запомнить?</string>
+    <string name="create_card_answer_placeholder">Ответ, который нужно запомнить</string>
     <string name="create_card_section_hint">ПРИМЕР / ПОДСКАЗКА (НЕОБЯЗАТЕЛЬНО)</string>
     <string name="create_card_hint_placeholder">Контекст или мнемоника</string>
     <string name="create_card_format_bold">Жирный</string>
