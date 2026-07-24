@@ -23,6 +23,9 @@ kotlin {
             dependencies {
                 // Coroutines
                 api(libs.coroutines)
+
+                // Navigation
+                api(libs.decompose.decompose)
             }
         }
     }

@@ -7,7 +7,7 @@ import com.arkivanov.decompose.router.stack.childStack
 import com.arkivanov.decompose.router.stack.pop
 import com.arkivanov.decompose.router.stack.pushNew
 import com.arkivanov.decompose.value.Value
-import com.arkivanov.essenty.lifecycle.doOnDestroy
+import com.arkivanov.essenty.instancekeeper.getOrCreate
 import com.mindeck.feature.card.createCard.CreateCardViewModel
 import com.mindeck.feature.home.HomeViewModel
 import org.koin.core.component.KoinComponent
@@ -38,13 +38,11 @@ class RootComponent(
     ): Child =
         when (config) {
             is Config.Home -> {
-                val viewModel = get<HomeViewModel>()
-                context.lifecycle.doOnDestroy(viewModel::clear)
+                val viewModel = context.instanceKeeper.getOrCreate { get<HomeViewModel>() }
                 Child.Home(viewModel)
             }
             is Config.CreateCard -> {
-                val viewModel = get<CreateCardViewModel>()
-                context.lifecycle.doOnDestroy(viewModel::clear)
+                val viewModel = context.instanceKeeper.getOrCreate { get<CreateCardViewModel>() }
                 Child.CreateCard(viewModel)
             }
         }
