@@ -21,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
+import com.mindeck.core.ui.format.deckCoverInitial
 import com.mindeck.core.ui.theme.MindeckTheme
 import com.mindeck.feature.home.model.DeckItem
 import mindeck_app.core.ui.generated.resources.Res
@@ -124,7 +125,7 @@ private fun DeckListItem(
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
-                        text = deck.title.firstOrNull()?.toString() ?: "",
+                        text = deckCoverInitial(deck.title),
                         style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
                         color = swatch.onContainer,
                     )
