@@ -163,7 +163,7 @@ private fun DeckListItem(
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
-                        text = deck.reviewCount.toString(),
+                        text = deck.dueCount.toString(),
                         style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
                         color = MaterialTheme.colorScheme.onPrimaryContainer,
                     )

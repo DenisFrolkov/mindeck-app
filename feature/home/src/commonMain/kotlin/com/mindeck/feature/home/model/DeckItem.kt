@@ -11,5 +11,7 @@ data class DeckItem(
     val newReviewCount: Int,
     val reviewCount: Int,
 ) {
-    val hasCardsToReview: Boolean get() = newCount + newReviewCount + reviewCount > 0
+    val dueCount: Int get() = newCount + newReviewCount + reviewCount
+
+    val hasCardsToReview: Boolean get() = dueCount > 0
 }
