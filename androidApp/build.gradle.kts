@@ -27,11 +27,13 @@ android {
     }
 
     signingConfigs {
-        create("release") {
-            storeFile = file(localProperties["signing.storeFile"] as String)
-            storePassword = localProperties["signing.storePassword"] as String
-            keyAlias = localProperties["signing.keyAlias"] as String
-            keyPassword = localProperties["signing.keyPassword"] as String
+        if (localProperties["signing.storeFile"] != null) {
+            create("release") {
+                storeFile = file(localProperties["signing.storeFile"] as String)
+                storePassword = localProperties["signing.storePassword"] as String
+                keyAlias = localProperties["signing.keyAlias"] as String
+                keyPassword = localProperties["signing.keyPassword"] as String
+            }
         }
     }
 
@@ -41,7 +43,7 @@ android {
             versionNameSuffix = "-debug"
         }
         release {
-            signingConfig = signingConfigs.getByName("release")
+            signingConfig = signingConfigs.findByName("release")
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
