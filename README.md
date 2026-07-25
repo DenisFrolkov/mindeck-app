@@ -1,5 +1,6 @@
 # Mindeck
 
+[![CI](https://github.com/DenisFrolkov/mindeck-app/actions/workflows/ci.yml/badge.svg)](https://github.com/DenisFrolkov/mindeck-app/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Min SDK](https://img.shields.io/badge/Min%20SDK-26-green.svg)](https://developer.android.com/about/versions/oreo)
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.3.21-purple.svg)](https://kotlinlang.org)
