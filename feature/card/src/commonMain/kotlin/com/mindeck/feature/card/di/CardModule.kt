@@ -13,6 +13,7 @@ val cardModule =
                 get(),
                 get(),
                 get(),
+                get(),
                 initialState = params.getOrNull<CreateCardState>() ?: CreateCardState(),
             )
         }

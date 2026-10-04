@@ -11,7 +11,7 @@ import com.mindeck.data.dao.CardDao
 import com.mindeck.data.dao.DeckDao
 import com.mindeck.data.entities.CardEntity
 import com.mindeck.data.entities.DeckEntity
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 
 @Database(
     entities = [DeckEntity::class, CardEntity::class],
@@ -35,8 +35,11 @@ expect object AppDatabaseConstructor : RoomDatabaseConstructor<AppDatabase> {
     override fun initialize(): AppDatabase
 }
 
-fun getRoomDatabase(builder: RoomDatabase.Builder<AppDatabase>): AppDatabase =
+fun getRoomDatabase(
+    builder: RoomDatabase.Builder<AppDatabase>,
+    queryDispatcher: CoroutineDispatcher,
+): AppDatabase =
     builder
         .setDriver(BundledSQLiteDriver())
-        .setQueryCoroutineContext(Dispatchers.Default)
+        .setQueryCoroutineContext(queryDispatcher)
         .build()

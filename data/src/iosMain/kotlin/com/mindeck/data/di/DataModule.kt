@@ -8,6 +8,7 @@ import com.mindeck.data.repository.CardRepetitionRepositoryImpl
 import com.mindeck.data.repository.CardRepositoryImpl
 import com.mindeck.data.repository.DeckRepositoryImpl
 import com.mindeck.data.time.SystemTimeProvider
+import com.mindeck.domain.dispatchers.AppDispatchers
 import com.mindeck.domain.repository.CardRepetitionRepository
 import com.mindeck.domain.repository.CardRepository
 import com.mindeck.domain.repository.DeckRepository
@@ -20,6 +21,7 @@ val dataModule =
         single<AppDatabase> {
             getRoomDatabase(
                 getDatabaseBuilder().addMigrations(*ALL_MIGRATIONS),
+                get<AppDispatchers>().default,
             )
         }
 

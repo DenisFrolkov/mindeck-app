@@ -1,6 +1,7 @@
 package com.mindeck.feature.home
 
 import com.mindeck.core.mvi.BaseViewModel
+import com.mindeck.domain.dispatchers.AppDispatchers
 import com.mindeck.domain.usecases.deck.query.GetDecksWithStatsUseCase
 import com.mindeck.feature.home.model.DailyReviewUi
 import kotlinx.coroutines.Job
@@ -11,8 +12,9 @@ import kotlin.time.Clock
 
 class HomeViewModel(
     private val getDecksWithStatsUseCase: GetDecksWithStatsUseCase,
+    dispatchers: AppDispatchers,
     initialState: HomeUiState = HomeUiState.Loading,
-) : BaseViewModel<HomeUiState, HomeIntent, Nothing>(initialState) {
+) : BaseViewModel<HomeUiState, HomeIntent, Nothing>(initialState, dispatchers.main) {
     override fun accept(intent: HomeIntent) {
         when (intent) {
             HomeIntent.Retry -> {
