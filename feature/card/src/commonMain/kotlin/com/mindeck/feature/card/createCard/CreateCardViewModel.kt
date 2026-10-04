@@ -1,6 +1,7 @@
 package com.mindeck.feature.card.createCard
 
 import com.mindeck.core.mvi.BaseViewModel
+import com.mindeck.domain.dispatchers.AppDispatchers
 import com.mindeck.domain.exception.DomainError
 import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.Deck
@@ -24,8 +25,9 @@ class CreateCardViewModel(
     private val downloadImageUseCase: DownloadImageUseCase,
     private val saveImageUseCase: SaveImageUseCase,
     private val createCardUseCase: CreateCardUseCase,
+    dispatchers: AppDispatchers,
     initialState: CreateCardState = CreateCardState(),
-) : BaseViewModel<CreateCardState, CreateCardIntent, CreateCardEffect>(initialState) {
+) : BaseViewModel<CreateCardState, CreateCardIntent, CreateCardEffect>(initialState, dispatchers.main) {
     private var downloadImageJob: Job? = null
 
     override fun accept(intent: CreateCardIntent) {

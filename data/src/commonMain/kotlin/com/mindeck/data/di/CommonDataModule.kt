@@ -1,8 +1,10 @@
 package com.mindeck.data.di
 
+import com.mindeck.data.dispatchers.SystemAppDispatchers
 import com.mindeck.data.media.FileDownloaderImpl
 import com.mindeck.data.media.MediaStorageImpl
 import com.mindeck.data.media.createHttpClient
+import com.mindeck.domain.dispatchers.AppDispatchers
 import com.mindeck.domain.media.FileDownloader
 import com.mindeck.domain.media.MediaStorage
 import com.mindeck.domain.usecases.card.command.CreateCardUseCase
@@ -25,6 +27,7 @@ import org.koin.dsl.module
 
 val commonDataModule =
     module {
+        single<AppDispatchers> { SystemAppDispatchers() }
         single { createHttpClient() }
         single<FileDownloader> { FileDownloaderImpl(get()) }
         single<MediaStorage> { MediaStorageImpl() }
