@@ -42,6 +42,7 @@ kotlin {
         compilerOptions {
             jvmTarget = JvmTarget.fromTarget(rootProject.extra["jvmTarget"] as String)
         }
+        withHostTestBuilder { }
     }
 
     iosArm64()
@@ -56,6 +57,12 @@ kotlin {
                 implementation(compose.material3)
                 implementation(compose.ui)
                 implementation(compose.components.resources)
+            }
+        }
+
+        getByName("androidHostTest") {
+            dependencies {
+                implementation(libs.junit)
             }
         }
     }
