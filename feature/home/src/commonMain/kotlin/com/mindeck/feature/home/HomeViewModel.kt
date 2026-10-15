@@ -2,6 +2,7 @@ package com.mindeck.feature.home
 
 import com.mindeck.core.mvi.BaseViewModel
 import com.mindeck.domain.dispatchers.AppDispatchers
+import com.mindeck.domain.models.DailyProgress
 import com.mindeck.domain.usecases.deck.query.GetDecksWithStatsUseCase
 import com.mindeck.feature.home.model.DailyReviewUi
 import kotlinx.coroutines.Job
@@ -17,10 +18,7 @@ class HomeViewModel(
 ) : BaseViewModel<HomeUiState, HomeIntent, Nothing>(initialState, dispatchers.main) {
     override fun accept(intent: HomeIntent) {
         when (intent) {
-            HomeIntent.Retry -> {
-                sessionTotalCount = null
-                getDecksWithStats(Clock.System.now().toEpochMilliseconds())
-            }
+            HomeIntent.Retry -> getDecksWithStats(Clock.System.now().toEpochMilliseconds())
         }
     }
 
@@ -29,7 +27,6 @@ class HomeViewModel(
     }
 
     private var statsJob: Job? = null
-    private var sessionTotalCount: Int? = null
 
     private fun getDecksWithStats(currentTime: Long) {
         updateState { HomeUiState.Loading }
@@ -38,8 +35,11 @@ class HomeViewModel(
         statsJob =
             getDecksWithStatsUseCase(currentTime)
                 .onEach { deckWithStats ->
-                    val currentDue = deckWithStats.sumOf { it.newCount + it.newReviewCount + it.reviewCount }
-                    val total = sessionTotalCount ?: currentDue.also { sessionTotalCount = it }
+                    val progress =
+                        DailyProgress(
+                            reviewedCount = deckWithStats.sumOf { it.reviewedTodayCount },
+                            dueCount = deckWithStats.sumOf { it.newCount + it.newReviewCount + it.reviewCount },
+                        )
                     updateState {
                         if (deckWithStats.isEmpty()) {
                             HomeUiState.Empty
@@ -47,8 +47,8 @@ class HomeViewModel(
                             HomeUiState.Content(
                                 dailyReview =
                                     DailyReviewUi.Pending(
-                                        totalCount = total,
-                                        reviewedCount = (total - currentDue).coerceAtLeast(0),
+                                        totalCount = progress.totalCount,
+                                        reviewedCount = progress.reviewedCount,
                                         newCount = deckWithStats.sumOf { it.newCount },
                                         newReviewCount = deckWithStats.sumOf { it.newReviewCount },
                                         reviewCount = deckWithStats.sumOf { it.reviewCount },

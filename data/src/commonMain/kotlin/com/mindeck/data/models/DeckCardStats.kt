@@ -6,4 +6,5 @@ data class DeckCardStats(
     val newCount: Int,
     val newReviewCount: Int,
     val reviewCount: Int,
+    val reviewedTodayCount: Int,
 )
