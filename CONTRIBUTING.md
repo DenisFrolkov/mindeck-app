@@ -1,12 +1,13 @@
 # Contributing Guide — Mindeck
 
-Strategy: **GitHub Flow** + **Conventional Commits**
+Strategy: **GitHub Flow** + **Conventional Commits** + **squash merge**
 
 ---
 
 ## Issues
 
-An issue is created **before** the branch — the issue number is required in the branch name (see below).
+For `feat`, `fix`, `refactor`, `perf` and `test`, an issue is created **before** the branch — its number is required
+in the branch name (see below). Changes of type `docs`, `chore`, `ci` and `style` may skip the issue.
 
 ### Title
 
@@ -95,10 +96,12 @@ Add multiple ways to attach media to a card:
 
 ```
 <type>/<issue-id>/<short-description>
+<type>/<short-description>              # only for docs, chore, ci, style
 ```
 
 - `type` — the type of change (see the table below)
-- `issue-id` — the GitHub Issue number, **required** (create the issue before the branch)
+- `issue-id` — the GitHub Issue number. **Required** for `feat`, `fix`, `refactor`, `perf`, `test` (create the issue
+  before the branch). Optional for `docs`, `chore`, `ci`, `style`
 - `short-description` — 2-4 words separated by hyphens, English, lowercase
 
 ### Types
@@ -137,7 +140,8 @@ Format per [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/
 ```
 
 - `scope` — module or feature: `domain`, `data`, `home`, `card`, `core-ui`, `core-mvi`, `navigation`, `app`
-- `description` — what was done, lowercase, no trailing period (≤50 characters)
+- `description` — what was done, lowercase, no trailing period
+- the whole subject line (`<type>(<scope>): <description>`) — ≤72 characters
 - commit body — **optional**: only for non-trivial changes (a blank line after the subject,
   wrapped at 72 characters, "what and why", not "how"). For small/self-explanatory changes —
   just the subject, no body
@@ -156,16 +160,17 @@ ci: add github actions lint workflow
 ### Breaking change
 
 ```
-feat(domain)!: replace CardRepository with split query/command interfaces
+feat(domain)!: split CardRepository into query and command interfaces
 
-BREAKING CHANGE: CardRepository removed, use CardQueryRepository and CardCommandRepository
+BREAKING CHANGE: CardRepository removed, use CardQueryRepository and
+CardCommandRepository
 ```
 
 ---
 
 ## Pull Requests
 
-### PR title = the first commit or the gist of the branch
+### PR title = the squash commit
 
 ```
 <type>(<scope>): <description>
@@ -177,6 +182,8 @@ feat(card): add deck selection to creation card screen
 fix(data): fix room migration from version 3 to 4
 refactor(domain): extract use case types into subpackages
 ```
+
+The PR title is the only text that reaches `develop`: the squash commit has no body.
 
 Do **not** add the issue number to the title. The title must stay a valid Conventional
 Commit: on squash-merge GitHub uses it as the commit message, and PR-title linters and
@@ -195,11 +202,43 @@ Commit: on squash-merge GitHub uses it as the commit message, and PR-title linte
 ## How to test
 - ...
 
+## Known limitations
+- ...
+
 Closes #<issue-id>
 ```
 
+- `Known limitations` — what is not verified or not covered (for example, no automated test, iOS not run). Write
+  `None` if there is nothing to add.
+- Drop sections that do not apply to a small change (for example, a documentation fix). Drop the `Closes` line
+  if the PR has no issue.
+- The same template is in `.github/pull_request_template.md`; GitHub fills it in when a PR is opened.
+
 > `Closes #42` — GitHub closes the issue automatically on merge into `develop`. This is how
 > (rather than with a number in the title) we link a PR to an issue.
+
+---
+
+## Merging
+
+A PR is merged into `develop` with **squash and merge**. This is the only merge method enabled in the repository
+settings.
+
+- The squash commit title is the PR title. The commit body is empty. Details stay on the PR page, linked from the
+  commit as `(#N)`.
+- Commits inside the branch can be written freely: they do not reach `develop`.
+- Keep a PR small: one PR — one change. A squash commit cannot be split afterwards.
+- Merge only when CI is green (both required jobs), the branch is up to date with `develop` and you have read your
+  own diff.
+- The branch is deleted after the merge. Do not reuse it: start a new branch from `develop`.
+- History note: PRs up to #123 were merged with merge commits. Since #124 every PR is squash-merged. The old history
+  is not rewritten.
+
+Exceptions. Enable the method temporarily in Settings → General → Pull Requests and switch it off after the merge:
+
+- **Rebase and merge** — a PR of several steps where every commit is clean, follows Conventional Commits and
+  builds. Prefer to split such a PR into two PRs.
+- **Merge commit** — merging long-lived branches, for example `develop` into `main` if `main` appears.
 
 ---
 
@@ -208,9 +247,9 @@ Closes #<issue-id>
 1. `develop` — the main branch, always working
 2. Any change — through a branch + PR, never commit directly
 3. A branch lives 1-3 days max — longer = risk of conflicts
-4. A PR requires review before merge (even solo — self-review)
-5. After merge the branch is deleted
-6. CI must be green before merge
+4. Read your own diff before merge. The repository does not require an approving review
+5. After merge the branch is deleted (GitHub does it automatically)
+6. CI must be green before merge (both jobs are required checks on `develop`)
 
 ---
 
@@ -219,7 +258,7 @@ Closes #<issue-id>
 > How to format the issue itself (title, labels, body) — see the "Issues" section above.
 
 **Workflow:**
-1. Create an Issue on GitHub → get the number (`#42`)
+1. Create an Issue on GitHub → get the number (`#42`); not needed for `docs`, `chore`, `ci`, `style`
 2. Create a branch with that number
 3. Write `Closes #42` in the PR description
 4. After merge into `develop` — the issue closes automatically
@@ -232,3 +271,10 @@ feat/42/dark-theme-support
 
 The task type is visible from the title prefix (`feat`/`fix`/`refactor`/...); labels are used
 only for priority — see the "Issues" section above.
+
+---
+
+## Releases
+
+1. Open a PR `chore(release): bump version to X.Y.Z` and merge it as usual.
+2. Tag `vX.Y.Z` on `develop` and create a GitHub Release with the signed APK.
