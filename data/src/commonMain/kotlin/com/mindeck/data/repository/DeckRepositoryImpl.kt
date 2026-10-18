@@ -69,10 +69,13 @@ class DeckRepositoryImpl(
                 throw DomainError.DatabaseError()
             }
 
-    override fun getCardStatsPerDeck(currentTime: Long): Flow<List<DeckWithStats>> =
+    override fun getCardStatsPerDeck(
+        currentTime: Long,
+        todayStart: Long,
+    ): Flow<List<DeckWithStats>> =
         combine(
             deckDao.getAllDecks(),
-            deckDao.getReviewCountPerDeck(currentTime),
+            deckDao.getReviewCountPerDeck(currentTime, todayStart),
         ) { decks, cardStats ->
             decks.map { deck ->
                 val stats = cardStats.find { it.deckId == deck.deckId }
@@ -82,6 +85,7 @@ class DeckRepositoryImpl(
                     newCount = stats?.newCount ?: 0,
                     newReviewCount = stats?.newReviewCount ?: 0,
                     reviewCount = stats?.reviewCount ?: 0,
+                    reviewedTodayCount = stats?.reviewedTodayCount ?: 0,
                 )
             }
         }.catch {

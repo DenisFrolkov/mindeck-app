@@ -18,5 +18,8 @@ interface DeckRepository {
 
     fun getDeckById(deckId: Int): Flow<Deck?>
 
-    fun getCardStatsPerDeck(currentTime: Long): Flow<List<DeckWithStats>>
+    fun getCardStatsPerDeck(
+        currentTime: Long,
+        todayStart: Long,
+    ): Flow<List<DeckWithStats>>
 }

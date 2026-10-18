@@ -4,9 +4,9 @@ import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.CardState
 import com.mindeck.domain.repository.CardRepetitionRepository
 import com.mindeck.domain.time.TimeProvider
+import com.mindeck.domain.time.startOfDayMillis
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlin.time.Duration.Companion.days
 
 class GetCardsRepetitionUseCase(
     private val cardRepetitionRepository: CardRepetitionRepository,
@@ -14,7 +14,7 @@ class GetCardsRepetitionUseCase(
 ) {
     operator fun invoke(): Flow<List<Card>> {
         val now = clock.now()
-        val todayStart = getTodayStartMillis(now)
+        val todayStart = startOfDayMillis(now)
         return cardRepetitionRepository
             .getCardsRepetition(currentTime = now, todayStart = todayStart)
             .map { cards -> buildSession(cards, now, todayStart) }
@@ -52,11 +52,6 @@ class GetCardsRepetitionUseCase(
                 .take(newLimit)
 
         return learning + review + new
-    }
-
-    private fun getTodayStartMillis(now: Long): Long {
-        val millisInDay = 1.days.inWholeMilliseconds
-        return (now / millisInDay) * millisInDay
     }
 
     companion object {

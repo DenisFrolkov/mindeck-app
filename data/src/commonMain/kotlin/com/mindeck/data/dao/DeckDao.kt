@@ -36,12 +36,15 @@ interface DeckDao {
                    AND (next_review_date IS NULL OR next_review_date <= :currentTime)
                    THEN 1 ELSE 0 END) AS newReviewCount,
           SUM(CASE WHEN card_state = 'REVIEW'
-                   AND next_review_date IS NOT NULL
                    AND next_review_date <= :currentTime
-                   THEN 1 ELSE 0 END) AS reviewCount
+                   THEN 1 ELSE 0 END) AS reviewCount,
+          SUM(CASE WHEN last_review_date >= :todayStart THEN 1 ELSE 0 END) AS reviewedTodayCount
       FROM card
       GROUP BY deck_id
     """,
     )
-    fun getReviewCountPerDeck(currentTime: Long): Flow<List<DeckCardStats>>
+    fun getReviewCountPerDeck(
+        currentTime: Long,
+        todayStart: Long,
+    ): Flow<List<DeckCardStats>>
 }
