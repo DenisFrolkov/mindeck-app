@@ -1,5 +1,9 @@
 package com.mindeck.domain.time
 
-fun interface TimeProvider {
+import kotlinx.datetime.TimeZone
+
+interface TimeProvider {
     fun now(): Long
+
+    fun timeZone(): TimeZone
 }

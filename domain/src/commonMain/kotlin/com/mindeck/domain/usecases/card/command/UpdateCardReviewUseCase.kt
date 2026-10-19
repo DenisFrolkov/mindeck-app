@@ -5,8 +5,8 @@ import com.mindeck.domain.models.CardState
 import com.mindeck.domain.models.ReviewButton
 import com.mindeck.domain.repository.CardRepetitionRepository
 import com.mindeck.domain.time.TimeProvider
+import com.mindeck.domain.time.startOfDayMillis
 import kotlin.math.ceil
-import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.minutes
 
 class UpdateCardReviewUseCase(
@@ -89,7 +89,7 @@ class UpdateCardReviewUseCase(
                         cardState = CardState.REVIEW,
                         learningStep = 0,
                         interval = newInterval,
-                        nextReviewDate = startOfUtcDay(now) + ceil(newInterval).toLong() * 1.days.inWholeMilliseconds,
+                        nextReviewDate = startOfDueDay(now, newInterval),
                         repetitionCount = card.repetitionCount + 1,
                     )
                 }
@@ -107,7 +107,7 @@ class UpdateCardReviewUseCase(
                     easeFactor = (card.easeFactor + 0.10f).coerceAtMost(MAX_EASE_FACTOR),
                     learningStep = 0,
                     interval = newInterval,
-                    nextReviewDate = startOfUtcDay(now) + ceil(newInterval).toLong() * 1.days.inWholeMilliseconds,
+                    nextReviewDate = startOfDueDay(now, newInterval),
                     repetitionCount = card.repetitionCount + 1,
                 )
             }
@@ -135,7 +135,7 @@ class UpdateCardReviewUseCase(
                 card.copy(
                     easeFactor = (card.easeFactor - 0.14f).coerceAtLeast(MIN_EASE_FACTOR),
                     interval = newInterval,
-                    nextReviewDate = startOfUtcDay(now) + ceil(newInterval).toLong() * 1.days.inWholeMilliseconds,
+                    nextReviewDate = startOfDueDay(now, newInterval),
                     repetitionCount = card.repetitionCount + 1,
                 )
             }
@@ -144,7 +144,7 @@ class UpdateCardReviewUseCase(
                 val newInterval = (card.interval * card.easeFactor).coerceAtLeast(card.interval + 1f)
                 card.copy(
                     interval = newInterval,
-                    nextReviewDate = startOfUtcDay(now) + ceil(newInterval).toLong() * 1.days.inWholeMilliseconds,
+                    nextReviewDate = startOfDueDay(now, newInterval),
                     repetitionCount = card.repetitionCount + 1,
                 )
             }
@@ -154,7 +154,7 @@ class UpdateCardReviewUseCase(
                 card.copy(
                     easeFactor = (card.easeFactor + 0.10f).coerceAtMost(MAX_EASE_FACTOR),
                     interval = newInterval,
-                    nextReviewDate = startOfUtcDay(now) + ceil(newInterval).toLong() * 1.days.inWholeMilliseconds,
+                    nextReviewDate = startOfDueDay(now, newInterval),
                     repetitionCount = card.repetitionCount + 1,
                 )
             }
@@ -169,7 +169,10 @@ class UpdateCardReviewUseCase(
         return (updated.nextReviewDate ?: now) - now
     }
 
-    private fun startOfUtcDay(timestamp: Long): Long = (timestamp / 1.days.inWholeMilliseconds) * 1.days.inWholeMilliseconds
+    private fun startOfDueDay(
+        now: Long,
+        intervalDays: Float,
+    ): Long = startOfDayMillis(now, clock.timeZone(), plusDays = ceil(intervalDays).toInt())
 
     companion object {
         private const val MIN_EASE_FACTOR = 1.3f

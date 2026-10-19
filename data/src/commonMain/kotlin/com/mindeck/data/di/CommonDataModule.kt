@@ -47,5 +47,5 @@ val commonDataModule =
         factory { RenameDeckUseCase(get()) }
         factory { GetAllDecksUseCase(get()) }
         factory { GetDeckByIdUseCase(get()) }
-        factory { GetDecksWithStatsUseCase(get()) }
+        factory { GetDecksWithStatsUseCase(get(), get()) }
     }

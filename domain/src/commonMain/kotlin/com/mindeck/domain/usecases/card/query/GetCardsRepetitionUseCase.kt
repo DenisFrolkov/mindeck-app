@@ -14,7 +14,7 @@ class GetCardsRepetitionUseCase(
 ) {
     operator fun invoke(): Flow<List<Card>> {
         val now = clock.now()
-        val todayStart = startOfDayMillis(now)
+        val todayStart = startOfDayMillis(now, clock.timeZone())
         return cardRepetitionRepository
             .getCardsRepetition(currentTime = now, todayStart = todayStart)
             .map { cards -> buildSession(cards, now, todayStart) }

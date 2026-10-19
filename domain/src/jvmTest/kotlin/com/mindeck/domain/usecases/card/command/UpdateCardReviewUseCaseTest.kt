@@ -5,23 +5,25 @@ import com.mindeck.domain.models.CardState
 import com.mindeck.domain.models.CardType
 import com.mindeck.domain.models.ReviewButton
 import com.mindeck.domain.repository.CardRepetitionRepository
-import com.mindeck.domain.time.TimeProvider
+import com.mindeck.domain.time.FixedTimeProvider
 import io.mockk.coEvery
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.TimeZone
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Instant
 
 class UpdateCardReviewUseCaseTest {
     private val dayMs = 86_400_000L
     private val now = dayMs * 10 + dayMs / 2
     private val repository = mockk<CardRepetitionRepository>()
-    private val clock = TimeProvider { now }
+    private val clock = FixedTimeProvider(now)
     private val useCase = UpdateCardReviewUseCase(repository, clock)
 
     private fun newCard() =
@@ -93,6 +95,19 @@ class UpdateCardReviewUseCaseTest {
             assertEquals(CardState.REVIEW, result.cardState)
             assertEquals(1f, result.interval, 0.001f)
             assertEquals(0, result.learningStep)
+        }
+
+    @Test
+    fun `due date lands on local midnight when the interval crosses a dst change`() =
+        runTest {
+            val newYork = TimeZone.of("America/New_York")
+            val reviewedAt = Instant.parse("2026-03-07T15:00:00Z").toEpochMilliseconds()
+            val dstUseCase = UpdateCardReviewUseCase(repository, FixedTimeProvider(reviewedAt, newYork))
+            setupRepository()
+
+            val result = dstUseCase(newCard(), ReviewButton.EASY)
+
+            assertEquals(Instant.parse("2026-03-11T04:00:00Z").toEpochMilliseconds(), result.nextReviewDate)
         }
 
     @Test
