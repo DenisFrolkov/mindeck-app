@@ -5,20 +5,21 @@ import com.mindeck.domain.models.CardState
 import com.mindeck.domain.repository.CardRepetitionRepository
 import com.mindeck.domain.time.TimeProvider
 import com.mindeck.domain.time.startOfDayMillis
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 
 class GetCardsRepetitionUseCase(
     private val cardRepetitionRepository: CardRepetitionRepository,
     private val clock: TimeProvider,
 ) {
-    operator fun invoke(): Flow<List<Card>> {
+    suspend operator fun invoke(): List<Card> {
         val now = clock.now()
         val todayStart = startOfDayMillis(now, clock.timeZone())
-        return cardRepetitionRepository
-            .getCardsRepetition(currentTime = now, todayStart = todayStart)
-            .map { cards -> buildSession(cards, now, todayStart) }
+        val cards =
+            cardRepetitionRepository.getCardsRepetition(currentTime = now, todayStart = todayStart)
+        return buildSession(cards, now, todayStart).ifEmpty { learnAhead(now) }
     }
+
+    private suspend fun learnAhead(now: Long): List<Card> =
+        listOfNotNull(cardRepetitionRepository.getLearnAheadCard(now + LEARN_AHEAD_MILLIS))
 
     private fun buildSession(
         cards: List<Card>,
@@ -56,5 +57,6 @@ class GetCardsRepetitionUseCase(
 
     companion object {
         private const val DAILY_NEW_LIMIT = 20
+        const val LEARN_AHEAD_MILLIS = 5 * 60 * 1000L
     }
 }

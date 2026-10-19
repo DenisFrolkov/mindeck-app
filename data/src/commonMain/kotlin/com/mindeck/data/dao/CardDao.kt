@@ -43,4 +43,15 @@ interface CardDao {
         currentTime: Long,
         todayStart: Long,
     ): Flow<List<CardEntity>>
+
+    @Query(
+        """
+        SELECT * FROM card
+        WHERE card_state IN ('LEARNING', 'LAPSE')
+          AND next_review_date <= :until
+        ORDER BY next_review_date ASC
+        LIMIT 1
+        """,
+    )
+    suspend fun getEarliestLearningCard(until: Long): CardEntity?
 }
