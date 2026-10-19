@@ -5,7 +5,7 @@ import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.CardState
 import com.mindeck.domain.models.CardType
 import com.mindeck.domain.repository.CardRepetitionRepository
-import com.mindeck.domain.time.TimeProvider
+import com.mindeck.domain.time.FixedTimeProvider
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.flowOf
@@ -21,7 +21,7 @@ class GetCardsRepetitionUseCaseTest {
     private val todayStart = dayMs * 10
 
     private val repository = mockk<CardRepetitionRepository>()
-    private val clock = TimeProvider { now }
+    private val clock = FixedTimeProvider(now)
     private val useCase = GetCardsRepetitionUseCase(repository, clock)
 
     private fun card(
