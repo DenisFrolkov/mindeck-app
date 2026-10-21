@@ -11,6 +11,7 @@ import com.mindeck.domain.models.CardType
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -208,6 +209,74 @@ class CardDaoTest {
                 assertEquals(emptyList<CardEntity>(), result)
                 cancelAndIgnoreRemainingEvents()
             }
+        }
+
+    @Test
+    fun getEarliestLearningCard_returns_earliest_card_within_window() =
+        runTest {
+            deckDao.insertDeck(DeckEntity(deckId = 1, deckName = "Test Deck"))
+            val later =
+                CardEntity(
+                    cardId = 1,
+                    cardName = "Card 1",
+                    cardQuestion = "Q?",
+                    cardAnswer = "A",
+                    cardType = CardType.SIMPLE.stableId,
+                    cardState = "LEARNING",
+                    nextReviewDate = now + 4 * 60_000L,
+                    cardTag = "",
+                    deckId = 1,
+                )
+            val earlier =
+                CardEntity(
+                    cardId = 2,
+                    cardName = "Card 2",
+                    cardQuestion = "Q?",
+                    cardAnswer = "A",
+                    cardType = CardType.SIMPLE.stableId,
+                    cardState = "LAPSE",
+                    nextReviewDate = now + 2 * 60_000L,
+                    cardTag = "",
+                    deckId = 1,
+                )
+            cardDao.insertCard(later)
+            cardDao.insertCard(earlier)
+
+            assertEquals(earlier, cardDao.getEarliestLearningCard(now + 5 * 60_000L))
+        }
+
+    @Test
+    fun getEarliestLearningCard_ignores_card_outside_window_and_other_states() =
+        runTest {
+            deckDao.insertDeck(DeckEntity(deckId = 1, deckName = "Test Deck"))
+            cardDao.insertCard(
+                CardEntity(
+                    cardId = 1,
+                    cardName = "Card 1",
+                    cardQuestion = "Q?",
+                    cardAnswer = "A",
+                    cardType = CardType.SIMPLE.stableId,
+                    cardState = "LEARNING",
+                    nextReviewDate = now + 5 * 60_000L + 1,
+                    cardTag = "",
+                    deckId = 1,
+                ),
+            )
+            cardDao.insertCard(
+                CardEntity(
+                    cardId = 2,
+                    cardName = "Card 2",
+                    cardQuestion = "Q?",
+                    cardAnswer = "A",
+                    cardType = CardType.SIMPLE.stableId,
+                    cardState = "REVIEW",
+                    nextReviewDate = now + 60_000L,
+                    cardTag = "",
+                    deckId = 1,
+                ),
+            )
+
+            assertNull(cardDao.getEarliestLearningCard(now + 5 * 60_000L))
         }
 
     @Test

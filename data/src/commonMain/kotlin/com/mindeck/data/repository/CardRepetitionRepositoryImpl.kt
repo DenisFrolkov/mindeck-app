@@ -7,24 +7,34 @@ import com.mindeck.domain.exception.DomainError
 import com.mindeck.domain.models.Card
 import com.mindeck.domain.repository.CardRepetitionRepository
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.first
 
 class CardRepetitionRepositoryImpl(
     private val cardDao: CardDao,
 ) : CardRepetitionRepository {
-    override fun getCardsRepetition(
+    override suspend fun getCardsRepetition(
         currentTime: Long,
         todayStart: Long,
-    ): Flow<List<Card>> =
-        cardDao
-            .getCardsRepetition(currentTime = currentTime, todayStart = todayStart)
-            .map { cardsEntityList -> cardsEntityList.map { it.toDomain() } }
-            .catch { e ->
-                if (e is CancellationException) throw e
-                throw DomainError.DatabaseError()
-            }
+    ): List<Card> =
+        try {
+            cardDao
+                .getCardsRepetition(currentTime = currentTime, todayStart = todayStart)
+                .first()
+                .map { it.toDomain() }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            throw DomainError.DatabaseError()
+        }
+
+    override suspend fun getLearnAheadCard(until: Long): Card? =
+        try {
+            cardDao.getEarliestLearningCard(until)?.toDomain()
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            throw DomainError.DatabaseError()
+        }
 
     override suspend fun updateReview(card: Card) =
         try {

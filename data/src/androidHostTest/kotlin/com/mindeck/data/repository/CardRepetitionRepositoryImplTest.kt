@@ -1,6 +1,5 @@
 package com.mindeck.data.repository
 
-import app.cash.turbine.test
 import com.mindeck.data.dao.CardDao
 import com.mindeck.data.mapper.Mappers.toEntity
 import com.mindeck.domain.exception.DomainError
@@ -16,7 +15,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
+import org.junit.Assert.assertNull
 import org.junit.Test
 
 class CardRepetitionRepositoryImplTest {
@@ -39,28 +38,43 @@ class CardRepetitionRepositoryImplTest {
     private val repository = CardRepetitionRepositoryImpl(cardDao)
 
     @Test
-    fun `getCardsRepetition emits mapped card list when dao returns entities`() =
+    fun `getCardsRepetition returns mapped card list when dao returns entities`() =
         runTest {
-            val cardEntity = card.toEntity()
+            every { cardDao.getCardsRepetition(any(), any()) } returns flowOf(listOf(card.toEntity()))
 
-            every { cardDao.getCardsRepetition(any(), any()) } returns flowOf(listOf(cardEntity))
-
-            repository.getCardsRepetition(now, todayStart).test {
-                val result = awaitItem()
-                assertEquals(listOf(card), result)
-                cancelAndIgnoreRemainingEvents()
-            }
+            assertEquals(listOf(card), repository.getCardsRepetition(now, todayStart))
         }
 
-    @Test
-    fun `getCardsRepetition emits DatabaseError when dao flow throws Exception`() =
+    @Test(expected = DomainError.DatabaseError::class)
+    fun `getCardsRepetition throws DatabaseError when dao flow throws Exception`() =
         runTest {
             every { cardDao.getCardsRepetition(any(), any()) } returns flow { throw Exception() }
 
-            repository.getCardsRepetition(now, todayStart).test {
-                val error = awaitError()
-                assertTrue(error is DomainError.DatabaseError)
-            }
+            repository.getCardsRepetition(now, todayStart)
+        }
+
+    @Test
+    fun `getLearnAheadCard returns mapped card when dao returns entity`() =
+        runTest {
+            coEvery { cardDao.getEarliestLearningCard(now) } returns card.toEntity()
+
+            assertEquals(card, repository.getLearnAheadCard(now))
+        }
+
+    @Test
+    fun `getLearnAheadCard returns null when dao returns null`() =
+        runTest {
+            coEvery { cardDao.getEarliestLearningCard(any()) } returns null
+
+            assertNull(repository.getLearnAheadCard(now))
+        }
+
+    @Test(expected = DomainError.DatabaseError::class)
+    fun `getLearnAheadCard throws DatabaseError when dao throws Exception`() =
+        runTest {
+            coEvery { cardDao.getEarliestLearningCard(any()) } throws Exception()
+
+            repository.getLearnAheadCard(now)
         }
 
     @Test

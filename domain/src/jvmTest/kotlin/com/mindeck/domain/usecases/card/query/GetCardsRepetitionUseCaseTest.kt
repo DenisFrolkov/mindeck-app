@@ -1,14 +1,13 @@
 package com.mindeck.domain.usecases.card.query
 
-import app.cash.turbine.test
 import com.mindeck.domain.models.Card
 import com.mindeck.domain.models.CardState
 import com.mindeck.domain.models.CardType
 import com.mindeck.domain.repository.CardRepetitionRepository
 import com.mindeck.domain.time.FixedTimeProvider
-import io.mockk.every
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.mockk
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -41,9 +40,10 @@ class GetCardsRepetitionUseCaseTest {
     )
 
     private fun setupRepository(cards: List<Card>) {
-        every {
+        coEvery {
             repository.getCardsRepetition(currentTime = now, todayStart = todayStart)
-        } returns flowOf(cards)
+        } returns cards
+        coEvery { repository.getLearnAheadCard(any()) } returns null
     }
 
     @Test
@@ -52,11 +52,8 @@ class GetCardsRepetitionUseCaseTest {
             val learningCard = card(cardState = CardState.LEARNING, nextReviewDate = null)
             setupRepository(listOf(learningCard))
 
-            useCase().test {
-                val result = awaitItem()
-                assertTrue(result.contains(learningCard))
-                awaitComplete()
-            }
+            val result = useCase()
+            assertTrue(result.contains(learningCard))
         }
 
     @Test
@@ -65,11 +62,8 @@ class GetCardsRepetitionUseCaseTest {
             val learningCard = card(cardState = CardState.LEARNING, nextReviewDate = now + 1L)
             setupRepository(listOf(learningCard))
 
-            useCase().test {
-                val result = awaitItem()
-                assertFalse(result.contains(learningCard))
-                awaitComplete()
-            }
+            val result = useCase()
+            assertFalse(result.contains(learningCard))
         }
 
     @Test
@@ -78,11 +72,8 @@ class GetCardsRepetitionUseCaseTest {
             val newCards = List(21) { card(cardState = CardState.NEW) }
             setupRepository(newCards)
 
-            useCase().test {
-                val result = awaitItem()
-                assertEquals(20, result.size)
-                awaitComplete()
-            }
+            val result = useCase()
+            assertEquals(20, result.size)
         }
 
     @Test
@@ -93,11 +84,8 @@ class GetCardsRepetitionUseCaseTest {
                 List(5) { card(cardState = CardState.LEARNING, firstReviewDate = now) }
             setupRepository(newCards + reviewTodayCards)
 
-            useCase().test {
-                val result = awaitItem()
-                assertEquals(15, result.count { it.cardState == CardState.NEW })
-                awaitComplete()
-            }
+            val result = useCase()
+            assertEquals(15, result.count { it.cardState == CardState.NEW })
         }
 
     @Test
@@ -108,11 +96,8 @@ class GetCardsRepetitionUseCaseTest {
                 List(5) { card(cardState = CardState.LEARNING, firstReviewDate = now) }
             setupRepository(newCards + reviewTodayCards)
 
-            useCase().test {
-                val result = awaitItem()
-                assertEquals(20, result.size)
-                awaitComplete()
-            }
+            val result = useCase()
+            assertEquals(20, result.size)
         }
 
     @Test
@@ -123,13 +108,10 @@ class GetCardsRepetitionUseCaseTest {
             val newCards = List(2) { card(cardState = CardState.NEW) }
             setupRepository(newCards + reviewCards + learningCards)
 
-            useCase().test {
-                val result = awaitItem()
-                assertEquals(CardState.LEARNING, result[0].cardState)
-                assertEquals(CardState.REVIEW, result[2].cardState)
-                assertEquals(CardState.NEW, result[4].cardState)
-                awaitComplete()
-            }
+            val result = useCase()
+            assertEquals(CardState.LEARNING, result[0].cardState)
+            assertEquals(CardState.REVIEW, result[2].cardState)
+            assertEquals(CardState.NEW, result[4].cardState)
         }
 
     @Test
@@ -138,11 +120,8 @@ class GetCardsRepetitionUseCaseTest {
             val reviewCard = card(cardState = CardState.REVIEW, nextReviewDate = now - 1L)
             setupRepository(listOf(reviewCard))
 
-            useCase().test {
-                val result = awaitItem()
-                assertTrue(result.contains(reviewCard))
-                awaitComplete()
-            }
+            val result = useCase()
+            assertTrue(result.contains(reviewCard))
         }
 
     @Test
@@ -151,11 +130,8 @@ class GetCardsRepetitionUseCaseTest {
             val reviewCard = card(cardState = CardState.REVIEW, nextReviewDate = null)
             setupRepository(listOf(reviewCard))
 
-            useCase().test {
-                val result = awaitItem()
-                assertFalse(result.contains(reviewCard))
-                awaitComplete()
-            }
+            val result = useCase()
+            assertFalse(result.contains(reviewCard))
         }
 
     @Test
@@ -164,11 +140,8 @@ class GetCardsRepetitionUseCaseTest {
             val lapseCard = card(cardState = CardState.LAPSE, nextReviewDate = null)
             setupRepository(listOf(lapseCard))
 
-            useCase().test {
-                val result = awaitItem()
-                assertTrue(result.contains(lapseCard))
-                awaitComplete()
-            }
+            val result = useCase()
+            assertTrue(result.contains(lapseCard))
         }
 
     @Test
@@ -179,11 +152,8 @@ class GetCardsRepetitionUseCaseTest {
             val newCards = List(5) { card(cardState = CardState.NEW) }
             setupRepository(shownTodayCards + newCards)
 
-            useCase().test {
-                val result = awaitItem()
-                assertEquals(0, result.count { it.cardState == CardState.NEW })
-                awaitComplete()
-            }
+            val result = useCase()
+            assertEquals(0, result.count { it.cardState == CardState.NEW })
         }
 
     @Test
@@ -192,11 +162,8 @@ class GetCardsRepetitionUseCaseTest {
             val lapseCard = card(cardState = CardState.LAPSE, nextReviewDate = now + 1L)
             setupRepository(listOf(lapseCard))
 
-            useCase().test {
-                val result = awaitItem()
-                assertFalse(result.contains(lapseCard))
-                awaitComplete()
-            }
+            val result = useCase()
+            assertFalse(result.contains(lapseCard))
         }
 
     @Test
@@ -204,10 +171,60 @@ class GetCardsRepetitionUseCaseTest {
         runTest {
             setupRepository(emptyList())
 
-            useCase().test {
-                val result = awaitItem()
-                assertTrue(result.isEmpty())
-                awaitComplete()
-            }
+            val result = useCase()
+            assertTrue(result.isEmpty())
+        }
+
+    @Test
+    fun `card that becomes due after time passes is included on the next call`() =
+        runTest {
+            val learningCard = card(cardState = CardState.LEARNING, nextReviewDate = now + 60_000L)
+            val later = now + 60_000L
+            coEvery {
+                repository.getCardsRepetition(currentTime = now, todayStart = todayStart)
+            } returns emptyList()
+            coEvery {
+                repository.getCardsRepetition(currentTime = later, todayStart = todayStart)
+            } returns listOf(learningCard)
+            coEvery { repository.getLearnAheadCard(any()) } returns null
+
+            assertTrue(useCase().isEmpty())
+            clock.now = later
+
+            assertEquals(listOf(learningCard), useCase())
+        }
+
+    @Test
+    fun `empty queue falls back to learn-ahead card within the window`() =
+        runTest {
+            val learningCard =
+                card(
+                    cardState = CardState.LEARNING,
+                    nextReviewDate = now + GetCardsRepetitionUseCase.LEARN_AHEAD_MILLIS,
+                )
+            setupRepository(emptyList())
+            coEvery {
+                repository.getLearnAheadCard(now + GetCardsRepetitionUseCase.LEARN_AHEAD_MILLIS)
+            } returns learningCard
+
+            assertEquals(listOf(learningCard), useCase())
+        }
+
+    @Test
+    fun `empty queue and no learn-ahead card returns empty session`() =
+        runTest {
+            setupRepository(emptyList())
+
+            assertTrue(useCase().isEmpty())
+        }
+
+    @Test
+    fun `learn-ahead is not queried when the queue is not empty`() =
+        runTest {
+            setupRepository(listOf(card(cardState = CardState.LEARNING, nextReviewDate = null)))
+
+            useCase()
+
+            coVerify(exactly = 0) { repository.getLearnAheadCard(any()) }
         }
 }
