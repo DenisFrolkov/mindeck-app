@@ -13,7 +13,7 @@
 - `feature` не знает про `data`. Граф собирается только в `app`.
 
 **Ответственность модулей:**
-- `domain` — модели, интерфейсы репозиториев, use cases (чистый Kotlin, только coroutines).
+- `domain` — модели, интерфейсы репозиториев, use cases (чистый Kotlin: только coroutines и `kotlinx-datetime`).
 - `data` — Room (DAO, БД), реализации репозиториев, Koin-модули данных.
 - `core:mvi` — базовые контракты MVI (`Store`, `BaseViewModel`).
 - `core:ui` — дизайн-система (Compose): тема, кнопки, общие компоненты. Без `domain`.
@@ -22,9 +22,9 @@
 
 **DI (Koin):** каждый модуль отдаёт свой Koin-модуль (`dataModule`, `commonDataModule`, `homeModule`, `cardModule`). Регистрируются в `initKoin` **и для Android (`KoinAndroid.kt`), и для iOS (`KoinIos.kt`)**. ⚠️ Новый feature-модуль дописывать в оба `initKoin`, иначе на старте белый экран.
 
-**Навигация (Decompose):** `RootComponent` владеет `StackNavigation<Config>`; `Config` (sealed) — список экранов, `Child` (sealed) держит ViewModel. `createChild` достаёт VM через Koin `get<>()` и привязывает `lifecycle.doOnDestroy(vm::clear)`. Единый `Scaffold` в `Navigation.kt` владеет FAB и `SnackbarHost`. Feature отдаёт `NavigationEvent`, `app` маппит его в `Config`.
+**Навигация (Decompose):** `RootComponent` владеет `StackNavigation<Config>`; `Config` (sealed) — список экранов, `Child` (sealed) держит ViewModel. `createChild` достаёт VM через `context.instanceKeeper.getOrCreate { get<>() }`: VM переживает поворот экрана, а `onDestroy()` вызывается, когда экран уходит из стека. Состояние, которое должно пережить смерть процесса (черновик CreateCard), сохраняется через `context.stateKeeper` (`consume` + `register` с serializer'ом). Единый `Scaffold` в `Navigation.kt` владеет FAB и `SnackbarHost`. Feature отдаёт `NavigationEvent`, `app` маппит его в `Config`.
 
-**MVI:** `Store<State, Intent, Effect>` (`state: StateFlow`, `effects: Flow`, `accept(intent)`); `BaseViewModel` c `viewModelScope`, `updateState { }`, `sendEffect()`, `clear()`. Экран — stateless: `Screen(state, onIntent, onNavigate, contentPadding)`. VM живёт в `Child`, состояние и колбэки прокидываются вниз (state hoisting).
+**MVI:** `Store<State, Intent, Effect>` (`state: StateFlow`, `effects: Flow`, `accept(intent)`); `BaseViewModel(initialState, dispatcher)` реализует `InstanceKeeper.Instance`: `viewModelScope`, `currentState`, `updateState { }`, `sendEffect()`, `onDestroy()`. Экран — stateless: `Screen(state, onIntent, onNavigate, contentPadding)`. VM живёт в `Child`, состояние и колбэки прокидываются вниз (state hoisting).
 
 ---
 
@@ -36,7 +36,7 @@
 - `State` — иммутабельный `data class`; `Intent` — `sealed interface`; навигация наружу — отдельный `NavigationEvent` (`sealed`).
 - One-shot события (snackbar, результат операции) — через `Effect` (`sealed`, `sendEffect()`), **не через State**. В State допускается только флаг процесса (`isSubmitting`), не факт «успех/ошибка» (залипнет при рекомпозиции). VM без эффектов — `Effect = Nothing`.
 - ViewModel наследует `BaseViewModel<State, Intent, Effect>`, меняет состояние только через `updateState { }`, не хранит Compose-типов.
-- Composable-экран **stateless**: сигнатура `Screen(state, onIntent, onNavigate, contentPadding)`. Эффекты собираются через `ObserveEffects` (`core:ui`); маппинг эффекта в UI (текст/навигация) — в экране. Никакой бизнес-логики и обращений к репозиториям в Composable — только отрисовка и проброс intent'ов (state hoisting).
+- Composable-экран **stateless**: сигнатура `Screen(state, onIntent, onNavigate, contentPadding)`. Экран с Effect дополнительно принимает `effects: Flow<Effect>` и, если показывает snackbar, `snackbarHostState` из общего `Scaffold` (см. `CreateCardScreen`). Эффекты собираются через `ObserveEffects` (`core:ui`); маппинг эффекта в UI (текст/навигация) — в экране. Никакой бизнес-логики и обращений к репозиториям в Composable — только отрисовка и проброс intent'ов (state hoisting).
 
 **Именование:**
 - Composable — `PascalCase` (ktlint это разрешает через `.editorconfig`); экран — суффикс `Screen`, ViewModel — `ViewModel`, событие навигации — `NavigationEvent`.
@@ -59,7 +59,7 @@
 **Compose:**
 - UI-компоненты общего назначения держать в `core:ui`, не дублировать в feature.
 
-**DI:** зависимости — только через конструктор (Koin), без сервис-локатора внутри классов (исключение — `RootComponent`, где VM достаётся через `get<>()`).
+**DI:** зависимости — только через конструктор (Koin), без сервис-локатора внутри классов (исключение — `RootComponent`, где VM достаётся через `instanceKeeper.getOrCreate { get<>() }`).
 
 ---
 
@@ -84,7 +84,7 @@
 
 - Никакого `GlobalScope`. Запуск только в скоупе с понятным жизненным циклом (`viewModelScope`, корутины Decompose-компонента); параллелизм внутри — через `coroutineScope { }`/`supervisorScope { }`.
 - `suspend`-функции делать main-safe: переключение потока (`withContext(Dispatchers.IO/Default)`) — внутри функции, а не на стороне вызывающего.
-- Dispatcher'ы инжектить (конструктор), не хардкодить — иначе не тестируется.
+- Dispatcher'ы инжектить (конструктор), не хардкодить — иначе не тестируется. В проекте для этого есть `AppDispatchers` (`domain`, реализация `SystemAppDispatchers` в `commonDataModule`); ViewModel передаёт `dispatchers.main` в `BaseViewModel`.
 - `suspend`-функция должна завершать всю свою работу к моменту возврата (не оставлять «висящих» корутин). Отмену уважать: не глотать `CancellationException`.
 - В `domain` — только `suspend`/`Flow` из coroutines, без платформенных API.
 - Ориентир: <https://kotlinlang.org/docs/coding-conventions.html#coroutines>
@@ -123,7 +123,7 @@
 
 ## Команды и сборка
 
-Таргеты: Android + iOS (`iosArm64`, `iosSimulatorArm64`). `appId` = `com.mindeck.app` (debug — суффикс `.debug`).
+Таргеты: Android + iOS (`iosArm64`, `iosSimulatorArm64`; в `domain` и `data` ещё объявлен `iosX64`), у `domain` есть `jvm`. `appId` = `com.mindeck.app` (debug — суффикс `.debug`).
 
 **Android:**
 - Debug APK: `./gradlew :androidApp:assembleDebug`
@@ -137,6 +137,7 @@
 - Все таргеты сразу: `./gradlew allTests` (или `./gradlew test`).
 - JVM: `./gradlew :domain:jvmTest`, iOS-симулятор: `./gradlew :domain:iosSimulatorArm64Test`.
 - Модульно по аналогии: `:data:…`, и т.д.
+- Как в CI (`.github/workflows/ci.yml`): `./gradlew spotlessCheck assembleDebug testDebugUnitTest testAndroidHostTest jvmTest` и `./gradlew :app:linkDebugFrameworkIosSimulatorArm64`. Перед PR гонять то же самое.
 
 **Форматирование:**
 - Применить: `./gradlew spotlessApply`; проверить: `./gradlew spotlessCheck` (ktlint 1.5.0).
@@ -148,12 +149,12 @@
 
 ## Git и процесс
 
-- Источник правил — **`CONTRIBUTING.md`** (GitHub Flow + Conventional Commits). Следовать ему.
+- Источник правил — **`CONTRIBUTING.md`** (GitHub Flow + Conventional Commits + squash merge). Следовать ему.
+- Squash merge: в `develop` попадает только заголовок PR, поэтому он пишется по формату коммита (`<type>(<scope>): <description>`, ≤72 символов).
 - Ветки: `<type>/<issue-id>/<short-description>` (англ., lowercase, 2–4 слова через дефис). Issue создаётся **до** ветки.
-- Коммиты: `<type>(<scope>): <description>` — lowercase, без точки в конце. `scope` — модуль/фича: `domain`, `data`, `card`, `home`, `core-ui`, `navigation`.
+- Коммиты: `<type>(<scope>): <description>` — lowercase, без точки в конце. `scope` — модуль/фича: `domain`, `data`, `home`, `card`, `core-ui`, `core-mvi`, `navigation`, `app` (можно опустить, если задача не про один модуль).
 - В `develop` напрямую не коммитить — только ветка + PR. Если работа идёт на `develop`, сначала создать ветку.
 - **Коммитить и пушить только по явной просьбе.** Сам по себе не коммитить.
-- **Не добавлять `Co-Authored-By: Claude`** и любые подписи Claude в коммиты и тела PR.
 - Перед коммитом прогонять `./gradlew spotlessApply`.
 
 ---
