@@ -6,6 +6,8 @@ import com.mindeck.domain.repository.DeckRepository
 import com.mindeck.domain.time.FixedTimeProvider
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.TimeZone
@@ -19,7 +21,8 @@ class GetDecksWithStatsUseCaseTest {
     private val todayStart = Instant.parse("2026-03-09T21:00:00Z").toEpochMilliseconds()
 
     private val repository = mockk<DeckRepository>()
-    private val useCase = GetDecksWithStatsUseCase(repository, FixedTimeProvider(currentTime, moscow))
+    private val clock = FixedTimeProvider(currentTime, moscow)
+    private val useCase = GetDecksWithStatsUseCase(repository, clock)
 
     @Test
     fun `asks the repository for stats with the start of the current local day`() =
@@ -29,9 +32,30 @@ class GetDecksWithStatsUseCaseTest {
                 repository.getCardStatsPerDeck(currentTime = currentTime, todayStart = todayStart)
             } returns flowOf(stats)
 
-            useCase(currentTime).test {
+            useCase().test {
                 assertEquals(stats, awaitItem())
                 awaitComplete()
+            }
+        }
+
+    @Test
+    fun `reads the clock on every collection`() =
+        runTest {
+            val beforeMidnight = Instant.parse("2026-03-09T20:30:00Z").toEpochMilliseconds()
+            val previousDayStart = Instant.parse("2026-03-08T21:00:00Z").toEpochMilliseconds()
+            every { repository.getCardStatsPerDeck(any(), any()) } returns flowOf(emptyList())
+            val stats = useCase()
+
+            clock.now = beforeMidnight
+            stats.first()
+            clock.now = currentTime
+            stats.first()
+
+            verify(exactly = 1) {
+                repository.getCardStatsPerDeck(currentTime = beforeMidnight, todayStart = previousDayStart)
+            }
+            verify(exactly = 1) {
+                repository.getCardStatsPerDeck(currentTime = currentTime, todayStart = todayStart)
             }
         }
 }
