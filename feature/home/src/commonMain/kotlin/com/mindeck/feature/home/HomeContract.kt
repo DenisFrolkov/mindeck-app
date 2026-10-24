@@ -22,7 +22,7 @@ val HomeUiState.showsAddFab: Boolean
     get() = this is HomeUiState.Content
 
 sealed interface HomeIntent {
-    data object Retry : HomeIntent
+    data object Refresh : HomeIntent
 }
 
 sealed interface HomeNavigationEvent {

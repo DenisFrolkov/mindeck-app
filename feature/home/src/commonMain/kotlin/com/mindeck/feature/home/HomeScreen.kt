@@ -63,7 +63,7 @@ fun HomeScreen(
             is HomeUiState.Error ->
                 HomeError(
                     message = state.message,
-                    onRetry = { onIntent(HomeIntent.Retry) },
+                    onRetry = { onIntent(HomeIntent.Refresh) },
                     modifier = Modifier.weight(1f),
                 )
 

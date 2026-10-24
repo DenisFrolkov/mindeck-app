@@ -8,11 +8,13 @@ import com.arkivanov.decompose.router.stack.pop
 import com.arkivanov.decompose.router.stack.pushNew
 import com.arkivanov.decompose.value.Value
 import com.arkivanov.essenty.instancekeeper.getOrCreate
+import com.arkivanov.essenty.lifecycle.doOnResume
 import com.mindeck.feature.card.createCard.CreateCardDraft
 import com.mindeck.feature.card.createCard.CreateCardState
 import com.mindeck.feature.card.createCard.CreateCardViewModel
 import com.mindeck.feature.card.createCard.toDraft
 import com.mindeck.feature.card.createCard.toState
+import com.mindeck.feature.home.HomeIntent
 import com.mindeck.feature.home.HomeViewModel
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
@@ -44,6 +46,7 @@ class RootComponent(
         when (config) {
             is Config.Home -> {
                 val viewModel = context.instanceKeeper.getOrCreate { get<HomeViewModel>() }
+                context.lifecycle.doOnResume { viewModel.accept(HomeIntent.Refresh) }
                 Child.Home(viewModel)
             }
             is Config.CreateCard -> {

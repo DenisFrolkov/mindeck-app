@@ -6,7 +6,6 @@ final class RootHolder: ObservableObject {
     let component = IosApplicationComponent()
 
     deinit {
-        component.onStop()
         component.onDestroy()
     }
 }
