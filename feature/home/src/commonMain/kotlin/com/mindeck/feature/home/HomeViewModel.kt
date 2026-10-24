@@ -47,15 +47,21 @@ class HomeViewModel(
                 dueCount = sumOf { it.newCount + it.newReviewCount + it.reviewCount },
             )
         return HomeUiState.Content(
-            dailyReview =
-                DailyReviewUi.Pending(
-                    totalCount = progress.totalCount,
-                    reviewedCount = progress.reviewedCount,
-                    newCount = sumOf { it.newCount },
-                    newReviewCount = sumOf { it.newReviewCount },
-                    reviewCount = sumOf { it.reviewCount },
-                ),
+            dailyReview = toDailyReviewUi(progress),
             decks = map { it.toUi() },
         )
     }
+
+    private fun List<DeckWithStats>.toDailyReviewUi(progress: DailyProgress): DailyReviewUi =
+        if (progress.isCompleted) {
+            DailyReviewUi.Completed
+        } else {
+            DailyReviewUi.Pending(
+                totalCount = progress.totalCount,
+                reviewedCount = progress.reviewedCount,
+                newCount = sumOf { it.newCount },
+                newReviewCount = sumOf { it.newReviewCount },
+                reviewCount = sumOf { it.reviewCount },
+            )
+        }
 }

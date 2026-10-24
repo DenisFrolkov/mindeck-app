@@ -5,4 +5,6 @@ data class DailyProgress(
     val dueCount: Int,
 ) {
     val totalCount: Int get() = reviewedCount + dueCount
+
+    val isCompleted: Boolean get() = reviewedCount > 0 && dueCount == 0
 }
