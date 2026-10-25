@@ -1,6 +1,10 @@
 package com.mindeck.feature.card.model
 
 sealed interface DeckPickState {
+    data object Loading : DeckPickState
+
+    data object LoadFailed : DeckPickState
+
     data object NoDecks : DeckPickState
 
     data class NotSelected(

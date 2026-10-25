@@ -4,12 +4,13 @@ import com.mindeck.domain.models.DeckColor
 import com.mindeck.feature.card.model.CardType
 import com.mindeck.feature.card.model.DeckItem
 import com.mindeck.feature.card.model.DeckPickState
+import com.mindeck.feature.card.model.DecksLoad
 import com.mindeck.feature.card.model.DraftImage
 import com.mindeck.feature.card.model.MediaSheet
 import com.mindeck.feature.card.model.TextFormat
 
 data class CreateCardState(
-    val decks: List<DeckItem> = emptyList(),
+    val decks: DecksLoad = DecksLoad.Loading,
     val pickedDeck: DeckItem? = null,
     val selectedType: CardType = CardType.SIMPLE,
     val question: String = "",
@@ -26,16 +27,31 @@ data class CreateCardState(
     val cameraSessionId: Int = 0,
     val linkDraft: String = "",
 ) {
+    val loadedDecks: List<DeckItem>
+        get() = (decks as? DecksLoad.Loaded)?.decks.orEmpty()
+
     val deckPick: DeckPickState
         get() =
-            when {
-                decks.isEmpty() -> DeckPickState.NoDecks
-                pickedDeck == null -> DeckPickState.NotSelected(decks = decks)
-                else -> DeckPickState.Selected(decks = decks, deck = pickedDeck)
+            when (decks) {
+                DecksLoad.Loading -> DeckPickState.Loading
+                DecksLoad.Failed -> DeckPickState.LoadFailed
+                is DecksLoad.Loaded -> pickFrom(decks.decks)
             }
 
+    private fun pickFrom(decks: List<DeckItem>): DeckPickState =
+        when {
+            decks.isEmpty() -> DeckPickState.NoDecks
+            pickedDeck == null -> DeckPickState.NotSelected(decks = decks)
+            else -> DeckPickState.Selected(decks = decks, deck = pickedDeck)
+        }
+
     val canSubmit: Boolean
-        get() = !isSubmitting && pickedDeck != null && question.isNotBlank() && answer.isNotBlank()
+        get() =
+            !isSubmitting &&
+                decks is DecksLoad.Loaded &&
+                pickedDeck != null &&
+                question.isNotBlank() &&
+                answer.isNotBlank()
 }
 
 sealed interface CreateCardIntent {
@@ -108,6 +124,8 @@ sealed interface CreateCardIntent {
     ) : CreateCardIntent
 
     data object ExpandDeckPicker : CreateCardIntent
+
+    data object RetryLoadDecks : CreateCardIntent
 
     data object ClearDeck : CreateCardIntent
 
