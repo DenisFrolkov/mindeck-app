@@ -1,6 +1,7 @@
 package com.mindeck.feature.card.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,6 +37,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
+import com.mindeck.core.ui.button.AppButton
+import com.mindeck.core.ui.button.appButtonColors
 import com.mindeck.core.ui.format.deckCoverInitial
 import com.mindeck.core.ui.spacer.HorizontalSpacer
 import com.mindeck.core.ui.spacer.VerticalSpacer
@@ -48,14 +51,19 @@ import mindeck_app.core.ui.generated.resources.action_add
 import mindeck_app.core.ui.generated.resources.add_icon
 import mindeck_app.core.ui.generated.resources.check_icon
 import mindeck_app.core.ui.generated.resources.chevron_right_icon
+import mindeck_app.core.ui.generated.resources.error_icon
 import mindeck_app.core.ui.generated.resources.library_add_icon
+import mindeck_app.core.ui.generated.resources.refresh_icon
 import mindeck_app.core.ui.generated.resources.search_icon
 import mindeck_app.core.ui.generated.resources.stat_minus_icon
 import mindeck_app.core.ui.generated.resources.style_icon
 import mindeck_app.feature.card.generated.resources.create_card_deck_add
 import mindeck_app.feature.card.generated.resources.create_card_deck_clear
 import mindeck_app.feature.card.generated.resources.create_card_deck_create
+import mindeck_app.feature.card.generated.resources.create_card_deck_load_failed_message
+import mindeck_app.feature.card.generated.resources.create_card_deck_load_failed_title
 import mindeck_app.feature.card.generated.resources.create_card_deck_pick
+import mindeck_app.feature.card.generated.resources.create_card_deck_retry
 import mindeck_app.feature.card.generated.resources.create_card_deck_search
 import mindeck_app.feature.card.generated.resources.create_card_section_deck
 import org.jetbrains.compose.resources.painterResource
@@ -70,6 +78,7 @@ internal fun DeckSection(
     onClear: () -> Unit,
     onCreateDeck: () -> Unit,
     onExpand: () -> Unit,
+    onRetry: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val dashedBorderColor = MaterialTheme.colorScheme.outline
@@ -77,6 +86,8 @@ internal fun DeckSection(
     val dashedStrokeWidth = MindeckTheme.dimensions.borderThick
     val dashLengthWidth = MindeckTheme.dimensions.dash2
     val dashGapWidth = MindeckTheme.dimensions.dash2
+
+    val errorBorderColor = MaterialTheme.colorScheme.error
 
     Column(modifier = modifier) {
         Text(
@@ -88,27 +99,35 @@ internal fun DeckSection(
         Card(
             modifier =
                 Modifier.fillMaxWidth().then(
-                    if (state == DeckPickState.NoDecks) {
-                        Modifier.drawBehind {
-                            drawRoundRect(
-                                color = dashedBorderColor,
-                                cornerRadius = CornerRadius(dashedCornerRadius.toPx()),
-                                style =
-                                    Stroke(
-                                        width = dashedStrokeWidth.toPx(),
-                                        pathEffect =
-                                            PathEffect.dashPathEffect(
-                                                floatArrayOf(
-                                                    dashLengthWidth.toPx(),
-                                                    dashGapWidth.toPx(),
-                                                ),
-                                                0f,
-                                            ),
-                                    ),
+                    when (state) {
+                        DeckPickState.LoadFailed ->
+                            Modifier.border(
+                                width = MindeckTheme.dimensions.borderThick,
+                                color = errorBorderColor,
+                                shape = MindeckTheme.shapes.avatar,
                             )
-                        }
-                    } else {
-                        Modifier
+
+                        DeckPickState.NoDecks ->
+                            Modifier.drawBehind {
+                                drawRoundRect(
+                                    color = dashedBorderColor,
+                                    cornerRadius = CornerRadius(dashedCornerRadius.toPx()),
+                                    style =
+                                        Stroke(
+                                            width = dashedStrokeWidth.toPx(),
+                                            pathEffect =
+                                                PathEffect.dashPathEffect(
+                                                    floatArrayOf(
+                                                        dashLengthWidth.toPx(),
+                                                        dashGapWidth.toPx(),
+                                                    ),
+                                                    0f,
+                                                ),
+                                        ),
+                                )
+                            }
+
+                        else -> Modifier
                     },
                 ),
             shape = MindeckTheme.shapes.avatar,
@@ -118,6 +137,10 @@ internal fun DeckSection(
                 ),
         ) {
             when (state) {
+                DeckPickState.Loading -> PickCollapsed(onClick = onExpand, enabled = false)
+
+                DeckPickState.LoadFailed -> LoadFailedContent(onRetry = onRetry)
+
                 DeckPickState.NoDecks -> NoDecksContent(onCreateDeck = onCreateDeck)
 
                 is DeckPickState.NotSelected ->
@@ -262,12 +285,61 @@ private fun SelectedDeck(
 }
 
 @Composable
-private fun PickCollapsed(onClick: () -> Unit) {
+private fun LoadFailedContent(onRetry: () -> Unit) {
+    Column(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(MindeckTheme.dimensions.spacingLg),
+        verticalArrangement = Arrangement.spacedBy(MindeckTheme.dimensions.spacingLg),
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(MindeckTheme.dimensions.spacingMd),
+        ) {
+            Icon(
+                painter = painterResource(Res.drawable.error_icon),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.error,
+                modifier = Modifier.size(MindeckTheme.dimensions.iconMd),
+            )
+            Column(
+                verticalArrangement = Arrangement.spacedBy(MindeckTheme.dimensions.spacingXs),
+            ) {
+                Text(
+                    text = stringResource(CreateCardRes.string.create_card_deck_load_failed_title),
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+                Text(
+                    text = stringResource(CreateCardRes.string.create_card_deck_load_failed_message),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+        AppButton(
+            onAction = onRetry,
+            buttonText = stringResource(CreateCardRes.string.create_card_deck_retry),
+            buttonIcon = Res.drawable.refresh_icon,
+            colors =
+                appButtonColors(
+                    container = MaterialTheme.colorScheme.secondaryContainer,
+                    content = MaterialTheme.colorScheme.onSecondaryContainer,
+                ),
+        )
+    }
+}
+
+@Composable
+private fun PickCollapsed(
+    onClick: () -> Unit,
+    enabled: Boolean = true,
+) {
     Row(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .clickable(onClick = onClick)
+                .clickable(enabled = enabled, onClick = onClick)
                 .padding(
                     horizontal = MindeckTheme.dimensions.spacingLg,
                     vertical = MindeckTheme.dimensions.spacingMd,
