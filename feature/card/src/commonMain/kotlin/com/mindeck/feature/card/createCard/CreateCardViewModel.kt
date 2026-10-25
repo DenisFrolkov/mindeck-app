@@ -11,6 +11,7 @@ import com.mindeck.domain.usecases.deck.command.CreateDeckUseCase
 import com.mindeck.domain.usecases.deck.query.GetAllDecksUseCase
 import com.mindeck.domain.usecases.media.DownloadImageUseCase
 import com.mindeck.domain.usecases.media.SaveImageUseCase
+import com.mindeck.feature.card.model.DecksLoad
 import com.mindeck.feature.card.model.MediaSheet
 import com.mindeck.feature.card.model.draftImageFromBytes
 import kotlinx.coroutines.Job
@@ -29,6 +30,7 @@ class CreateCardViewModel(
     initialState: CreateCardState = CreateCardState(),
 ) : BaseViewModel<CreateCardState, CreateCardIntent, CreateCardEffect>(initialState, dispatchers.main) {
     private var downloadImageJob: Job? = null
+    private var decksJob: Job? = null
 
     override fun accept(intent: CreateCardIntent) {
         when (intent) {
@@ -46,13 +48,15 @@ class CreateCardViewModel(
             is CreateCardIntent.PickDeck ->
                 updateState { state ->
                     state.copy(
-                        pickedDeck = state.decks.find { it.id == intent.deckId },
+                        pickedDeck = state.loadedDecks.find { it.id == intent.deckId },
                         isDeckPickerExpanded = false,
                     )
                 }
 
             CreateCardIntent.ExpandDeckPicker ->
                 updateState { it.copy(isDeckPickerExpanded = true) }
+
+            CreateCardIntent.RetryLoadDecks -> observeDecks()
 
             is CreateCardIntent.SelectType ->
                 updateState { it.copy(selectedType = intent.type) }
@@ -133,11 +137,25 @@ class CreateCardViewModel(
         observeDecks()
     }
 
-    private fun observeDecks() =
-        getAllDecksUseCase()
-            .onEach { decks -> updateState { it.copy(decks = decks.map { deck -> deck.toUi() }) } }
-            .catch { updateState { it.copy(decks = emptyList()) } }
-            .launchIn(viewModelScope)
+    private fun observeDecks() {
+        decksJob?.cancel()
+        updateState { it.copy(decks = DecksLoad.Loading) }
+        decksJob =
+            getAllDecksUseCase()
+                .onEach { decks -> updateState { it.copy(decks = DecksLoad.Loaded(decks.map { deck -> deck.toUi() })) } }
+                .catch { failDecksLoad() }
+                .launchIn(viewModelScope)
+    }
+
+    private fun failDecksLoad() =
+        updateState {
+            it.copy(
+                decks = DecksLoad.Failed,
+                pickedDeck = null,
+                isDeckPickerExpanded = false,
+                isNewDeckDialogVisible = false,
+            )
+        }
 
     private fun createDeck(
         name: String,

@@ -18,6 +18,9 @@
     <string name="create_card_deck_create_failed">Не удалось создать колоду</string>
     <string name="create_card_deck_clear">Убрать колоду</string>
     <string name="create_card_deck_search">Поиск колоды</string>
+    <string name="create_card_deck_load_failed_title">Не удалось загрузить колоды</string>
+    <string name="create_card_deck_load_failed_message">Ошибка чтения данных на устройстве. Ваши карточки не удалены.</string>
+    <string name="create_card_deck_retry">Повторить</string>
     <string name="create_card_section_type">ТИП</string>
     <string name="create_card_section_photo">ФОТО</string>
     <string name="create_card_section_question">ВОПРОС</string>

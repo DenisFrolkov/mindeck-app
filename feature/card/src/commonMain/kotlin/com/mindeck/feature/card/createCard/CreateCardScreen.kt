@@ -159,6 +159,7 @@ fun CreateCardScreen(
                         onClear = { onIntent(CreateCardIntent.ClearDeck) },
                         onCreateDeck = { onIntent(CreateCardIntent.ShowNewDeckDialog) },
                         onExpand = { onIntent(CreateCardIntent.ExpandDeckPicker) },
+                        onRetry = { onIntent(CreateCardIntent.RetryLoadDecks) },
                     ),
                 type =
                     CardTypeFieldState(
@@ -271,6 +272,7 @@ private fun CreateCardForm(
             onClear = deck.onClear,
             onCreateDeck = deck.onCreateDeck,
             onExpand = deck.onExpand,
+            onRetry = deck.onRetry,
         )
         CardTypeSection(
             selectedType = type.selectedType,

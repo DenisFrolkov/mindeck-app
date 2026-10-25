@@ -7,6 +7,7 @@ data class DeckFieldState(
     val onClear: () -> Unit,
     val onCreateDeck: () -> Unit,
     val onExpand: () -> Unit,
+    val onRetry: () -> Unit,
 )
 
 data class CardTypeFieldState(

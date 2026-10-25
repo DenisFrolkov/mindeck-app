@@ -18,6 +18,9 @@
     <string name="create_card_deck_create_failed">Could not create the deck</string>
     <string name="create_card_deck_clear">Remove deck</string>
     <string name="create_card_deck_search">Search deck</string>
+    <string name="create_card_deck_load_failed_title">Could not load decks</string>
+    <string name="create_card_deck_load_failed_message">Could not read data on the device. Your cards were not deleted.</string>
+    <string name="create_card_deck_retry">Retry</string>
     <string name="create_card_section_type">TYPE</string>
     <string name="create_card_section_photo">PHOTO</string>
     <string name="create_card_section_question">QUESTION</string>
